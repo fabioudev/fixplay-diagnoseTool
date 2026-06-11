@@ -1,0 +1,10 @@
+[package]
+name    = "fixplay-ch341"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fixplay-core = { path = "../fixplay-core" }
+rusb         = "0.9"
+thiserror    = { workspace = true }
+tracing      = { workspace = true }
