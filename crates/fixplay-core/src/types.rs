@@ -47,6 +47,16 @@ pub struct UartMessage {
     pub raw:       String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ErrlogEntry {
+    pub error_code:   u32,
+    pub timestamp:    u32,
+    pub power_states: u32,
+    pub up_cause:     u32,
+    pub temp_soc:     f32,
+    pub raw_fields:   [String; 4],
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

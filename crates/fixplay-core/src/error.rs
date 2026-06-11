@@ -28,6 +28,8 @@ pub enum UartError {
     Serial(String),
     #[error("not connected")]
     NotConnected,
+    #[error("database fetch error: {0}")]
+    DbFetch(String),
 }
 
 #[cfg(test)]
