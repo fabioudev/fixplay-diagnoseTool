@@ -200,3 +200,170 @@ fn archive_dump(
 
     Ok(base.to_string_lossy().to_string())
 }
+
+#[derive(serde::Serialize, Clone, Debug)]
+pub struct DumpEntry {
+    pub bin_path:      String,
+    pub timestamp:     u64,
+    pub size_bytes:    usize,
+    pub validation_ok: bool,
+    pub fw_version:    Option<String>,
+    pub serial:        String,
+}
+
+#[derive(serde::Serialize, Clone, Debug)]
+pub struct SerialArchive {
+    pub serial: String,
+    pub dumps:  Vec<DumpEntry>,
+}
+
+#[derive(serde::Deserialize)]
+struct MetaFile {
+    timestamp:  u64,
+    nvs:        Option<fixplay_core::types::NvsData>,
+    validation: fixplay_core::types::NorValidation,
+    size_bytes: usize,
+}
+
+fn list_dumps_from_dir(dumps_dir: &std::path::Path) -> Vec<SerialArchive> {
+    if !dumps_dir.exists() {
+        return vec![];
+    }
+    let mut result: Vec<SerialArchive> = vec![];
+    let Ok(serial_dirs) = std::fs::read_dir(dumps_dir) else { return vec![] };
+
+    for entry in serial_dirs.flatten() {
+        let path = entry.path();
+        if !path.is_dir() { continue; }
+        let serial = path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("unknown")
+            .to_string();
+
+        let mut dumps: Vec<DumpEntry> = vec![];
+        let Ok(json_files) = std::fs::read_dir(&path) else { continue };
+
+        for jentry in json_files.flatten() {
+            let jpath = jentry.path();
+            if jpath.extension().and_then(|e| e.to_str()) != Some("json") { continue; }
+            let bin_path = jpath.with_extension("bin");
+            if !bin_path.exists() { continue; }
+            let Ok(json_str) = std::fs::read_to_string(&jpath) else { continue };
+            let Ok(meta) = serde_json::from_str::<MetaFile>(&json_str) else { continue };
+
+            dumps.push(DumpEntry {
+                bin_path:      bin_path.to_string_lossy().to_string(),
+                timestamp:     meta.timestamp,
+                size_bytes:    meta.size_bytes,
+                validation_ok: meta.validation.is_valid(),
+                fw_version:    meta.nvs.as_ref().map(|n| n.fw_version.clone()),
+                serial:        serial.clone(),
+            });
+        }
+
+        dumps.sort_by_key(|d| std::cmp::Reverse(d.timestamp));
+        if !dumps.is_empty() {
+            result.push(SerialArchive { serial, dumps });
+        }
+    }
+
+    result.sort_by(|a, b| a.serial.cmp(&b.serial));
+    result
+}
+
+fn delete_dump_files(bin_path: &str) -> Result<(), String> {
+    let bin = std::path::Path::new(bin_path);
+    if !bin.exists() {
+        return Err(format!("file not found: {}", bin_path));
+    }
+    std::fs::remove_file(bin).map_err(|e| e.to_string())?;
+    let json = bin.with_extension("json");
+    if json.exists() {
+        std::fs::remove_file(json).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn archive_list_dumps(app: AppHandle) -> Result<Vec<SerialArchive>, String> {
+    let dumps_dir = app.path().app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("dumps");
+    Ok(list_dumps_from_dir(&dumps_dir))
+}
+
+#[tauri::command]
+pub fn archive_delete_dump(bin_path: String) -> Result<(), String> {
+    delete_dump_files(&bin_path)
+}
+
+#[cfg(test)]
+mod archive_tests {
+    use super::*;
+
+    #[test]
+    fn delete_dump_missing_file_returns_err() {
+        let result = delete_dump_files("/tmp/fixplay_nonexistent_12345.bin");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("file not found"));
+    }
+
+    #[test]
+    fn delete_dump_removes_bin_and_json() {
+        let dir = std::env::temp_dir();
+        let bin  = dir.join("fixplay_test_del.bin");
+        let json = dir.join("fixplay_test_del.json");
+        std::fs::write(&bin,  b"data").unwrap();
+        std::fs::write(&json, b"{}").unwrap();
+        assert!(delete_dump_files(bin.to_str().unwrap()).is_ok());
+        assert!(!bin.exists());
+        assert!(!json.exists());
+    }
+
+    #[test]
+    fn list_dumps_from_empty_dir_returns_empty() {
+        let dir = std::env::temp_dir().join("fixplay_test_empty_archive");
+        std::fs::create_dir_all(&dir).unwrap();
+        let result = list_dumps_from_dir(&dir);
+        assert!(result.is_empty());
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn list_dumps_from_dir_parses_metadata() {
+        let dir        = std::env::temp_dir().join("fixplay_test_archive");
+        let serial_dir = dir.join("AE12345678");
+        std::fs::create_dir_all(&serial_dir).unwrap();
+
+        let meta_json = r#"{
+            "timestamp": 1718100000,
+            "nvs": {
+                "serial":       "AE12345678",
+                "mac_address":  "AA:BB:CC:DD:EE:FF",
+                "sku":          "CFI-1115A",
+                "board_id":     "DIA-001",
+                "console_type": 0,
+                "fw_version":   "02.50.00.01"
+            },
+            "validation": {
+                "size_ok": true, "header_ok": true, "mbr1_ok": true, "mbr2_ok": true,
+                "emc_ipl_a_ok": true, "emc_ipl_b_ok": true,
+                "usb_pdc_a_ok": true, "usb_pdc_b_ok": true
+            },
+            "size_bytes": 2097152
+        }"#;
+
+        std::fs::write(serial_dir.join("nor_1718100000.bin"),  b"dummy").unwrap();
+        std::fs::write(serial_dir.join("nor_1718100000.json"), meta_json).unwrap();
+
+        let archives = list_dumps_from_dir(&dir);
+        assert_eq!(archives.len(), 1);
+        assert_eq!(archives[0].serial, "AE12345678");
+        assert_eq!(archives[0].dumps.len(), 1);
+        assert!(archives[0].dumps[0].validation_ok);
+        assert_eq!(archives[0].dumps[0].fw_version, Some("02.50.00.01".to_string()));
+        assert_eq!(archives[0].dumps[0].timestamp, 1718100000);
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
+}
