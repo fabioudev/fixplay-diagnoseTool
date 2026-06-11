@@ -2,11 +2,26 @@ use fixplay_core::{
     error::{AppError, UartError},
     traits::UartDevice,
 };
+use serialport::SerialPort;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
 use tracing::info;
 
-#[derive(Default)]
 pub struct UartPort {
-    connected: bool,
+    pub connected:  bool,
+    write_port:     Arc<Mutex<Option<Box<dyn SerialPort + Send>>>>,
+    pub stop_flag:  Arc<AtomicBool>,
+}
+
+impl Default for UartPort {
+    fn default() -> Self {
+        Self {
+            connected:  false,
+            write_port: Arc::new(Mutex::new(None)),
+            stop_flag:  Arc::new(AtomicBool::new(false)),
+        }
+    }
 }
 
 impl UartPort {
@@ -16,15 +31,38 @@ impl UartPort {
             .map_err(|e| UartError::Serial(e.to_string()))?;
         Ok(ports.into_iter().map(|p| p.port_name).collect())
     }
+
+    pub fn set_port(&mut self, port: Box<dyn SerialPort + Send>) {
+        *self.write_port.lock().unwrap() = Some(port);
+        self.connected  = true;
+        self.stop_flag.store(false, Ordering::Relaxed);
+    }
+
+    pub fn write_line(&mut self, line: &str) -> Result<(), UartError> {
+        use std::io::Write;
+        let mut guard = self.write_port.lock().unwrap();
+        match guard.as_mut() {
+            Some(p) => p.write_all(line.as_bytes()).map_err(|e| UartError::Serial(e.to_string())),
+            None    => Err(UartError::NotConnected),
+        }
+    }
 }
 
 impl UartDevice for UartPort {
-    fn connect(&mut self, _port: &str, _baud_rate: u32) -> Result<(), AppError> {
-        Err(UartError::Serial("not yet implemented".into()).into())
+    fn connect(&mut self, port: &str, baud_rate: u32) -> Result<(), AppError> {
+        let p = serialport::new(port, baud_rate)
+            .timeout(Duration::from_millis(100))
+            .open()
+            .map_err(|e| UartError::Serial(e.to_string()))?;
+        let send_p = p.try_clone().map_err(|e| UartError::Serial(e.to_string()))?;
+        self.set_port(send_p);
+        Ok(())
     }
 
     fn disconnect(&mut self) -> Result<(), AppError> {
-        self.connected = false;
+        self.stop_flag.store(true, Ordering::Relaxed);
+        *self.write_port.lock().unwrap() = None;
+        self.connected  = false;
         Ok(())
     }
 
@@ -57,5 +95,25 @@ mod tests {
     fn read_line_when_disconnected_returns_err() {
         let port = UartPort::default();
         assert!(port.read_line().is_err());
+    }
+
+    #[test]
+    fn write_line_when_disconnected_returns_err() {
+        let mut port = UartPort::default();
+        assert!(port.write_line("test\r\n").is_err());
+    }
+
+    #[test]
+    fn stop_flag_default_is_false() {
+        let port = UartPort::default();
+        assert!(!port.stop_flag.load(Ordering::Relaxed));
+    }
+
+    #[test]
+    fn disconnect_sets_connected_false() {
+        let mut port = UartPort::default();
+        port.connected = true;
+        port.disconnect().unwrap();
+        assert!(!port.is_connected());
     }
 }
