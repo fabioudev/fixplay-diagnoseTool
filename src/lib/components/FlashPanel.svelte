@@ -282,7 +282,7 @@
             { label: 'USB PDC A',     ok: r.validation.usb_pdc_a_ok },
             { label: 'USB PDC B',     ok: r.validation.usb_pdc_b_ok },
             { label: 'Größe (2 MB)',  ok: r.validation.size_ok },
-          ] as item}
+          ] as item (item.label)}
             <div class="flex items-center gap-1">
               <span class="{item.ok ? 'text-green-400' : 'text-red-400'}">{item.ok ? '✓' : '✗'}</span>
               <span class="text-gray-300">{item.label}</span>
