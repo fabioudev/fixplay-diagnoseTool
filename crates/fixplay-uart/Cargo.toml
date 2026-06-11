@@ -1,0 +1,10 @@
+[package]
+name    = "fixplay-uart"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fixplay-core = { path = "../fixplay-core" }
+serialport   = "4"
+thiserror    = { workspace = true }
+tracing      = { workspace = true }
