@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/fixplay-core",
+    "crates/fixplay-ch341",
+    "crates/fixplay-uart",
+    "src-tauri",
+]
+
+[workspace.dependencies]
+serde       = { version = "1", features = ["derive"] }
+thiserror   = "1"
+tracing     = "0.1"
+tokio       = { version = "1", features = ["full"] }
+anyhow      = "1"
+serde_json  = "1"
