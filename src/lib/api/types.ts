@@ -24,3 +24,28 @@ export interface UartMessage {
   timestamp: number;
   raw: string;
 }
+
+export interface ErrlogEntry {
+  error_code: number;
+  timestamp: number;
+  power_states: number;
+  up_cause: number;
+  temp_soc: number;
+  raw_fields: [string, string, string, string];
+}
+
+export interface UartEntryEvent {
+  entry: ErrlogEntry;
+  description: string | null;
+}
+
+export interface UartLogEntry {
+  id: number;
+  timestamp_ms: number;
+  raw: string;
+  parsed?: UartEntryEvent;
+}
+
+export interface UartStatusEvent {
+  connected: boolean;
+}
