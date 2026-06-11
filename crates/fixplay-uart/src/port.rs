@@ -111,8 +111,11 @@ mod tests {
 
     #[test]
     fn disconnect_sets_connected_false() {
-        let mut port = UartPort::default();
-        port.connected = true;
+        let mut port = UartPort {
+            connected:  true,
+            write_port: Mutex::new(None),
+            stop_flag:  Arc::new(AtomicBool::new(false)),
+        };
         port.disconnect().unwrap();
         assert!(!port.is_connected());
     }
