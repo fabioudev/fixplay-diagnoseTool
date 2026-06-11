@@ -2,6 +2,7 @@ mod commands;
 mod state;
 
 use state::AppState;
+use tauri::Manager;
 
 pub fn run() {
     tracing_subscriber::fmt()
@@ -13,9 +14,30 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(AppState::default())
+        .setup(|app| {
+            let cache_path = app
+                .path()
+                .app_data_dir()?
+                .join("error_codes.json");
+            let state = app.state::<AppState>();
+            match fixplay_uart::ErrorDb::load(&cache_path) {
+                Ok(db) => {
+                    *state.error_db.lock().unwrap() = Some(db);
+                    tracing::info!("error DB loaded");
+                }
+                Err(e) => tracing::warn!("error DB load failed: {}", e),
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             commands::flash::scan_devices,
-            commands::uart::list_ports,
+            commands::uart::uart_list_ports,
+            commands::uart::uart_connect,
+            commands::uart::uart_disconnect,
+            commands::uart::uart_send_errlog,
+            commands::uart::uart_send_version,
+            commands::uart::uart_set_auto_poll,
+            commands::uart::uart_update_error_db,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
