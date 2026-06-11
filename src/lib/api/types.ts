@@ -49,3 +49,47 @@ export interface UartLogEntry {
 export interface UartStatusEvent {
   connected: boolean;
 }
+
+export interface NorValidation {
+  size_ok:       boolean;
+  header_ok:     boolean;
+  mbr1_ok:       boolean;
+  mbr2_ok:       boolean;
+  emc_ipl_a_ok:  boolean;
+  emc_ipl_b_ok:  boolean;
+  usb_pdc_a_ok:  boolean;
+  usb_pdc_b_ok:  boolean;
+}
+
+export interface NvsData {
+  serial:       string;
+  mac_address:  string;
+  sku:          string;
+  board_id:     string;
+  console_type: number;
+  fw_version:   string;
+}
+
+export interface FlashReadResult {
+  dumps_match:  boolean;
+  validation:   NorValidation;
+  nvs:          NvsData | null;
+  archive_path: string;
+}
+
+export interface FlashProgressEvent {
+  phase:   'read1' | 'read2' | 'write' | 'verify';
+  percent: number;
+}
+
+export interface FlashStatusEvent {
+  message: string;
+  level:   'info' | 'warn' | 'error';
+}
+
+export interface FlashLogEntry {
+  id:           number;
+  timestamp_ms: number;
+  message:      string;
+  level:        'info' | 'warn' | 'error';
+}

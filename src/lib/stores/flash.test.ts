@@ -1,34 +1,38 @@
-import { get } from 'svelte/store';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { flashDevices, flashBusy, flashProgress } from './flash';
+import { get } from 'svelte/store';
+import { flashBusy, flashProgress, flashResult, flashLog } from './flash';
 
-describe('flash store', () => {
+describe('flash stores', () => {
   beforeEach(() => {
-    flashDevices.set([]);
     flashBusy.set(false);
     flashProgress.set(null);
+    flashResult.set(null);
+    flashLog.set([]);
   });
 
-  it('starts with empty device list', () => {
-    expect(get(flashDevices)).toEqual([]);
-  });
-
-  it('starts with busy=false', () => {
+  it('flashBusy starts as false', () => {
     expect(get(flashBusy)).toBe(false);
   });
 
-  it('starts with no progress', () => {
+  it('flashProgress starts as null', () => {
     expect(get(flashProgress)).toBeNull();
   });
 
-  it('can update devices', () => {
-    flashDevices.set([{ id: '1', name: 'CH341B', device_type: 'Ch341' }]);
-    expect(get(flashDevices)).toHaveLength(1);
-    expect(get(flashDevices)[0].name).toBe('CH341B');
+  it('flashResult starts as null', () => {
+    expect(get(flashResult)).toBeNull();
   });
 
-  it('can set progress', () => {
-    flashProgress.set({ bytes_done: 256, bytes_total: 1024 });
-    expect(get(flashProgress)?.bytes_done).toBe(256);
+  it('flashLog starts empty', () => {
+    expect(get(flashLog)).toHaveLength(0);
+  });
+
+  it('flashBusy can be set', () => {
+    flashBusy.set(true);
+    expect(get(flashBusy)).toBe(true);
+  });
+
+  it('flashProgress can be updated', () => {
+    flashProgress.set({ phase: 'read1', percent: 42 });
+    expect(get(flashProgress)).toEqual({ phase: 'read1', percent: 42 });
   });
 });

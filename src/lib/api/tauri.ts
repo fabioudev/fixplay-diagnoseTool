@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo } from './types';
+import type { DeviceInfo, FlashReadResult } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
@@ -12,3 +12,10 @@ export const uartSendVersion = (): Promise<void>       => invoke<void>('uart_sen
 export const uartSetAutoPoll = (enabled: boolean): Promise<void> =>
   invoke<void>('uart_set_auto_poll', { enabled });
 export const uartUpdateDb    = (): Promise<void>       => invoke<void>('uart_update_error_db');
+
+export const flashListProgrammers = () => invoke<string[]>('flash_list_programmers');
+export const flashRead  = (programmer: string) =>
+  invoke<FlashReadResult>('flash_read', { programmer });
+export const flashWrite = (path: string, programmer: string) =>
+  invoke<void>('flash_write', { path, programmer });
+export const openPath   = (path: string) => invoke<void>('open_path', { path });
