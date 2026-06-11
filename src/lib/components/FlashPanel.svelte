@@ -136,7 +136,7 @@
       class="bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 border border-gray-700
              disabled:opacity-50"
     >
-      {#each programmers as p}
+      {#each programmers as p (p)}
         <option value={p}>{p}</option>
       {:else}
         <option value="">Keine Programmer gefunden</option>

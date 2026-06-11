@@ -146,7 +146,7 @@
       class="bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 border border-gray-700
              disabled:opacity-50"
     >
-      {#each $uartPorts as p}
+      {#each $uartPorts as p (p)}
         <option value={p}>{p}</option>
       {:else}
         <option value="">Keine Ports gefunden</option>
