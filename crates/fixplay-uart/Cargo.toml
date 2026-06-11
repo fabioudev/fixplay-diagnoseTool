@@ -6,5 +6,8 @@ edition = "2021"
 [dependencies]
 fixplay-core = { path = "../fixplay-core" }
 serialport   = "4"
+reqwest      = { version = "0.12", features = ["blocking"] }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
 thiserror    = { workspace = true }
 tracing      = { workspace = true }
