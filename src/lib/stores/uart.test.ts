@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId } from './uart';
+import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount } from './uart';
 import type { UartLogEntry } from '$lib/api/types';
 
 describe('uart store', () => {
@@ -9,6 +9,7 @@ describe('uart store', () => {
     uartConnected.set(false);
     uartPorts.set([]);
     autoPollEnabled.set(false);
+    dbCodeCount.set(null);
   });
 
   it('starts disconnected', () => {
@@ -67,5 +68,9 @@ describe('uart store', () => {
     const a = nextLogId();
     const b = nextLogId();
     expect(b).toBeGreaterThan(a);
+  });
+
+  it('dbCodeCount starts as null', () => {
+    expect(get(dbCodeCount)).toBeNull();
   });
 });

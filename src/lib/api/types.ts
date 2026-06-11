@@ -107,3 +107,9 @@ export interface SerialArchive {
   serial: string;
   dumps:  DumpEntry[];
 }
+
+export interface ErrorSearchResult {
+  code:        number;
+  description: string;
+  category:    string;
+}

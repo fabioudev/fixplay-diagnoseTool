@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
-  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId } from '$lib/stores/uart';
+  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount } from '$lib/stores/uart';
   import {
     uartListPorts,
     uartConnect,
@@ -9,12 +9,36 @@
     uartSendErrlog,
     uartSetAutoPoll,
     uartUpdateDb,
+    uartGetDbInfo,
+    uartSearchErrorDb,
   } from '$lib/api/tauri';
-  import type { UartEntryEvent, UartStatusEvent } from '$lib/api/types';
+  import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult } from '$lib/api/types';
 
-  let selectedPort = $state('');
-  let loading = $state(false);
-  let dbUpdating = $state(false);
+  let selectedPort  = $state('');
+  let loading       = $state(false);
+  let dbUpdating    = $state(false);
+  let dbQuery       = $state('');
+  let searchResults = $state<ErrorSearchResult[]>([]);
+
+  const filteredLog = $derived(
+    dbQuery.trim()
+      ? $uartLog.filter((e) => e.raw.toLowerCase().includes(dbQuery.toLowerCase()))
+      : $uartLog
+  );
+
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  function onSearchInput(e: Event) {
+    const val = (e.target as HTMLInputElement).value;
+    dbQuery = val;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      if (val.trim()) {
+        searchResults = await uartSearchErrorDb(val.trim()).catch(() => []);
+      } else {
+        searchResults = [];
+      }
+    }, 300);
+  }
 
   async function refreshPorts() {
     const ports = await uartListPorts().catch(() => [] as string[]);
@@ -57,7 +81,8 @@
   async function updateDb() {
     dbUpdating = true;
     try {
-      await uartUpdateDb();
+      const count = await uartUpdateDb();
+      dbCodeCount.set(count);
     } catch (e) {
       console.error(e);
     } finally {
@@ -69,6 +94,9 @@
 
   onMount(async () => {
     await refreshPorts();
+
+    const count = await uartGetDbInfo().catch(() => null);
+    dbCodeCount.set(count ?? null);
 
     const [u1, u2, u3] = await Promise.all([
       listen<string>('uart://line', (e) => {
@@ -102,6 +130,7 @@
   });
 
   onDestroy(() => {
+    if (debounceTimer) clearTimeout(debounceTimer);
     unlisten.forEach((fn) => fn());
   });
 </script>
@@ -164,14 +193,19 @@
       Auto-Poll
     </label>
 
-    <button
-      onclick={updateDb}
-      disabled={dbUpdating}
-      class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
-             disabled:opacity-40 ml-auto"
-    >
-      {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
-    </button>
+    <div class="flex items-center gap-2 ml-auto">
+      <span class="text-xs {$dbCodeCount !== null ? 'text-green-400' : 'text-gray-600'}">
+        {$dbCodeCount !== null ? `${$dbCodeCount.toLocaleString()} Codes` : 'Nicht geladen'}
+      </span>
+      <button
+        onclick={updateDb}
+        disabled={dbUpdating}
+        class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
+               disabled:opacity-40"
+      >
+        {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
+      </button>
+    </div>
   </div>
 
   <!-- Status indicator -->
@@ -182,11 +216,50 @@
     </span>
   </div>
 
+  <!-- DB Search -->
+  <div class="flex flex-col gap-1">
+    <div class="relative">
+      <input
+        type="text"
+        placeholder="Code oder Beschreibung suchen…"
+        oninput={onSearchInput}
+        value={dbQuery}
+        class="w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 border border-gray-700
+               placeholder:text-gray-600 focus:outline-none focus:border-gray-500"
+      />
+      {#if dbQuery}
+        <button
+          onclick={() => { dbQuery = ''; searchResults = []; }}
+          class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs"
+        >
+          ✕
+        </button>
+      {/if}
+    </div>
+
+    {#if searchResults.length > 0}
+      <div class="bg-gray-800 rounded border border-gray-700 text-xs max-h-40 overflow-y-auto">
+        {#each searchResults as r (r.code)}
+          <button
+            onclick={() => { dbQuery = r.code.toString(); searchResults = []; }}
+            class="w-full text-left px-2 py-1.5 hover:bg-gray-700 flex items-center gap-2 border-b
+                   border-gray-700 last:border-0"
+          >
+            <span class="font-mono text-orange-400 shrink-0 w-24">
+              0x{r.code.toString(16).toUpperCase().padStart(8, '0')}
+            </span>
+            <span class="text-gray-200 truncate flex-1">{r.description}</span>
+            <span class="text-gray-500 shrink-0 text-xs">{r.category}</span>
+          </button>
+        {/each}
+      </div>
+    {/if}
+  </div>
+
   <!-- Log area -->
   <div class="flex-1 min-h-48 overflow-y-auto bg-gray-950 rounded p-3 flex flex-col gap-2">
-    {#each $uartLog as entry (entry.id)}
+    {#each filteredLog as entry (entry.id)}
       {#if entry.parsed}
-        <!-- Decoded errlog card -->
         <div class="rounded bg-gray-800 border border-gray-700 p-2 text-xs">
           <div class="flex items-start justify-between gap-2">
             <span class="font-mono font-bold text-orange-400">
@@ -206,11 +279,12 @@
           </div>
         </div>
       {:else}
-        <!-- Raw line -->
         <div class="font-mono text-xs text-green-400 leading-relaxed">{entry.raw}</div>
       {/if}
     {:else}
-      <span class="text-gray-600 text-xs">Kein Output…</span>
+      <span class="text-gray-600 text-xs">
+        {dbQuery.trim() ? 'Keine Treffer für diesen Filter.' : 'Kein Output…'}
+      </span>
     {/each}
   </div>
 </section>
