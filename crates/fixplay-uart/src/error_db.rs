@@ -60,6 +60,27 @@ impl ErrorDb {
         self.entries.get(&code)
     }
 
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
+
+    pub fn search(&self, query: &str, limit: usize) -> Vec<&ErrorEntry> {
+        let q = query.to_lowercase();
+        let mut results: Vec<&ErrorEntry> = self.entries.values()
+            .filter(|e| {
+                e.description.to_lowercase().contains(&q)
+                || e.category.to_lowercase().contains(&q)
+            })
+            .collect();
+        results.sort_by_key(|e| e.code);
+        results.truncate(limit);
+        results
+    }
+
     pub fn load(path: &Path) -> Result<Self, UartError> {
         match Self::from_cache(path) {
             Ok(db) => Ok(db),
@@ -115,5 +136,51 @@ mod tests {
     #[test]
     fn invalid_json_returns_err() {
         assert!(ErrorDb::from_json("not json").is_err());
+    }
+
+    const SEARCH_SAMPLE_JSON: &str = r#"[
+        {"Code": 1, "Description": "Alpha error first",  "Category": "System"},
+        {"Code": 2, "Description": "Alpha error second", "Category": "System"},
+        {"Code": 3, "Description": "Beta problem",       "Category": "Storage"}
+    ]"#;
+
+    #[test]
+    fn len_returns_entry_count() {
+        let db = ErrorDb::from_json(SAMPLE_JSON).unwrap();
+        assert_eq!(db.len(), 2);
+    }
+
+    #[test]
+    fn is_empty_false_when_populated() {
+        let db = ErrorDb::from_json(SAMPLE_JSON).unwrap();
+        assert!(!db.is_empty());
+    }
+
+    #[test]
+    fn search_finds_by_description_substring() {
+        let db = ErrorDb::from_json(SEARCH_SAMPLE_JSON).unwrap();
+        let results = db.search("alpha", 10);
+        assert_eq!(results.len(), 2);
+    }
+
+    #[test]
+    fn search_is_case_insensitive() {
+        let db = ErrorDb::from_json(SEARCH_SAMPLE_JSON).unwrap();
+        let results = db.search("BETA", 10);
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].code, 3);
+    }
+
+    #[test]
+    fn search_no_match_returns_empty() {
+        let db = ErrorDb::from_json(SEARCH_SAMPLE_JSON).unwrap();
+        assert!(db.search("zzznotfound", 10).is_empty());
+    }
+
+    #[test]
+    fn search_respects_limit() {
+        let db = ErrorDb::from_json(SEARCH_SAMPLE_JSON).unwrap();
+        let results = db.search("alpha", 1);
+        assert_eq!(results.len(), 1);
     }
 }

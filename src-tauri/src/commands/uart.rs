@@ -20,6 +20,13 @@ struct UartEntryPayload {
     description: Option<String>,
 }
 
+#[derive(Clone, Serialize)]
+pub struct ErrorSearchResult {
+    pub code:        u32,
+    pub description: String,
+    pub category:    String,
+}
+
 #[tauri::command]
 pub async fn uart_list_ports() -> Result<Vec<String>, String> {
     info!("uart_list_ports invoked");
@@ -151,7 +158,7 @@ pub async fn uart_set_auto_poll(
 pub async fn uart_update_error_db(
     state: State<'_, AppState>,
     app: AppHandle,
-) -> Result<(), String> {
+) -> Result<usize, String> {
     info!("uart_update_error_db invoked");
     let cache_path = app
         .path()
@@ -166,9 +173,47 @@ pub async fn uart_update_error_db(
     .map_err(|e| e.to_string())?
     .map_err(|e| e.to_string())?;
 
+    let count = db.len();
     *state.error_db.lock().unwrap() = Some(db);
     app.emit("uart://db_updated", ()).map_err(|e| e.to_string())?;
-    Ok(())
+    Ok(count)
+}
+
+#[tauri::command]
+pub fn uart_get_db_info(state: State<'_, AppState>) -> Result<Option<usize>, String> {
+    Ok(state.error_db.lock().unwrap().as_ref().map(|db| db.len()))
+}
+
+#[tauri::command]
+pub fn uart_search_error_db(
+    query: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<ErrorSearchResult>, String> {
+    let db_lock = state.error_db.lock().unwrap();
+    let Some(db) = db_lock.as_ref() else { return Ok(vec![]) };
+
+    let results = if let Ok(code) = query.trim().parse::<u32>() {
+        db.lookup(code)
+            .map(|e| vec![ErrorSearchResult {
+                code:        e.code,
+                description: e.description.clone(),
+                category:    e.category.clone(),
+            }])
+            .unwrap_or_default()
+    } else if query.trim().is_empty() {
+        vec![]
+    } else {
+        db.search(&query, 20)
+            .into_iter()
+            .map(|e| ErrorSearchResult {
+                code:        e.code,
+                description: e.description.clone(),
+                category:    e.category.clone(),
+            })
+            .collect()
+    };
+
+    Ok(results)
 }
 
 fn reader_loop(
