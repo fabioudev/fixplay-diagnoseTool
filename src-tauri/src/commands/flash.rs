@@ -297,6 +297,27 @@ pub fn archive_delete_dump(bin_path: String) -> Result<(), String> {
     delete_dump_files(&bin_path)
 }
 
+#[derive(Serialize, Clone)]
+pub struct FlashPreviewResult {
+    pub path:       String,
+    pub size_bytes: usize,
+    pub validation: NorValidation,
+    pub nvs:        Option<NvsData>,
+}
+
+#[tauri::command]
+pub fn flash_validate_file(path: String) -> Result<FlashPreviewResult, String> {
+    let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+    let validation = nor::validate(&bytes);
+    let nvs        = nor::parse_nvs(&bytes);
+    Ok(FlashPreviewResult {
+        path,
+        size_bytes: bytes.len(),
+        validation,
+        nvs,
+    })
+}
+
 #[cfg(test)]
 mod archive_tests {
     use super::*;
@@ -365,5 +386,36 @@ mod archive_tests {
         assert_eq!(archives[0].dumps[0].timestamp, 1718100000);
 
         std::fs::remove_dir_all(&dir).ok();
+    }
+}
+
+#[cfg(test)]
+mod validate_tests {
+    use super::*;
+
+    #[test]
+    fn validate_nonexistent_file_returns_err() {
+        let result = flash_validate_file("/tmp/fixplay_no_such_file_abc123.bin".to_string());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_existing_file_returns_correct_size() {
+        let path = std::env::temp_dir().join("fixplay_test_validate_size.bin");
+        std::fs::write(&path, vec![0u8; 2097152]).unwrap();
+        let result = flash_validate_file(path.to_str().unwrap().to_string()).unwrap();
+        assert_eq!(result.size_bytes, 2097152);
+        assert_eq!(result.path, path.to_str().unwrap());
+        std::fs::remove_file(&path).ok();
+    }
+
+    #[test]
+    fn validate_small_file_reports_size_not_ok() {
+        let path = std::env::temp_dir().join("fixplay_test_validate_small.bin");
+        std::fs::write(&path, vec![0u8; 1024]).unwrap();
+        let result = flash_validate_file(path.to_str().unwrap().to_string()).unwrap();
+        assert!(!result.validation.size_ok);
+        assert_eq!(result.size_bytes, 1024);
+        std::fs::remove_file(&path).ok();
     }
 }

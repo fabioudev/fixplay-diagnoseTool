@@ -37,6 +37,7 @@ pub fn run() {
             commands::flash::flash_write,
             commands::flash::archive_list_dumps,
             commands::flash::archive_delete_dump,
+            commands::flash::flash_validate_file,
             commands::uart::uart_list_ports,
             commands::uart::uart_connect,
             commands::uart::uart_disconnect,
