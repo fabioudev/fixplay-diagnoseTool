@@ -10,7 +10,7 @@ use tracing::info;
 
 pub struct UartPort {
     pub connected:  bool,
-    write_port:     Arc<Mutex<Option<Box<dyn SerialPort + Send>>>>,
+    write_port:     Mutex<Option<Box<dyn SerialPort + Send>>>,
     pub stop_flag:  Arc<AtomicBool>,
 }
 
@@ -18,7 +18,7 @@ impl Default for UartPort {
     fn default() -> Self {
         Self {
             connected:  false,
-            write_port: Arc::new(Mutex::new(None)),
+            write_port: Mutex::new(None),
             stop_flag:  Arc::new(AtomicBool::new(false)),
         }
     }
