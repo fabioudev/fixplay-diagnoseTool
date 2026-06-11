@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
-import type { FlashReadResult, FlashLogEntry } from '$lib/api/types';
+import type { FlashReadResult, FlashLogEntry, FlashProgressEvent } from '$lib/api/types';
 
 export const flashBusy      = writable<boolean>(false);
-export const flashProgress  = writable<{ phase: string; percent: number } | null>(null);
+export const flashProgress  = writable<FlashProgressEvent | null>(null);
 export const flashResult    = writable<FlashReadResult | null>(null);
 export const flashLog       = writable<FlashLogEntry[]>([]);
 export const flashProgrammer = writable<string>('ch341a_spi');
