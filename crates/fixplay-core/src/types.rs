@@ -57,6 +57,44 @@ pub struct ErrlogEntry {
     pub raw_fields:   [String; 4],
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NorValidation {
+    pub size_ok:       bool,
+    pub header_ok:     bool,
+    pub mbr1_ok:       bool,
+    pub mbr2_ok:       bool,
+    pub emc_ipl_a_ok:  bool,
+    pub emc_ipl_b_ok:  bool,
+    pub usb_pdc_a_ok:  bool,
+    pub usb_pdc_b_ok:  bool,
+}
+
+impl NorValidation {
+    pub fn is_valid(&self) -> bool {
+        self.size_ok && self.header_ok && self.mbr1_ok && self.mbr2_ok
+            && self.emc_ipl_a_ok && self.emc_ipl_b_ok
+            && self.usb_pdc_a_ok && self.usb_pdc_b_ok
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NvsData {
+    pub serial:       String,
+    pub mac_address:  String,
+    pub sku:          String,
+    pub board_id:     String,
+    pub console_type: u32,
+    pub fw_version:   String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FlashReadResult {
+    pub dumps_match:  bool,
+    pub validation:   NorValidation,
+    pub nvs:          Option<NvsData>,
+    pub archive_path: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
