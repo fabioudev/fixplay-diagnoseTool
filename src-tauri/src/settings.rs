@@ -1,7 +1,7 @@
 use fixplay_flashrom::flashrom_path;
 use tauri::Manager;
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct AppSettings {
     pub flashrom_path: Option<String>,
     pub archive_dir:   Option<String>,
