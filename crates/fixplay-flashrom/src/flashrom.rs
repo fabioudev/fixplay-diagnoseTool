@@ -33,8 +33,9 @@ impl FlashDevice for FlashromDevice {
         let tmp = std::env::temp_dir()
             .join(format!("fixplay_read_{}.bin", std::process::id()));
 
+        let tmp_str = tmp.to_str().ok_or_else(|| AppError::from(FlashError::Io("temp path is not valid UTF-8".into())))?;
         let mut child = Command::new(&self.binary_path)
-            .args(["-p", &self.programmer, "--read", tmp.to_str().unwrap()])
+            .args(["-p", &self.programmer, "--read", tmp_str])
             .stderr(Stdio::piped())
             .stdout(Stdio::null())
             .spawn()
@@ -67,8 +68,9 @@ impl FlashDevice for FlashromDevice {
             .join(format!("fixplay_write_{}.bin", std::process::id()));
         std::fs::write(&tmp, data).map_err(|e| FlashError::Io(e.to_string()))?;
 
+        let tmp_str = tmp.to_str().ok_or_else(|| AppError::from(FlashError::Io("temp path is not valid UTF-8".into())))?;
         let mut child = Command::new(&self.binary_path)
-            .args(["-p", &self.programmer, "--write", tmp.to_str().unwrap()])
+            .args(["-p", &self.programmer, "--write", tmp_str])
             .stderr(Stdio::piped())
             .stdout(Stdio::null())
             .spawn()
@@ -117,9 +119,8 @@ impl FlashDevice for FlashromDevice {
             .lines()
             .find(|l| l.contains("name="))
             .and_then(|l| l.split("name=").nth(1))
-            .unwrap_or("Unknown")
-            .trim()
-            .to_string();
+            .map(|s| s.trim().to_string())
+            .ok_or_else(|| FlashError::Subprocess("flashrom --flash-name: missing 'name=' in output".into()))?;
         Ok(ChipId { manufacturer: 0, device: 0, description: name })
     }
 }
