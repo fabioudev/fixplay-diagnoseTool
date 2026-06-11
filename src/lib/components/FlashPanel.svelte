@@ -4,9 +4,9 @@
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
     flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, flashWritePath, nextFlashLogId,
+    flashProgrammer, flashWritePath, flashWritePreview, nextFlashLogId,
   } from '$lib/stores/flash';
-  import { flashListProgrammers, flashRead, flashWrite, openPath } from '$lib/api/tauri';
+  import { flashListProgrammers, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
   import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult } from '$lib/api/types';
 
   let programmers = $state<string[]>([]);
@@ -86,10 +86,29 @@
     }
 
     flashBusy.set(true);
+    try {
+      const preview = await flashValidateFile(selected);
+      flashWritePreview.set(preview);
+    } catch (e: unknown) {
+      flashLog.update((log) => [
+        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
+        ...log,
+      ]);
+    } finally {
+      flashBusy.set(false);
+    }
+  }
+
+  async function confirmWrite() {
+    const preview = $flashWritePreview;
+    if (!preview) return;
+
+    flashWritePreview.set(null);
+    flashBusy.set(true);
     flashLog.set([]);
     flashProgress.set(null);
     try {
-      await flashWrite(selected, $flashProgrammer);
+      await flashWrite(preview.path, $flashProgrammer);
     } catch (e: unknown) {
       flashLog.update((log) => [
         { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
@@ -99,6 +118,10 @@
       flashBusy.set(false);
       flashProgress.set(null);
     }
+  }
+
+  function cancelWrite() {
+    flashWritePreview.set(null);
   }
 </script>
 
@@ -131,7 +154,7 @@
 
     <button
       onclick={handleWrite}
-      disabled={$flashBusy || !$flashProgrammer}
+      disabled={$flashBusy || !$flashProgrammer || $flashWritePreview !== null}
       class="px-3 py-1 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white
              disabled:opacity-40"
     >
@@ -151,6 +174,84 @@
           class="bg-blue-500 h-2 rounded-full transition-all duration-200"
           style="width: {$flashProgress.percent}%"
         ></div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Write preview card -->
+  {#if $flashWritePreview}
+    {@const p = $flashWritePreview}
+    {@const validationOk = p.validation.size_ok && p.validation.header_ok && p.validation.mbr1_ok && p.validation.mbr2_ok && p.validation.emc_ipl_a_ok && p.validation.emc_ipl_b_ok && p.validation.usb_pdc_a_ok && p.validation.usb_pdc_b_ok}
+    <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
+
+      {#if !validationOk}
+        <div class="flex items-center gap-2 rounded bg-yellow-900 border border-yellow-700 px-3 py-2">
+          <span class="text-yellow-400 font-semibold">⚠ Validierungsfehler erkannt — Fortfahren auf eigene Gefahr</span>
+        </div>
+      {/if}
+
+      <!-- Validation checklist -->
+      <div>
+        <p class="text-gray-400 font-semibold mb-1">Validierung:</p>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 font-mono">
+          {#each [
+            { label: 'NOR Header',    ok: p.validation.header_ok },
+            { label: 'MBR 1',         ok: p.validation.mbr1_ok },
+            { label: 'MBR 2',         ok: p.validation.mbr2_ok },
+            { label: 'EmcIpl A',      ok: p.validation.emc_ipl_a_ok },
+            { label: 'EmcIpl B',      ok: p.validation.emc_ipl_b_ok },
+            { label: 'USB PDC A',     ok: p.validation.usb_pdc_a_ok },
+            { label: 'USB PDC B',     ok: p.validation.usb_pdc_b_ok },
+            { label: 'Größe (2 MB)',  ok: p.validation.size_ok },
+          ] as item (item.label)}
+            <div class="flex items-center gap-1">
+              <span class="{item.ok ? 'text-green-400' : 'text-red-400'}">{item.ok ? '✓' : '✗'}</span>
+              <span class="text-gray-300">{item.label}</span>
+            </div>
+          {/each}
+        </div>
+      </div>
+
+      <!-- NVS info -->
+      {#if p.nvs}
+        <div>
+          <p class="text-gray-400 font-semibold mb-1">Konsoleninfo:</p>
+          <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
+            <dt class="text-gray-500">Serial:</dt>
+            <dd class="text-gray-200 font-mono">{p.nvs.serial || '—'}</dd>
+            <dt class="text-gray-500">MAC:</dt>
+            <dd class="text-gray-200 font-mono">{p.nvs.mac_address}</dd>
+            <dt class="text-gray-500">SKU:</dt>
+            <dd class="text-gray-200">{p.nvs.sku || '—'}</dd>
+            <dt class="text-gray-500">Board ID:</dt>
+            <dd class="text-gray-200 font-mono">{p.nvs.board_id || '—'}</dd>
+            <dt class="text-gray-500">Firmware:</dt>
+            <dd class="text-gray-200 font-mono">{p.nvs.fw_version}</dd>
+          </dl>
+        </div>
+      {/if}
+
+      <!-- File info -->
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500 shrink-0">Datei:</span>
+        <span class="text-gray-300 font-mono truncate flex-1">{p.path}</span>
+        <span class="text-gray-500 shrink-0">{(p.size_bytes / 1024 / 1024).toFixed(2)} MB</span>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-2 pt-1">
+        <button
+          onclick={confirmWrite}
+          class="px-3 py-1.5 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white font-medium"
+        >
+          Jetzt schreiben
+        </button>
+        <button
+          onclick={cancelWrite}
+          class="px-3 py-1.5 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
+        >
+          Abbrechen
+        </button>
       </div>
     </div>
   {/if}
