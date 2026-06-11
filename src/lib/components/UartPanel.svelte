@@ -19,7 +19,11 @@
   async function refreshPorts() {
     const ports = await uartListPorts().catch(() => [] as string[]);
     uartPorts.set(ports);
-    if (ports.length > 0 && !selectedPort) selectedPort = ports[0];
+    if (ports.length > 0 && !selectedPort) {
+      selectedPort = ports[0];
+    } else if (!ports.includes(selectedPort)) {
+      selectedPort = ports[0] ?? '';
+    }
   }
 
   async function toggleConnect() {
@@ -42,14 +46,23 @@
   }
 
   async function toggleAutoPoll(enabled: boolean) {
-    autoPollEnabled.set(enabled);
-    await uartSetAutoPoll(enabled).catch(console.error);
+    try {
+      await uartSetAutoPoll(enabled);
+      autoPollEnabled.set(enabled);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async function updateDb() {
     dbUpdating = true;
-    await uartUpdateDb().catch(console.error);
-    dbUpdating = false;
+    try {
+      await uartUpdateDb();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      dbUpdating = false;
+    }
   }
 
   const unlisten: Array<() => void> = [];
@@ -57,17 +70,14 @@
   onMount(async () => {
     await refreshPorts();
 
-    unlisten.push(
-      await listen<string>('uart://line', (e) => {
+    const [u1, u2, u3] = await Promise.all([
+      listen<string>('uart://line', (e) => {
         uartLog.update((log) => [
           { id: nextLogId(), timestamp_ms: Date.now(), raw: e.payload },
           ...log.slice(0, 499),
         ]);
-      })
-    );
-
-    unlisten.push(
-      await listen<UartEntryEvent>('uart://entry', (e) => {
+      }),
+      listen<UartEntryEvent>('uart://entry', (e) => {
         uartLog.update((log) => [
           {
             id: nextLogId(),
@@ -83,14 +93,12 @@
           },
           ...log.slice(0, 499),
         ]);
-      })
-    );
-
-    unlisten.push(
-      await listen<UartStatusEvent>('uart://status', (e) => {
+      }),
+      listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
-      })
-    );
+      }),
+    ]);
+    unlisten.push(u1, u2, u3);
   });
 
   onDestroy(() => {
@@ -112,7 +120,7 @@
       {#each $uartPorts as p}
         <option value={p}>{p}</option>
       {:else}
-        <option value="">No ports found</option>
+        <option value="">Keine Ports gefunden</option>
       {/each}
     </select>
 
@@ -202,7 +210,7 @@
         <div class="font-mono text-xs text-green-400 leading-relaxed">{entry.raw}</div>
       {/if}
     {:else}
-      <span class="text-gray-600 text-xs">No output yet…</span>
+      <span class="text-gray-600 text-xs">Kein Output…</span>
     {/each}
   </div>
 </section>
