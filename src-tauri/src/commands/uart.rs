@@ -49,7 +49,8 @@ pub async fn uart_connect(
         let _ = handle.join();
     }
 
-    let open_port = serialport::new(&port, 115200)
+    let baud_rate = crate::settings::load_settings(&app).baud_rate;
+    let open_port = serialport::new(&port, baud_rate)
         .timeout(Duration::from_millis(100))
         .open()
         .map_err(|e| e.to_string())?;

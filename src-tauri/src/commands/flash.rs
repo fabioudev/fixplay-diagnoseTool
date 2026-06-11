@@ -2,7 +2,7 @@ use fixplay_core::{
     nor,
     types::{FlashProgress, FlashReadResult, NorValidation, NvsData},
 };
-use fixplay_flashrom::{flashrom_path, FlashromDevice};
+use fixplay_flashrom::FlashromDevice;
 use fixplay_core::traits::FlashDevice;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
@@ -42,9 +42,10 @@ pub async fn flash_read(
     app: AppHandle,
 ) -> Result<FlashReadResult, String> {
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
+    let settings     = crate::settings::load_settings(&app);
     let device = FlashromDevice {
-        programmer: programmer.clone(),
-        binary_path: flashrom_path(&resource_dir),
+        programmer:  programmer.clone(),
+        binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
     };
 
     emit_status(&app, "Erster Lesevorgang...", "info");
@@ -116,9 +117,10 @@ pub async fn flash_write(
     app: AppHandle,
 ) -> Result<(), String> {
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
+    let settings     = crate::settings::load_settings(&app);
     let device = FlashromDevice {
-        programmer: programmer.clone(),
-        binary_path: flashrom_path(&resource_dir),
+        programmer:  programmer.clone(),
+        binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
     };
 
     let data = std::fs::read(&path).map_err(|e| e.to_string())?;
@@ -169,10 +171,9 @@ fn archive_dump(
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| format!("unknown_{}", timestamp));
 
-    let base = app
-        .path()
-        .app_data_dir()
-        .map_err(|e| e.to_string())?
+    let data_dir  = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let settings  = crate::settings::load_settings(app);
+    let base = crate::settings::resolve_archive_base(&settings, &data_dir)
         .join("dumps")
         .join(&serial_dir);
 
@@ -286,9 +287,9 @@ fn delete_dump_files(bin_path: &str) -> Result<(), String> {
 
 #[tauri::command]
 pub fn archive_list_dumps(app: AppHandle) -> Result<Vec<SerialArchive>, String> {
-    let dumps_dir = app.path().app_data_dir()
-        .map_err(|e| e.to_string())?
-        .join("dumps");
+    let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let settings = crate::settings::load_settings(&app);
+    let dumps_dir = crate::settings::resolve_archive_base(&settings, &data_dir).join("dumps");
     Ok(list_dumps_from_dir(&dumps_dir))
 }
 
