@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult } from './types';
+import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
@@ -23,6 +23,8 @@ export const flashRead  = (programmer: string) =>
 export const flashWrite = (path: string, programmer: string) =>
   invoke<void>('flash_write', { path, programmer });
 export const openPath   = (path: string) => invoke<void>('open_path', { path });
+export const flashValidateFile = (path: string) =>
+  invoke<FlashPreviewResult>('flash_validate_file', { path });
 
 export const archiveListDumps  = () =>
   invoke<SerialArchive[]>('archive_list_dumps');

@@ -113,3 +113,10 @@ export interface ErrorSearchResult {
   description: string;
   category:    string;
 }
+
+export interface FlashPreviewResult {
+  path:       string;
+  size_bytes: number;
+  validation: NorValidation;
+  nvs:        NvsData | null;
+}

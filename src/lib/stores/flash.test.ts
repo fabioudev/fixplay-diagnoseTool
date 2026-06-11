@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { get } from 'svelte/store';
-import { flashBusy, flashProgress, flashResult, flashLog } from './flash';
+import { flashBusy, flashProgress, flashResult, flashLog, flashWritePreview } from './flash';
 
 describe('flash stores', () => {
   beforeEach(() => {
@@ -8,6 +8,7 @@ describe('flash stores', () => {
     flashProgress.set(null);
     flashResult.set(null);
     flashLog.set([]);
+    flashWritePreview.set(null);
   });
 
   it('flashBusy starts as false', () => {
@@ -34,5 +35,9 @@ describe('flash stores', () => {
   it('flashProgress can be updated', () => {
     flashProgress.set({ phase: 'read1', percent: 42 });
     expect(get(flashProgress)).toEqual({ phase: 'read1', percent: 42 });
+  });
+
+  it('flashWritePreview starts as null', () => {
+    expect(get(flashWritePreview)).toBeNull();
   });
 });
