@@ -2,8 +2,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("CH341 error: {0}")]
-    Ch341(#[from] Ch341Error),
+    #[error("flash error: {0}")]
+    Flash(#[from] FlashError),
     #[error("UART error: {0}")]
     Uart(#[from] UartError),
     #[error("I/O error: {0}")]
@@ -11,13 +11,13 @@ pub enum AppError {
 }
 
 #[derive(Debug, Error)]
-pub enum Ch341Error {
-    #[error("device not found")]
-    DeviceNotFound,
-    #[error("USB error: {0}")]
-    Usb(String),
-    #[error("transfer failed: {0}")]
-    Transfer(String),
+pub enum FlashError {
+    #[error("flashrom not found")]
+    NotFound,
+    #[error("subprocess error: {0}")]
+    Subprocess(String),
+    #[error("I/O error: {0}")]
+    Io(String),
 }
 
 #[derive(Debug, Error)]
@@ -37,9 +37,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn ch341_device_not_found_message() {
-        let err = Ch341Error::DeviceNotFound;
-        assert_eq!(err.to_string(), "device not found");
+    fn flash_not_found_message() {
+        let err = FlashError::NotFound;
+        assert_eq!(err.to_string(), "flashrom not found");
     }
 
     #[test]
@@ -49,10 +49,10 @@ mod tests {
     }
 
     #[test]
-    fn app_error_from_ch341() {
-        let ch_err = Ch341Error::DeviceNotFound;
-        let app_err: AppError = ch_err.into();
-        assert!(app_err.to_string().contains("CH341"));
+    fn app_error_from_flash() {
+        let err = FlashError::NotFound;
+        let app_err: AppError = err.into();
+        assert!(app_err.to_string().contains("flash"));
     }
 
     #[test]

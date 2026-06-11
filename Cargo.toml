@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "crates/fixplay-core",
-    "crates/fixplay-ch341",
+    "crates/fixplay-flashrom",
     "crates/fixplay-uart",
     "src-tauri",
 ]

@@ -11,9 +11,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-fixplay-core  = { path = "../crates/fixplay-core" }
-fixplay-ch341 = { path = "../crates/fixplay-ch341" }
-fixplay-uart  = { path = "../crates/fixplay-uart" }
+fixplay-core      = { path = "../crates/fixplay-core" }
+fixplay-flashrom  = { path = "../crates/fixplay-flashrom" }
+fixplay-uart      = { path = "../crates/fixplay-uart" }
 tauri         = { version = "2", features = [] }
 serde         = { workspace = true }
 serde_json    = { workspace = true }
