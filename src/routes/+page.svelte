@@ -17,7 +17,7 @@
 
 <main class="flex flex-col h-screen bg-gray-950 text-gray-100 overflow-hidden">
   <nav class="flex border-b border-gray-800 px-4 pt-2 gap-1 shrink-0 bg-gray-900">
-    {#each tabs as tab}
+    {#each tabs as tab (tab.id)}
       <button
         onclick={() => (activeTab = tab.id)}
         class="px-4 py-2 text-sm font-medium rounded-t transition-colors {

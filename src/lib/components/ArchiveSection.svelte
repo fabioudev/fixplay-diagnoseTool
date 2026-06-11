@@ -62,7 +62,7 @@
 
   {#if open}
     <div class="border-t border-gray-800">
-      {#each archives as archive}
+      {#each archives as archive (archive.serial)}
         <div class="p-3 border-b border-gray-800 last:border-0">
           <p class="text-xs font-semibold text-gray-400 mb-2 font-mono">{archive.serial}</p>
           <div class="flex flex-col gap-1.5">
