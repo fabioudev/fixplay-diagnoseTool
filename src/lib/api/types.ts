@@ -120,3 +120,9 @@ export interface FlashPreviewResult {
   validation: NorValidation;
   nvs:        NvsData | null;
 }
+
+export interface AppSettings {
+  flashrom_path: string | null;
+  archive_dir:   string | null;
+  baud_rate:     number;
+}

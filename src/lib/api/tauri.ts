@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult } from './types';
+import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
@@ -30,3 +30,6 @@ export const archiveListDumps  = () =>
   invoke<SerialArchive[]>('archive_list_dumps');
 export const archiveDeleteDump = (binPath: string) =>
   invoke<void>('archive_delete_dump', { binPath });
+
+export const settingsGet  = ()                       => invoke<AppSettings>('settings_get');
+export const settingsSave = (settings: AppSettings)  => invoke<void>('settings_save', { settings });
