@@ -20,12 +20,12 @@ pub fn run() {
                 .app_data_dir()?
                 .join("error_codes.json");
             let state = app.state::<AppState>();
-            match fixplay_uart::ErrorDb::load(&cache_path) {
+            match fixplay_uart::ErrorDb::from_cache(&cache_path) {
                 Ok(db) => {
                     *state.error_db.lock().unwrap() = Some(db);
-                    tracing::info!("error DB loaded");
+                    tracing::info!("error DB loaded from cache");
                 }
-                Err(e) => tracing::warn!("error DB load failed: {}", e),
+                Err(e) => tracing::warn!("error DB not cached yet: {}", e),
             }
             Ok(())
         })

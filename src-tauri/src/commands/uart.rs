@@ -2,6 +2,7 @@ use crate::state::AppState;
 use fixplay_core::traits::UartDevice;
 use fixplay_uart::{build_command, parse_errlog_line, ErrorDb, UartPort};
 use serde::Serialize;
+use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -32,6 +33,14 @@ pub async fn uart_connect(
     app: AppHandle,
 ) -> Result<(), String> {
     info!("uart_connect: {}", port);
+
+    // Stop any existing reader thread first
+    if let Some(flag) = state.uart_stop.lock().unwrap().take() {
+        flag.store(true, Ordering::Relaxed);
+    }
+    if let Some(handle) = state.uart_thread.lock().unwrap().take() {
+        let _ = handle.join();
+    }
 
     let open_port = serialport::new(&port, 115200)
         .timeout(Duration::from_millis(100))
@@ -150,7 +159,13 @@ pub async fn uart_update_error_db(
         .map_err(|e| e.to_string())?
         .join("error_codes.json");
 
-    let db = ErrorDb::fetch_and_cache(&cache_path).map_err(|e| e.to_string())?;
+    let db = tokio::task::spawn_blocking(move || {
+        fixplay_uart::ErrorDb::fetch_and_cache(&cache_path)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map_err(|e| e.to_string())?;
+
     *state.error_db.lock().unwrap() = Some(db);
     app.emit("uart://db_updated", ()).map_err(|e| e.to_string())?;
     Ok(())
@@ -169,7 +184,6 @@ fn reader_loop(
         if stop.load(Ordering::Relaxed) {
             break;
         }
-        use std::io::Read;
         match port.read(&mut byte) {
             Ok(1) => {
                 if byte[0] == b'\n' {
@@ -198,6 +212,12 @@ fn reader_loop(
             Err(e) if e.kind() == std::io::ErrorKind::TimedOut => {}
             Err(e) => {
                 error!("reader_loop error: {}", e);
+                let state = app.state::<AppState>();
+                if let Some(uart) = state.uart.lock().unwrap().as_mut() {
+                    let _ = uart.disconnect();
+                }
+                state.uart_stop.lock().unwrap().take();
+                state.uart_thread.lock().unwrap().take();
                 let _ = app.emit("uart://status", StatusPayload { connected: false });
                 break;
             }
@@ -223,7 +243,11 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
             if let Some(uart) = guard.as_mut() {
                 if uart.is_connected() {
                     let cmd = build_command("errlog");
-                    let _ = uart.write_line(&cmd);
+                    if let Err(e) = uart.write_line(&cmd) {
+                        error!("poll_loop write error: {}", e);
+                        let _ = app.emit("uart://status", StatusPayload { connected: false });
+                        return;
+                    }
                 }
             }
         }
