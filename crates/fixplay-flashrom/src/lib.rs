@@ -1,2 +1,2 @@
 pub mod flashrom;
-pub use flashrom::FlashromDevice;
+pub use flashrom::{flashrom_path, FlashromDevice};

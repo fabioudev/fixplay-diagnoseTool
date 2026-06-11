@@ -14,6 +14,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(AppState::default())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let cache_path = app
                 .path()
@@ -30,7 +31,10 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            commands::flash::scan_devices,
+            commands::flash::open_path,
+            commands::flash::flash_list_programmers,
+            commands::flash::flash_read,
+            commands::flash::flash_write,
             commands::uart::uart_list_ports,
             commands::uart::uart_connect,
             commands::uart::uart_disconnect,

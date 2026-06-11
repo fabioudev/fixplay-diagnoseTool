@@ -15,6 +15,8 @@ fixplay-core      = { path = "../crates/fixplay-core" }
 fixplay-flashrom  = { path = "../crates/fixplay-flashrom" }
 fixplay-uart      = { path = "../crates/fixplay-uart" }
 tauri         = { version = "2", features = [] }
+open               = "5"
+tauri-plugin-dialog = "2"
 serde         = { workspace = true }
 serde_json    = { workspace = true }
 tokio         = { workspace = true }
