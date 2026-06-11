@@ -1,5 +1,6 @@
 <script lang="ts">
   import FlashPanel from '$lib/components/FlashPanel.svelte';
+  import ArchiveSection from '$lib/components/ArchiveSection.svelte';
   import UartPanel from '$lib/components/UartPanel.svelte';
 
   let activeTab = $state<'flash' | 'uart'>('flash');
@@ -34,6 +35,7 @@
     {#if activeTab === 'flash'}
       <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
         <FlashPanel />
+        <ArchiveSection />
       </div>
     {/if}
     <div class="{activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}">

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult } from './types';
+import type { DeviceInfo, FlashReadResult, SerialArchive } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
@@ -19,3 +19,8 @@ export const flashRead  = (programmer: string) =>
 export const flashWrite = (path: string, programmer: string) =>
   invoke<void>('flash_write', { path, programmer });
 export const openPath   = (path: string) => invoke<void>('open_path', { path });
+
+export const archiveListDumps  = () =>
+  invoke<SerialArchive[]>('archive_list_dumps');
+export const archiveDeleteDump = (binPath: string) =>
+  invoke<void>('archive_delete_dump', { binPath });

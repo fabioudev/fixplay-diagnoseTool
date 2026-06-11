@@ -4,7 +4,7 @@
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
     flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, nextFlashLogId,
+    flashProgrammer, flashWritePath, nextFlashLogId,
   } from '$lib/stores/flash';
   import { flashListProgrammers, flashRead, flashWrite, openPath } from '$lib/api/tauri';
   import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult } from '$lib/api/types';
@@ -70,11 +70,20 @@
   }
 
   async function handleWrite() {
-    const selected = await openDialog({
-      title:   'NOR-Datei wählen',
-      filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
-    });
-    if (!selected || typeof selected !== 'string') return;
+    const storedPath = $flashWritePath;
+    let selected: string;
+
+    if (storedPath) {
+      selected = storedPath;
+      flashWritePath.set(null);
+    } else {
+      const result = await openDialog({
+        title:   'NOR-Datei wählen',
+        filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
+      });
+      if (!result || typeof result !== 'string') return;
+      selected = result;
+    }
 
     flashBusy.set(true);
     flashLog.set([]);

@@ -93,3 +93,17 @@ export interface FlashLogEntry {
   message:      string;
   level:        'info' | 'warn' | 'error';
 }
+
+export interface DumpEntry {
+  bin_path:      string;
+  timestamp:     number;
+  size_bytes:    number;
+  validation_ok: boolean;
+  fw_version:    string | null;
+  serial:        string;
+}
+
+export interface SerialArchive {
+  serial: string;
+  dumps:  DumpEntry[];
+}
