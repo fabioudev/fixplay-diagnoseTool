@@ -4,14 +4,9 @@ use fixplay_core::{
 };
 use tracing::info;
 
+#[derive(Default)]
 pub struct UartPort {
     connected: bool,
-}
-
-impl Default for UartPort {
-    fn default() -> Self {
-        Self { connected: false }
-    }
 }
 
 impl UartPort {
