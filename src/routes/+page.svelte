@@ -2,8 +2,10 @@
   import FlashPanel from '$lib/components/FlashPanel.svelte';
   import ArchiveSection from '$lib/components/ArchiveSection.svelte';
   import UartPanel from '$lib/components/UartPanel.svelte';
+  import SettingsPanel from '$lib/components/SettingsPanel.svelte';
 
-  let activeTab = $state<'flash' | 'uart'>('flash');
+  let activeTab     = $state<'flash' | 'uart'>('flash');
+  let settingsOpen  = $state(false);
 
   const tabs = [
     { id: 'flash' as const, label: 'NOR Flash' },
@@ -16,7 +18,7 @@
 </svelte:head>
 
 <main class="flex flex-col h-screen bg-gray-950 text-gray-100 overflow-hidden">
-  <nav class="flex border-b border-gray-800 px-4 pt-2 gap-1 shrink-0 bg-gray-900">
+  <nav class="flex items-center border-b border-gray-800 px-4 pt-2 gap-1 shrink-0 bg-gray-900">
     {#each tabs as tab (tab.id)}
       <button
         onclick={() => (activeTab = tab.id)}
@@ -29,6 +31,12 @@
         {tab.label}
       </button>
     {/each}
+
+    <button
+      onclick={() => (settingsOpen = true)}
+      class="ml-auto mb-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-base leading-none"
+      title="Einstellungen"
+    >⚙</button>
   </nav>
 
   <div class="flex-1 min-h-0 overflow-hidden">
@@ -43,3 +51,5 @@
     </div>
   </div>
 </main>
+
+<SettingsPanel open={settingsOpen} onclose={() => (settingsOpen = false)} />
