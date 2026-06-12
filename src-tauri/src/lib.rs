@@ -103,6 +103,7 @@ pub fn run() {
             commands::uart::uart_get_db_info,
             commands::uart::uart_search_error_db,
             commands::uart::uart_connection_status,
+            commands::uart::uart_loopback_test,
             commands::settings::settings_get,
             commands::settings::settings_save,
         ])

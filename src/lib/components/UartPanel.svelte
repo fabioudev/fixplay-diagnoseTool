@@ -14,17 +14,19 @@
     uartGetDbInfo,
     uartSearchErrorDb,
     uartConnectionStatus,
+    uartLoopbackTest,
     settingsGet,
     settingsSave,
   } from '$lib/api/tauri';
   import { appSettings } from '$lib/stores/settings';
   import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult, UartPortInfo } from '$lib/api/types';
 
-  let selectedPort  = $state('');
-  let loading       = $state(false);
-  let dbUpdating    = $state(false);
-  let dbQuery       = $state('');
-  let searchResults = $state<ErrorSearchResult[]>([]);
+  let selectedPort      = $state('');
+  let loading           = $state(false);
+  let dbUpdating        = $state(false);
+  let dbQuery           = $state('');
+  let searchResults     = $state<ErrorSearchResult[]>([]);
+  let loopbackPending   = $state(false);
 
   const filteredLog = $derived(
     dbQuery.trim()
@@ -111,6 +113,34 @@
 
   async function fetchErrlog() {
     await uartSendErrlog().catch(console.error);
+  }
+
+  async function loopbackTest() {
+    loopbackPending = true;
+    uartLog.update((log) => [
+      {
+        id:           nextLogId(),
+        timestamp_ms: Date.now(),
+        raw:          '[→ Loopback gesendet — RX mit TX kurzschließen und Echo abwarten]',
+        kind:         'status' as const,
+      },
+      ...log.slice(0, 499),
+    ]);
+    try {
+      await uartLoopbackTest();
+    } catch (e) {
+      uartLog.update((log) => [
+        {
+          id:           nextLogId(),
+          timestamp_ms: Date.now(),
+          raw:          `Loopback-Fehler: ${String(e)}`,
+          kind:         'error' as const,
+        },
+        ...log.slice(0, 499),
+      ]);
+    } finally {
+      loopbackPending = false;
+    }
   }
 
   async function toggleAutoPoll(enabled: boolean) {
@@ -319,6 +349,16 @@
       Version
     </button>
 
+    <button
+      onclick={loopbackTest}
+      disabled={!$uartConnected || loopbackPending}
+      title="RX mit TX kurzschließen, dann klicken — Echo bestätigt funktionierende UART-Verbindung"
+      class="px-3 py-1 text-sm rounded bg-purple-700 hover:bg-purple-600 text-white
+             disabled:opacity-40"
+    >
+      {loopbackPending ? '⟳ Loopback…' : 'Loopback'}
+    </button>
+
     <label class="flex items-center gap-1 text-sm text-gray-300 select-none cursor-pointer">
       <input
         type="checkbox"
@@ -431,11 +471,12 @@
         </div>
       {:else}
         <div class="font-mono text-xs leading-relaxed {
-          entry.kind === 'status' ? 'text-gray-500 italic' :
-          entry.kind === 'error'  ? 'text-red-400' :
-                                    'text-green-400'
+          entry.kind === 'status'              ? 'text-gray-500 italic' :
+          entry.kind === 'error'               ? 'text-red-400' :
+          entry.raw.startsWith('LOOPBACK:')    ? 'text-cyan-400 font-semibold' :
+                                                 'text-green-400'
         }">
-          {entry.raw}
+          {entry.raw.startsWith('LOOPBACK:') ? `✓ Echo: ${entry.raw}` : entry.raw}
         </div>
       {/if}
     {:else}

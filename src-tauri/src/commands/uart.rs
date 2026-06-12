@@ -213,6 +213,16 @@ pub async fn uart_send_version(state: State<'_, AppState>) -> Result<(), String>
 }
 
 #[tauri::command]
+pub async fn uart_loopback_test(state: State<'_, AppState>) -> Result<(), String> {
+    let mut guard = state.uart.lock().unwrap();
+    guard
+        .as_mut()
+        .ok_or("not connected")?
+        .write_line("LOOPBACK:PING\r\n")
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn uart_set_auto_poll(
     enabled: bool,
     state: State<'_, AppState>,

@@ -17,6 +17,7 @@ export const uartUpdateDb    = (): Promise<number>     => invoke<number>('uart_u
 
 export const uartGetDbInfo           = () => invoke<number | null>('uart_get_db_info');
 export const uartConnectionStatus    = () => invoke<{ connected: boolean; reconnecting: boolean }>('uart_connection_status');
+export const uartLoopbackTest        = (): Promise<void> => invoke<void>('uart_loopback_test');
 export const uartSearchErrorDb = (query: string) =>
   invoke<ErrorSearchResult[]>('uart_search_error_db', { query });
 
