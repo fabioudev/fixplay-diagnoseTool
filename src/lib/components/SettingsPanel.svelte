@@ -57,9 +57,10 @@
 
       <!-- Flashrom Binary -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-400">Flashrom Binary</label>
+        <label for="settings-flashrom" class="text-xs font-medium text-gray-400">Flashrom Binary</label>
         <div class="flex gap-1">
           <input
+            id="settings-flashrom"
             type="text"
             placeholder="(gebundelt)"
             value={$appSettings.flashrom_path ?? ''}
@@ -79,9 +80,10 @@
 
       <!-- Archive Directory -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-400">Archiv-Verzeichnis</label>
+        <label for="settings-archive-dir" class="text-xs font-medium text-gray-400">Archiv-Verzeichnis</label>
         <div class="flex gap-1">
           <input
+            id="settings-archive-dir"
             type="text"
             placeholder="(Standard-App-Datenordner)"
             value={$appSettings.archive_dir ?? ''}
@@ -101,8 +103,9 @@
 
       <!-- UART Baud Rate -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-400">UART Baudrate</label>
+        <label for="settings-baud-rate" class="text-xs font-medium text-gray-400">UART Baudrate</label>
         <select
+          id="settings-baud-rate"
           value={$appSettings.baud_rate}
           onchange={async (e) => {
             appSettings.update(s => ({ ...s, baud_rate: Number((e.target as HTMLSelectElement).value) }));
