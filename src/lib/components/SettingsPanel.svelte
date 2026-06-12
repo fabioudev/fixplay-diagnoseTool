@@ -115,7 +115,7 @@
                  border border-gray-700 focus:outline-none focus:border-gray-500"
         >
           {#each BAUD_RATES as rate (rate)}
-            <option value={rate}>{rate}</option>
+            <option value={rate} class="bg-gray-800 text-gray-100">{rate}</option>
           {/each}
         </select>
         <p class="text-xs text-gray-600">Wirkt beim nächsten UART-Verbindungsaufbau.</p>

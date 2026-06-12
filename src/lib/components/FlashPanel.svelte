@@ -138,9 +138,9 @@
              disabled:opacity-50"
     >
       {#each programmers as p (p)}
-        <option value={p}>{p}</option>
+        <option value={p} class="bg-gray-800 text-gray-100">{p}</option>
       {:else}
-        <option value="">Keine Programmer gefunden</option>
+        <option value="" class="bg-gray-800 text-gray-100">Keine Programmer gefunden</option>
       {/each}
     </select>
 
