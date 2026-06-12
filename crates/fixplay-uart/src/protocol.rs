@@ -34,8 +34,9 @@ pub fn parse_errlog_line(line: &str) -> Option<ErrlogEntry> {
     let temp_raw     = u16::from_str_radix(fields[off + 4], 16).ok()?;
     let temp_soc     = (temp_raw >> 8) as f32 + ((temp_raw & 0xFF) as f32 / 256.0);
 
-    // An all-zero error code is an empty history slot, not an error
-    if error_code == 0 {
+    // Empty history slots: all-zero, or all-FF after "errlog clear"
+    // (erased memory reads back as 0xFF)
+    if error_code == 0 || error_code == 0xFFFF_FFFF {
         return None;
     }
 
@@ -124,6 +125,13 @@ mod tests {
     fn parse_real_format_empty_slot_returns_none() {
         // Status word present but error code is zero → empty history slot
         let line = "00000000 00000000 00000000 00000000 00000000 0000 0000 0000 0000";
+        assert!(parse_errlog_line(line).is_none());
+    }
+
+    #[test]
+    fn parse_cleared_slot_returns_none() {
+        // After "errlog clear", slots read back as erased memory (all FF)
+        let line = "00000000 FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFF FFFF FFFF FFFF";
         assert!(parse_errlog_line(line).is_none());
     }
 

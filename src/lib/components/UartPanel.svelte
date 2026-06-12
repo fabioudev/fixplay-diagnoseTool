@@ -72,9 +72,15 @@
       return { ...base, raw: `${raw} — Befehl von der Konsole abgelehnt`, kind: 'error' };
     }
     if (raw.startsWith('OK')) {
-      const payload = raw.replace(/^OK\s*/, '').replace(/:[0-9A-Fa-f]{2}$/, '').trim();
+      const payload = raw
+        .replace(/^OK\s*/, '')
+        .replace(/:[0-9A-Fa-f]{2}$/, '')
+        .replace(/\s+/g, '');
       if (/^0*$/.test(payload)) {
         return { ...base, raw: `${raw} — leerer Eintrag (kein Fehler gespeichert)`, kind: 'status' };
+      }
+      if (/^0*F+$/i.test(payload)) {
+        return { ...base, raw: `${raw} — leerer Eintrag (Historie gelöscht)`, kind: 'status' };
       }
     }
     return { ...base, raw };
