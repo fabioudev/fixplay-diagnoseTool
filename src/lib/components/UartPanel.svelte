@@ -7,6 +7,7 @@
     uartConnect,
     uartDisconnect,
     uartSendErrlog,
+    uartSendVersion,
     uartSetAutoPoll,
     uartSetAutoReconnect,
     uartUpdateDb,
@@ -137,6 +138,17 @@
       listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
         if (e.payload.connected) uartReconnecting.set(false);
+        uartLog.update((log) => [
+          {
+            id:           nextLogId(),
+            timestamp_ms: Date.now(),
+            raw:          e.payload.connected
+                            ? `[Verbunden — ${selectedPort}]`
+                            : '[Getrennt]',
+            kind:         'status' as const,
+          },
+          ...log.slice(0, 499),
+        ]);
       }),
       listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-status', (e) => {
         dbCodeCount.set(e.payload.loaded ? (e.payload.count ?? null) : null);
@@ -236,6 +248,15 @@
              disabled:opacity-40"
     >
       Errlog
+    </button>
+
+    <button
+      onclick={() => uartSendVersion().catch(console.error)}
+      disabled={!$uartConnected}
+      class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
+             disabled:opacity-40"
+    >
+      Version
     </button>
 
     <label class="flex items-center gap-1 text-sm text-gray-300 select-none cursor-pointer">
@@ -349,7 +370,11 @@
           </div>
         </div>
       {:else}
-        <div class="font-mono text-xs text-green-400 leading-relaxed">{entry.raw}</div>
+        <div class="{entry.kind === 'status'
+          ? 'font-mono text-xs text-gray-500 italic leading-relaxed'
+          : 'font-mono text-xs text-green-400 leading-relaxed'}">
+          {entry.raw}
+        </div>
       {/if}
     {:else}
       <span class="text-gray-600 text-xs">
