@@ -68,9 +68,9 @@ pub fn run() {
                         }
                         Err(e) => {
                             tracing::warn!("background DB fetch failed: {}", e);
-                            let loaded = error_db.lock().unwrap().is_some();
-                            let count  = error_db.lock().unwrap()
-                                            .as_ref().map(|db| db.len());
+                            let guard  = error_db.lock().unwrap();
+                            let loaded = guard.is_some();
+                            let count  = guard.as_ref().map(|db| db.len());
                             let _ = app_handle.emit("uart://db-status",
                                 crate::commands::uart::DbStatusPayload {
                                     loaded, count, source: "failed".into(),
