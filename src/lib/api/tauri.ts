@@ -11,6 +11,8 @@ export const uartSendErrlog  = (): Promise<void>       => invoke<void>('uart_sen
 export const uartSendVersion = (): Promise<void>       => invoke<void>('uart_send_version');
 export const uartSetAutoPoll = (enabled: boolean): Promise<void> =>
   invoke<void>('uart_set_auto_poll', { enabled });
+export const uartSetAutoReconnect = (enabled: boolean): Promise<void> =>
+  invoke<void>('uart_set_auto_reconnect', { enabled });
 export const uartUpdateDb    = (): Promise<number>     => invoke<number>('uart_update_error_db');
 
 export const uartGetDbInfo     = () => invoke<number | null>('uart_get_db_info');

@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount, dbLoading } from './uart';
+import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from './uart';
 import type { UartLogEntry } from '$lib/api/types';
 
 describe('uart store', () => {
@@ -11,6 +11,7 @@ describe('uart store', () => {
     autoPollEnabled.set(false);
     dbCodeCount.set(null);
     dbLoading.set(false);
+    uartReconnecting.set(false);
   });
 
   it('starts disconnected', () => {
@@ -82,5 +83,14 @@ describe('uart store', () => {
   it('dbLoading can be set to true', () => {
     dbLoading.set(true);
     expect(get(dbLoading)).toBe(true);
+  });
+
+  it('uartReconnecting starts as false', () => {
+    expect(get(uartReconnecting)).toBe(false);
+  });
+
+  it('uartReconnecting can be set to true', () => {
+    uartReconnecting.set(true);
+    expect(get(uartReconnecting)).toBe(true);
   });
 });

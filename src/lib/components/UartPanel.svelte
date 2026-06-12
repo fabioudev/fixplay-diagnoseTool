@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
-  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading } from '$lib/stores/uart';
+  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from '$lib/stores/uart';
   import {
     uartListPorts,
     uartConnect,
     uartDisconnect,
     uartSendErrlog,
     uartSetAutoPoll,
+    uartSetAutoReconnect,
     uartUpdateDb,
     uartGetDbInfo,
     uartSearchErrorDb,
@@ -50,14 +51,25 @@
     }
   }
 
-  async function toggleConnect() {
+  let autoReconnect = $state(false);
+
+  async function connect() {
     loading = true;
     try {
-      if ($uartConnected) {
-        await uartDisconnect();
-      } else if (selectedPort) {
-        await uartConnect(selectedPort);
-      }
+      await uartConnect(selectedPort);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function disconnect() {
+    autoReconnect = false;
+    await uartSetAutoReconnect(false).catch(console.error);
+    loading = true;
+    try {
+      await uartDisconnect();
     } catch (e) {
       console.error(e);
     } finally {
@@ -98,7 +110,7 @@
   onMount(async () => {
     await refreshPorts();
 
-    const [u1, u2, u3, u4] = await Promise.all([
+    const [u1, u2, u3, u4, u5] = await Promise.all([
       listen<string>('uart://line', (e) => {
         uartLog.update((log) => [
           { id: nextLogId(), timestamp_ms: Date.now(), raw: e.payload },
@@ -124,13 +136,17 @@
       }),
       listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
+        if (e.payload.connected) uartReconnecting.set(false);
       }),
       listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-status', (e) => {
         dbCodeCount.set(e.payload.loaded ? (e.payload.count ?? null) : null);
         dbLoading.set(false);
       }),
+      listen<{ active: boolean }>('uart://reconnecting', (e) => {
+        uartReconnecting.set(e.payload.active);
+      }),
     ]);
-    unlisten.push(u1, u2, u3, u4);
+    unlisten.push(u1, u2, u3, u4, u5);
 
     const count = await uartGetDbInfo().catch(() => null);
     dbCodeCount.set(count ?? null);
@@ -143,6 +159,7 @@
     if (debounceTimer) clearTimeout(debounceTimer);
     unlisten.forEach((fn) => fn());
     dbLoading.set(false);
+    uartReconnecting.set(false);
   });
 </script>
 
@@ -153,7 +170,7 @@
   <div class="flex flex-wrap items-center gap-2">
     <select
       bind:value={selectedPort}
-      disabled={$uartConnected}
+      disabled={$uartConnected || $uartReconnecting}
       class="bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 border border-gray-700
              disabled:opacity-50"
     >
@@ -166,23 +183,46 @@
 
     <button
       onclick={refreshPorts}
-      disabled={$uartConnected}
+      disabled={$uartConnected || $uartReconnecting}
       class="text-xs text-gray-400 hover:text-gray-200 disabled:opacity-40"
     >
       ↻
     </button>
 
     <button
-      onclick={toggleConnect}
-      disabled={loading || (!$uartConnected && !selectedPort)}
+      onclick={$uartConnected || $uartReconnecting ? disconnect : connect}
+      disabled={loading || (!$uartConnected && !$uartReconnecting && !selectedPort)}
       class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
                ? 'bg-red-700 hover:bg-red-600 text-white'
-               : 'bg-green-700 hover:bg-green-600 text-white'}
+               : $uartReconnecting
+                 ? 'bg-yellow-700 hover:bg-yellow-600 text-white'
+                 : 'bg-green-700 hover:bg-green-600 text-white'}
              disabled:opacity-40"
     >
-      {$uartConnected ? 'Trennen' : 'Verbinden'}
+      {#if $uartReconnecting}
+        ⟳ Reconnecting…
+      {:else if $uartConnected}
+        Trennen
+      {:else}
+        Verbinden
+      {/if}
     </button>
+
+    {#if $uartConnected || $uartReconnecting}
+      <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={autoReconnect}
+          onchange={async (e) => {
+            autoReconnect = (e.target as HTMLInputElement).checked;
+            await uartSetAutoReconnect(autoReconnect).catch(console.error);
+          }}
+          class="accent-blue-500"
+        />
+        Auto-Reconnect
+      </label>
+    {/if}
 
     <button
       onclick={fetchErrlog}
@@ -227,9 +267,17 @@
 
   <!-- Status indicator -->
   <div class="flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full {$uartConnected ? 'bg-green-400' : 'bg-gray-600'}"></span>
+    <span class="w-2 h-2 rounded-full
+      {$uartConnected ? 'bg-green-400' : $uartReconnecting ? 'bg-yellow-400 animate-pulse' : 'bg-gray-600'}">
+    </span>
     <span class="text-xs text-gray-400">
-      {$uartConnected ? `Verbunden — ${selectedPort}` : 'Getrennt'}
+      {#if $uartReconnecting}
+        Reconnecting…
+      {:else if $uartConnected}
+        Verbunden — {selectedPort}
+      {:else}
+        Getrennt
+      {/if}
     </span>
   </div>
 
