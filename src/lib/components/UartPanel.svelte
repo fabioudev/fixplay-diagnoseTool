@@ -63,6 +63,7 @@
     loading = true;
     try {
       await uartConnect(selectedPort);
+      uartConnected.set(true);
       autoReconnect = $appSettings.auto_reconnect;
     } catch (e) {
       uartLog.update((log) => [
