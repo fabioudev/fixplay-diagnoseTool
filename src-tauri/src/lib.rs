@@ -3,7 +3,7 @@ mod settings;
 mod state;
 
 use state::AppState;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 pub fn run() {
     tracing_subscriber::fmt()
@@ -17,18 +17,69 @@ pub fn run() {
         .manage(AppState::default())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
-            let cache_path = app
-                .path()
-                .app_data_dir()?
-                .join("error_codes.json");
-            let state = app.state::<AppState>();
-            match fixplay_uart::ErrorDb::from_cache(&cache_path) {
+            let cache_path    = app.path().app_data_dir()?.join("error_codes.json");
+            let resource_path = app.path().resource_dir().ok()
+                                   .map(|r| r.join("error_codes.json"));
+            let state         = app.state::<AppState>();
+
+            // Step 1: try user cache
+            let cache_ok = match fixplay_uart::ErrorDb::from_cache(&cache_path) {
                 Ok(db) => {
+                    let count = db.len();
                     *state.error_db.lock().unwrap() = Some(db);
-                    tracing::info!("error DB loaded from cache");
+                    tracing::info!("error DB loaded from cache ({} codes)", count);
+                    let _ = app.handle().emit("uart://db-status",
+                        crate::commands::uart::DbStatusPayload {
+                            loaded: true, count: Some(count), source: "cache".into(),
+                        });
+                    true
                 }
-                Err(e) => tracing::warn!("error DB not cached yet: {}", e),
+                Err(e) => { tracing::warn!("error DB cache miss: {}", e); false }
+            };
+
+            // Step 2: try bundled resource (only if no user cache)
+            if !cache_ok {
+                if let Some(ref rpath) = resource_path {
+                    if let Ok(db) = fixplay_uart::ErrorDb::from_cache(rpath) {
+                        let count = db.len();
+                        *state.error_db.lock().unwrap() = Some(db);
+                        tracing::info!("error DB loaded from bundled resource ({} codes)", count);
+                        let _ = std::fs::copy(rpath, &cache_path);
+                        let _ = app.handle().emit("uart://db-status",
+                            crate::commands::uart::DbStatusPayload {
+                                loaded: true, count: Some(count), source: "bundled".into(),
+                            });
+                    }
+                }
+
+                // Step 3: spawn background fetch
+                let error_db   = std::sync::Arc::clone(&state.error_db);
+                let app_handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    match fixplay_uart::ErrorDb::fetch_and_cache(&cache_path) {
+                        Ok(db) => {
+                            let count = db.len();
+                            *error_db.lock().unwrap() = Some(db);
+                            tracing::info!("error DB fetched in background ({} codes)", count);
+                            let _ = app_handle.emit("uart://db-status",
+                                crate::commands::uart::DbStatusPayload {
+                                    loaded: true, count: Some(count), source: "fetched".into(),
+                                });
+                        }
+                        Err(e) => {
+                            tracing::warn!("background DB fetch failed: {}", e);
+                            let loaded = error_db.lock().unwrap().is_some();
+                            let count  = error_db.lock().unwrap()
+                                            .as_ref().map(|db| db.len());
+                            let _ = app_handle.emit("uart://db-status",
+                                crate::commands::uart::DbStatusPayload {
+                                    loaded, count, source: "failed".into(),
+                                });
+                        }
+                    }
+                });
             }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

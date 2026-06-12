@@ -27,6 +27,13 @@ pub struct ErrorSearchResult {
     pub category:    String,
 }
 
+#[derive(serde::Serialize, Clone)]
+pub(crate) struct DbStatusPayload {
+    pub loaded: bool,
+    pub count:  Option<usize>,
+    pub source: String,
+}
+
 #[tauri::command]
 pub async fn uart_list_ports() -> Result<Vec<String>, String> {
     info!("uart_list_ports invoked");
@@ -176,7 +183,11 @@ pub async fn uart_update_error_db(
 
     let count = db.len();
     *state.error_db.lock().unwrap() = Some(db);
-    app.emit("uart://db_updated", ()).map_err(|e| e.to_string())?;
+    app.emit("uart://db-status", DbStatusPayload {
+        loaded: true,
+        count:  Some(count),
+        source: "fetched".into(),
+    }).map_err(|e| e.to_string())?;
     Ok(count)
 }
 
@@ -268,6 +279,28 @@ fn reader_loop(
                 break;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod db_status_tests {
+    use super::*;
+
+    #[test]
+    fn db_status_payload_serializes_loaded() {
+        let p = DbStatusPayload { loaded: true, count: Some(1234), source: "cache".into() };
+        let json = serde_json::to_string(&p).unwrap();
+        assert!(json.contains("\"loaded\":true"));
+        assert!(json.contains("\"count\":1234"));
+        assert!(json.contains("\"source\":\"cache\""));
+    }
+
+    #[test]
+    fn db_status_payload_serializes_failed() {
+        let p = DbStatusPayload { loaded: false, count: None, source: "failed".into() };
+        let json = serde_json::to_string(&p).unwrap();
+        assert!(json.contains("\"loaded\":false"));
+        assert!(json.contains("\"count\":null"));
     }
 }
 

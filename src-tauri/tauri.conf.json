@@ -31,6 +31,6 @@
       "icons/icon_128x128.png",
       "icons/icon_256x256.png"
     ],
-    "resources": ["binaries/flashrom", "binaries/flashrom.exe"]
+    "resources": ["binaries/flashrom", "binaries/flashrom.exe", "resources/error_codes.json"]
   }
 }
