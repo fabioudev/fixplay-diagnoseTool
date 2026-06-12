@@ -112,9 +112,10 @@ pub async fn flash_read(
 
 #[tauri::command]
 pub async fn flash_write(
-    path: String,
+    path:       String,
     programmer: String,
-    app: AppHandle,
+    verify:     bool,
+    app:        AppHandle,
 ) -> Result<(), String> {
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
     let settings     = crate::settings::load_settings(&app);
@@ -124,14 +125,15 @@ pub async fn flash_write(
     };
 
     let data = std::fs::read(&path).map_err(|e| e.to_string())?;
-    emit_status(&app, "Schreibe NOR (Löschen + Schreiben + Verifizieren)...", "info");
-    info!("flash_write: path={}, programmer={}", path, programmer);
+    emit_status(&app, "Schreibe NOR (Löschen + Schreiben)...", "info");
+    info!("flash_write: path={}, programmer={}, verify={}", path, programmer, verify);
 
     {
-        let app_c = app.clone();
-        let dev   = device.clone();
+        let app_c     = app.clone();
+        let dev       = device.clone();
+        let data_copy = data.clone();
         tokio::task::spawn_blocking(move || {
-            dev.write_flash(&data, &|p: FlashProgress| {
+            dev.write_flash(&data_copy, &|p: FlashProgress| {
                 let _ = app_c.emit("flash://progress", FlashProgressEvent {
                     phase:   "write".into(),
                     percent: p.percent() as u8,
@@ -143,7 +145,33 @@ pub async fn flash_write(
         .map_err(|e| e.to_string())?;
     }
 
-    emit_status(&app, "NOR erfolgreich geschrieben ✓", "info");
+    if verify {
+        emit_status(&app, "Verifiziere...", "info");
+        let read_back = {
+            let app_c = app.clone();
+            let dev   = device.clone();
+            tokio::task::spawn_blocking(move || {
+                dev.read_flash(&|p: FlashProgress| {
+                    let _ = app_c.emit("flash://progress", FlashProgressEvent {
+                        phase:   "verify".into(),
+                        percent: p.percent() as u8,
+                    });
+                })
+            })
+            .await
+            .map_err(|e| e.to_string())?
+            .map_err(|e| e.to_string())?
+        };
+
+        if read_back != data {
+            let diff = read_back.iter().zip(data.iter()).filter(|(a, b)| a != b).count();
+            return Err(format!("Verify fehlgeschlagen: {} Bytes weichen ab", diff));
+        }
+        emit_status(&app, "Verify OK ✓", "info");
+    } else {
+        emit_status(&app, "NOR erfolgreich geschrieben ✓", "info");
+    }
+
     Ok(())
 }
 
@@ -418,5 +446,24 @@ mod validate_tests {
         assert!(!result.validation.size_ok);
         assert_eq!(result.size_bytes, 1024);
         std::fs::remove_file(&path).ok();
+    }
+}
+
+#[cfg(test)]
+mod verify_tests {
+    #[test]
+    fn verify_counts_differing_bytes() {
+        let written:   Vec<u8> = vec![0x00, 0x01, 0x02, 0x03];
+        let read_back: Vec<u8> = vec![0x00, 0xFF, 0x02, 0xFF];
+        let diff = read_back.iter().zip(written.iter()).filter(|(a, b)| a != b).count();
+        assert_eq!(diff, 2);
+    }
+
+    #[test]
+    fn verify_passes_when_identical() {
+        let written:   Vec<u8> = vec![0xAA, 0xBB];
+        let read_back: Vec<u8> = vec![0xAA, 0xBB];
+        let diff = read_back.iter().zip(written.iter()).filter(|(a, b)| a != b).count();
+        assert_eq!(diff, 0);
     }
 }
