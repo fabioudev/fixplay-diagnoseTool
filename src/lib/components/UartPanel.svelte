@@ -98,12 +98,6 @@
   onMount(async () => {
     await refreshPorts();
 
-    const count = await uartGetDbInfo().catch(() => null);
-    dbCodeCount.set(count ?? null);
-    if (count === null) {
-      dbLoading.set(true);
-    }
-
     const [u1, u2, u3, u4] = await Promise.all([
       listen<string>('uart://line', (e) => {
         uartLog.update((log) => [
@@ -137,11 +131,18 @@
       }),
     ]);
     unlisten.push(u1, u2, u3, u4);
+
+    const count = await uartGetDbInfo().catch(() => null);
+    dbCodeCount.set(count ?? null);
+    if (count === null) {
+      dbLoading.set(true);
+    }
   });
 
   onDestroy(() => {
     if (debounceTimer) clearTimeout(debounceTimer);
     unlisten.forEach((fn) => fn());
+    dbLoading.set(false);
   });
 </script>
 
