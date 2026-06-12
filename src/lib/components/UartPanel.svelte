@@ -256,7 +256,12 @@
 </script>
 
 <section class="flex flex-col gap-4 flex-1 bg-gray-900 rounded-lg p-4 min-h-0">
-  <h2 class="text-lg font-semibold text-gray-100">UART Diagnostics</h2>
+  <div>
+    <h2 class="text-lg font-semibold text-gray-100">UART Diagnostik</h2>
+    <p class="text-xs text-gray-500 mt-0.5">
+      Live-Verbindung zur PS5-Diagnosebrücke (CH340, CP210x, FTDI o.ä.) — Fehler-Log, Firmware-Version und Temperatur auslesen
+    </p>
+  </div>
 
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-2">
@@ -264,6 +269,7 @@
       <select
         bind:value={selectedPort}
         disabled={$uartConnected || $uartReconnecting}
+        title="UART-Port der Diagnosebrücke. Erkannte Bridges (CH340, CP210x, FTDI usw.) werden automatisch hervorgehoben und bevorzugt ausgewählt. Klicke ↻ nach dem Einstecken."
         class="appearance-none bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 pr-6
                border border-gray-700 disabled:opacity-50 focus:outline-none"
       >
@@ -272,7 +278,7 @@
             {p.name}{p.is_bridge ? ` — ${p.description}` : ''}
           </option>
         {:else}
-          <option value="">Keine Ports gefunden</option>
+          <option value="">Keine Ports gefunden — Bridge einstecken und ↻ klicken</option>
         {/each}
       </select>
       <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
@@ -281,6 +287,7 @@
     <button
       onclick={refreshPorts}
       disabled={$uartConnected || $uartReconnecting}
+      title="Port-Liste aktualisieren — klicke hier nachdem du die UART-Bridge eingesteckt hast."
       class="text-xs text-gray-400 hover:text-gray-200 disabled:opacity-40"
     >
       ↻
@@ -289,6 +296,11 @@
     <button
       onclick={$uartConnected || $uartReconnecting ? disconnect : connect}
       disabled={loading || (!$uartConnected && !$uartReconnecting && !selectedPort)}
+      title={$uartConnected
+        ? 'Verbindung trennen und UART-Port freigeben.'
+        : $uartReconnecting
+          ? 'Automatischen Reconnect-Versuch abbrechen und trennen.'
+          : 'Mit dem ausgewählten UART-Port verbinden. Die PS5 muss eingeschaltet oder im Standby sein.'}
       class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
                ? 'bg-red-700 hover:bg-red-600 text-white'
@@ -311,7 +323,10 @@
     </button>
 
     {#if $uartConnected || $uartReconnecting}
-      <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none">
+      <label
+        class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none"
+        title="Verbindet automatisch neu wenn die Bridge kurz getrennt und wieder eingesteckt wird. Nützlich bei losen Steckern. Einstellung wird gespeichert."
+      >
         <input
           type="checkbox"
           checked={autoReconnect}
@@ -336,6 +351,7 @@
     <button
       onclick={fetchErrlog}
       disabled={!$uartConnected}
+      title="Sendet den 'errlog'-Befehl an die PS5. Die Konsole antwortet mit dem gespeicherten Fehler-Log des SoC (bis zu mehreren Einträgen). Ergebnisse erscheinen im Log mit Fehlercode, Temperatur und Zeitstempel."
       class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
              disabled:opacity-40"
     >
@@ -345,6 +361,7 @@
     <button
       onclick={() => uartSendVersion().catch(console.error)}
       disabled={!$uartConnected}
+      title="Sendet den 'version'-Befehl an die PS5. Die Konsole antwortet mit der aktuell installierten Firmware-Version."
       class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
              disabled:opacity-40"
     >
@@ -354,14 +371,17 @@
     <button
       onclick={loopbackTest}
       disabled={!$uartConnected || loopbackPending}
-      title="RX mit TX kurzschließen, dann klicken — Echo bestätigt funktionierende UART-Verbindung"
+      title="Hardware-Test: RX und TX auf der Bridge kurzschließen (Draht oder Büroklammer), dann hier klicken. Kommt das Echo zurück, funktionieren TX-Pin, RX-Pin und Bridge-Chip korrekt."
       class="px-3 py-1 text-sm rounded bg-purple-700 hover:bg-purple-600 text-white
              disabled:opacity-40"
     >
       {loopbackPending ? '⟳ Loopback…' : 'Loopback'}
     </button>
 
-    <label class="flex items-center gap-1 text-sm text-gray-300 select-none cursor-pointer">
+    <label
+      class="flex items-center gap-1 text-sm text-gray-300 select-none cursor-pointer"
+      title="Sendet den 'errlog'-Befehl automatisch alle paar Sekunden. Nützlich um neue Fehler live mitzuverfolgen ohne manuell zu klicken. Nur während aktiver Verbindung verfügbar."
+    >
       <input
         type="checkbox"
         checked={$autoPollEnabled}
@@ -374,17 +394,28 @@
 
     <div class="flex items-center gap-2 ml-auto">
       {#if $dbLoading}
-        <span class="text-xs text-gray-500 flex items-center gap-1">
+        <span class="text-xs text-gray-500 flex items-center gap-1" title="Fehlercodes-Datenbank wird geladen…">
           <span class="inline-block animate-spin">⟳</span> Lade DB…
         </span>
       {:else if $dbCodeCount !== null}
-        <span class="text-xs text-green-400">{$dbCodeCount.toLocaleString()} Codes</span>
+        <span
+          class="text-xs text-green-400"
+          title="Anzahl der geladenen PS5-Fehlercodes in der lokalen Datenbank. Wird für die automatische Beschreibung von Errlog-Einträgen verwendet."
+        >
+          {$dbCodeCount.toLocaleString()} Codes
+        </span>
       {:else}
-        <span class="text-xs text-red-400">Nicht geladen</span>
+        <span
+          class="text-xs text-red-400"
+          title="Fehlercodes-Datenbank konnte nicht geladen werden. Klicke 'DB aktualisieren' (benötigt Internetverbindung) oder prüfe die Verbindung."
+        >
+          Nicht geladen
+        </span>
       {/if}
       <button
         onclick={updateDb}
         disabled={dbUpdating}
+        title="Lädt die neueste Fehlercodes-Datenbank von GitHub herunter und speichert sie lokal. Benötigt Internetverbindung. Lokal gecachte DB bleibt auch offline verfügbar."
         class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
                disabled:opacity-40"
       >
@@ -400,11 +431,11 @@
     </span>
     <span class="text-xs text-gray-400">
       {#if $uartReconnecting}
-        Reconnecting…
+        Reconnecting… — Bridge aus- und wieder einstecken oder "Trennen" klicken um abzubrechen
       {:else if $uartConnected}
         Verbunden — {selectedPort}
       {:else}
-        Getrennt
+        Getrennt — Port wählen und "Verbinden" klicken
       {/if}
     </span>
   </div>
@@ -414,15 +445,17 @@
     <div class="relative">
       <input
         type="text"
-        placeholder="Code oder Beschreibung suchen…"
+        placeholder="Fehlercode (hex) oder Beschreibung suchen…"
         oninput={onSearchInput}
         value={dbQuery}
+        title="Suche in der lokalen Fehlercodes-Datenbank. Eingabe als Hexzahl (z.B. 80000001) für exakte Suche, oder Text für Volltextsuche in Beschreibungen. Filtert auch das Log."
         class="w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 border border-gray-700
                placeholder:text-gray-600 focus:outline-none focus:border-gray-500"
       />
       {#if dbQuery}
         <button
           onclick={() => { dbQuery = ''; searchResults = []; }}
+          title="Suche zurücksetzen"
           class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs"
         >
           ✕
@@ -435,6 +468,7 @@
         {#each searchResults as r (r.code)}
           <button
             onclick={() => { dbQuery = r.code.toString(); searchResults = []; }}
+            title="Klicken um diesen Code als Log-Filter zu setzen"
             class="w-full text-left px-2 py-1.5 hover:bg-gray-700 flex items-center gap-2 border-b
                    border-gray-700 last:border-0"
           >
@@ -453,9 +487,12 @@
   <div class="flex-1 min-h-48 overflow-y-auto bg-gray-950 rounded p-3 flex flex-col gap-2">
     {#each filteredLog as entry (entry.id)}
       {#if entry.parsed}
-        <div class="rounded bg-gray-800 border border-gray-700 p-2 text-xs">
+        <div
+          class="rounded bg-gray-800 border border-gray-700 p-2 text-xs"
+          title="Erkannter Errlog-Eintrag — Fehlercode automatisch aus der Datenbank aufgelöst"
+        >
           <div class="flex items-start justify-between gap-2">
-            <span class="font-mono font-bold text-orange-400">
+            <span class="font-mono font-bold text-orange-400" title="Fehlercode (hexadezimal)">
               0x{entry.parsed.entry.error_code.toString(16).toUpperCase().padStart(8, '0')}
             </span>
             <span class="text-gray-500 shrink-0">
@@ -466,9 +503,15 @@
             <p class="text-gray-200 mt-1">{entry.parsed.description}</p>
           {/if}
           <div class="mt-1 flex flex-wrap gap-3 text-gray-400 font-mono">
-            <span>Temp: <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span></span>
-            <span>PowerStates: {entry.parsed.entry.power_states.toString(16).toUpperCase().padStart(8, '0')}</span>
-            <span>UpCause: {entry.parsed.entry.up_cause.toString(16).toUpperCase().padStart(8, '0')}</span>
+            <span title="SoC-Temperatur zum Zeitpunkt des Fehlers">
+              Temp: <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span>
+            </span>
+            <span title="Power-State-Register — gibt Auskunft über aktiven Energiezustand der Konsole">
+              PowerStates: {entry.parsed.entry.power_states.toString(16).toUpperCase().padStart(8, '0')}
+            </span>
+            <span title="UpCause — Ursache für den letzten Systemstart (0=normal, andere Werte = Reset/Absturz)">
+              UpCause: {entry.parsed.entry.up_cause.toString(16).toUpperCase().padStart(8, '0')}
+            </span>
           </div>
         </div>
       {:else}
@@ -483,7 +526,9 @@
       {/if}
     {:else}
       <span class="text-gray-600 text-xs">
-        {dbQuery.trim() ? 'Keine Treffer für diesen Filter.' : 'Kein Output…'}
+        {dbQuery.trim()
+          ? 'Keine Treffer für diesen Filter.'
+          : 'Kein Output — verbinde die UART-Bridge und klicke "Errlog" oder "Version".'}
       </span>
     {/each}
   </div>

@@ -49,6 +49,7 @@
       <h2 class="text-sm font-semibold text-gray-100">Einstellungen</h2>
       <button
         onclick={onclose}
+        title="Einstellungen schließen (werden automatisch gespeichert)"
         class="text-gray-400 hover:text-gray-200 text-lg leading-none"
       >✕</button>
     </div>
@@ -57,7 +58,9 @@
 
       <!-- Flashrom Binary -->
       <div class="flex flex-col gap-1.5">
-        <label for="settings-flashrom" class="text-xs font-medium text-gray-400">Flashrom Binary</label>
+        <label for="settings-flashrom" class="text-xs font-medium text-gray-400">
+          Flashrom Binary
+        </label>
         <div class="flex gap-1">
           <input
             id="settings-flashrom"
@@ -66,21 +69,27 @@
             value={$appSettings.flashrom_path ?? ''}
             oninput={(e) => appSettings.update(s => ({ ...s, flashrom_path: (e.target as HTMLInputElement).value || null }))}
             onblur={save}
+            title="Pfad zur flashrom-Binary. Leer lassen, um die mitgelieferte Version zu verwenden. Eigene Binary nötig, wenn das gebundelte flashrom deinen Programmer nicht unterstützt."
             class="flex-1 bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
                    focus:outline-none focus:border-gray-500"
           />
           <button
             onclick={browseFlashrom}
+            title="Datei auswählen"
             class="px-2 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 shrink-0"
           >…</button>
         </div>
-        <p class="text-xs text-gray-600">Leer lassen für die mitgelieferte Binary.</p>
+        <p class="text-xs text-gray-600">
+          Leer lassen für die mitgelieferte Binary. Eigene Version nur nötig wenn der gebundelte flashrom deinen Programmer nicht erkennt.
+        </p>
       </div>
 
       <!-- Archive Directory -->
       <div class="flex flex-col gap-1.5">
-        <label for="settings-archive-dir" class="text-xs font-medium text-gray-400">Archiv-Verzeichnis</label>
+        <label for="settings-archive-dir" class="text-xs font-medium text-gray-400">
+          Archiv-Verzeichnis
+        </label>
         <div class="flex gap-1">
           <input
             id="settings-archive-dir"
@@ -89,21 +98,27 @@
             value={$appSettings.archive_dir ?? ''}
             oninput={(e) => appSettings.update(s => ({ ...s, archive_dir: (e.target as HTMLInputElement).value || null }))}
             onblur={save}
+            title="Ordner, in dem NOR-Dumps gespeichert werden. Leer lassen für den Standard-App-Datenordner des Betriebssystems."
             class="flex-1 bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
                    focus:outline-none focus:border-gray-500"
           />
           <button
             onclick={browseArchiveDir}
+            title="Ordner auswählen"
             class="px-2 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 shrink-0"
           >…</button>
         </div>
-        <p class="text-xs text-gray-600">Leer lassen für den Standard-Speicherort des OS.</p>
+        <p class="text-xs text-gray-600">
+          Leer lassen für den Standard-Speicherort des OS. Dumps werden nach Seriennummer in Unterordnern abgelegt.
+        </p>
       </div>
 
       <!-- UART Baud Rate -->
       <div class="flex flex-col gap-1.5">
-        <label for="settings-baud-rate" class="text-xs font-medium text-gray-400">UART Baudrate</label>
+        <label for="settings-baud-rate" class="text-xs font-medium text-gray-400">
+          UART Baudrate
+        </label>
         <div class="relative">
           <select
             id="settings-baud-rate"
@@ -112,18 +127,26 @@
               appSettings.update(s => ({ ...s, baud_rate: Number((e.target as HTMLSelectElement).value) }));
               await save();
             }}
+            title="Übertragungsgeschwindigkeit der UART-Verbindung. PS5-Diagnosebrücken verwenden typischerweise 115200 Baud. Nur ändern, wenn du weißt, was du tust."
             class="appearance-none w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 pr-6
                    border border-gray-700 focus:outline-none focus:border-gray-500"
           >
             {#each BAUD_RATES as rate (rate)}
-              <option value={rate}>{rate}</option>
+              <option value={rate}>{rate}{rate === 115200 ? ' (Standard PS5)' : ''}</option>
             {/each}
           </select>
           <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
         </div>
-        <p class="text-xs text-gray-600">Wirkt beim nächsten UART-Verbindungsaufbau.</p>
+        <p class="text-xs text-gray-600">
+          Wirkt beim nächsten UART-Verbindungsaufbau. PS5-Standard ist 115200.
+        </p>
       </div>
 
+    </div>
+
+    <!-- Footer hint -->
+    <div class="px-4 py-3 border-t border-gray-700">
+      <p class="text-xs text-gray-600">Alle Einstellungen werden sofort beim Verlassen des Feldes gespeichert.</p>
     </div>
   </div>
 {/if}
