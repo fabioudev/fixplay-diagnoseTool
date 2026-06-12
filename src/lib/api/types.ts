@@ -44,6 +44,7 @@ export interface UartLogEntry {
   timestamp_ms: number;
   raw: string;
   parsed?: UartEntryEvent;
+  kind?: 'status';
 }
 
 export interface UartStatusEvent {

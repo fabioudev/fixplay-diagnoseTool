@@ -93,4 +93,14 @@ describe('uart store', () => {
     uartReconnecting.set(true);
     expect(get(uartReconnecting)).toBe(true);
   });
+
+  it('UartLogEntry accepts kind status', () => {
+    const entry: UartLogEntry = {
+      id:           0,
+      timestamp_ms: Date.now(),
+      raw:          '[Verbunden — /dev/ttyUSB0]',
+      kind:         'status',
+    };
+    expect(entry.kind).toBe('status');
+  });
 });
