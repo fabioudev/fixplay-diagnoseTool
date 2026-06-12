@@ -42,13 +42,15 @@ pub fn run() {
                 if let Some(ref rpath) = resource_path {
                     if let Ok(db) = fixplay_uart::ErrorDb::from_cache(rpath) {
                         let count = db.len();
-                        *state.error_db.lock().unwrap() = Some(db);
-                        tracing::info!("error DB loaded from bundled resource ({} codes)", count);
-                        let _ = std::fs::copy(rpath, &cache_path);
-                        let _ = app.handle().emit("uart://db-status",
-                            crate::commands::uart::DbStatusPayload {
-                                loaded: true, count: Some(count), source: "bundled".into(),
-                            });
+                        if count > 0 {
+                            *state.error_db.lock().unwrap() = Some(db);
+                            tracing::info!("error DB loaded from bundled resource ({} codes)", count);
+                            let _ = std::fs::copy(rpath, &cache_path);
+                            let _ = app.handle().emit("uart://db-status",
+                                crate::commands::uart::DbStatusPayload {
+                                    loaded: true, count: Some(count), source: "bundled".into(),
+                                });
+                        }
                     }
                 }
 

@@ -113,7 +113,9 @@ jobs:
         run: npm ci
 
       - name: Bundle latest Error DB
-        run: curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
+          node -e "const d=JSON.parse(require('fs').readFileSync('src-tauri/resources/error_codes.json','utf8'));if(!Array.isArray(d)||d.length===0){console.error('Error DB empty or invalid');process.exit(1)}"
 
       - name: Build Tauri bundles
         run: npm run tauri build ${{ matrix.build_args }}
