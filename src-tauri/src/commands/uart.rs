@@ -1,11 +1,10 @@
 use crate::state::{AppState, PendingEntry};
 use fixplay_core::traits::UartDevice;
-use fixplay_uart::{build_command, parse_errlog_line, ErrorDb, UartPort};
+use fixplay_uart::{build_command, parse_errlog_line, UartPort};
 use serde::Serialize;
-use std::collections::VecDeque;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::time::Duration;
 use tauri::{AppHandle, Manager, State};
 use tracing::{error, info};
@@ -135,18 +134,15 @@ pub async fn uart_connect(
     // Fresh session: drop stale buffered output from a previous connection
     state.raw_lines.lock().unwrap().clear();
     state.pending_entries.lock().unwrap().clear();
+    state.recent_sent.lock().unwrap().clear();
     state.loopback_triggered.store(false, Ordering::Release);
 
     let stop_flag  = Arc::new(AtomicBool::new(false));
     let stop_clone = Arc::clone(&stop_flag);
-    let db_clone   = Arc::clone(&state.error_db);
-    let rl_clone   = Arc::clone(&state.raw_lines);
-    let pe_clone   = Arc::clone(&state.pending_entries);
-    let lb_clone   = Arc::clone(&state.loopback_triggered);
     let app_clone  = app.clone();
 
     let handle = std::thread::spawn(move || {
-        reader_loop(read_port, stop_clone, app_clone, db_clone, rl_clone, pe_clone, lb_clone);
+        reader_loop(read_port, stop_clone, app_clone);
     });
 
     *state.uart_stop.lock().unwrap()   = Some(stop_flag);
@@ -198,26 +194,46 @@ pub async fn uart_disconnect(state: State<'_, AppState>) -> Result<(), String> {
     Ok(())
 }
 
-#[tauri::command]
-pub async fn uart_send_errlog(state: State<'_, AppState>) -> Result<(), String> {
-    let cmd = build_command("errlog");
+/// Write a command to the port and remember it so the reader can drop the
+/// echo the PS5 UART mirrors back.
+fn send_tracked(state: &AppState, cmd: &str) -> Result<(), String> {
     let mut guard = state.uart.lock().unwrap();
     guard
         .as_mut()
         .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
-        .write_line(&cmd)
-        .map_err(|e| format!("Senden fehlgeschlagen: {}", e))
+        .write_line(cmd)
+        .map_err(|e| format!("Senden fehlgeschlagen: {}", e))?;
+    let mut sent = state.recent_sent.lock().unwrap();
+    if sent.len() >= 20 {
+        sent.pop_front();
+    }
+    sent.push_back(cmd.trim_end().to_string());
+    Ok(())
+}
+
+/// The PS5 stores a history of error log entries, queried one index at a
+/// time via "errlog <n>". Fetch the full history.
+#[tauri::command]
+pub async fn uart_send_errlog(app: AppHandle) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || -> Result<(), String> {
+        let state = app.state::<AppState>();
+        for i in 0..10 {
+            let cmd = build_command(&format!("errlog {}", i));
+            send_tracked(&state, &cmd)?;
+            if i < 9 {
+                std::thread::sleep(Duration::from_millis(150));
+            }
+        }
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 pub async fn uart_send_version(state: State<'_, AppState>) -> Result<(), String> {
     let cmd = build_command("version");
-    let mut guard = state.uart.lock().unwrap();
-    guard
-        .as_mut()
-        .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
-        .write_line(&cmd)
-        .map_err(|e| format!("Senden fehlgeschlagen: {}", e))
+    send_tracked(&state, &cmd)
 }
 
 #[tauri::command]
@@ -433,10 +449,6 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             drop(open_port);
 
             let state     = app.state::<AppState>();
-            let db_clone  = Arc::clone(&state.error_db);
-            let rl_clone  = Arc::clone(&state.raw_lines);
-            let pe_clone  = Arc::clone(&state.pending_entries);
-            let lb_clone  = Arc::clone(&state.loopback_triggered);
             let app_clone = app.clone();
 
             {
@@ -448,7 +460,7 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             let new_stop   = Arc::new(AtomicBool::new(false));
             let stop_clone = Arc::clone(&new_stop);
             let handle = std::thread::spawn(move || {
-                reader_loop(read_port, stop_clone, app_clone, db_clone, rl_clone, pe_clone, lb_clone);
+                reader_loop(read_port, stop_clone, app_clone);
             });
 
             *state.uart_stop.lock().unwrap()   = Some(new_stop);
@@ -462,22 +474,64 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
     }
 }
 
-fn push_capped(buf: &Mutex<VecDeque<String>>, line: String, cap: usize) {
-    let mut b = buf.lock().unwrap();
-    if b.len() >= cap {
-        b.pop_front();
+/// Remove a trailing ":XX" checksum (colon + two hex digits) if present.
+fn strip_checksum(s: &str) -> &str {
+    let b = s.as_bytes();
+    if b.len() >= 3
+        && b[b.len() - 3] == b':'
+        && b[b.len() - 2].is_ascii_hexdigit()
+        && b[b.len() - 1].is_ascii_hexdigit()
+    {
+        &s[..s.len() - 3]
+    } else {
+        s
     }
-    b.push_back(line);
+}
+
+fn handle_line(line: String, state: &AppState) {
+    // Loopback echo: signal the waiting command, don't show as output
+    if line.contains("LOOPBACK:PING") {
+        state.loopback_triggered.store(true, Ordering::Release);
+        return;
+    }
+
+    // Drop echoes of commands we sent (the PS5 UART mirrors input back)
+    {
+        let mut sent = state.recent_sent.lock().unwrap();
+        if let Some(pos) = sent.iter().position(|c| *c == line) {
+            sent.remove(pos);
+            return;
+        }
+    }
+
+    // Responses look like "OK <payload>:<checksum>" — unwrap before parsing
+    let payload = strip_checksum(line.strip_prefix("OK ").unwrap_or(&line));
+
+    if let Some(entry) = parse_errlog_line(payload) {
+        let description = state.error_db
+            .lock()
+            .unwrap()
+            .as_ref()
+            .and_then(|db| db.lookup(entry.error_code))
+            .map(|e| e.description.clone());
+        let mut pe = state.pending_entries.lock().unwrap();
+        if pe.len() >= 200 {
+            pe.pop_front();
+        }
+        pe.push_back(PendingEntry { entry, description });
+    } else {
+        let mut rl = state.raw_lines.lock().unwrap();
+        if rl.len() >= 500 {
+            rl.pop_front();
+        }
+        rl.push_back(line);
+    }
 }
 
 fn reader_loop(
     mut port: Box<dyn serialport::SerialPort + Send>,
     stop: Arc<AtomicBool>,
     app: AppHandle,
-    error_db: Arc<Mutex<Option<ErrorDb>>>,
-    raw_lines: Arc<Mutex<VecDeque<String>>>,
-    pending_entries: Arc<Mutex<VecDeque<PendingEntry>>>,
-    loopback_triggered: Arc<AtomicBool>,
 ) {
     let mut buf = Vec::<u8>::with_capacity(256);
     let mut byte = [0u8; 1];
@@ -496,28 +550,7 @@ fn reader_loop(
                     if line.is_empty() {
                         continue;
                     }
-
-                    // Loopback echo: signal the waiting command, don't show as output
-                    if line.contains("LOOPBACK:PING") {
-                        loopback_triggered.store(true, Ordering::Release);
-                        continue;
-                    }
-
-                    if let Some(entry) = parse_errlog_line(&line) {
-                        let description = error_db
-                            .lock()
-                            .unwrap()
-                            .as_ref()
-                            .and_then(|db| db.lookup(entry.error_code))
-                            .map(|e| e.description.clone());
-                        let mut pe = pending_entries.lock().unwrap();
-                        if pe.len() >= 200 {
-                            pe.pop_front();
-                        }
-                        pe.push_back(PendingEntry { entry, description });
-                    } else {
-                        push_capped(&raw_lines, line, 500);
-                    }
+                    handle_line(line, &app.state::<AppState>());
                 } else {
                     buf.push(byte[0]);
                 }
@@ -552,18 +585,16 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
         // Scope block so uart lock is released before spawn_reconnect_if_enabled
         let had_write_error = {
             let state = app.state::<AppState>();
-            let mut guard = state.uart.lock().unwrap();
-            if let Some(uart) = guard.as_mut() {
-                if uart.is_connected() {
-                    let cmd = build_command("errlog");
-                    if let Err(e) = uart.write_line(&cmd) {
-                        error!("poll_loop write error: {}", e);
-                        true
-                    } else {
-                        false
-                    }
-                } else {
-                    false
+            let is_connected = state.uart.lock().unwrap()
+                .as_ref()
+                .map(|u| u.is_connected())
+                .unwrap_or(false);
+            if is_connected {
+                // Poll the most recent errlog slot for new errors
+                let cmd = build_command("errlog 0");
+                match send_tracked(&state, &cmd) {
+                    Ok(())  => false,
+                    Err(e)  => { error!("poll_loop write error: {}", e); true }
                 }
             } else {
                 false
@@ -602,6 +633,31 @@ mod db_status_tests {
         let json = serde_json::to_string(&p).unwrap();
         assert!(json.contains("\"loaded\":false"));
         assert!(json.contains("\"count\":null"));
+    }
+}
+
+#[cfg(test)]
+mod line_handling_tests {
+    use super::*;
+
+    #[test]
+    fn strip_checksum_removes_trailing_hex_pair() {
+        assert_eq!(strip_checksum("OK 00000000:3A"), "OK 00000000");
+        assert_eq!(strip_checksum("errlog 0:9B"), "errlog 0");
+    }
+
+    #[test]
+    fn strip_checksum_keeps_lines_without_checksum() {
+        assert_eq!(strip_checksum("hello world"), "hello world");
+        assert_eq!(strip_checksum("a:b"), "a:b"); // 'b' alone is not two hex digits at the end
+        assert_eq!(strip_checksum(":AB"), "");    // edge: only checksum
+        assert_eq!(strip_checksum("ab"), "ab");   // too short
+    }
+
+    #[test]
+    fn strip_checksum_requires_hex_digits() {
+        assert_eq!(strip_checksum("data:ZZ"), "data:ZZ");
+        assert_eq!(strip_checksum("data:G1"), "data:G1");
     }
 }
 

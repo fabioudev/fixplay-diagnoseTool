@@ -30,6 +30,9 @@ pub struct AppState {
     pub pending_entries:    Arc<Mutex<VecDeque<PendingEntry>>>,
     /// Set by reader_loop when LOOPBACK:PING is received; cleared by loopback command.
     pub loopback_triggered: Arc<AtomicBool>,
+    /// Commands recently written to the port. The PS5 UART mirrors received
+    /// characters back; the reader drops lines matching one of these echoes.
+    pub recent_sent:        Arc<Mutex<VecDeque<String>>>,
 }
 
 impl Default for AppState {
@@ -48,6 +51,7 @@ impl Default for AppState {
             raw_lines:          Arc::new(Mutex::new(VecDeque::with_capacity(500))),
             pending_entries:    Arc::new(Mutex::new(VecDeque::with_capacity(200))),
             loopback_triggered: Arc::new(AtomicBool::new(false)),
+            recent_sent:        Arc::new(Mutex::new(VecDeque::with_capacity(20))),
         }
     }
 }

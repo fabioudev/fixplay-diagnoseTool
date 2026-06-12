@@ -50,18 +50,33 @@
     uartLog.update((log) => [entry, ...log.slice(0, 499)]);
   }
 
-  /// After sending a command, warn if the console stays silent.
-  function expectResponse(label: string) {
+  /// Before sending a command, arm a warning in case the console stays silent.
+  function expectResponse(label: string, timeoutMs = 3000) {
     gotDataSinceCommand = false;
     if (responseTimeout) clearTimeout(responseTimeout);
     responseTimeout = setTimeout(() => {
       if (!gotDataSinceCommand) {
         pushLog(
-          `[Keine Antwort auf "${label}" innerhalb 3 s — Verkabelung (TX↔RX gekreuzt?), Baudrate und Konsolen-Status prüfen]`,
+          `[Keine Antwort auf "${label}" — Verkabelung (TX↔RX gekreuzt?), Baudrate und Konsolen-Status prüfen]`,
           'error'
         );
       }
-    }, 3000);
+    }, timeoutMs);
+  }
+
+  /// Translate well-known console responses into readable log entries.
+  function interpretLine(raw: string): UartLogEntry {
+    const base = { id: nextLogId(), timestamp_ms: Date.now() };
+    if (/^NG\b/.test(raw)) {
+      return { ...base, raw: `${raw} — Befehl von der Konsole abgelehnt`, kind: 'error' };
+    }
+    if (raw.startsWith('OK')) {
+      const payload = raw.replace(/^OK\s*/, '').replace(/:[0-9A-Fa-f]{2}$/, '').trim();
+      if (/^0*$/.test(payload)) {
+        return { ...base, raw: `${raw} — leerer Eintrag (kein Fehler gespeichert)`, kind: 'status' };
+      }
+    }
+    return { ...base, raw };
   }
 
   function formatEntry(e: UartEntryEvent): string {
@@ -115,9 +130,7 @@
     if (r.lines.length > 0 || r.entries.length > 0) {
       gotDataSinceCommand = true;
       const items: UartLogEntry[] = [
-        ...r.lines.map((line): UartLogEntry => ({
-          id: nextLogId(), timestamp_ms: Date.now(), raw: line,
-        })),
+        ...r.lines.map(interpretLine),
         ...r.entries.map((e): UartLogEntry => ({
           id: nextLogId(), timestamp_ms: Date.now(), raw: formatEntry(e), parsed: e,
         })),
@@ -187,21 +200,27 @@
     }
   }
 
+  let errlogPending = $state(false);
+
   async function fetchErrlog() {
-    pushLog('[→ errlog angefordert]', 'status');
+    errlogPending = true;
+    pushLog('[→ Fehler-Historie angefordert (errlog 0–9)]', 'status');
+    // Arm before sending: sending all 10 queries takes ~1.5 s
+    expectResponse('errlog', 5000);
     try {
       await uartSendErrlog();
-      expectResponse('errlog');
     } catch (e) {
       pushLog(`Errlog fehlgeschlagen: ${String(e)}`, 'error');
+    } finally {
+      errlogPending = false;
     }
   }
 
   async function fetchVersion() {
     pushLog('[→ version angefordert]', 'status');
+    expectResponse('version');
     try {
       await uartSendVersion();
-      expectResponse('version');
     } catch (e) {
       pushLog(`Version fehlgeschlagen: ${String(e)}`, 'error');
     }
@@ -371,12 +390,12 @@
 
     <button
       onclick={fetchErrlog}
-      disabled={!$uartConnected}
-      title="Sendet den 'errlog'-Befehl an die PS5. Die Konsole antwortet mit dem gespeicherten Fehler-Log des SoC (bis zu mehreren Einträgen). Ergebnisse erscheinen im Log mit Fehlercode, Temperatur und Zeitstempel."
+      disabled={!$uartConnected || errlogPending}
+      title="Fragt die komplette Fehler-Historie der PS5 ab (errlog 0–9, die letzten 10 gespeicherten Einträge). Gefundene Fehler erscheinen als Karten mit Code, Beschreibung und Temperatur; leere Einträge werden grau markiert."
       class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
              disabled:opacity-40"
     >
-      Errlog
+      {errlogPending ? '⟳ Errlog…' : 'Errlog'}
     </button>
 
     <button
