@@ -120,7 +120,7 @@ pub async fn uart_disconnect(
     if let Some(handle) = state.reconnect_thread.lock().unwrap().take() {
         let _ = handle.join();
     }
-    state.auto_reconnect.store(false, Ordering::Relaxed);
+    state.auto_reconnect.store(false, Ordering::Release);
 
     app.emit("uart://status", StatusPayload { connected: false })
         .map_err(|e| e.to_string())?;
@@ -182,16 +182,21 @@ pub async fn uart_set_auto_poll(
 pub async fn uart_set_auto_reconnect(
     enabled: bool,
     state: State<'_, AppState>,
+    app: AppHandle,
 ) -> Result<(), String> {
     // Always stop any running reconnect thread first
     if let Some(flag) = state.reconnect_stop.lock().unwrap().take() {
-        flag.store(true, Ordering::Relaxed);
+        flag.store(true, Ordering::Release);
     }
     if let Some(handle) = state.reconnect_thread.lock().unwrap().take() {
         let _ = handle.join();
     }
 
-    state.auto_reconnect.store(enabled, Ordering::Relaxed);
+    state.auto_reconnect.store(enabled, Ordering::Release);
+
+    if enabled {
+        spawn_reconnect_if_enabled(&state, &app);
+    }
     Ok(())
 }
 
@@ -262,7 +267,7 @@ pub fn uart_search_error_db(
 }
 
 fn spawn_reconnect_if_enabled(state: &AppState, app: &AppHandle) {
-    if !state.auto_reconnect.load(Ordering::Relaxed) {
+    if !state.auto_reconnect.load(Ordering::Acquire) {
         return;
     }
     if state.reconnect_stop.lock().unwrap().is_some() {
@@ -305,8 +310,14 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             .open();
 
         if let Ok(open_port) = open_result {
-            let write_port = match open_port.try_clone() { Ok(p) => p, Err(_) => continue };
-            let read_port  = match open_port.try_clone() { Ok(p) => p, Err(_) => continue };
+            let write_port = match open_port.try_clone() {
+                Ok(p) => p,
+                Err(e) => { error!("reconnect_loop: try_clone (write) failed: {}", e); continue }
+            };
+            let read_port = match open_port.try_clone() {
+                Ok(p) => p,
+                Err(e) => { error!("reconnect_loop: try_clone (read) failed: {}", e); continue }
+            };
             drop(open_port);
 
             let state      = app.state::<AppState>();
@@ -329,8 +340,8 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             *state.uart_thread.lock().unwrap() = Some(handle);
 
             // Remove our own handles from state (thread exits after this return)
-            state.reconnect_stop.lock().unwrap().take();
             state.reconnect_thread.lock().unwrap().take();
+            state.reconnect_stop.lock().unwrap().take();
 
             let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
             let _ = app.emit("uart://status", StatusPayload { connected: true });
@@ -471,6 +482,11 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
 
         if had_write_error {
             let state = app.state::<AppState>();
+            if let Some(uart) = state.uart.lock().unwrap().as_mut() {
+                let _ = uart.disconnect();
+            }
+            state.uart_stop.lock().unwrap().take();
+            state.uart_thread.lock().unwrap().take();
             let _ = app.emit("uart://status", StatusPayload { connected: false });
             spawn_reconnect_if_enabled(&state, &app);
             return;
