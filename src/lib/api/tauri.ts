@@ -22,8 +22,8 @@ export const uartSearchErrorDb = (query: string) =>
 export const flashListProgrammers = () => invoke<string[]>('flash_list_programmers');
 export const flashRead  = (programmer: string) =>
   invoke<FlashReadResult>('flash_read', { programmer });
-export const flashWrite = (path: string, programmer: string) =>
-  invoke<void>('flash_write', { path, programmer });
+export const flashWrite = (path: string, programmer: string, verify: boolean): Promise<void> =>
+  invoke<void>('flash_write', { path, programmer, verify });
 export const openPath   = (path: string) => invoke<void>('open_path', { path });
 export const flashValidateFile = (path: string) =>
   invoke<FlashPreviewResult>('flash_validate_file', { path });

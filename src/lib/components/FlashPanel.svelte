@@ -11,6 +11,7 @@
 
   let programmers = $state<string[]>([]);
   let phaseLabel  = $state('');
+  let writeVerify = $state(true);
 
   const PHASE_LABELS: Record<string, string> = {
     read1:  'Lesen 1/2…',
@@ -108,7 +109,7 @@
     flashLog.set([]);
     flashProgress.set(null);
     try {
-      await flashWrite(preview.path, $flashProgrammer);
+      await flashWrite(preview.path, $flashProgrammer, writeVerify);
     } catch (e: unknown) {
       flashLog.update((log) => [
         { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
@@ -238,20 +239,30 @@
         <span class="text-gray-500 shrink-0">{(p.size_bytes / 1024 / 1024).toFixed(2)} MB</span>
       </div>
 
-      <!-- Action buttons -->
-      <div class="flex items-center gap-2 pt-1">
-        <button
-          onclick={confirmWrite}
-          class="px-3 py-1.5 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white font-medium"
-        >
-          Jetzt schreiben
-        </button>
-        <button
-          onclick={cancelWrite}
-          class="px-3 py-1.5 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
-        >
-          Abbrechen
-        </button>
+      <!-- Verify option + action buttons -->
+      <div class="flex flex-col gap-2 pt-1">
+        <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            bind:checked={writeVerify}
+            class="accent-blue-500"
+          />
+          Nach dem Schreiben verifizieren
+        </label>
+        <div class="flex items-center gap-2">
+          <button
+            onclick={confirmWrite}
+            class="px-3 py-1.5 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white font-medium"
+          >
+            Jetzt schreiben
+          </button>
+          <button
+            onclick={cancelWrite}
+            class="px-3 py-1.5 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
+          >
+            Abbrechen
+          </button>
+        </div>
       </div>
     </div>
   {/if}
