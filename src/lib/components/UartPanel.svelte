@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
-  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount } from '$lib/stores/uart';
+  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading } from '$lib/stores/uart';
   import {
     uartListPorts,
     uartConnect,
@@ -80,11 +80,14 @@
 
   async function updateDb() {
     dbUpdating = true;
+    dbLoading.set(true);
     try {
       const count = await uartUpdateDb();
       dbCodeCount.set(count);
+      dbLoading.set(false);
     } catch (e) {
       console.error(e);
+      dbLoading.set(false);
     } finally {
       dbUpdating = false;
     }
@@ -97,8 +100,11 @@
 
     const count = await uartGetDbInfo().catch(() => null);
     dbCodeCount.set(count ?? null);
+    if (count === null) {
+      dbLoading.set(true);
+    }
 
-    const [u1, u2, u3] = await Promise.all([
+    const [u1, u2, u3, u4] = await Promise.all([
       listen<string>('uart://line', (e) => {
         uartLog.update((log) => [
           { id: nextLogId(), timestamp_ms: Date.now(), raw: e.payload },
@@ -125,8 +131,12 @@
       listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
       }),
+      listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-status', (e) => {
+        dbCodeCount.set(e.payload.loaded ? (e.payload.count ?? null) : null);
+        dbLoading.set(false);
+      }),
     ]);
-    unlisten.push(u1, u2, u3);
+    unlisten.push(u1, u2, u3, u4);
   });
 
   onDestroy(() => {
@@ -194,9 +204,15 @@
     </label>
 
     <div class="flex items-center gap-2 ml-auto">
-      <span class="text-xs {$dbCodeCount !== null ? 'text-green-400' : 'text-gray-600'}">
-        {$dbCodeCount !== null ? `${$dbCodeCount.toLocaleString()} Codes` : 'Nicht geladen'}
-      </span>
+      {#if $dbLoading}
+        <span class="text-xs text-gray-500 flex items-center gap-1">
+          <span class="inline-block animate-spin">⟳</span> Lade DB…
+        </span>
+      {:else if $dbCodeCount !== null}
+        <span class="text-xs text-green-400">{$dbCodeCount.toLocaleString()} Codes</span>
+      {:else}
+        <span class="text-xs text-red-400">Nicht geladen</span>
+      {/if}
       <button
         onclick={updateDb}
         disabled={dbUpdating}
