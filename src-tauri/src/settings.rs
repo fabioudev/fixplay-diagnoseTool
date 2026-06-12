@@ -5,12 +5,15 @@ use tauri::Manager;
 pub struct AppSettings {
     pub flashrom_path: Option<String>,
     pub archive_dir:   Option<String>,
+    #[serde(default = "default_baud_rate")]
     pub baud_rate:     u32,
 }
 
+fn default_baud_rate() -> u32 { 115200 }
+
 impl Default for AppSettings {
     fn default() -> Self {
-        Self { flashrom_path: None, archive_dir: None, baud_rate: 115200 }
+        Self { flashrom_path: None, archive_dir: None, baud_rate: default_baud_rate() }
     }
 }
 
