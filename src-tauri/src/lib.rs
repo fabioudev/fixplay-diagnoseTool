@@ -98,6 +98,7 @@ pub fn run() {
             commands::uart::uart_send_errlog,
             commands::uart::uart_send_version,
             commands::uart::uart_set_auto_poll,
+            commands::uart::uart_set_auto_reconnect,
             commands::uart::uart_update_error_db,
             commands::uart::uart_get_db_info,
             commands::uart::uart_search_error_db,

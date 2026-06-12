@@ -11,6 +11,10 @@ pub struct AppState {
     pub uart_poll_stop:   Mutex<Option<Arc<AtomicBool>>>,
     pub uart_poll_thread: Mutex<Option<JoinHandle<()>>>,
     pub error_db:         Arc<Mutex<Option<ErrorDb>>>,
+    pub auto_reconnect:   Arc<AtomicBool>,
+    pub reconnect_port:   Mutex<Option<String>>,
+    pub reconnect_stop:   Mutex<Option<Arc<AtomicBool>>>,
+    pub reconnect_thread: Mutex<Option<JoinHandle<()>>>,
 }
 
 impl Default for AppState {
@@ -22,6 +26,10 @@ impl Default for AppState {
             uart_poll_stop:   Mutex::new(None),
             uart_poll_thread: Mutex::new(None),
             error_db:         Arc::new(Mutex::new(None)),
+            auto_reconnect:   Arc::new(AtomicBool::new(false)),
+            reconnect_port:   Mutex::new(None),
+            reconnect_stop:   Mutex::new(None),
+            reconnect_thread: Mutex::new(None),
         }
     }
 }

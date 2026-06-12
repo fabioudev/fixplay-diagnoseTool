@@ -34,6 +34,11 @@ pub(crate) struct DbStatusPayload {
     pub source: String,
 }
 
+#[derive(Clone, Serialize)]
+struct ReconnectingPayload {
+    active: bool,
+}
+
 #[tauri::command]
 pub async fn uart_list_ports() -> Result<Vec<String>, String> {
     info!("uart_list_ports invoked");
@@ -84,6 +89,8 @@ pub async fn uart_connect(
     *state.uart_stop.lock().unwrap()   = Some(stop_flag);
     *state.uart_thread.lock().unwrap() = Some(handle);
 
+    *state.reconnect_port.lock().unwrap() = Some(port);
+
     app.emit("uart://status", StatusPayload { connected: true })
         .map_err(|e| e.to_string())?;
     Ok(())
@@ -105,6 +112,15 @@ pub async fn uart_disconnect(
     if let Some(uart) = state.uart.lock().unwrap().as_mut() {
         let _ = uart.disconnect();
     }
+
+    // Stop reconnect thread and disable auto-reconnect on manual disconnect
+    if let Some(flag) = state.reconnect_stop.lock().unwrap().take() {
+        flag.store(true, Ordering::Relaxed);
+    }
+    if let Some(handle) = state.reconnect_thread.lock().unwrap().take() {
+        let _ = handle.join();
+    }
+    state.auto_reconnect.store(false, Ordering::Relaxed);
 
     app.emit("uart://status", StatusPayload { connected: false })
         .map_err(|e| e.to_string())?;
@@ -159,6 +175,23 @@ pub async fn uart_set_auto_poll(
         *state.uart_poll_stop.lock().unwrap()   = Some(stop);
         *state.uart_poll_thread.lock().unwrap() = Some(handle);
     }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn uart_set_auto_reconnect(
+    enabled: bool,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    // Always stop any running reconnect thread first
+    if let Some(flag) = state.reconnect_stop.lock().unwrap().take() {
+        flag.store(true, Ordering::Relaxed);
+    }
+    if let Some(handle) = state.reconnect_thread.lock().unwrap().take() {
+        let _ = handle.join();
+    }
+
+    state.auto_reconnect.store(enabled, Ordering::Relaxed);
     Ok(())
 }
 
@@ -228,6 +261,84 @@ pub fn uart_search_error_db(
     Ok(results)
 }
 
+fn spawn_reconnect_if_enabled(state: &AppState, app: &AppHandle) {
+    if !state.auto_reconnect.load(Ordering::Relaxed) {
+        return;
+    }
+    if state.reconnect_stop.lock().unwrap().is_some() {
+        return; // reconnect thread already running
+    }
+    let port = match state.reconnect_port.lock().unwrap().clone() {
+        Some(p) => p,
+        None => return,
+    };
+    let baud_rate  = crate::settings::load_settings(app).baud_rate;
+    let stop_flag  = Arc::new(AtomicBool::new(false));
+    let stop_clone = Arc::clone(&stop_flag);
+    let app_clone  = app.clone();
+    let handle = std::thread::spawn(move || {
+        reconnect_loop(port, baud_rate, app_clone, stop_clone);
+    });
+    *state.reconnect_stop.lock().unwrap()   = Some(stop_flag);
+    *state.reconnect_thread.lock().unwrap() = Some(handle);
+}
+
+fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<AtomicBool>) {
+    let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: true });
+
+    loop {
+        // 2 seconds in 100ms increments so stop flag is checked often
+        for _ in 0..20 {
+            if stop.load(Ordering::Relaxed) {
+                let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(100));
+        }
+        if stop.load(Ordering::Relaxed) {
+            let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
+            return;
+        }
+
+        let open_result = serialport::new(&port, baud_rate)
+            .timeout(Duration::from_millis(100))
+            .open();
+
+        if let Ok(open_port) = open_result {
+            let write_port = match open_port.try_clone() { Ok(p) => p, Err(_) => continue };
+            let read_port  = match open_port.try_clone() { Ok(p) => p, Err(_) => continue };
+            drop(open_port);
+
+            let state      = app.state::<AppState>();
+            let db_clone   = Arc::clone(&state.error_db);
+            let app_clone  = app.clone();
+
+            {
+                let mut uart_guard = state.uart.lock().unwrap();
+                let uart = uart_guard.get_or_insert_with(UartPort::default);
+                uart.set_port(write_port);
+            }
+
+            let new_stop   = Arc::new(AtomicBool::new(false));
+            let stop_clone = Arc::clone(&new_stop);
+            let handle = std::thread::spawn(move || {
+                reader_loop(read_port, stop_clone, app_clone, db_clone);
+            });
+
+            *state.uart_stop.lock().unwrap()   = Some(new_stop);
+            *state.uart_thread.lock().unwrap() = Some(handle);
+
+            // Remove our own handles from state (thread exits after this return)
+            state.reconnect_stop.lock().unwrap().take();
+            state.reconnect_thread.lock().unwrap().take();
+
+            let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
+            let _ = app.emit("uart://status", StatusPayload { connected: true });
+            return;
+        }
+    }
+}
+
 fn reader_loop(
     mut port: Box<dyn serialport::SerialPort + Send>,
     stop: Arc<AtomicBool>,
@@ -276,6 +387,7 @@ fn reader_loop(
                 state.uart_stop.lock().unwrap().take();
                 state.uart_thread.lock().unwrap().take();
                 let _ = app.emit("uart://status", StatusPayload { connected: false });
+                spawn_reconnect_if_enabled(&state, &app);
                 break;
             }
         }
@@ -304,6 +416,25 @@ mod db_status_tests {
     }
 }
 
+#[cfg(test)]
+mod reconnect_tests {
+    use super::*;
+
+    #[test]
+    fn reconnecting_payload_serializes_active() {
+        let p = ReconnectingPayload { active: true };
+        let json = serde_json::to_string(&p).unwrap();
+        assert!(json.contains("\"active\":true"));
+    }
+
+    #[test]
+    fn reconnecting_payload_serializes_inactive() {
+        let p = ReconnectingPayload { active: false };
+        let json = serde_json::to_string(&p).unwrap();
+        assert!(json.contains("\"active\":false"));
+    }
+}
+
 fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
     loop {
         // Sleep 5 seconds in 100ms increments to check stop flag often
@@ -316,7 +447,9 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
         if stop.load(Ordering::Relaxed) {
             return;
         }
-        {
+
+        // Scope block so uart lock is released before spawn_reconnect_if_enabled
+        let had_write_error = {
             let state = app.state::<AppState>();
             let mut guard = state.uart.lock().unwrap();
             if let Some(uart) = guard.as_mut() {
@@ -324,11 +457,23 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
                     let cmd = build_command("errlog");
                     if let Err(e) = uart.write_line(&cmd) {
                         error!("poll_loop write error: {}", e);
-                        let _ = app.emit("uart://status", StatusPayload { connected: false });
-                        return;
+                        true
+                    } else {
+                        false
                     }
+                } else {
+                    false
                 }
+            } else {
+                false
             }
+        }; // uart lock released here
+
+        if had_write_error {
+            let state = app.state::<AppState>();
+            let _ = app.emit("uart://status", StatusPayload { connected: false });
+            spawn_reconnect_if_enabled(&state, &app);
+            return;
         }
     }
 }
