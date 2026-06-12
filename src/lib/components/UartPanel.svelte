@@ -64,7 +64,9 @@
     try {
       await uartConnect(selectedPort);
       autoReconnect = $appSettings.auto_reconnect;
+      // loading is cleared by the uart://status event once connected = true
     } catch (e) {
+      loading = false;
       uartLog.update((log) => [
         {
           id:           nextLogId(),
@@ -74,8 +76,6 @@
         },
         ...log.slice(0, 499),
       ]);
-    } finally {
-      loading = false;
     }
   }
 
@@ -154,7 +154,10 @@
       }),
       listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
-        if (e.payload.connected) uartReconnecting.set(false);
+        if (e.payload.connected) {
+          uartReconnecting.set(false);
+          loading = false;
+        }
         uartLog.update((log) => [
           {
             id:           nextLogId(),
