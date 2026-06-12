@@ -105,7 +105,15 @@ pub async fn uart_connect(
     let open_port = serialport::new(&port, baud_rate)
         .timeout(Duration::from_millis(100))
         .open()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| match e.kind() {
+            serialport::ErrorKind::Io(std::io::ErrorKind::NotFound) =>
+                format!("Port {} nicht gefunden — Gerät eingesteckt und ↻ geklickt?", port),
+            serialport::ErrorKind::Io(std::io::ErrorKind::PermissionDenied) =>
+                format!("Kein Zugriff auf {} — fehlende Berechtigung (dialout-Gruppe?)", port),
+            _ if e.to_string().contains("lock") || e.to_string().contains("busy") =>
+                format!("Port {} bereits in Benutzung — andere App geöffnet?", port),
+            _ => e.to_string(),
+        })?;
 
     let write_port = open_port.try_clone().map_err(|e| e.to_string())?;
     let read_port  = open_port.try_clone().map_err(|e| e.to_string())?;
