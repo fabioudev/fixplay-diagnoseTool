@@ -117,17 +117,19 @@
 
   async function loopbackTest() {
     loopbackPending = true;
-    uartLog.update((log) => [
-      {
-        id:           nextLogId(),
-        timestamp_ms: Date.now(),
-        raw:          '[→ Loopback gesendet — RX mit TX kurzschließen und Echo abwarten]',
-        kind:         'status' as const,
-      },
-      ...log.slice(0, 499),
-    ]);
     try {
-      await uartLoopbackTest();
+      const ok = await uartLoopbackTest();
+      uartLog.update((log) => [
+        {
+          id:           nextLogId(),
+          timestamp_ms: Date.now(),
+          raw:          ok
+            ? 'LOOPBACK:PING ✓'
+            : 'LOOPBACK:TIMEOUT — kein Echo empfangen (RX mit TX verbunden?)',
+          kind:         ok ? undefined : 'error' as const,
+        },
+        ...log.slice(0, 499),
+      ]);
     } catch (e) {
       uartLog.update((log) => [
         {

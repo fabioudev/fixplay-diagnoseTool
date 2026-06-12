@@ -1,4 +1,5 @@
 use fixplay_uart::{ErrorDb, UartPort};
+use std::collections::VecDeque;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
@@ -15,6 +16,8 @@ pub struct AppState {
     pub reconnect_port:   Mutex<Option<String>>,
     pub reconnect_stop:   Mutex<Option<Arc<AtomicBool>>>,
     pub reconnect_thread: Mutex<Option<JoinHandle<()>>>,
+    /// Ring buffer of the last 200 raw lines received by the reader loop.
+    pub line_buffer:      Arc<Mutex<VecDeque<String>>>,
 }
 
 impl Default for AppState {
@@ -30,6 +33,7 @@ impl Default for AppState {
             reconnect_port:   Mutex::new(None),
             reconnect_stop:   Mutex::new(None),
             reconnect_thread: Mutex::new(None),
+            line_buffer:      Arc::new(Mutex::new(VecDeque::with_capacity(200))),
         }
     }
 }

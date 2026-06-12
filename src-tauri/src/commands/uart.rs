@@ -2,6 +2,7 @@ use crate::state::AppState;
 use fixplay_core::traits::UartDevice;
 use fixplay_uart::{build_command, parse_errlog_line, ErrorDb, UartPort};
 use serde::Serialize;
+use std::collections::VecDeque;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -125,13 +126,14 @@ pub async fn uart_connect(
         uart.set_port(write_port);
     }
 
-    let stop_flag  = Arc::new(AtomicBool::new(false));
-    let stop_clone = Arc::clone(&stop_flag);
-    let db_clone   = Arc::clone(&state.error_db);
-    let app_clone  = app.clone();
+    let stop_flag   = Arc::new(AtomicBool::new(false));
+    let stop_clone  = Arc::clone(&stop_flag);
+    let db_clone    = Arc::clone(&state.error_db);
+    let buf_clone   = Arc::clone(&state.line_buffer);
+    let app_clone   = app.clone();
 
     let handle = std::thread::spawn(move || {
-        reader_loop(read_port, stop_clone, app_clone, db_clone);
+        reader_loop(read_port, stop_clone, app_clone, db_clone, buf_clone);
     });
 
     *state.uart_stop.lock().unwrap()   = Some(stop_flag);
@@ -213,13 +215,37 @@ pub async fn uart_send_version(state: State<'_, AppState>) -> Result<(), String>
 }
 
 #[tauri::command]
-pub async fn uart_loopback_test(state: State<'_, AppState>) -> Result<(), String> {
-    let mut guard = state.uart.lock().unwrap();
-    guard
-        .as_mut()
-        .ok_or("not connected")?
-        .write_line("LOOPBACK:PING\r\n")
-        .map_err(|e| e.to_string())
+pub async fn uart_loopback_test(state: State<'_, AppState>) -> Result<bool, String> {
+    // Drain the buffer so we only catch the echo that follows our ping
+    state.line_buffer.lock().unwrap().clear();
+
+    {
+        let mut guard = state.uart.lock().unwrap();
+        guard
+            .as_mut()
+            .ok_or("not connected")?
+            .write_line("LOOPBACK:PING\r\n")
+            .map_err(|e| e.to_string())?;
+    }
+
+    // Poll for up to 1 s in 50 ms steps
+    let buf = Arc::clone(&state.line_buffer);
+    let echo = tokio::task::spawn_blocking(move || {
+        let deadline = std::time::Instant::now() + Duration::from_secs(1);
+        loop {
+            if std::time::Instant::now() >= deadline {
+                return false;
+            }
+            if buf.lock().unwrap().iter().any(|l| l.contains("LOOPBACK:PING")) {
+                return true;
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+    })
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok(echo)
 }
 
 #[tauri::command]
@@ -414,6 +440,7 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
 
             let state      = app.state::<AppState>();
             let db_clone   = Arc::clone(&state.error_db);
+            let buf_clone  = Arc::clone(&state.line_buffer);
             let app_clone  = app.clone();
 
             {
@@ -425,7 +452,7 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             let new_stop   = Arc::new(AtomicBool::new(false));
             let stop_clone = Arc::clone(&new_stop);
             let handle = std::thread::spawn(move || {
-                reader_loop(read_port, stop_clone, app_clone, db_clone);
+                reader_loop(read_port, stop_clone, app_clone, db_clone, buf_clone);
             });
 
             *state.uart_stop.lock().unwrap()   = Some(new_stop);
@@ -447,6 +474,7 @@ fn reader_loop(
     stop: Arc<AtomicBool>,
     app: AppHandle,
     error_db: Arc<Mutex<Option<ErrorDb>>>,
+    line_buffer: Arc<Mutex<VecDeque<String>>>,
 ) {
     let mut buf = Vec::<u8>::with_capacity(256);
     let mut byte = [0u8; 1];
@@ -464,6 +492,14 @@ fn reader_loop(
                     buf.clear();
                     if line.is_empty() {
                         continue;
+                    }
+                    // Push to shared buffer (capped at 200 lines)
+                    {
+                        let mut lb = line_buffer.lock().unwrap();
+                        if lb.len() >= 200 {
+                            lb.pop_front();
+                        }
+                        lb.push_back(line.clone());
                     }
                     let _ = app.emit("uart://line", &line);
                     if let Some(entry) = parse_errlog_line(&line) {
