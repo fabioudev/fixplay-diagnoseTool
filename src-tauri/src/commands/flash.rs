@@ -164,7 +164,8 @@ pub async fn flash_write(
         };
 
         if read_back != data {
-            let diff = read_back.iter().zip(data.iter()).filter(|(a, b)| a != b).count();
+            let diff = read_back.iter().zip(data.iter()).filter(|(a, b)| a != b).count()
+                + read_back.len().abs_diff(data.len());
             return Err(format!("Verify fehlgeschlagen: {} Bytes weichen ab", diff));
         }
         emit_status(&app, "Verify OK ✓", "info");
