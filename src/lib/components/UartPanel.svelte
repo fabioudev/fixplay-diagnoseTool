@@ -231,13 +231,17 @@
                ? 'bg-red-700 hover:bg-red-600 text-white'
                : $uartReconnecting
                  ? 'bg-yellow-700 hover:bg-yellow-600 text-white'
-                 : 'bg-green-700 hover:bg-green-600 text-white'}
+                 : loading
+                   ? 'bg-blue-800 text-white cursor-wait'
+                   : 'bg-green-700 hover:bg-green-600 text-white'}
              disabled:opacity-40"
     >
       {#if $uartReconnecting}
         ⟳ Reconnecting…
       {:else if $uartConnected}
         Trennen
+      {:else if loading}
+        Verbinde…
       {:else}
         Verbinden
       {/if}
