@@ -215,8 +215,13 @@
           type="checkbox"
           checked={autoReconnect}
           onchange={async (e) => {
-            autoReconnect = (e.target as HTMLInputElement).checked;
-            await uartSetAutoReconnect(autoReconnect).catch(console.error);
+            const newState = (e.target as HTMLInputElement).checked;
+            try {
+              await uartSetAutoReconnect(newState);
+              autoReconnect = newState;
+            } catch (err) {
+              console.error(err);
+            }
           }}
           class="accent-blue-500"
         />
