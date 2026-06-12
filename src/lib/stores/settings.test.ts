@@ -4,7 +4,7 @@ import { appSettings } from './settings';
 
 describe('appSettings store', () => {
   beforeEach(() => {
-    appSettings.set({ flashrom_path: null, archive_dir: null, baud_rate: 115200 });
+    appSettings.set({ flashrom_path: null, archive_dir: null, baud_rate: 115200, auto_reconnect: false });
   });
 
   it('starts with null paths and 115200 baud', () => {

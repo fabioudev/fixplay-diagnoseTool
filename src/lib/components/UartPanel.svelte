@@ -13,6 +13,7 @@
     uartUpdateDb,
     uartGetDbInfo,
     uartSearchErrorDb,
+    uartConnectionStatus,
     settingsGet,
     settingsSave,
   } from '$lib/api/tauri';
@@ -31,7 +32,9 @@
       : $uartLog
   );
 
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let debounceTimer:      ReturnType<typeof setTimeout>  | null = null;
+  let pollInterval:       ReturnType<typeof setInterval> | null = null;
+  let prevConnectedForPoll = false;
   function onSearchInput(e: Event) {
     const val = (e.target as HTMLInputElement).value;
     dbQuery = val;
@@ -64,6 +67,7 @@
     try {
       await uartConnect(selectedPort);
       uartConnected.set(true);
+      prevConnectedForPoll = true;
       autoReconnect = $appSettings.auto_reconnect;
     } catch (e) {
       uartLog.update((log) => [
@@ -86,6 +90,18 @@
     loading = true;
     try {
       await uartDisconnect();
+      uartConnected.set(false);
+      uartReconnecting.set(false);
+      prevConnectedForPoll = false;
+      uartLog.update((log) => [
+        {
+          id:           nextLogId(),
+          timestamp_ms: Date.now(),
+          raw:          '[Getrennt]',
+          kind:         'status' as const,
+        },
+        ...log.slice(0, 499),
+      ]);
     } catch (e) {
       console.error(e);
     } finally {
@@ -153,21 +169,9 @@
           ...log.slice(0, 499),
         ]);
       }),
-      listen<UartStatusEvent>('uart://status', (e) => {
-        uartConnected.set(e.payload.connected);
-        loading = false;
-        if (e.payload.connected) uartReconnecting.set(false);
-        uartLog.update((log) => [
-          {
-            id:           nextLogId(),
-            timestamp_ms: Date.now(),
-            raw:          e.payload.connected
-                            ? `[Verbunden — ${selectedPort}]`
-                            : '[Getrennt]',
-            kind:         'status' as const,
-          },
-          ...log.slice(0, 499),
-        ]);
+      listen<UartStatusEvent>('uart://status', (_e) => {
+        // State is managed by direct invoke return values and the polling interval.
+        // We ignore these events to avoid duplicate log entries and unreliable state flips.
       }),
       listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-status', (e) => {
         dbCodeCount.set(e.payload.loaded ? (e.payload.count ?? null) : null);
@@ -184,10 +188,35 @@
     if (count === null) {
       dbLoading.set(true);
     }
+
+    // Poll Rust thread state every 1.5 s to catch USB unplug without relying on events
+    pollInterval = setInterval(async () => {
+      try {
+        const status = await uartConnectionStatus();
+        const wasConnected = prevConnectedForPoll;
+        prevConnectedForPoll = status.connected;
+        uartConnected.set(status.connected);
+        uartReconnecting.set(status.reconnecting);
+        if (wasConnected && !status.connected && !status.reconnecting) {
+          uartLog.update((log) => [
+            {
+              id:           nextLogId(),
+              timestamp_ms: Date.now(),
+              raw:          '[Verbindung unterbrochen]',
+              kind:         'status' as const,
+            },
+            ...log.slice(0, 499),
+          ]);
+        }
+      } catch {
+        // ignore — invoke fails when app is shutting down
+      }
+    }, 1500);
   });
 
   onDestroy(() => {
     if (debounceTimer) clearTimeout(debounceTimer);
+    if (pollInterval)  clearInterval(pollInterval);
     unlisten.forEach((fn) => fn());
     dbLoading.set(false);
     uartReconnecting.set(false);

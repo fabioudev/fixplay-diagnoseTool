@@ -15,7 +15,8 @@ export const uartSetAutoReconnect = (enabled: boolean): Promise<void> =>
   invoke<void>('uart_set_auto_reconnect', { enabled });
 export const uartUpdateDb    = (): Promise<number>     => invoke<number>('uart_update_error_db');
 
-export const uartGetDbInfo     = () => invoke<number | null>('uart_get_db_info');
+export const uartGetDbInfo           = () => invoke<number | null>('uart_get_db_info');
+export const uartConnectionStatus    = () => invoke<{ connected: boolean; reconnecting: boolean }>('uart_connection_status');
 export const uartSearchErrorDb = (query: string) =>
   invoke<ErrorSearchResult[]>('uart_search_error_db', { query });
 

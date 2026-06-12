@@ -297,6 +297,25 @@ pub fn uart_get_db_info(state: State<'_, AppState>) -> Result<Option<usize>, Str
     Ok(state.error_db.lock().unwrap().as_ref().map(|db| db.len()))
 }
 
+#[derive(Clone, Serialize)]
+pub struct UartConnectionStatus {
+    pub connected:    bool,
+    pub reconnecting: bool,
+}
+
+#[tauri::command]
+pub fn uart_connection_status(state: State<'_, AppState>) -> UartConnectionStatus {
+    let connected = state.uart_thread.lock().unwrap()
+        .as_ref()
+        .map(|h| !h.is_finished())
+        .unwrap_or(false);
+    let reconnecting = state.reconnect_thread.lock().unwrap()
+        .as_ref()
+        .map(|h| !h.is_finished())
+        .unwrap_or(false);
+    UartConnectionStatus { connected, reconnecting }
+}
+
 #[tauri::command]
 pub fn uart_search_error_db(
     query: String,
