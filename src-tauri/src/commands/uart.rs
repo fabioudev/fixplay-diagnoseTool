@@ -1,4 +1,4 @@
-use crate::state::AppState;
+use crate::state::{AppState, PendingEntry};
 use fixplay_core::traits::UartDevice;
 use fixplay_uart::{build_command, parse_errlog_line, ErrorDb, UartPort};
 use serde::Serialize;
@@ -7,16 +7,17 @@ use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Manager, State};
 use tracing::{error, info};
 
-#[derive(Clone, Serialize)]
-struct StatusPayload {
-    connected: bool,
-}
+// NOTE on architecture: Tauri events emitted from background threads are not
+// reliably delivered to the webview in this setup. All UART state therefore
+// flows through ONE polled command (uart_poll) that the frontend calls every
+// few hundred ms. Background threads only write into shared buffers in
+// AppState; they never emit events.
 
 #[derive(Clone, Serialize)]
-struct UartEntryPayload {
+pub struct UartEntryPayload {
     entry:       fixplay_core::types::ErrlogEntry,
     description: Option<String>,
 }
@@ -36,15 +37,20 @@ pub(crate) struct DbStatusPayload {
 }
 
 #[derive(Clone, Serialize)]
-struct ReconnectingPayload {
-    active: bool,
-}
-
-#[derive(Clone, Serialize)]
 pub struct UartPortInfo {
     pub name:        String,
     pub is_bridge:   bool,
     pub description: String,
+}
+
+/// Everything the frontend needs, fetched in one round-trip.
+#[derive(Serialize)]
+pub struct UartPollResult {
+    pub connected:    bool,
+    pub reconnecting: bool,
+    pub lines:        Vec<String>,
+    pub entries:      Vec<UartEntryPayload>,
+    pub db_count:     Option<usize>,
 }
 
 fn detect_bridge(port: &serialport::SerialPortInfo) -> (bool, String) {
@@ -126,14 +132,21 @@ pub async fn uart_connect(
         uart.set_port(write_port);
     }
 
-    let stop_flag   = Arc::new(AtomicBool::new(false));
-    let stop_clone  = Arc::clone(&stop_flag);
-    let db_clone    = Arc::clone(&state.error_db);
-    let buf_clone   = Arc::clone(&state.line_buffer);
-    let app_clone   = app.clone();
+    // Fresh session: drop stale buffered output from a previous connection
+    state.raw_lines.lock().unwrap().clear();
+    state.pending_entries.lock().unwrap().clear();
+    state.loopback_triggered.store(false, Ordering::Release);
+
+    let stop_flag  = Arc::new(AtomicBool::new(false));
+    let stop_clone = Arc::clone(&stop_flag);
+    let db_clone   = Arc::clone(&state.error_db);
+    let rl_clone   = Arc::clone(&state.raw_lines);
+    let pe_clone   = Arc::clone(&state.pending_entries);
+    let lb_clone   = Arc::clone(&state.loopback_triggered);
+    let app_clone  = app.clone();
 
     let handle = std::thread::spawn(move || {
-        reader_loop(read_port, stop_clone, app_clone, db_clone, buf_clone);
+        reader_loop(read_port, stop_clone, app_clone, db_clone, rl_clone, pe_clone, lb_clone);
     });
 
     *state.uart_stop.lock().unwrap()   = Some(stop_flag);
@@ -144,16 +157,11 @@ pub async fn uart_connect(
     let saved_auto_reconnect = crate::settings::load_settings(&app).auto_reconnect;
     state.auto_reconnect.store(saved_auto_reconnect, Ordering::Release);
 
-    app.emit("uart://status", StatusPayload { connected: true })
-        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn uart_disconnect(
-    state: State<'_, AppState>,
-    app: AppHandle,
-) -> Result<(), String> {
+pub async fn uart_disconnect(state: State<'_, AppState>) -> Result<(), String> {
     info!("uart_disconnect invoked");
 
     if let Some(flag) = state.uart_stop.lock().unwrap().take() {
@@ -187,8 +195,6 @@ pub async fn uart_disconnect(
         let _ = uart.disconnect();
     }
 
-    app.emit("uart://status", StatusPayload { connected: false })
-        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -198,9 +204,9 @@ pub async fn uart_send_errlog(state: State<'_, AppState>) -> Result<(), String> 
     let mut guard = state.uart.lock().unwrap();
     guard
         .as_mut()
-        .ok_or("not connected")?
+        .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
         .write_line(&cmd)
-        .map_err(|e| e.to_string())
+        .map_err(|e| format!("Senden fehlgeschlagen: {}", e))
 }
 
 #[tauri::command]
@@ -209,43 +215,62 @@ pub async fn uart_send_version(state: State<'_, AppState>) -> Result<(), String>
     let mut guard = state.uart.lock().unwrap();
     guard
         .as_mut()
-        .ok_or("not connected")?
+        .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
         .write_line(&cmd)
-        .map_err(|e| e.to_string())
+        .map_err(|e| format!("Senden fehlgeschlagen: {}", e))
 }
 
 #[tauri::command]
 pub async fn uart_loopback_test(state: State<'_, AppState>) -> Result<bool, String> {
-    // Drain the buffer so we only catch the echo that follows our ping
-    state.line_buffer.lock().unwrap().clear();
+    state.loopback_triggered.store(false, Ordering::Release);
 
     {
         let mut guard = state.uart.lock().unwrap();
         guard
             .as_mut()
-            .ok_or("not connected")?
+            .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
             .write_line("LOOPBACK:PING\r\n")
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| format!("Senden fehlgeschlagen: {}", e))?;
     }
 
-    // Poll for up to 1 s in 50 ms steps
-    let buf = Arc::clone(&state.line_buffer);
+    // Wait up to 1 s for the reader thread to flag the echo
+    let flag = Arc::clone(&state.loopback_triggered);
     let echo = tokio::task::spawn_blocking(move || {
         let deadline = std::time::Instant::now() + Duration::from_secs(1);
-        loop {
-            if std::time::Instant::now() >= deadline {
-                return false;
-            }
-            if buf.lock().unwrap().iter().any(|l| l.contains("LOOPBACK:PING")) {
+        while std::time::Instant::now() < deadline {
+            if flag.load(Ordering::Acquire) {
                 return true;
             }
             std::thread::sleep(Duration::from_millis(50));
         }
+        false
     })
     .await
     .map_err(|e| e.to_string())?;
 
     Ok(echo)
+}
+
+#[tauri::command]
+pub fn uart_poll(state: State<'_, AppState>) -> UartPollResult {
+    let connected = state.uart_thread.lock().unwrap()
+        .as_ref()
+        .map(|h| !h.is_finished())
+        .unwrap_or(false);
+    let reconnecting = state.reconnect_thread.lock().unwrap()
+        .as_ref()
+        .map(|h| !h.is_finished())
+        .unwrap_or(false);
+
+    let lines: Vec<String> = state.raw_lines.lock().unwrap().drain(..).collect();
+    let entries: Vec<UartEntryPayload> = state.pending_entries.lock().unwrap()
+        .drain(..)
+        .map(|p| UartEntryPayload { entry: p.entry, description: p.description })
+        .collect();
+
+    let db_count = state.error_db.lock().unwrap().as_ref().map(|db| db.len());
+
+    UartPollResult { connected, reconnecting, lines, entries, db_count }
 }
 
 #[tauri::command]
@@ -316,40 +341,16 @@ pub async fn uart_update_error_db(
     })
     .await
     .map_err(|e| e.to_string())?
-    .map_err(|e| e.to_string())?;
+    .map_err(|e| format!("Download fehlgeschlagen — Internetverbindung prüfen ({})", e))?;
 
     let count = db.len();
     *state.error_db.lock().unwrap() = Some(db);
-    app.emit("uart://db-status", DbStatusPayload {
-        loaded: true,
-        count:  Some(count),
-        source: "fetched".into(),
-    }).map_err(|e| e.to_string())?;
     Ok(count)
 }
 
 #[tauri::command]
 pub fn uart_get_db_info(state: State<'_, AppState>) -> Result<Option<usize>, String> {
     Ok(state.error_db.lock().unwrap().as_ref().map(|db| db.len()))
-}
-
-#[derive(Clone, Serialize)]
-pub struct UartConnectionStatus {
-    pub connected:    bool,
-    pub reconnecting: bool,
-}
-
-#[tauri::command]
-pub fn uart_connection_status(state: State<'_, AppState>) -> UartConnectionStatus {
-    let connected = state.uart_thread.lock().unwrap()
-        .as_ref()
-        .map(|h| !h.is_finished())
-        .unwrap_or(false);
-    let reconnecting = state.reconnect_thread.lock().unwrap()
-        .as_ref()
-        .map(|h| !h.is_finished())
-        .unwrap_or(false);
-    UartConnectionStatus { connected, reconnecting }
 }
 
 #[tauri::command]
@@ -407,20 +408,13 @@ fn spawn_reconnect_if_enabled(state: &AppState, app: &AppHandle) {
 }
 
 fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<AtomicBool>) {
-    let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: true });
-
     loop {
         // 2 seconds in 100ms increments so stop flag is checked often
         for _ in 0..20 {
             if stop.load(Ordering::Relaxed) {
-                let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
                 return;
             }
             std::thread::sleep(Duration::from_millis(100));
-        }
-        if stop.load(Ordering::Relaxed) {
-            let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
-            return;
         }
 
         let open_result = serialport::new(&port, baud_rate)
@@ -438,10 +432,12 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             };
             drop(open_port);
 
-            let state      = app.state::<AppState>();
-            let db_clone   = Arc::clone(&state.error_db);
-            let buf_clone  = Arc::clone(&state.line_buffer);
-            let app_clone  = app.clone();
+            let state     = app.state::<AppState>();
+            let db_clone  = Arc::clone(&state.error_db);
+            let rl_clone  = Arc::clone(&state.raw_lines);
+            let pe_clone  = Arc::clone(&state.pending_entries);
+            let lb_clone  = Arc::clone(&state.loopback_triggered);
+            let app_clone = app.clone();
 
             {
                 let mut uart_guard = state.uart.lock().unwrap();
@@ -452,7 +448,7 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             let new_stop   = Arc::new(AtomicBool::new(false));
             let stop_clone = Arc::clone(&new_stop);
             let handle = std::thread::spawn(move || {
-                reader_loop(read_port, stop_clone, app_clone, db_clone, buf_clone);
+                reader_loop(read_port, stop_clone, app_clone, db_clone, rl_clone, pe_clone, lb_clone);
             });
 
             *state.uart_stop.lock().unwrap()   = Some(new_stop);
@@ -461,12 +457,17 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             // Remove our own handles from state (thread exits after this return)
             state.reconnect_thread.lock().unwrap().take();
             state.reconnect_stop.lock().unwrap().take();
-
-            let _ = app.emit("uart://reconnecting", ReconnectingPayload { active: false });
-            let _ = app.emit("uart://status", StatusPayload { connected: true });
             return;
         }
     }
+}
+
+fn push_capped(buf: &Mutex<VecDeque<String>>, line: String, cap: usize) {
+    let mut b = buf.lock().unwrap();
+    if b.len() >= cap {
+        b.pop_front();
+    }
+    b.push_back(line);
 }
 
 fn reader_loop(
@@ -474,7 +475,9 @@ fn reader_loop(
     stop: Arc<AtomicBool>,
     app: AppHandle,
     error_db: Arc<Mutex<Option<ErrorDb>>>,
-    line_buffer: Arc<Mutex<VecDeque<String>>>,
+    raw_lines: Arc<Mutex<VecDeque<String>>>,
+    pending_entries: Arc<Mutex<VecDeque<PendingEntry>>>,
+    loopback_triggered: Arc<AtomicBool>,
 ) {
     let mut buf = Vec::<u8>::with_capacity(256);
     let mut byte = [0u8; 1];
@@ -493,15 +496,13 @@ fn reader_loop(
                     if line.is_empty() {
                         continue;
                     }
-                    // Push to shared buffer (capped at 200 lines)
-                    {
-                        let mut lb = line_buffer.lock().unwrap();
-                        if lb.len() >= 200 {
-                            lb.pop_front();
-                        }
-                        lb.push_back(line.clone());
+
+                    // Loopback echo: signal the waiting command, don't show as output
+                    if line.contains("LOOPBACK:PING") {
+                        loopback_triggered.store(true, Ordering::Release);
+                        continue;
                     }
-                    let _ = app.emit("uart://line", &line);
+
                     if let Some(entry) = parse_errlog_line(&line) {
                         let description = error_db
                             .lock()
@@ -509,7 +510,13 @@ fn reader_loop(
                             .as_ref()
                             .and_then(|db| db.lookup(entry.error_code))
                             .map(|e| e.description.clone());
-                        let _ = app.emit("uart://entry", &UartEntryPayload { entry, description });
+                        let mut pe = pending_entries.lock().unwrap();
+                        if pe.len() >= 200 {
+                            pe.pop_front();
+                        }
+                        pe.push_back(PendingEntry { entry, description });
+                    } else {
+                        push_capped(&raw_lines, line, 500);
                     }
                 } else {
                     buf.push(byte[0]);
@@ -525,52 +532,10 @@ fn reader_loop(
                 }
                 state.uart_stop.lock().unwrap().take();
                 state.uart_thread.lock().unwrap().take();
-                let _ = app.emit("uart://status", StatusPayload { connected: false });
                 spawn_reconnect_if_enabled(&state, &app);
                 break;
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod db_status_tests {
-    use super::*;
-
-    #[test]
-    fn db_status_payload_serializes_loaded() {
-        let p = DbStatusPayload { loaded: true, count: Some(1234), source: "cache".into() };
-        let json = serde_json::to_string(&p).unwrap();
-        assert!(json.contains("\"loaded\":true"));
-        assert!(json.contains("\"count\":1234"));
-        assert!(json.contains("\"source\":\"cache\""));
-    }
-
-    #[test]
-    fn db_status_payload_serializes_failed() {
-        let p = DbStatusPayload { loaded: false, count: None, source: "failed".into() };
-        let json = serde_json::to_string(&p).unwrap();
-        assert!(json.contains("\"loaded\":false"));
-        assert!(json.contains("\"count\":null"));
-    }
-}
-
-#[cfg(test)]
-mod reconnect_tests {
-    use super::*;
-
-    #[test]
-    fn reconnecting_payload_serializes_active() {
-        let p = ReconnectingPayload { active: true };
-        let json = serde_json::to_string(&p).unwrap();
-        assert!(json.contains("\"active\":true"));
-    }
-
-    #[test]
-    fn reconnecting_payload_serializes_inactive() {
-        let p = ReconnectingPayload { active: false };
-        let json = serde_json::to_string(&p).unwrap();
-        assert!(json.contains("\"active\":false"));
     }
 }
 
@@ -582,9 +547,6 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
                 return;
             }
             std::thread::sleep(Duration::from_millis(100));
-        }
-        if stop.load(Ordering::Relaxed) {
-            return;
         }
 
         // Scope block so uart lock is released before spawn_reconnect_if_enabled
@@ -615,9 +577,67 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
             }
             state.uart_stop.lock().unwrap().take();
             state.uart_thread.lock().unwrap().take();
-            let _ = app.emit("uart://status", StatusPayload { connected: false });
             spawn_reconnect_if_enabled(&state, &app);
             return;
         }
+    }
+}
+
+#[cfg(test)]
+mod db_status_tests {
+    use super::*;
+
+    #[test]
+    fn db_status_payload_serializes_loaded() {
+        let p = DbStatusPayload { loaded: true, count: Some(1234), source: "cache".into() };
+        let json = serde_json::to_string(&p).unwrap();
+        assert!(json.contains("\"loaded\":true"));
+        assert!(json.contains("\"count\":1234"));
+        assert!(json.contains("\"source\":\"cache\""));
+    }
+
+    #[test]
+    fn db_status_payload_serializes_failed() {
+        let p = DbStatusPayload { loaded: false, count: None, source: "failed".into() };
+        let json = serde_json::to_string(&p).unwrap();
+        assert!(json.contains("\"loaded\":false"));
+        assert!(json.contains("\"count\":null"));
+    }
+}
+
+#[cfg(test)]
+mod poll_result_tests {
+    use super::*;
+
+    #[test]
+    fn poll_result_serializes_empty() {
+        let r = UartPollResult {
+            connected:    false,
+            reconnecting: false,
+            lines:        vec![],
+            entries:      vec![],
+            db_count:     None,
+        };
+        let json = serde_json::to_string(&r).unwrap();
+        assert!(json.contains("\"connected\":false"));
+        assert!(json.contains("\"reconnecting\":false"));
+        assert!(json.contains("\"lines\":[]"));
+        assert!(json.contains("\"entries\":[]"));
+        assert!(json.contains("\"db_count\":null"));
+    }
+
+    #[test]
+    fn poll_result_serializes_lines_and_db() {
+        let r = UartPollResult {
+            connected:    true,
+            reconnecting: false,
+            lines:        vec!["hello".into()],
+            entries:      vec![],
+            db_count:     Some(42),
+        };
+        let json = serde_json::to_string(&r).unwrap();
+        assert!(json.contains("\"connected\":true"));
+        assert!(json.contains("\"lines\":[\"hello\"]"));
+        assert!(json.contains("\"db_count\":42"));
     }
 }

@@ -53,8 +53,12 @@ export interface UartLogEntry {
   kind?: 'status' | 'error';
 }
 
-export interface UartStatusEvent {
-  connected: boolean;
+export interface UartPollResult {
+  connected:    boolean;
+  reconnecting: boolean;
+  lines:        string[];
+  entries:      UartEntryEvent[];
+  db_count:     number | null;
 }
 
 export interface NorValidation {

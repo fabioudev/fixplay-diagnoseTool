@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings, UartPortInfo } from './types';
+import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings, UartPortInfo, UartPollResult } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
@@ -15,9 +15,9 @@ export const uartSetAutoReconnect = (enabled: boolean): Promise<void> =>
   invoke<void>('uart_set_auto_reconnect', { enabled });
 export const uartUpdateDb    = (): Promise<number>     => invoke<number>('uart_update_error_db');
 
-export const uartGetDbInfo           = () => invoke<number | null>('uart_get_db_info');
-export const uartConnectionStatus    = () => invoke<{ connected: boolean; reconnecting: boolean }>('uart_connection_status');
-export const uartLoopbackTest        = (): Promise<boolean> => invoke<boolean>('uart_loopback_test');
+export const uartGetDbInfo    = () => invoke<number | null>('uart_get_db_info');
+export const uartPoll         = (): Promise<UartPollResult> => invoke<UartPollResult>('uart_poll');
+export const uartLoopbackTest = (): Promise<boolean> => invoke<boolean>('uart_loopback_test');
 export const uartSearchErrorDb = (query: string) =>
   invoke<ErrorSearchResult[]>('uart_search_error_db', { query });
 

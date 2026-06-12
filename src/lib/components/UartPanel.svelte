@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { listen } from '@tauri-apps/api/event';
   import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from '$lib/stores/uart';
   import {
     uartListPorts,
@@ -13,20 +12,21 @@
     uartUpdateDb,
     uartGetDbInfo,
     uartSearchErrorDb,
-    uartConnectionStatus,
+    uartPoll,
     uartLoopbackTest,
     settingsGet,
     settingsSave,
   } from '$lib/api/tauri';
   import { appSettings } from '$lib/stores/settings';
-  import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult, UartPortInfo } from '$lib/api/types';
+  import type { UartEntryEvent, ErrorSearchResult, UartPortInfo, UartLogEntry } from '$lib/api/types';
 
-  let selectedPort      = $state('');
-  let loading           = $state(false);
-  let dbUpdating        = $state(false);
-  let dbQuery           = $state('');
-  let searchResults     = $state<ErrorSearchResult[]>([]);
-  let loopbackPending   = $state(false);
+  let selectedPort    = $state('');
+  let loading         = $state(false);
+  let dbUpdating      = $state(false);
+  let dbQuery         = $state('');
+  let searchResults   = $state<ErrorSearchResult[]>([]);
+  let loopbackPending = $state(false);
+  let autoReconnect   = $state(false);
 
   const filteredLog = $derived(
     dbQuery.trim()
@@ -34,9 +34,100 @@
       : $uartLog
   );
 
-  let debounceTimer:      ReturnType<typeof setTimeout>  | null = null;
-  let pollInterval:       ReturnType<typeof setInterval> | null = null;
-  let prevConnectedForPoll = false;
+  let debounceTimer:    ReturnType<typeof setTimeout>  | null = null;
+  let pollInterval:     ReturnType<typeof setInterval> | null = null;
+  let dbLoadingTimeout: ReturnType<typeof setTimeout>  | null = null;
+  let responseTimeout:  ReturnType<typeof setTimeout>  | null = null;
+
+  // Connection state as last seen by the poll — used to detect transitions
+  // without depending on Tauri events (they are not reliably delivered).
+  let prevConnected    = false;
+  let prevReconnecting = false;
+  let gotDataSinceCommand = false;
+
+  function pushLog(raw: string, kind?: 'status' | 'error', parsed?: UartEntryEvent) {
+    const entry: UartLogEntry = { id: nextLogId(), timestamp_ms: Date.now(), raw, kind, parsed };
+    uartLog.update((log) => [entry, ...log.slice(0, 499)]);
+  }
+
+  /// After sending a command, warn if the console stays silent.
+  function expectResponse(label: string) {
+    gotDataSinceCommand = false;
+    if (responseTimeout) clearTimeout(responseTimeout);
+    responseTimeout = setTimeout(() => {
+      if (!gotDataSinceCommand) {
+        pushLog(
+          `[Keine Antwort auf "${label}" innerhalb 3 s — Verkabelung (TX↔RX gekreuzt?), Baudrate und Konsolen-Status prüfen]`,
+          'error'
+        );
+      }
+    }, 3000);
+  }
+
+  function formatEntry(e: UartEntryEvent): string {
+    return [
+      e.entry.error_code.toString(16).toUpperCase().padStart(8, '0'),
+      e.entry.timestamp.toString(16).toUpperCase().padStart(8, '0'),
+      e.entry.power_states.toString(16).toUpperCase().padStart(8, '0'),
+      e.entry.up_cause.toString(16).toUpperCase().padStart(8, '0'),
+      e.entry.temp_soc.toFixed(1) + '°C',
+    ].join(', ');
+  }
+
+  async function pollTick() {
+    let r;
+    try {
+      r = await uartPoll();
+    } catch {
+      return; // app shutting down or backend busy — try again next tick
+    }
+
+    // --- connection state transitions ---
+    const wasConnected    = prevConnected;
+    const wasReconnecting = prevReconnecting;
+    prevConnected    = r.connected;
+    prevReconnecting = r.reconnecting;
+    uartConnected.set(r.connected);
+    uartReconnecting.set(r.reconnecting);
+
+    if (wasConnected && !r.connected) {
+      if (r.reconnecting) {
+        pushLog('[Verbindung verloren — Auto-Reconnect läuft…]', 'status');
+      } else {
+        pushLog('[Verbindung unterbrochen — USB-Kabel und Bridge prüfen]', 'error');
+        autoPollEnabled.set(false);
+      }
+    }
+    if (!wasConnected && r.connected && wasReconnecting) {
+      pushLog(`[Wieder verbunden — ${selectedPort}]`, 'status');
+    }
+    if (wasReconnecting && !r.reconnecting && !r.connected) {
+      pushLog('[Reconnect beendet]', 'status');
+    }
+
+    // --- error DB status ---
+    if (r.db_count !== null) {
+      dbCodeCount.set(r.db_count);
+      dbLoading.set(false);
+    }
+
+    // --- new output from the console ---
+    if (r.lines.length > 0 || r.entries.length > 0) {
+      gotDataSinceCommand = true;
+      const items: UartLogEntry[] = [
+        ...r.lines.map((line): UartLogEntry => ({
+          id: nextLogId(), timestamp_ms: Date.now(), raw: line,
+        })),
+        ...r.entries.map((e): UartLogEntry => ({
+          id: nextLogId(), timestamp_ms: Date.now(), raw: formatEntry(e), parsed: e,
+        })),
+      ];
+      // newest first in the log view
+      items.reverse();
+      uartLog.update((log) => [...items, ...log].slice(0, 500));
+    }
+  }
+
   function onSearchInput(e: Event) {
     const val = (e.target as HTMLInputElement).value;
     dbQuery = val;
@@ -62,25 +153,16 @@
     }
   }
 
-  let autoReconnect = $state(false);
-
   async function connect() {
     loading = true;
     try {
       await uartConnect(selectedPort);
+      prevConnected = true;
       uartConnected.set(true);
-      prevConnectedForPoll = true;
       autoReconnect = $appSettings.auto_reconnect;
+      pushLog(`[Verbunden — ${selectedPort}]`, 'status');
     } catch (e) {
-      uartLog.update((log) => [
-        {
-          id:           nextLogId(),
-          timestamp_ms: Date.now(),
-          raw:          `Verbindungsfehler: ${String(e)}`,
-          kind:         'error' as const,
-        },
-        ...log.slice(0, 499),
-      ]);
+      pushLog(`Verbindungsfehler: ${String(e)}`, 'error');
     } finally {
       loading = false;
     }
@@ -92,54 +174,50 @@
     loading = true;
     try {
       await uartDisconnect();
+      prevConnected    = false;
+      prevReconnecting = false;
       uartConnected.set(false);
       uartReconnecting.set(false);
-      prevConnectedForPoll = false;
-      uartLog.update((log) => [
-        {
-          id:           nextLogId(),
-          timestamp_ms: Date.now(),
-          raw:          '[Getrennt]',
-          kind:         'status' as const,
-        },
-        ...log.slice(0, 499),
-      ]);
+      autoPollEnabled.set(false);
+      pushLog('[Getrennt]', 'status');
     } catch (e) {
-      console.error(e);
+      pushLog(`Trennen fehlgeschlagen: ${String(e)}`, 'error');
     } finally {
       loading = false;
     }
   }
 
   async function fetchErrlog() {
-    await uartSendErrlog().catch(console.error);
+    pushLog('[→ errlog angefordert]', 'status');
+    try {
+      await uartSendErrlog();
+      expectResponse('errlog');
+    } catch (e) {
+      pushLog(`Errlog fehlgeschlagen: ${String(e)}`, 'error');
+    }
+  }
+
+  async function fetchVersion() {
+    pushLog('[→ version angefordert]', 'status');
+    try {
+      await uartSendVersion();
+      expectResponse('version');
+    } catch (e) {
+      pushLog(`Version fehlgeschlagen: ${String(e)}`, 'error');
+    }
   }
 
   async function loopbackTest() {
     loopbackPending = true;
     try {
       const ok = await uartLoopbackTest();
-      uartLog.update((log) => [
-        {
-          id:           nextLogId(),
-          timestamp_ms: Date.now(),
-          raw:          ok
-            ? 'LOOPBACK:PING ✓'
-            : 'LOOPBACK:TIMEOUT — kein Echo empfangen (RX mit TX verbunden?)',
-          kind:         ok ? undefined : 'error' as const,
-        },
-        ...log.slice(0, 499),
-      ]);
+      if (ok) {
+        pushLog('LOOPBACK:PING ✓');
+      } else {
+        pushLog('Loopback: kein Echo innerhalb 1 s — RX mit TX verbunden?', 'error');
+      }
     } catch (e) {
-      uartLog.update((log) => [
-        {
-          id:           nextLogId(),
-          timestamp_ms: Date.now(),
-          raw:          `Loopback-Fehler: ${String(e)}`,
-          kind:         'error' as const,
-        },
-        ...log.slice(0, 499),
-      ]);
+      pushLog(`Loopback-Fehler: ${String(e)}`, 'error');
     } finally {
       loopbackPending = false;
     }
@@ -149,8 +227,9 @@
     try {
       await uartSetAutoPoll(enabled);
       autoPollEnabled.set(enabled);
+      pushLog(enabled ? '[Auto-Poll aktiviert — errlog alle 5 s]' : '[Auto-Poll deaktiviert]', 'status');
     } catch (e) {
-      console.error(e);
+      pushLog(`Auto-Poll fehlgeschlagen: ${String(e)}`, 'error');
     }
   }
 
@@ -160,16 +239,14 @@
     try {
       const count = await uartUpdateDb();
       dbCodeCount.set(count);
-      dbLoading.set(false);
+      pushLog(`[Fehlercode-DB aktualisiert — ${count.toLocaleString()} Codes]`, 'status');
     } catch (e) {
-      console.error(e);
-      dbLoading.set(false);
+      pushLog(`DB-Update fehlgeschlagen: ${String(e)}`, 'error');
     } finally {
+      dbLoading.set(false);
       dbUpdating = false;
     }
   }
-
-  const unlisten: Array<() => void> = [];
 
   onMount(async () => {
     await refreshPorts();
@@ -177,79 +254,23 @@
     const s = await settingsGet().catch(() => null);
     if (s) appSettings.set(s);
 
-    const [u1, u2, u3, u4, u5] = await Promise.all([
-      listen<string>('uart://line', (e) => {
-        uartLog.update((log) => [
-          { id: nextLogId(), timestamp_ms: Date.now(), raw: e.payload },
-          ...log.slice(0, 499),
-        ]);
-      }),
-      listen<UartEntryEvent>('uart://entry', (e) => {
-        uartLog.update((log) => [
-          {
-            id: nextLogId(),
-            timestamp_ms: Date.now(),
-            raw: [
-              e.payload.entry.error_code.toString(16).toUpperCase().padStart(8, '0'),
-              e.payload.entry.timestamp.toString(16).toUpperCase().padStart(8, '0'),
-              e.payload.entry.power_states.toString(16).toUpperCase().padStart(8, '0'),
-              e.payload.entry.up_cause.toString(16).toUpperCase().padStart(8, '0'),
-              e.payload.entry.temp_soc.toFixed(1) + '°C',
-            ].join(', '),
-            parsed: e.payload,
-          },
-          ...log.slice(0, 499),
-        ]);
-      }),
-      listen<UartStatusEvent>('uart://status', (_e) => {
-        // State is managed by direct invoke return values and the polling interval.
-        // We ignore these events to avoid duplicate log entries and unreliable state flips.
-      }),
-      listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-status', (e) => {
-        dbCodeCount.set(e.payload.loaded ? (e.payload.count ?? null) : null);
-        dbLoading.set(false);
-      }),
-      listen<{ active: boolean }>('uart://reconnecting', (e) => {
-        uartReconnecting.set(e.payload.active);
-      }),
-    ]);
-    unlisten.push(u1, u2, u3, u4, u5);
-
     const count = await uartGetDbInfo().catch(() => null);
     dbCodeCount.set(count ?? null);
     if (count === null) {
+      // A background fetch may still be running — show spinner, give up after 30 s
       dbLoading.set(true);
+      dbLoadingTimeout = setTimeout(() => dbLoading.set(false), 30_000);
     }
 
-    // Poll Rust thread state every 1.5 s to catch USB unplug without relying on events
-    pollInterval = setInterval(async () => {
-      try {
-        const status = await uartConnectionStatus();
-        const wasConnected = prevConnectedForPoll;
-        prevConnectedForPoll = status.connected;
-        uartConnected.set(status.connected);
-        uartReconnecting.set(status.reconnecting);
-        if (wasConnected && !status.connected && !status.reconnecting) {
-          uartLog.update((log) => [
-            {
-              id:           nextLogId(),
-              timestamp_ms: Date.now(),
-              raw:          '[Verbindung unterbrochen]',
-              kind:         'status' as const,
-            },
-            ...log.slice(0, 499),
-          ]);
-        }
-      } catch {
-        // ignore — invoke fails when app is shutting down
-      }
-    }, 1500);
+    // Single source of truth: poll the backend for everything (state + output).
+    pollInterval = setInterval(pollTick, 300);
   });
 
   onDestroy(() => {
-    if (debounceTimer) clearTimeout(debounceTimer);
-    if (pollInterval)  clearInterval(pollInterval);
-    unlisten.forEach((fn) => fn());
+    if (debounceTimer)    clearTimeout(debounceTimer);
+    if (pollInterval)     clearInterval(pollInterval);
+    if (dbLoadingTimeout) clearTimeout(dbLoadingTimeout);
+    if (responseTimeout)  clearTimeout(responseTimeout);
     dbLoading.set(false);
     uartReconnecting.set(false);
   });
@@ -359,7 +380,7 @@
     </button>
 
     <button
-      onclick={() => uartSendVersion().catch(console.error)}
+      onclick={fetchVersion}
       disabled={!$uartConnected}
       title="Sendet den 'version'-Befehl an die PS5. Die Konsole antwortet mit der aktuell installierten Firmware-Version."
       class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
@@ -380,7 +401,7 @@
 
     <label
       class="flex items-center gap-1 text-sm text-gray-300 select-none cursor-pointer"
-      title="Sendet den 'errlog'-Befehl automatisch alle paar Sekunden. Nützlich um neue Fehler live mitzuverfolgen ohne manuell zu klicken. Nur während aktiver Verbindung verfügbar."
+      title="Sendet den 'errlog'-Befehl automatisch alle 5 Sekunden. Nützlich um neue Fehler live mitzuverfolgen ohne manuell zu klicken. Nur während aktiver Verbindung verfügbar."
     >
       <input
         type="checkbox"
@@ -521,7 +542,7 @@
           entry.raw.startsWith('LOOPBACK:')    ? 'text-cyan-400 font-semibold' :
                                                  'text-green-400'
         }">
-          {entry.raw.startsWith('LOOPBACK:') ? `✓ Echo: ${entry.raw}` : entry.raw}
+          <span class="text-gray-600 mr-2">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span>{entry.raw.startsWith('LOOPBACK:') ? `✓ Echo: ${entry.raw}` : entry.raw}
         </div>
       {/if}
     {:else}
