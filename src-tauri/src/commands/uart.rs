@@ -91,6 +91,9 @@ pub async fn uart_connect(
 
     *state.reconnect_port.lock().unwrap() = Some(port);
 
+    let saved_auto_reconnect = crate::settings::load_settings(&app).auto_reconnect;
+    state.auto_reconnect.store(saved_auto_reconnect, Ordering::Release);
+
     app.emit("uart://status", StatusPayload { connected: true })
         .map_err(|e| e.to_string())?;
     Ok(())

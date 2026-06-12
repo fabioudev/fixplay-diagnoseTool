@@ -123,7 +123,8 @@ export interface FlashPreviewResult {
 }
 
 export interface AppSettings {
-  flashrom_path: string | null;
-  archive_dir:   string | null;
-  baud_rate:     number;
+  flashrom_path:  string | null;
+  archive_dir:    string | null;
+  baud_rate:      number;
+  auto_reconnect: boolean;
 }

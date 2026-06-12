@@ -13,7 +13,10 @@
     uartUpdateDb,
     uartGetDbInfo,
     uartSearchErrorDb,
+    settingsGet,
+    settingsSave,
   } from '$lib/api/tauri';
+  import { appSettings } from '$lib/stores/settings';
   import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult } from '$lib/api/types';
 
   let selectedPort  = $state('');
@@ -58,6 +61,7 @@
     loading = true;
     try {
       await uartConnect(selectedPort);
+      autoReconnect = $appSettings.auto_reconnect;
     } catch (e) {
       console.error(e);
     } finally {
@@ -110,6 +114,9 @@
 
   onMount(async () => {
     await refreshPorts();
+
+    const s = await settingsGet().catch(() => null);
+    if (s) appSettings.set(s);
 
     const [u1, u2, u3, u4, u5] = await Promise.all([
       listen<string>('uart://line', (e) => {
@@ -231,6 +238,9 @@
             try {
               await uartSetAutoReconnect(newState);
               autoReconnect = newState;
+              const newSettings = { ...$appSettings, auto_reconnect: newState };
+              appSettings.set(newSettings);
+              await settingsSave(newSettings).catch(console.error);
             } catch (err) {
               console.error(err);
             }

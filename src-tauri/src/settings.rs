@@ -3,17 +3,19 @@ use tauri::Manager;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct AppSettings {
-    pub flashrom_path: Option<String>,
-    pub archive_dir:   Option<String>,
+    pub flashrom_path:  Option<String>,
+    pub archive_dir:    Option<String>,
     #[serde(default = "default_baud_rate")]
-    pub baud_rate:     u32,
+    pub baud_rate:      u32,
+    #[serde(default)]
+    pub auto_reconnect: bool,
 }
 
 fn default_baud_rate() -> u32 { 115200 }
 
 impl Default for AppSettings {
     fn default() -> Self {
-        Self { flashrom_path: None, archive_dir: None, baud_rate: default_baud_rate() }
+        Self { flashrom_path: None, archive_dir: None, baud_rate: default_baud_rate(), auto_reconnect: false }
     }
 }
 
@@ -65,15 +67,24 @@ mod tests {
     #[test]
     fn save_and_load_round_trips_via_json() {
         let settings = AppSettings {
-            flashrom_path: Some("/usr/bin/flashrom".to_string()),
-            archive_dir:   Some("/tmp/dumps".to_string()),
-            baud_rate:     9600,
+            flashrom_path:  Some("/usr/bin/flashrom".to_string()),
+            archive_dir:    Some("/tmp/dumps".to_string()),
+            baud_rate:      9600,
+            auto_reconnect: true,
         };
         let json   = serde_json::to_string_pretty(&settings).unwrap();
         let loaded: AppSettings = serde_json::from_str(&json).unwrap();
         assert_eq!(loaded.baud_rate, 9600);
-        assert_eq!(loaded.flashrom_path, Some("/usr/bin/flashrom".to_string()));
-        assert_eq!(loaded.archive_dir,   Some("/tmp/dumps".to_string()));
+        assert_eq!(loaded.flashrom_path,  Some("/usr/bin/flashrom".to_string()));
+        assert_eq!(loaded.archive_dir,    Some("/tmp/dumps".to_string()));
+        assert!(loaded.auto_reconnect);
+    }
+
+    #[test]
+    fn auto_reconnect_defaults_to_false_for_legacy_settings() {
+        let json   = r#"{"baud_rate": 9600}"#;
+        let loaded: AppSettings = serde_json::from_str(json).unwrap();
+        assert!(!loaded.auto_reconnect);
     }
 
     #[test]
