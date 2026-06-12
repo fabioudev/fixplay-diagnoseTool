@@ -39,12 +39,18 @@ export interface UartEntryEvent {
   description: string | null;
 }
 
+export interface UartPortInfo {
+  name:        string;
+  is_bridge:   boolean;
+  description: string;
+}
+
 export interface UartLogEntry {
   id: number;
   timestamp_ms: number;
   raw: string;
   parsed?: UartEntryEvent;
-  kind?: 'status';
+  kind?: 'status' | 'error';
 }
 
 export interface UartStatusEvent {

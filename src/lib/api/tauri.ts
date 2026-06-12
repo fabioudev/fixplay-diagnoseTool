@@ -1,10 +1,10 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings } from './types';
+import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings, UartPortInfo } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
 
-export const uartListPorts   = (): Promise<string[]>  => invoke<string[]>('uart_list_ports');
+export const uartListPorts = (): Promise<UartPortInfo[]> => invoke<UartPortInfo[]>('uart_list_ports');
 export const uartConnect     = (port: string): Promise<void> => invoke<void>('uart_connect', { port });
 export const uartDisconnect  = (): Promise<void>       => invoke<void>('uart_disconnect');
 export const uartSendErrlog  = (): Promise<void>       => invoke<void>('uart_send_errlog');

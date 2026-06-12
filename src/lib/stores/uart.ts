@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
-import type { UartLogEntry } from '$lib/api/types';
+import type { UartLogEntry, UartPortInfo } from '$lib/api/types';
 
 export const uartConnected = writable<boolean>(false);
-export const uartPorts = writable<string[]>([]);
+export const uartPorts = writable<UartPortInfo[]>([]);
 export const uartLog = writable<UartLogEntry[]>([]);
 export const autoPollEnabled = writable<boolean>(false);
 export const dbCodeCount = writable<number | null>(null);

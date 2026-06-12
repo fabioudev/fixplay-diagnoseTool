@@ -39,10 +39,50 @@ struct ReconnectingPayload {
     active: bool,
 }
 
+#[derive(Clone, Serialize)]
+pub struct UartPortInfo {
+    pub name:        String,
+    pub is_bridge:   bool,
+    pub description: String,
+}
+
+fn detect_bridge(port: &serialport::SerialPortInfo) -> (bool, String) {
+    if let serialport::SerialPortType::UsbPort(ref usb) = port.port_type {
+        let label = match usb.vid {
+            0x1A86 => Some("CH340/CH341"),
+            0x10C4 => Some("CP210x"),
+            0x0403 => Some("FTDI FT232"),
+            0x067B => Some("PL2303"),
+            0x0483 => Some("STM32 VCP"),
+            0x04D8 => Some("MCP2221"),
+            0x2341 => Some("Arduino"),
+            0x239A => Some("Adafruit"),
+            _      => None,
+        };
+        if let Some(l) = label {
+            return (true, l.to_string());
+        }
+        // Fallback: check product/manufacturer name for bridge hints
+        let prod = usb.product.as_deref().unwrap_or("").to_lowercase();
+        let mfr  = usb.manufacturer.as_deref().unwrap_or("").to_lowercase();
+        let hint = prod.contains("uart") || prod.contains("serial") || prod.contains("bridge")
+                || mfr.contains("uart")  || mfr.contains("silicon");
+        if hint {
+            let desc = usb.product.clone().unwrap_or_else(|| "UART Bridge".into());
+            return (true, desc);
+        }
+    }
+    (false, String::new())
+}
+
 #[tauri::command]
-pub async fn uart_list_ports() -> Result<Vec<String>, String> {
+pub async fn uart_list_ports() -> Result<Vec<UartPortInfo>, String> {
     info!("uart_list_ports invoked");
-    UartPort::list_ports().map_err(|e| e.to_string())
+    let ports = serialport::available_ports().map_err(|e| e.to_string())?;
+    Ok(ports.into_iter().map(|p| {
+        let (is_bridge, description) = detect_bridge(&p);
+        UartPortInfo { name: p.port_name, is_bridge, description }
+    }).collect())
 }
 
 #[tauri::command]

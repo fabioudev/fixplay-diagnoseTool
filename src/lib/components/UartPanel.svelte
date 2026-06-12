@@ -17,7 +17,7 @@
     settingsSave,
   } from '$lib/api/tauri';
   import { appSettings } from '$lib/stores/settings';
-  import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult } from '$lib/api/types';
+  import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult, UartPortInfo } from '$lib/api/types';
 
   let selectedPort  = $state('');
   let loading       = $state(false);
@@ -46,12 +46,14 @@
   }
 
   async function refreshPorts() {
-    const ports = await uartListPorts().catch(() => [] as string[]);
+    const ports = await uartListPorts().catch(() => [] as UartPortInfo[]);
     uartPorts.set(ports);
-    if (ports.length > 0 && !selectedPort) {
-      selectedPort = ports[0];
-    } else if (!ports.includes(selectedPort)) {
-      selectedPort = ports[0] ?? '';
+    const bridge    = ports.find(p => p.is_bridge);
+    const preferred = bridge ?? ports[0];
+    if (!selectedPort && preferred) {
+      selectedPort = preferred.name;
+    } else if (!ports.some(p => p.name === selectedPort)) {
+      selectedPort = preferred?.name ?? '';
     }
   }
 
@@ -63,7 +65,15 @@
       await uartConnect(selectedPort);
       autoReconnect = $appSettings.auto_reconnect;
     } catch (e) {
-      console.error(e);
+      uartLog.update((log) => [
+        {
+          id:           nextLogId(),
+          timestamp_ms: Date.now(),
+          raw:          `Verbindungsfehler: ${String(e)}`,
+          kind:         'error' as const,
+        },
+        ...log.slice(0, 499),
+      ]);
     } finally {
       loading = false;
     }
@@ -194,8 +204,10 @@
         class="appearance-none bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 pr-6
                border border-gray-700 disabled:opacity-50 focus:outline-none"
       >
-        {#each $uartPorts as p (p)}
-          <option value={p}>{p}</option>
+        {#each $uartPorts as p (p.name)}
+          <option value={p.name}>
+            {p.name}{p.is_bridge ? ` — ${p.description}` : ''}
+          </option>
         {:else}
           <option value="">Keine Ports gefunden</option>
         {/each}
@@ -383,9 +395,11 @@
           </div>
         </div>
       {:else}
-        <div class="{entry.kind === 'status'
-          ? 'font-mono text-xs text-gray-500 italic leading-relaxed'
-          : 'font-mono text-xs text-green-400 leading-relaxed'}">
+        <div class="font-mono text-xs leading-relaxed {
+          entry.kind === 'status' ? 'text-gray-500 italic' :
+          entry.kind === 'error'  ? 'text-red-400' :
+                                    'text-green-400'
+        }">
           {entry.raw}
         </div>
       {/if}

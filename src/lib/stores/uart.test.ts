@@ -103,4 +103,14 @@ describe('uart store', () => {
     };
     expect(entry.kind).toBe('status');
   });
+
+  it('UartLogEntry accepts kind error', () => {
+    const entry: UartLogEntry = {
+      id:           1,
+      timestamp_ms: Date.now(),
+      raw:          'Verbindungsfehler: port not found',
+      kind:         'error',
+    };
+    expect(entry.kind).toBe('error');
+  });
 });
