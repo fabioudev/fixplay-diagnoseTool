@@ -9,6 +9,7 @@ export const uartConnect     = (port: string): Promise<void> => invoke<void>('ua
 export const uartDisconnect  = (): Promise<void>       => invoke<void>('uart_disconnect');
 export const uartSendErrlog  = (): Promise<void>       => invoke<void>('uart_send_errlog');
 export const uartSendVersion = (): Promise<void>       => invoke<void>('uart_send_version');
+export const uartClearErrlog = (): Promise<void>       => invoke<void>('uart_clear_errlog');
 export const uartSetAutoPoll = (enabled: boolean): Promise<void> =>
   invoke<void>('uart_set_auto_poll', { enabled });
 export const uartSetAutoReconnect = (enabled: boolean): Promise<void> =>

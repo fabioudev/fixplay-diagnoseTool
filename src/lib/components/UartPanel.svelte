@@ -7,6 +7,7 @@
     uartDisconnect,
     uartSendErrlog,
     uartSendVersion,
+    uartClearErrlog,
     uartSetAutoPoll,
     uartSetAutoReconnect,
     uartUpdateDb,
@@ -226,6 +227,27 @@
     }
   }
 
+  let confirmClear = $state(false);
+  let confirmClearTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  async function clearErrlog() {
+    if (!confirmClear) {
+      confirmClear = true;
+      if (confirmClearTimeout) clearTimeout(confirmClearTimeout);
+      confirmClearTimeout = setTimeout(() => (confirmClear = false), 4000);
+      return;
+    }
+    confirmClear = false;
+    if (confirmClearTimeout) clearTimeout(confirmClearTimeout);
+    pushLog('[→ Fehler-Historie wird gelöscht (errlog clear)]', 'status');
+    expectResponse('errlog clear');
+    try {
+      await uartClearErrlog();
+    } catch (e) {
+      pushLog(`Löschen fehlgeschlagen: ${String(e)}`, 'error');
+    }
+  }
+
   async function loopbackTest() {
     loopbackPending = true;
     try {
@@ -286,10 +308,11 @@
   });
 
   onDestroy(() => {
-    if (debounceTimer)    clearTimeout(debounceTimer);
-    if (pollInterval)     clearInterval(pollInterval);
-    if (dbLoadingTimeout) clearTimeout(dbLoadingTimeout);
-    if (responseTimeout)  clearTimeout(responseTimeout);
+    if (debounceTimer)       clearTimeout(debounceTimer);
+    if (pollInterval)        clearInterval(pollInterval);
+    if (dbLoadingTimeout)    clearTimeout(dbLoadingTimeout);
+    if (responseTimeout)     clearTimeout(responseTimeout);
+    if (confirmClearTimeout) clearTimeout(confirmClearTimeout);
     dbLoading.set(false);
     uartReconnecting.set(false);
   });
@@ -396,6 +419,18 @@
              disabled:opacity-40"
     >
       {errlogPending ? '⟳ Errlog…' : 'Errlog'}
+    </button>
+
+    <button
+      onclick={clearErrlog}
+      disabled={!$uartConnected}
+      title="Löscht die gespeicherte Fehler-Historie auf der PS5 unwiderruflich (errlog clear). Sinnvoll nach einer Reparatur, um zu prüfen ob neue Fehler auftreten. Erfordert zweiten Klick zur Bestätigung."
+      class="px-3 py-1 text-sm rounded text-white disabled:opacity-40
+             {confirmClear
+               ? 'bg-red-700 hover:bg-red-600'
+               : 'bg-gray-700 hover:bg-gray-600'}"
+    >
+      {confirmClear ? 'Wirklich löschen?' : 'Historie löschen'}
     </button>
 
     <button

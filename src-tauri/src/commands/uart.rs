@@ -236,6 +236,13 @@ pub async fn uart_send_version(state: State<'_, AppState>) -> Result<(), String>
     send_tracked(&state, &cmd)
 }
 
+/// Clear the PS5's stored error log history.
+#[tauri::command]
+pub async fn uart_clear_errlog(state: State<'_, AppState>) -> Result<(), String> {
+    let cmd = build_command("errlog clear");
+    send_tracked(&state, &cmd)
+}
+
 #[tauri::command]
 pub async fn uart_loopback_test(state: State<'_, AppState>) -> Result<bool, String> {
     state.loopback_triggered.store(false, Ordering::Release);
