@@ -122,6 +122,18 @@ pub async fn uart_disconnect(
     }
     state.auto_reconnect.store(false, Ordering::Release);
 
+    // The reconnect thread may have opened a port and spawned a reader between our stop
+    // signal and the join above. Stop any reader it left behind.
+    if let Some(flag) = state.uart_stop.lock().unwrap().take() {
+        flag.store(true, Ordering::Relaxed);
+    }
+    if let Some(handle) = state.uart_thread.lock().unwrap().take() {
+        let _ = handle.join();
+    }
+    if let Some(uart) = state.uart.lock().unwrap().as_mut() {
+        let _ = uart.disconnect();
+    }
+
     app.emit("uart://status", StatusPayload { connected: false })
         .map_err(|e| e.to_string())?;
     Ok(())
@@ -186,7 +198,7 @@ pub async fn uart_set_auto_reconnect(
 ) -> Result<(), String> {
     // Always stop any running reconnect thread first
     if let Some(flag) = state.reconnect_stop.lock().unwrap().take() {
-        flag.store(true, Ordering::Release);
+        flag.store(true, Ordering::Relaxed);
     }
     if let Some(handle) = state.reconnect_thread.lock().unwrap().take() {
         let _ = handle.join();
