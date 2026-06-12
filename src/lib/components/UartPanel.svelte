@@ -187,18 +187,21 @@
 
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-2">
-    <select
-      bind:value={selectedPort}
-      disabled={$uartConnected || $uartReconnecting}
-      class="bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 border border-gray-700
-             disabled:opacity-50"
-    >
-      {#each $uartPorts as p (p)}
-        <option value={p} class="bg-gray-800 text-gray-100">{p}</option>
-      {:else}
-        <option value="" class="bg-gray-800 text-gray-100">Keine Ports gefunden</option>
-      {/each}
-    </select>
+    <div class="relative">
+      <select
+        bind:value={selectedPort}
+        disabled={$uartConnected || $uartReconnecting}
+        class="appearance-none bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 pr-6
+               border border-gray-700 disabled:opacity-50 focus:outline-none"
+      >
+        {#each $uartPorts as p (p)}
+          <option value={p}>{p}</option>
+        {:else}
+          <option value="">Keine Ports gefunden</option>
+        {/each}
+      </select>
+      <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+    </div>
 
     <button
       onclick={refreshPorts}

@@ -104,20 +104,23 @@
       <!-- UART Baud Rate -->
       <div class="flex flex-col gap-1.5">
         <label for="settings-baud-rate" class="text-xs font-medium text-gray-400">UART Baudrate</label>
-        <select
-          id="settings-baud-rate"
-          value={$appSettings.baud_rate}
-          onchange={async (e) => {
-            appSettings.update(s => ({ ...s, baud_rate: Number((e.target as HTMLSelectElement).value) }));
-            await save();
-          }}
-          class="bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
-                 border border-gray-700 focus:outline-none focus:border-gray-500"
-        >
-          {#each BAUD_RATES as rate (rate)}
-            <option value={rate} class="bg-gray-800 text-gray-100">{rate}</option>
-          {/each}
-        </select>
+        <div class="relative">
+          <select
+            id="settings-baud-rate"
+            value={$appSettings.baud_rate}
+            onchange={async (e) => {
+              appSettings.update(s => ({ ...s, baud_rate: Number((e.target as HTMLSelectElement).value) }));
+              await save();
+            }}
+            class="appearance-none w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 pr-6
+                   border border-gray-700 focus:outline-none focus:border-gray-500"
+          >
+            {#each BAUD_RATES as rate (rate)}
+              <option value={rate}>{rate}</option>
+            {/each}
+          </select>
+          <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        </div>
         <p class="text-xs text-gray-600">Wirkt beim nächsten UART-Verbindungsaufbau.</p>
       </div>
 
