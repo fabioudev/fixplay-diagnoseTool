@@ -8,19 +8,40 @@ pub fn build_command(cmd: &str) -> String {
     format!("{}:{:02X}\r\n", cmd, checksum(cmd))
 }
 
+/// Parse a PS5 errlog response payload.
+///
+/// Real consoles answer space-separated with a leading all-zero status word:
+/// `00000000 808D0001 001A0736 81BF0005 00000000 2179 003E 1E13 14CD`
+/// (status, error code, RTC counter, power state, up cause, SoC temp as 8.8
+/// fixed point, three unknown words). The legacy comma format without the
+/// status word is still accepted.
 pub fn parse_errlog_line(line: &str) -> Option<ErrlogEntry> {
-    let fields: Vec<&str> = line.trim().split(',').collect();
+    let fields: Vec<&str> = line
+        .trim()
+        .split(|c: char| c == ',' || c.is_whitespace())
+        .filter(|s| !s.is_empty())
+        .collect();
     if fields.len() != 9 {
         return None;
     }
-    let error_code   = u32::from_str_radix(fields[0], 16).ok()?;
-    let timestamp    = u32::from_str_radix(fields[1], 16).ok()?;
-    let power_states = u32::from_str_radix(fields[2], 16).ok()?;
-    let up_cause     = u32::from_str_radix(fields[3], 16).ok()?;
-    let temp_raw     = u16::from_str_radix(fields[4], 16).ok()?;
+    // A leading all-zero word is the status field of the real format.
+    let off = usize::from(fields[0].bytes().all(|b| b == b'0'));
+
+    let error_code   = u32::from_str_radix(fields[off], 16).ok()?;
+    let timestamp    = u32::from_str_radix(fields[off + 1], 16).ok()?;
+    let power_states = u32::from_str_radix(fields[off + 2], 16).ok()?;
+    let up_cause     = u32::from_str_radix(fields[off + 3], 16).ok()?;
+    let temp_raw     = u16::from_str_radix(fields[off + 4], 16).ok()?;
     let temp_soc     = (temp_raw >> 8) as f32 + ((temp_raw & 0xFF) as f32 / 256.0);
-    let raw_fields   = [
-        fields[5].to_string(),
+
+    // An all-zero error code is an empty history slot, not an error
+    if error_code == 0 {
+        return None;
+    }
+
+    let first_raw  = if off == 1 { fields[0] } else { fields[5] };
+    let raw_fields = [
+        first_raw.to_string(),
         fields[6].to_string(),
         fields[7].to_string(),
         fields[8].to_string(),
@@ -81,5 +102,36 @@ mod tests {
         let line = "80000001,00001234,00000003,00000001,3400,0,0,0,0";
         let entry = parse_errlog_line(line).expect("should parse");
         assert!((entry.temp_soc - 52.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn parse_real_console_response() {
+        // Captured from a real PS5 (after "OK " prefix and ":XX" checksum are stripped)
+        let line = "00000000 808D0001 001A0736 81BF0005 00000000 2179 003E 1E13 14CD";
+        let entry = parse_errlog_line(line).expect("should parse");
+        assert_eq!(entry.error_code, 0x808D0001);
+        assert_eq!(entry.timestamp, 0x001A0736);
+        assert_eq!(entry.power_states, 0x81BF0005);
+        assert_eq!(entry.up_cause, 0x00000000);
+        assert!((entry.temp_soc - 33.47).abs() < 0.01);
+        assert_eq!(entry.raw_fields[0], "00000000");
+        assert_eq!(entry.raw_fields[1], "003E");
+        assert_eq!(entry.raw_fields[2], "1E13");
+        assert_eq!(entry.raw_fields[3], "14CD");
+    }
+
+    #[test]
+    fn parse_real_format_empty_slot_returns_none() {
+        // Status word present but error code is zero → empty history slot
+        let line = "00000000 00000000 00000000 00000000 00000000 0000 0000 0000 0000";
+        assert!(parse_errlog_line(line).is_none());
+    }
+
+    #[test]
+    fn parse_real_format_multiple_spaces() {
+        let line = "00000000  808D0001  001A0736 81BF0005 00000000 2179 003E 1E13 14CD";
+        // extra whitespace collapses — still 9 fields
+        let entry = parse_errlog_line(line).expect("should parse");
+        assert_eq!(entry.error_code, 0x808D0001);
     }
 }
