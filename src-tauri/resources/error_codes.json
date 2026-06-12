@@ -1,1 +1,2836 @@
-[]
+{
+  "Revision": "1.0.1.9",
+  "Description": "Updated Codes, 80910002, 80C00136, C0020303",
+  "PlayStation5": {
+    "ErrorCodes": [
+      {
+        "ID": "00100E3C",
+        "Message": "Known Unknown 00100E3C - Report Findings",
+        "Status": 0,
+        "Priority": 3
+      },
+      {
+        "ID": "0015442C",
+        "Message": "Known Unknown 0015442C - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "015E4E8B",
+        "Message": "Known Unknown 015E4E8B - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80000001",
+        "Message": "Hardware - Failed to access the thermal sensor -  APU Overheat or Initialization Error",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80000008",
+        "Message": "Hardware - Drive Dead Notify Timeout - Report findings - Possible APU Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80000009",
+        "Message": "Hardware - AC In Detect - Unexpected Power Loss or Shutdown Failure",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "8000000C",
+        "Message": "Hardware - MSoCTemprAlert - Known Unknown 8000000C (Power or Short) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80050000",
+        "Message": "Main SoC CPU Power Fail - SoC VRM Power Fail (CPU) (2 Phases)- VRM Power Fail (CPU): Couldn't get the error factor. APU VRM (2 Phases) Power Fail, Check Infineon XDPE14286A 16 Phase PWM Controller, Check mosfets APU side for short (Caps Usually Short) - Single Beep, 1 Second Blue Light, 8.6mA draw power on.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80050020",
+        "Message": "Main SoC CPU Power Fail - SoC VRM Power Fail (CPU) (2 Phases)- VRM Power Fail (CPU): report failing component APU VRM (2 Phases) Power Fail, Check Infineon XDPE14286A 16 Phase PWM Controller, Check mosfets APU side for short (Caps Usually Short) - Single Beep, 1 Second Blue Light, 8.6mA draw power on.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80050040",
+        "Message": "Main SoC CPU Power Fail - SoC VRM Power Fail (CPU) (2 Phases)- VRM Power Fail (CPU): report failing component APU VRM (2 Phases) Power Fail, Check Infineon XDPE14286A 16 Phase PWM Controller, Check mosfets APU side for short (Caps Usually Short) - Single Beep, 1 Second Blue Light, 8.6mA draw power on.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80060000",
+        "Message": "Main SoC GFX Power Fail - SoC VRM Power Fail (GFX) - VRM Power Fail (GFX): Couldn't get the error factor.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80060020",
+        "Message": "Main SoC GFX Power Fail - SoC VRM Power Fail (GFX) (6 Phases) - VRM Power Fail (GFX): report failing component - Check Infineon XDPE14286A 16 Phase PWM Controller",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80060040",
+        "Message": "Main SoC GFX Power Fail - SoC VRM Power Fail (GFX) (6 Phases) - VRM Power Fail (GFX): report failing component - Check Infineon XDPE14286A 16 Phase PWM Controller",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80068000",
+        "Message": "Known Unknown 80068000 - Report Findings - Possible APU / VRM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80097CE4",
+        "Message": "Known Unknown 80097CE4 (APU Power) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80800000",
+        "Message": "Kernel Panic Shutdown",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80800014",
+        "Message": "TPM 2.0 chip or Power Failure",
+        "Status": 0,
+        "Priority": 3
+      },
+      {
+        "ID": "8080001A",
+        "Message": "Non-Native TPM 2.0 Chip (After APU Init)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "8080001F",
+        "Message": "Known Unknown 8080001F (Power or Short) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80800022",
+        "Message": "No/Bad Communication Between APU -> RAM - APU Initilized - Replace All/Some RAM (Check APU for Die Cracks)",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80800023",
+        "Message": "Known Unknown 80800023 (Power or Short) - Report Findings - 2 second Blue Light",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80800024",
+        "Message": "APU - Known Unknown 80800024 (Power or Short) - (Check APU for Die Cracks) Report Additional Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801028",
+        "Message": "Known Unknown 80801028 (SSD) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801101",
+        "Message": "RAM GDDR6 (Bank 1) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801102",
+        "Message": "RAM GDDR6 (Bank 2) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801103",
+        "Message": "RAM GDDR6 (Bank 1,2) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801104",
+        "Message": "RAM GDDR6 (Bank 3) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801105",
+        "Message": "RAM GDDR6 (Bank 1,3) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801106",
+        "Message": "RAM GDDR6 (Bank 2,3) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801107",
+        "Message": "RAM GDDR6 (Bank 1,2,3) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801108",
+        "Message": "RAM GDDR6 (Bank 4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801109",
+        "Message": "RAM GDDR6 (Bank 1,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080110A",
+        "Message": "RAM GDDR6 (Bank 2,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080110B",
+        "Message": "RAM GDDR6 (Bank 1,2,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080110C",
+        "Message": "RAM GDDR6 (Bank 3,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080110D",
+        "Message": "RAM GDDR6 (Bank 1,3,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080110E",
+        "Message": "RAM GDDR6 (Bank 2,3,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080110F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801110",
+        "Message": "RAM GDDR6 (Bank 5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801111",
+        "Message": "RAM GDDR6 (Bank 1,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801112",
+        "Message": "RAM GDDR6 (Bank 2,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801113",
+        "Message": "RAM GDDR6 (Bank 1,2,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801114",
+        "Message": "RAM GDDR6 (Bank 3,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801115",
+        "Message": "RAM GDDR6 (Bank 1,3,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801116",
+        "Message": "RAM GDDR6 (Bank 2,3,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801117",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801118",
+        "Message": "RAM GDDR6 (Bank 4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801119",
+        "Message": "RAM GDDR6 (Bank 1,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080111A",
+        "Message": "RAM GDDR6 (Bank 2,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080111B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080111C",
+        "Message": "RAM GDDR6 (Bank 3,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080111D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080111E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080111F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801120",
+        "Message": "RAM GDDR6 (Bank 6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801121",
+        "Message": "RAM GDDR6 (Bank 1,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801122",
+        "Message": "RAM GDDR6 (Bank 2,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801123",
+        "Message": "RAM GDDR6 (Bank 1,2,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801124",
+        "Message": "RAM GDDR6 (Bank 3,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801125",
+        "Message": "RAM GDDR6 (Bank 1,3,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801126",
+        "Message": "RAM GDDR6 (Bank 2,3,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801127",
+        "Message": "RAM GDDR6 (Bank 1,2,3,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801128",
+        "Message": "RAM GDDR6 (Bank 4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801129",
+        "Message": "RAM GDDR6 (Bank 1,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080112A",
+        "Message": "RAM GDDR6 (Bank 2,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080112B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080112C",
+        "Message": "RAM GDDR6 (Bank 3,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080112D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080112E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080112F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801130",
+        "Message": "RAM GDDR6 (Bank 5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801131",
+        "Message": "RAM GDDR6 (Bank 1,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801132",
+        "Message": "RAM GDDR6 (Bank 2,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801133",
+        "Message": "RAM GDDR6 (Bank 1,2,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801134",
+        "Message": "RAM GDDR6 (Bank 3,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801135",
+        "Message": "RAM GDDR6 (Bank 1,3,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801136",
+        "Message": "RAM GDDR6 (Bank 2,3,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801137",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801138",
+        "Message": "RAM GDDR6 (Bank 4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801139",
+        "Message": "RAM GDDR6 (Bank 1,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080113A",
+        "Message": "RAM GDDR6 (Bank 2,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080113B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080113C",
+        "Message": "RAM GDDR6 (Bank 3,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080113D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080113E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080113F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,6) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801140",
+        "Message": "RAM GDDR6 (Bank 7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801141",
+        "Message": "RAM GDDR6 (Bank 1,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801142",
+        "Message": "RAM GDDR6 (Bank 2,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801143",
+        "Message": "RAM GDDR6 (Bank 1,2,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801144",
+        "Message": "RAM GDDR6 (Bank 3,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801145",
+        "Message": "RAM GDDR6 (Bank 1,3,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801146",
+        "Message": "RAM GDDR6 (Bank 2,3,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801147",
+        "Message": "RAM GDDR6 (Bank 1,2,3,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801148",
+        "Message": "RAM GDDR6 (Bank 4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801149",
+        "Message": "RAM GDDR6 (Bank 1,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080114A",
+        "Message": "RAM GDDR6 (Bank 2,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080114B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080114C",
+        "Message": "RAM GDDR6 (Bank 3,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080114D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080114E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080114F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801150",
+        "Message": "RAM GDDR6 (Bank 5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801151",
+        "Message": "RAM GDDR6 (Bank 1,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801152",
+        "Message": "RAM GDDR6 (Bank 2,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801153",
+        "Message": "RAM GDDR6 (Bank 1,2,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801154",
+        "Message": "RAM GDDR6 (Bank 3,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801155",
+        "Message": "RAM GDDR6 (Bank 1,3,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801156",
+        "Message": "RAM GDDR6 (Bank 2,3,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801157",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801158",
+        "Message": "RAM GDDR6 (Bank 4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801159",
+        "Message": "RAM GDDR6 (Bank 1,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080115A",
+        "Message": "RAM GDDR6 (Bank 2,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080115B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080115C",
+        "Message": "RAM GDDR6 (Bank 3,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080115D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080115E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080115F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801160",
+        "Message": "RAM GDDR6 (Bank 6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801161",
+        "Message": "RAM GDDR6 (Bank 1,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801162",
+        "Message": "RAM GDDR6 (Bank 2,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801163",
+        "Message": "RAM GDDR6 (Bank 1,2,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801164",
+        "Message": "RAM GDDR6 (Bank 3,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801165",
+        "Message": "RAM GDDR6 (Bank 1,3,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801166",
+        "Message": "RAM GDDR6 (Bank 2,3,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801167",
+        "Message": "RAM GDDR6 (Bank 1,2,3,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801168",
+        "Message": "RAM GDDR6 (Bank 4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801169",
+        "Message": "RAM GDDR6 (Bank 1,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080116A",
+        "Message": "RAM GDDR6 (Bank 2,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080116B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080116C",
+        "Message": "RAM GDDR6 (Bank 3,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080116D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080116E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080116F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801170",
+        "Message": "RAM GDDR6 (Bank 5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801171",
+        "Message": "RAM GDDR6 (Bank 1,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801172",
+        "Message": "RAM GDDR6 (Bank 2,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801173",
+        "Message": "RAM GDDR6 (Bank 1,2,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801174",
+        "Message": "RAM GDDR6 (Bank 3,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801175",
+        "Message": "RAM GDDR6 (Bank 1,3,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801176",
+        "Message": "RAM GDDR6 (Bank 2,3,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801177",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801178",
+        "Message": "RAM GDDR6 (Bank 4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801179",
+        "Message": "RAM GDDR6 (Bank 1,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080117A",
+        "Message": "RAM GDDR6 (Bank 2,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080117B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080117C",
+        "Message": "RAM GDDR6 (Bank 3,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080117D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080117E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080117F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,6,7) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801180",
+        "Message": "RAM GDDR6 (Bank 8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801181",
+        "Message": "RAM GDDR6 (Bank 1,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801182",
+        "Message": "RAM GDDR6 (Bank 2,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801183",
+        "Message": "RAM GDDR6 (Bank 1,2,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801184",
+        "Message": "RAM GDDR6 (Bank 3,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801185",
+        "Message": "RAM GDDR6 (Bank 1,3,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801186",
+        "Message": "RAM GDDR6 (Bank 2,3,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801187",
+        "Message": "RAM GDDR6 (Bank 1,2,3,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801188",
+        "Message": "RAM GDDR6 (Bank 4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801189",
+        "Message": "RAM GDDR6 (Bank 1,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080118A",
+        "Message": "RAM GDDR6 (Bank 2,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080118B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080118C",
+        "Message": "RAM GDDR6 (Bank 3,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080118D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080118E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080118F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801190",
+        "Message": "RAM GDDR6 (Bank 5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801191",
+        "Message": "RAM GDDR6 (Bank 1,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801192",
+        "Message": "RAM GDDR6 (Bank 2,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801193",
+        "Message": "RAM GDDR6 (Bank 1,2,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801194",
+        "Message": "RAM GDDR6 (Bank 3,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801195",
+        "Message": "RAM GDDR6 (Bank 1,3,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801196",
+        "Message": "RAM GDDR6 (Bank 2,3,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801197",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801198",
+        "Message": "RAM GDDR6 (Bank 4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801199",
+        "Message": "RAM GDDR6 (Bank 1,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080119A",
+        "Message": "RAM GDDR6 (Bank 2,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080119B",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080119C",
+        "Message": "RAM GDDR6 (Bank 3,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080119D",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080119E",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8080119F",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A0",
+        "Message": "RAM GDDR6 (Bank 6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A1",
+        "Message": "RAM GDDR6 (Bank 1,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A2",
+        "Message": "RAM GDDR6 (Bank 2,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A3",
+        "Message": "RAM GDDR6 (Bank 1,2,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A4",
+        "Message": "RAM GDDR6 (Bank 3,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A5",
+        "Message": "RAM GDDR6 (Bank 1,3,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A6",
+        "Message": "RAM GDDR6 (Bank 2,3,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A7",
+        "Message": "RAM GDDR6 (Bank 1,2,3,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A8",
+        "Message": "RAM GDDR6 (Bank 4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011A9",
+        "Message": "RAM GDDR6 (Bank 1,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011AA",
+        "Message": "RAM GDDR6 (Bank 2,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011AB",
+        "Message": "RAM GDDR6 (Bank 1,2,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011AC",
+        "Message": "RAM GDDR6 (Bank 3,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011AD",
+        "Message": "RAM GDDR6 (Bank 1,3,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011AE",
+        "Message": "RAM GDDR6 (Bank 2,3,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011AF",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B0",
+        "Message": "RAM GDDR6 (Bank 5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B1",
+        "Message": "RAM GDDR6 (Bank 1,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B2",
+        "Message": "RAM GDDR6 (Bank 2,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B3",
+        "Message": "RAM GDDR6 (Bank 1,2,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B4",
+        "Message": "RAM GDDR6 (Bank 3,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B5",
+        "Message": "RAM GDDR6 (Bank 1,3,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B6",
+        "Message": "RAM GDDR6 (Bank 2,3,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B7",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B8",
+        "Message": "RAM GDDR6 (Bank 4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011B9",
+        "Message": "RAM GDDR6 (Bank 1,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011BA",
+        "Message": "RAM GDDR6 (Bank 2,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011BB",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011BC",
+        "Message": "RAM GDDR6 (Bank 3,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011BD",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011BE",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011BF",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,6,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C0",
+        "Message": "RAM GDDR6 (Bank 7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C1",
+        "Message": "RAM GDDR6 (Bank 1,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C2",
+        "Message": "RAM GDDR6 (Bank 2,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C3",
+        "Message": "RAM GDDR6 (Bank 1,2,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C4",
+        "Message": "RAM GDDR6 (Bank 3,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C5",
+        "Message": "RAM GDDR6 (Bank 1,3,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C6",
+        "Message": "RAM GDDR6 (Bank 2,3,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C7",
+        "Message": "RAM GDDR6 (Bank 1,2,3,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C8",
+        "Message": "RAM GDDR6 (Bank 4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011C9",
+        "Message": "RAM GDDR6 (Bank 1,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011CA",
+        "Message": "RAM GDDR6 (Bank 2,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011CB",
+        "Message": "RAM GDDR6 (Bank 1,2,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011CC",
+        "Message": "RAM GDDR6 (Bank 3,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011CD",
+        "Message": "RAM GDDR6 (Bank 1,3,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011CE",
+        "Message": "RAM GDDR6 (Bank 2,3,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011CF",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D0",
+        "Message": "RAM GDDR6 (Bank 5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D1",
+        "Message": "RAM GDDR6 (Bank 1,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D2",
+        "Message": "RAM GDDR6 (Bank 2,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D3",
+        "Message": "RAM GDDR6 (Bank 1,2,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D4",
+        "Message": "RAM GDDR6 (Bank 3,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D5",
+        "Message": "RAM GDDR6 (Bank 1,3,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D6",
+        "Message": "RAM GDDR6 (Bank 2,3,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D7",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D8",
+        "Message": "RAM GDDR6 (Bank 4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011D9",
+        "Message": "RAM GDDR6 (Bank 1,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011DA",
+        "Message": "RAM GDDR6 (Bank 2,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011DB",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011DC",
+        "Message": "RAM GDDR6 (Bank 3,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011DD",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011DE",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011DF",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E0",
+        "Message": "RAM GDDR6 (Bank 6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E1",
+        "Message": "RAM GDDR6 (Bank 1,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E2",
+        "Message": "RAM GDDR6 (Bank 2,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E3",
+        "Message": "RAM GDDR6 (Bank 1,2,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E4",
+        "Message": "RAM GDDR6 (Bank 3,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E5",
+        "Message": "RAM GDDR6 (Bank 1,3,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E6",
+        "Message": "RAM GDDR6 (Bank 2,3,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E7",
+        "Message": "RAM GDDR6 (Bank 1,2,3,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E8",
+        "Message": "RAM GDDR6 (Bank 4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011E9",
+        "Message": "RAM GDDR6 (Bank 1,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011EA",
+        "Message": "RAM GDDR6 (Bank 2,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011EB",
+        "Message": "RAM GDDR6 (Bank 1,2,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011EC",
+        "Message": "RAM GDDR6 (Bank 3,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011ED",
+        "Message": "RAM GDDR6 (Bank 1,3,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011EE",
+        "Message": "RAM GDDR6 (Bank 2,3,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011EF",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F0",
+        "Message": "RAM GDDR6 (Bank 5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F1",
+        "Message": "RAM GDDR6 (Bank 1,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F2",
+        "Message": "RAM GDDR6 (Bank 2,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F3",
+        "Message": "RAM GDDR6 (Bank 1,2,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F4",
+        "Message": "RAM GDDR6 (Bank 3,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F5",
+        "Message": "RAM GDDR6 (Bank 1,3,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F6",
+        "Message": "RAM GDDR6 (Bank 2,3,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F7",
+        "Message": "RAM GDDR6 (Bank 1,2,3,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F8",
+        "Message": "RAM GDDR6 (Bank 4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011F9",
+        "Message": "RAM GDDR6 (Bank 1,4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011FA",
+        "Message": "RAM GDDR6 (Bank 2,4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011FB",
+        "Message": "RAM GDDR6 (Bank 1,2,4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011FC",
+        "Message": "RAM GDDR6 (Bank 3,4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011FD",
+        "Message": "RAM GDDR6 (Bank 1,3,4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011FE",
+        "Message": "RAM GDDR6 (Bank 2,3,4,5,6,7,8) - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808011FF",
+        "Message": "RAM GDDR6 (Bank 1,2,3,4,5,6,7,8) - Single Beep, 1 second blue light, off. - Possibly bad MEMCORE",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80801501",
+        "Message": "Known Unknown 80801501 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801510",
+        "Message": "Known Unknown 80801510 (SSD) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801520",
+        "Message": "Known Unknown 80801520 (Kernel) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801580",
+        "Message": "Known Unknown 80801580 (Power or Short) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801608",
+        "Message": "Known Unknown 80801608 (Kernel) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801620",
+        "Message": "Known Unknonw 80801620 - Possible RAM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801630",
+        "Message": "Known Unknonw 80801630 - Possible RAM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801690",
+        "Message": "Known Unknonw 80801690 - Possible RAM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808016B0",
+        "Message": "Known Unknonw 808016B0 - Possible RAM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808016F0",
+        "Message": "Known Unknonw 808016F0 - Possible RAM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801680",
+        "Message": "APU / GDDR6 - Bad Contact (User Submitted - Unverified)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80801F12",
+        "Message": "Known Unknown 80801F12 (Kernel) - Report Findings - 1 sec blue light",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802001",
+        "Message": "SSD controller (coprocessor) \u003C-\u003E APU data",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802081",
+        "Message": "SSD Controller (Co-Processor) \u003C-\u003E APU Data Line Error",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802220",
+        "Message": "Known Unknown 80802220 (Power or Short) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802442",
+        "Message": "Known Unknown 80802442 (General Power Failure - DDR/SSD) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802471",
+        "Message": "Known Unknown 80802471 (General Power Failure - DDR/SSD) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802660",
+        "Message": "Known Unknown 80802660 (General Power Failure - DDR/SSD) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80802669",
+        "Message": "Known Unknown 80802669 (General Power Failure - DDR/SSD) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80810001",
+        "Message": "PowerSequence - Power Sequence Error - General Power Failure (Peripheral, GDDR6, APU, Data Line Short)",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "8081001A",
+        "Message": "Known Unknown 8081001A (General Power Failure) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80830000",
+        "Message": "Shutdown or Freeze After SAM_IPL Loaded - GDDR6 Data Line Issue (Replace)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80830018",
+        "Message": "Known Unknown 80830018 (Power) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80830019",
+        "Message": "Known Unknown 80830019 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808300F0",
+        "Message": "Secure Loader Error",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808300F1",
+        "Message": "Known Unknown - Possible related to Secure Loader Error (Southbridge, APU, SSD) - PlayStation 5 shuts off no warning, message etc.",
+        "Status": 0,
+        "Priority": 2
+      },
+      {
+        "ID": "80870003",
+        "Message": "Flash Controller - Flash Controller Boot Failed - Flash Controller Boot Failed : Couldn't read Chip Revision. Post Secure Loader Error - Check fuse F7001 - (No beep, no light)",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80870004",
+        "Message": "Flash Controller - Flash Controller Boot Failed NoRecord - Flash Controller Boot Failed : Couldn't read error information. Possible Secure Loader Related",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "80871001",
+        "Message": "DDR4 Error (Power Failure or Short Circuit)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80871054",
+        "Message": "SSD Banks IO Error Between SSD Controller",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80871055",
+        "Message": "SSD Banks IO Error Between SSD Controller",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80871062",
+        "Message": "SSD Controller \u003C-\u003E Syscon (Bridge) Data Line Error",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808710FF",
+        "Message": "Known Unknown 808710FF - Possible TPM 2.0 DataLine Error (MISO MOSI)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80891001",
+        "Message": "SSD Controller or DDR4 Error (Power Failure or Short Circuit)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80892003",
+        "Message": "SSD Controller or DDR4 Error (Power Failure or Short Circuit)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80894003",
+        "Message": "SSD Controller or DDR4 Error (Power Failure or Short Circuit) - Missing 2.5v on DA9081",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "8089400F",
+        "Message": "SSD Controller or DDR4 Error (Power Failure or Short Circuit)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808940AE",
+        "Message": "NOR Modification Error.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808B0000",
+        "Message": "Known Unknown 474 (Power or Short) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808B0027",
+        "Message": "Power Short 5V Line (F7002) - Single Beep, No LED.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808B0098",
+        "Message": "DDR4 Error (Communication Issue)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808B00FF",
+        "Message": "Known Unknown 808B00FF (Power) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808C2092",
+        "Message": "Possibly APU I2C lines damaged or disconnected. Check APU for die cracks.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "808C3090",
+        "Message": "Power Failure - PWM or Unspecific",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808C3790",
+        "Message": "Power Failure - PWM or Unspecific",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808C3F90",
+        "Message": "Power Failure - PWM or Unspecific",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808C4E90",
+        "Message": "Known Unknown 808C4E90 (Power or Short) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808C4F90",
+        "Message": "Power Failure - PWM or Unspecific",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808D0000",
+        "Message": "Abnormal Temperature - Thermal Shutdown : Main SoC - Report Findings - (User Submitted Check for Overheating, 3 second BLOD or at times very quick white light)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808D0002",
+        "Message": "Abnormal Temperature - Thermal Shutdown : Local Sensor 2 - Issue with daughter board (LED Board) Check Flex and Daughter Board Repair or Replace - Three Beeps, White Light, Immediate Shutdown.",
+        "Status": 3,
+        "priority": 3
+      },
+      {
+        "ID": "808E0005",
+        "Message": "Abnormal Hcmd - Communication error : Wait SIG1 Error - A cause is hardware or software bug. - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0006",
+        "Message": "Abnormal Hcmd - Communication error : Reset request from Host - It left if Reset request came from Host, when 808E0002-808E0005 error occurred. - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0109",
+        "Message": "Known Unknown 808E0109 (TPM) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E829A",
+        "Message": "Known Unknown 808E829A (TPM) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808F0002",
+        "Message": "Abnormal SMCU communication - SMCU communication error : Reset - TPM 2.0 chip or Power Failure",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808F0003",
+        "Message": "Abnormal SMCU communication - SMCU communication error : TIS Error -TPM 2.0 chip or Power Failure",
+        "Status": 0,
+        "Priority": 4
+      },
+      {
+        "ID": "80900100",
+        "Message": "Known Unknown 80900100 - Report Findings - (Console Crashes at PS5 Logo Displayed in 480p, Attempting to power on again results in storage repair and repeats unkown repair yet)",
+        "Status": 0,
+        "Priority": 3
+      },
+      {
+        "ID": "80910002",
+        "Message": "Known Unknown 80910002 (SSD Controller) - Possible 504X 2v, Power Failure - Check Fuse F7001",
+        "Status": 0,
+        "Priority": 3
+      },
+      {
+        "ID": "80910200",
+        "Message": "SSD Controller or DDR4 Error (Power Failure or Short Circuit) - Possible DA9081 1.2v Side: APU",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80910800",
+        "Message": "SSD Controller or DDR4 Error (Power Failure or Short Circuit) - Possible DA9081 1.2v Side: Fan",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80910A00",
+        "Message": "Known Unknown 80910A00 - Report Findings *Possible SSD Controller or DDR4 Error (Power Failure or Short Circuit)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80912000",
+        "Message": "Known Unknown 80912000 - Report Findings - Possible DA9081 2.5v",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80918000 ",
+        "Message": "Known Unknown 80918000  - Report Findings - Possible DA9081 0.8v",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00114",
+        "Message": "EMC - WatchDogForSoC - (General Power Failure - SSD/APU Line) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00134",
+        "Message": "EMC - USB-BT Command Error - Error during BT Firmware Download - SSD Banks Error",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00136",
+        "Message": "EMC - USB-BT Device Not Found - MediaTek_Wifi - WI-FI or BT Problem or Power Failure - (Check WI-FI/Bluetooth Module code thrown when module removed), Check Fuse F7002 - Powers off after 2 seconds",
+        "Status": 0,
+        "Priority": 3
+      },
+      {
+        "ID": "80C00140",
+        "Message": "MainSOC_FORCEOFF(TitaniaGPIO) - APU Halt (No Response) - Forced Power Off Via Power Button",
+        "Status": 3,
+        "Priority": 0
+      },
+      {
+        "ID": "80D002F5",
+        "Message": "Known Unknown 80D002F5 - Possible South Bridge Issue",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80D004F5",
+        "Message": "Known Unknown 80D004F5 - Possible South Bridge Issue",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80D00402",
+        "Message": "SSD Banks Error",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "86000005",
+        "Message": "NOR Corrupt - Regenerate with tool and try again!",
+        "Status": 0,
+        "Priority": 3
+      },
+      {
+        "ID": "86000006",
+        "Message": "NOR Corrupt - Regenerate with tool and try again!",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "B0012404",
+        "Message": "HDMI Port - (User Submitted: Check HDMI Port, Port was damaged)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "B0082108",
+        "Message": "Known Unknown B0082108 (Chip or Data) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "B0085108",
+        "Message": "Known Unknown B0085108 (Chip or Data) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "B0088108",
+        "Message": "Known Unknown B0088108 (Chip or Data) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "B0FFFFFF",
+        "Message": "Known Unknown B0FFFFFF - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0010303",
+        "Message": "Known Unknown C0010303 (APU) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0020103",
+        "Message": "APU Not Responding - Trying Init or Reboot - 1",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0020203",
+        "Message": "APU Not Responding - Trying Init or Reboot - 2",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0020303",
+        "Message": "APU Not Responding - Trying Init or Reboot - 3 - (User Submitted: System wont start Blue Light Flashes), Check Fuses F3501, F7501",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C00C0002",
+        "Message": "VRM Controller Failure, Check Mosfet (6414A) Located Side-A, Below Sony Interactive Entertainment Inc. Check Infineon XDPE14286A 16 Phase PWM Controller - Located Side-A, Right of fuse 7001 - Single Beep, 1 second blue light, off.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "C00C0303",
+        "Message": "Known Unknown C00C0303 (General Power Failure) - Report Findings - Possbile APU / VRM related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C00C8000",
+        "Message": "Known Unknown C00C8000 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0160203",
+        "Message": "Known Unknown C0160203 (HDMI-\u003EAPU) - Check Fuse F7502 (Storage Controller)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0160303",
+        "Message": "Known Unknown C0160303 (HDMI-\u003EAPU) - Check Fuse F7502 (Storage Controller)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0810002",
+        "Message": "HDMI IC Problem or Power Failure",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0810303",
+        "Message": "HDMI IC Problem or Data Line Short or Power Failure",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0900002",
+        "Message": "Known Unknown C0900002 (HDMI) - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0900303",
+        "Message": "Known Unknown C0900303 - Report Findings - Possible WiFi IC Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "C0920002",
+        "Message": "Known Unknown C0920002 (APU) - Report Findings - Possible WiFi IC Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E0000001",
+        "Message": "Southbridge Issue - Cannot Read Errors - Wait \u0026 Retry",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E0000002",
+        "Message": "Southbridge Issue - Cannot Read Errors - Wait \u0026 Retry",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E0000003",
+        "Message": "Southbridge Issue - Cannot Read Errors - Wait \u0026 Retry",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E0000004",
+        "Message": "Southbridge Issue - Cannot Read Errors - Wait \u0026 Retry",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E0000005",
+        "Message": "Southbridge Issue - Cannot Read Errors - Wait \u0026 Retry",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E0000006",
+        "Message": "Southbridge Issue - Cannot Read Errors - Wait \u0026 Retry",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1200000",
+        "Message": "Known Unknown E1200000 - XDPE Phase PWM Controller Error VRM 2 Phases",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1201A50",
+        "Message": "Known Unknown E1201A50 - Report Findings - Possible XDPE Related)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1E00619",
+        "Message": "Known Unknown E1E00619 - Report Findings - Possible XDPE Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1E0061D",
+        "Message": "Known Unknown E1E0061D - XDPE Phase PWM Controller Error VRM 2 Phases",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1E0191D",
+        "Message": "Known Unknown E1E0191D - XDPE Phase PWM Controller Error VRM 2 Phases",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1E01C05",
+        "Message": "Known Unknown E1E01C05 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E1E01D06",
+        "Message": "Known Unknown E1E01D06 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E2200000",
+        "Message": "Known Unknown E2200000 - XDPE Phase PWM Controller Error VRM 6 Phases",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E2E0061D",
+        "Message": "Known Unknown E2E0061D - XDPE Phase PWM Controller Error VRM 6 Phases",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E2200116",
+        "Message": "Known Unknown E2200116 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E2E0191D",
+        "Message": "Known Unknown E2E0191D - XDPE Phase PWM Controller Error VRM 6 Phases",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E2E01C06",
+        "Message": "Known Unknown E2E01C06 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E2E01D06",
+        "Message": "Known Unknown E2E01D06 - Report Findings - Possible XDPE / VRM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E31218E9",
+        "Message": "Known Unknown E31218E9 - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E3121F70",
+        "Message": "Known Unknown E3121F70 - Report Findings - Possible XDPE / VRM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E3122155",
+        "Message": "Known Unknown E312210A - Report Findings - Possible XDPE / VRM Related",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E312210A",
+        "Message": "Known Unknown E312210A - Report Findings",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "E3122219",
+        "Message": "Known Unknown E3122219 - Report Findings - turns off 30 mins into game play.(107 degrees)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "FFFFFFFF",
+        "Message": "No Errors",
+        "Status": 3,
+        "Priority": 0
+      },
+      {
+        "ID": "80000004",
+        "Message": "Hardware - AC/DC Power Fail - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80000005",
+        "Message": "Hardware - Main SoC CPU Power Fail - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80000007",
+        "Message": "Hardware - Main SoC Thrm High Tempr Abnormality - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80810012",
+        "Message": "PowerSequence - Power Sequence NVS Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80810013",
+        "Message": "PowerSequence - Power Sequence ScCmd DRAM Init Error - Power Sequence Error: DRAM_INIT_GENERAL_ERROR from FC",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80810014",
+        "Message": "PowerSequence - Power Sequence ScCmd Link Up Failure - Power Sequence Error: SCCMD_RCX1_LINKUP_FAILURE from FC",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80830001",
+        "Message": "Main SoC Message - Main SoC Sync Flood - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80840000",
+        "Message": "PCIe - PCIe Link Down - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80870001",
+        "Message": "Flash Controller - Flash Controller RAM Protect Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80870002",
+        "Message": "Flash Controller - Flash Controller RAM Parity Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80870005",
+        "Message": "Flash Controller - Flash Controller Boot Failed State Error - Flash Controller Boot Failed : Couldn't change to SPI Mode.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80000006",
+        "Message": "Hardware - Main SoC GFX Power Fail - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "8000000A",
+        "Message": "Hardware - VRM HOT Fatal - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "8000000B",
+        "Message": "Hardware - UnexpectedThermalShutdown - Unexpected Thermal Shutdown in state that Fatal OFF is not allowed",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^8005[A-Za-z0-9]{4}$",
+        "Message": "Main SoC CPU Power Fail - SoC VRM Power Fail (CPU) - VRM Power Fail (CPU): XXXX means the error factor.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "^8006[A-Za-z0-9]{4}$",
+        "Message": "Main SoC GFX Power Fail - SoC VRM Power Fail (GFX) - VRM Power Fail (GFX): XXXX means the error factor.",
+        "Status": 3,
+        "Priority": 3
+      },
+      {
+        "ID": "^8080[A-Za-z0-9]{4}$",
+        "Message": "Software - Fatal Shutdown by OS request - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^808710[A-Za-z0-9]{2}$",
+        "Message": "Flash Controller - Flash Controller ScCmd Response Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^8088[A-Za-z0-9]{4}$",
+        "Message": "Flash Controller Boot EAP - Flash Controller Boot EAP Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^8089[A-Za-z0-9]{4}$",
+        "Message": "Flash Controller Boot EFC - Flash Controller Boot EFC Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^808A[A-Za-z0-9]{4}$",
+        "Message": "Flash Controller Temperature - Flash Controller Temper Error - Abnormal temperature of Flash Controller: XXXX means temperature.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^808B[A-Za-z0-9]{4}$",
+        "Message": "Flash Controller WDT - Flash Controller Watch Dog Timer - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^808C[A-Za-z0-9]{4}$",
+        "Message": "USB Type-C - USB Type-C Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808D0001",
+        "Message": "Abnormal Temperature - Thermal Shutdown : Local Sensor 1 - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808D0003",
+        "Message": "Abnormal Temperature - Thermal Shutdown : Local Sensor 3 - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0000",
+        "Message": "Abnormal Hcmd - Communication error : Close Error - High possibility of a software bug",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0001",
+        "Message": "Abnormal Hcmd - Communication error : Open Error - High possibility of a software bug",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0002",
+        "Message": "Abnormal Hcmd - Communication error : Host Write Flag - A cause is hardware or software bug.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0003",
+        "Message": "Abnormal Hcmd - Communication error : EMC Read Flag - A cause is hardware or software bug.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0004",
+        "Message": "Abnormal Hcmd - Communication error : Write Flag Error - A cause is hardware or software bug.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808E0007",
+        "Message": "Abnormal Hcmd - Communication error : Checksum Error - SPM data is not correct.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808F0001",
+        "Message": "Abnormal SMCU communication - SMCU communication error : Timeout - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "808F00FF",
+        "Message": "Abnormal SMCU communication - SMCU communication error : Undefined - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^8090[A-Za-z0-9]{4}$",
+        "Message": "Software - Fatal Shutdown by Error Additional Code - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^8091[A-Za-z0-9]{4}$",
+        "Message": "SSD PMIC - SSD PMIC Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00100",
+        "Message": "EMC_ThermalManager(Southbridge)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00115",
+        "Message": "EMC - WatchDogForEAP - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00129",
+        "Message": "EMC_PrePost(Southbridge)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C0012C",
+        "Message": "EMC - BD Drive Detached - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C0012D",
+        "Message": "EMC - EMC Watch Dog Timer Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C0012E",
+        "Message": "EMC - ADC Error (Button) - Completion interruption didn't enter from ADC during Timeout.  - Moniinfo(Southbridge)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C0012F",
+        "Message": "EMC - ADC Error (BD Drive) - Completion interruption didn't enter from ADC during Timeout.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00130",
+        "Message": "EMC - ADC Error (AC In Det) - Completion interruption didn't enter from ADC during Timeout. - USBc_FwManager(PD,Redriver,Southbridge,APU)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00131",
+        "Message": "EMC - USB Over Current - USB Over Current detection. (Type-A) - DEVpm(Southbridge)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00132",
+        "Message": "EMC - FAN Storage Access Failed - It is an access error in servo parameter from NVS. -  USBc_FwManager(PD,Redriver,Southbridge,APU)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00133",
+        "Message": "EMC - USB-BT FW Header Invalid - Header information of BT FW in DDR isn't right.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00135",
+        "Message": "EMC - USB-BT Memory Malloc Failed - It should be software factor.",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00137",
+        "Message": "EMC - USB-BT MISC Error - MediaTek_Bluetooth",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00138",
+        "Message": "EMC - Flash Controller Interrupt HW Error - FlashController(TitaniaGPIO)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00139",
+        "Message": "EMC - BD Drive Eject Assert Delayed - BD_Manager(DVD)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C0013B",
+        "Message": "HDMI_Firmware_ErrorManager",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00141",
+        "Message": "EMC_SLOG(Southbridge)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00143",
+        "Message": "BD_Manager(DVD)(Missing)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "80C00144",
+        "Message": "MainSOC(TitaniaGPIO)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D001[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Bulk Out) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D002[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Bulk In) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D003[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Bt Init) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D004[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Download Firmware) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D005[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Release Device) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D006[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Exec Cmd0) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^80D007[A-Za-z0-9]{2}$",
+        "Message": "EMC - USB-BT Error (Exec Cmd1) - USB related errors of WiFi Module (BT)",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^B0[A-Za-z0-9]{6}$",
+        "Message": "Sonics Bus - Sonics Bus Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C001[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Main SoC Access Error (I2C) - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C002[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Main SoC Access Error (SB-TSI I2C) - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C003[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Main SoC Access Error (SB-RMI) - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C00B[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Serial Flash Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C00C[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - VRM Controller Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C00D[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - PMIC (Subsystem) Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C010[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Flash Controller Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C011[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Potentiometer Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C015[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - PCIe Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C016[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - PMIC (SSD) Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C081[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - HDMI Tx Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C090[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - USB Type-C PD Controller Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C091[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - USB Type-C USB/DP Mux Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C092[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - USB Type-C Redriver Access Error - No memo",
+        "Status": 0,
+        "Priority": 0
+      },
+      {
+        "ID": "^C0FE[A-Za-z0-9]{4}$",
+        "Message": "Hardware Access - Dummy - No memo",
+        "Status": 0,
+        "Priority": 0
+      }
+    ]
+  },
+  "PlayStation4": null,
+  "PlayStation3": null
+}

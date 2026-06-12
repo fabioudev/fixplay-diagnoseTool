@@ -15,23 +15,44 @@ pub struct ErrorDb {
 
 #[derive(serde::Deserialize)]
 struct RawEntry {
-    #[serde(rename = "Code")]
-    code:        u32,
-    #[serde(rename = "Description")]
-    description: String,
-    #[serde(rename = "Category")]
-    category:    String,
+    #[serde(rename = "ID")]
+    id: String,
+    #[serde(rename = "Message")]
+    message: String,
+}
+
+#[derive(serde::Deserialize)]
+struct Platform {
+    #[serde(rename = "ErrorCodes")]
+    error_codes: Vec<RawEntry>,
+}
+
+#[derive(serde::Deserialize)]
+struct RawDb {
+    #[serde(rename = "PlayStation5")]
+    ps5: Platform,
 }
 
 const DB_URL: &str = "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json";
 
+fn extract_category(message: &str) -> String {
+    let part = message.split('-').next().unwrap_or("").trim();
+    if part.is_empty() || part.len() > 32 { String::new() } else { part.to_string() }
+}
+
 impl ErrorDb {
     pub fn from_json(json: &str) -> Result<Self, UartError> {
-        let raw: Vec<RawEntry> = serde_json::from_str(json)
+        let raw: RawDb = serde_json::from_str(json)
             .map_err(|e| UartError::DbFetch(e.to_string()))?;
-        let entries = raw
+        let entries = raw.ps5.error_codes
             .into_iter()
-            .map(|r| (r.code, ErrorEntry { code: r.code, description: r.description, category: r.category }))
+            .filter_map(|r| {
+                let hex = r.id.trim_start_matches("0x").trim_start_matches("0X");
+                u32::from_str_radix(hex, 16).ok().map(|code| {
+                    let category = extract_category(&r.message);
+                    (code, ErrorEntry { code, description: r.message, category })
+                })
+            })
             .collect();
         Ok(Self { entries })
     }
@@ -93,23 +114,28 @@ impl ErrorDb {
 mod tests {
     use super::*;
 
-    const SAMPLE_JSON: &str = r#"[
-        {"Code": 2147484673, "Description": "Kernel panic", "Category": "System"},
-        {"Code": 2147483651, "Description": "NVS read error", "Category": "Storage"}
-    ]"#;
+    const SAMPLE_JSON: &str = r#"{
+        "Revision": "1.0",
+        "PlayStation5": {
+            "ErrorCodes": [
+                {"ID": "80000001", "Message": "Hardware - Thermal sensor failure", "Status": 0, "Priority": 0},
+                {"ID": "80000002", "Message": "Storage - NVS read error", "Status": 0, "Priority": 0}
+            ]
+        }
+    }"#;
 
     #[test]
     fn parse_json_and_lookup_known_code() {
         let db = ErrorDb::from_json(SAMPLE_JSON).unwrap();
-        let entry = db.lookup(2147484673).unwrap();
-        assert_eq!(entry.description, "Kernel panic");
-        assert_eq!(entry.category, "System");
+        let entry = db.lookup(0x80000001).unwrap();
+        assert_eq!(entry.description, "Hardware - Thermal sensor failure");
+        assert_eq!(entry.category, "Hardware");
     }
 
     #[test]
     fn lookup_unknown_code_returns_none() {
         let db = ErrorDb::from_json(SAMPLE_JSON).unwrap();
-        assert!(db.lookup(99999).is_none());
+        assert!(db.lookup(0xDEADBEEF).is_none());
     }
 
     #[test]
@@ -121,8 +147,8 @@ mod tests {
         std::fs::write(&path, SAMPLE_JSON).unwrap();
 
         let db = ErrorDb::from_cache(&path).unwrap();
-        let entry = db.lookup(2147483651).unwrap();
-        assert_eq!(entry.description, "NVS read error");
+        let entry = db.lookup(0x80000002).unwrap();
+        assert_eq!(entry.description, "Storage - NVS read error");
 
         std::fs::remove_file(&path).ok();
     }
@@ -138,11 +164,16 @@ mod tests {
         assert!(ErrorDb::from_json("not json").is_err());
     }
 
-    const SEARCH_SAMPLE_JSON: &str = r#"[
-        {"Code": 1, "Description": "Alpha error first",  "Category": "System"},
-        {"Code": 2, "Description": "Alpha error second", "Category": "System"},
-        {"Code": 3, "Description": "Beta problem",       "Category": "Storage"}
-    ]"#;
+    const SEARCH_SAMPLE_JSON: &str = r#"{
+        "Revision": "1.0",
+        "PlayStation5": {
+            "ErrorCodes": [
+                {"ID": "00000001", "Message": "Hardware - Alpha error first",  "Status": 0, "Priority": 0},
+                {"ID": "00000002", "Message": "Hardware - Alpha error second", "Status": 0, "Priority": 0},
+                {"ID": "00000003", "Message": "Storage - Beta problem",        "Status": 0, "Priority": 0}
+            ]
+        }
+    }"#;
 
     #[test]
     fn len_returns_entry_count() {
@@ -182,5 +213,12 @@ mod tests {
         let db = ErrorDb::from_json(SEARCH_SAMPLE_JSON).unwrap();
         let results = db.search("alpha", 1);
         assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn extract_category_splits_on_first_dash() {
+        assert_eq!(extract_category("Hardware - Some failure"), "Hardware");
+        assert_eq!(extract_category("No dash here"), "No dash here");
+        assert_eq!(extract_category(""), "");
     }
 }
