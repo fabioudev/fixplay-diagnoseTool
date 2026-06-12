@@ -1,0 +1,14 @@
+# AUR build artifacts
+src/
+pkg/
+*.tar.zst
+*.tar.gz
+*.tar
+*.tar.xz
+
+# Editor backups
+*~
+*.swp
+*.swo
+.DS_Store
+
