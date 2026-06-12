@@ -154,10 +154,8 @@
       }),
       listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
-        if (e.payload.connected) {
-          uartReconnecting.set(false);
-          loading = false;
-        }
+        loading = false;
+        if (e.payload.connected) uartReconnecting.set(false);
         uartLog.update((log) => [
           {
             id:           nextLogId(),
