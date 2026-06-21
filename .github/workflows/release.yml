@@ -167,22 +167,20 @@ jobs:
           fetch-depth: 0
 
       - name: Setup SSH for AUR
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        if: env.AUR_SSH_KEY != ''
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur_deploy
+          echo "$AUR_SSH_KEY" > ~/.ssh/aur_deploy
           chmod 600 ~/.ssh/aur_deploy
-
-          # Add AUR host key to known_hosts
           ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null || true
-
-          # Configure SSH to use the deploy key
           cat >> ~/.ssh/config <<EOF
           Host aur.archlinux.org
               IdentityFile ~/.ssh/aur_deploy
               User aur
               IdentitiesOnly yes
           EOF
-        if: "secrets.AUR_SSH_PRIVATE_KEY != ''"
 
       - name: Update PKGBUILD
         run: |
@@ -243,7 +241,9 @@ jobs:
           git add PKGBUILD .SRCINFO
           git commit -m "Update to ${{ needs.prepare.outputs.release_tag }}" || true
           git push origin master
-        if: "secrets.AUR_SSH_PRIVATE_KEY != ''"
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        if: env.AUR_SSH_KEY != ''
         continue-on-error: true
 
       - name: Print AUR update instructions
