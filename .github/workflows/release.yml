@@ -134,6 +134,10 @@ jobs:
     container:
       image: archlinux:latest
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Install build dependencies
         run: |
@@ -171,31 +175,47 @@ jobs:
         run: |
           VERSION="${{ needs.prepare.outputs.release_tag }}"
           VERSION="${VERSION#v}"
-          PKGNAME="fixplay-diagnosetool"
-          PKGREL="1"
-          ARCH="x86_64"
-          PKGFILE="${PKGNAME}-${VERSION}-${PKGREL}-${ARCH}.pkg.tar.zst"
 
-          FAKEPKG="$(mktemp -d)"
-          install -Dm755 "target/release/fixplay-tauri" "$FAKEPKG/usr/bin/fixplay-diagnosetool"
-          install -Dm644 "src-tauri/resources/error_codes.json" \
-            "$FAKEPKG/usr/lib/fixplay-diagnosetool/resources/error_codes.json"
-          install -Dm755 "src-tauri/binaries/flashrom" \
-            "$FAKEPKG/usr/lib/fixplay-diagnosetool/binaries/flashrom"
-          install -Dm644 "src-tauri/icons/icon_256x256.png" \
-            "$FAKEPKG/usr/share/icons/hicolor/256x256/apps/fixplay-diagnosetool.png"
+          # makepkg refuses to run as root — create a dedicated builder user
+          useradd -m builder
 
-          mkdir -p "$FAKEPKG/usr/share/applications"
+          # Copy pre-built artifacts to a builder-owned staging area
+          mkdir -p /tmp/pkgbuild/files
+          cp "target/release/fixplay-tauri"           /tmp/pkgbuild/files/
+          cp "src-tauri/resources/error_codes.json"   /tmp/pkgbuild/files/
+          cp "src-tauri/binaries/flashrom"            /tmp/pkgbuild/files/
+          cp "src-tauri/icons/icon_256x256.png"       /tmp/pkgbuild/files/
+
           printf '[Desktop Entry]\nName=fixplay-diagnoseTool\nComment=Cross-platform diagnostic tool for gaming consoles\nExec=fixplay-diagnosetool\nIcon=fixplay-diagnosetool\nType=Application\nCategories=Utility;Development;\nTerminal=false\nStartupNotify=true\n' \
-            > "$FAKEPKG/usr/share/applications/fixplay-diagnosetool.desktop"
-          chmod 644 "$FAKEPKG/usr/share/applications/fixplay-diagnosetool.desktop"
+            > /tmp/pkgbuild/files/fixplay-diagnosetool.desktop
 
-          SIZE=$(du -sb "$FAKEPKG" | cut -f1)
-          printf 'pkgname = %s\npkgver = %s-%s\npkgdesc = Cross-platform diagnostic tool for gaming consoles\nurl = https://github.com/fabioudev/fixplay-diagnoseTool\nbuilddate = %s\npackager = GitHub Actions\nsize = %s\narch = %s\nlicense = custom:unknown\ndepend = webkit2gtk-4.1\ndepend = gtk3\ndepend = libayatana-appindicator\n' \
-            "$PKGNAME" "$VERSION" "$PKGREL" "$(date +%s)" "$SIZE" "$ARCH" \
-            > "$FAKEPKG/.PKGINFO"
+          # Generate PKGBUILD — package() references ${startdir}/files/ only
+          {
+            echo "pkgname=fixplay-diagnosetool"
+            echo "pkgver=${VERSION}"
+            echo "pkgrel=1"
+            echo 'pkgdesc="Cross-platform diagnostic tool for gaming consoles"'
+            echo "arch=('x86_64')"
+            echo 'url="https://github.com/fabioudev/fixplay-diagnoseTool"'
+            echo "license=('custom:unknown')"
+            echo "depends=('webkit2gtk-4.1' 'gtk3' 'libayatana-appindicator')"
+            echo "provides=('fixplay-diagnosetool')"
+            echo "conflicts=('fixplay-diagnosetool-bin')"
+            echo "source=()"
+            echo "sha256sums=()"
+            echo ""
+            echo "package() {"
+            echo '  install -Dm755 "${startdir}/files/fixplay-tauri"                   "${pkgdir}/usr/bin/fixplay-diagnosetool"'
+            echo '  install -Dm644 "${startdir}/files/error_codes.json"                "${pkgdir}/usr/lib/fixplay-diagnosetool/resources/error_codes.json"'
+            echo '  install -Dm755 "${startdir}/files/flashrom"                        "${pkgdir}/usr/lib/fixplay-diagnosetool/binaries/flashrom"'
+            echo '  install -Dm644 "${startdir}/files/icon_256x256.png"               "${pkgdir}/usr/share/icons/hicolor/256x256/apps/fixplay-diagnosetool.png"'
+            echo '  install -Dm644 "${startdir}/files/fixplay-diagnosetool.desktop"   "${pkgdir}/usr/share/applications/fixplay-diagnosetool.desktop"'
+            echo "}"
+          } > /tmp/pkgbuild/PKGBUILD
 
-          tar --zstd -cf "$GITHUB_WORKSPACE/$PKGFILE" -C "$FAKEPKG" .
+          chown -R builder:builder /tmp/pkgbuild
+          su builder -c "cd /tmp/pkgbuild && PACKAGER='GitHub Actions' makepkg --noconfirm --nodeps"
+          cp /tmp/pkgbuild/fixplay-diagnosetool-*.pkg.tar.zst "$GITHUB_WORKSPACE/"
 
       - name: Upload arch package
         uses: actions/upload-artifact@v4
