@@ -128,10 +128,87 @@ jobs:
           if-no-files-found: error
           path: ${{ matrix.artifact_glob }}
 
+  arch-build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm \
+            base-devel git rust nodejs npm curl \
+            webkit2gtk-4.1 gtk3 libayatana-appindicator \
+            librsvg patchelf zstd
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bundle latest Error DB
+        run: |
+          curl -fsSL \
+            "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" \
+            -o src-tauri/resources/error_codes.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Rust binary
+        env:
+          TAURI_ENV_DEBUG: "false"
+          TAURI_ENV_PLATFORM: linux
+          TAURI_ENV_ARCH: x86_64
+          TAURI_ENV_FAMILY: unix
+          TAURI_ENV_TARGET_TRIPLE: x86_64-unknown-linux-gnu
+        run: cargo build --release
+
+      - name: Create pacman package
+        run: |
+          VERSION="${{ needs.prepare.outputs.release_tag }}"
+          VERSION="${VERSION#v}"
+          PKGNAME="fixplay-diagnosetool"
+          PKGREL="1"
+          ARCH="x86_64"
+          PKGFILE="${PKGNAME}-${VERSION}-${PKGREL}-${ARCH}.pkg.tar.zst"
+
+          FAKEPKG="$(mktemp -d)"
+          install -Dm755 "target/release/fixplay-tauri" "$FAKEPKG/usr/bin/fixplay-diagnosetool"
+          install -Dm644 "src-tauri/resources/error_codes.json" \
+            "$FAKEPKG/usr/lib/fixplay-diagnosetool/resources/error_codes.json"
+          install -Dm755 "src-tauri/binaries/flashrom" \
+            "$FAKEPKG/usr/lib/fixplay-diagnosetool/binaries/flashrom"
+          install -Dm644 "src-tauri/icons/icon_256x256.png" \
+            "$FAKEPKG/usr/share/icons/hicolor/256x256/apps/fixplay-diagnosetool.png"
+
+          mkdir -p "$FAKEPKG/usr/share/applications"
+          printf '[Desktop Entry]\nName=fixplay-diagnoseTool\nComment=Cross-platform diagnostic tool for gaming consoles\nExec=fixplay-diagnosetool\nIcon=fixplay-diagnosetool\nType=Application\nCategories=Utility;Development;\nTerminal=false\nStartupNotify=true\n' \
+            > "$FAKEPKG/usr/share/applications/fixplay-diagnosetool.desktop"
+          chmod 644 "$FAKEPKG/usr/share/applications/fixplay-diagnosetool.desktop"
+
+          SIZE=$(du -sb "$FAKEPKG" | cut -f1)
+          printf 'pkgname = %s\npkgver = %s-%s\npkgdesc = Cross-platform diagnostic tool for gaming consoles\nurl = https://github.com/fabioudev/fixplay-diagnoseTool\nbuilddate = %s\npackager = GitHub Actions\nsize = %s\narch = %s\nlicense = custom:unknown\ndepend = webkit2gtk-4.1\ndepend = gtk3\ndepend = libayatana-appindicator\n' \
+            "$PKGNAME" "$VERSION" "$PKGREL" "$(date +%s)" "$SIZE" "$ARCH" \
+            > "$FAKEPKG/.PKGINFO"
+
+          tar --zstd -cf "$GITHUB_WORKSPACE/$PKGFILE" -C "$FAKEPKG" .
+
+      - name: Upload arch package
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-bundles
+          if-no-files-found: error
+          path: "*.pkg.tar.zst"
+
   release:
     needs:
       - prepare
       - build
+      - arch-build
     runs-on: ubuntu-latest
 
     steps:
