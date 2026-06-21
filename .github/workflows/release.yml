@@ -144,19 +144,19 @@ jobs:
       - name: Generate SHA256 checksums
         run: |
           cd release-assets
-          sha256sum * > SHA256SUMS.txt
+          find . -type f | sort | xargs sha256sum > SHA256SUMS.txt
 
       - name: Create or update GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.release_tag }}
           files: |
-            release-assets/*
+            release-assets/**
           generate_release_notes: true
           prerelease: ${{ contains(needs.prepare.outputs.release_tag, '-') }}
 
   update-aur:
-    needs: prepare
+    needs: [prepare, release]
     runs-on: ubuntu-latest
     if: "!contains(needs.prepare.outputs.release_tag, '-')"
     environment: aur-release
