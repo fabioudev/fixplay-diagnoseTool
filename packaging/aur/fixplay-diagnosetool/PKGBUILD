@@ -25,7 +25,11 @@ build() {
   curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" \
     -o src-tauri/resources/error_codes.json
 
-  npm run tauri build -- --bundles none
+  # Build frontend first (tauri-build embeds it into the binary)
+  npm run build
+
+  # Build Rust binary directly — skips AppImage/deb/rpm bundling
+  cargo build --release
 }
 
 package() {
