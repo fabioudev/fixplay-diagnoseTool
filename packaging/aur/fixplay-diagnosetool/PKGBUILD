@@ -29,6 +29,12 @@ build() {
   npm run build
 
   # Build Rust binary directly — skips AppImage/deb/rpm bundling
+  # Set Tauri production env vars (normally set by tauri CLI)
+  TAURI_ENV_DEBUG=false \
+  TAURI_ENV_PLATFORM=linux \
+  TAURI_ENV_ARCH=x86_64 \
+  TAURI_ENV_FAMILY=unix \
+  TAURI_ENV_TARGET_TRIPLE=x86_64-unknown-linux-gnu \
   cargo build --release
 }
 
