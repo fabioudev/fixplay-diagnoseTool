@@ -198,30 +198,26 @@ jobs:
       - name: Generate .SRCINFO
         run: |
           cd packaging/aur/fixplay-diagnosetool-bin
-          # Extract version from PKGBUILD
           PKGVER=$(grep "^pkgver=" PKGBUILD | cut -d= -f2)
           PKGREL=$(grep "^pkgrel=" PKGBUILD | cut -d= -f2)
-
-          # Generate .SRCINFO with proper variable substitution
-          cat > .SRCINFO <<EOF
-          pkgbase = fixplay-diagnosetool-bin
-          	pkgdesc = Cross-platform diagnostic tool for gaming consoles (AppImage release build)
-          	pkgver = $PKGVER
-          	pkgrel = $PKGREL
-          	url = https://github.com/fabioudev/fixplay-diagnoseTool
-          	arch = x86_64
-          	license = custom:unknown
-          	depends = fuse2
-          	optdepends = flashrom: use the system flashrom binary instead of the bundled one
-          	provides = fixplay-diagnosetool
-          	conflicts = fixplay-diagnosetool
-          	source = https://github.com/fabioudev/fixplay-diagnoseTool/releases/download/v$PKGVER/fixplay-diagnoseTool_${PKGVER}_amd64.AppImage
-          	source = https://raw.githubusercontent.com/fabioudev/fixplay-diagnoseTool/v$PKGVER/src-tauri/icons/icon_256x256.png
-          	sha256sums = SKIP
-          	sha256sums = SKIP
-
-          pkgname = fixplay-diagnosetool-bin
-          EOF
+          {
+            printf 'pkgbase = fixplay-diagnosetool-bin\n'
+            printf '\tpkgdesc = Cross-platform diagnostic tool for gaming consoles (AppImage release build)\n'
+            printf '\tpkgver = %s\n' "$PKGVER"
+            printf '\tpkgrel = %s\n' "$PKGREL"
+            printf '\turl = https://github.com/fabioudev/fixplay-diagnoseTool\n'
+            printf '\tarch = x86_64\n'
+            printf '\tlicense = custom:unknown\n'
+            printf '\tdepends = fuse2\n'
+            printf '\toptdepends = flashrom: use the system flashrom binary instead of the bundled one\n'
+            printf '\tprovides = fixplay-diagnosetool\n'
+            printf '\tconflicts = fixplay-diagnosetool\n'
+            printf '\tsource = https://github.com/fabioudev/fixplay-diagnoseTool/releases/download/v%s/fixplay-diagnoseTool_%s_amd64.AppImage\n' "$PKGVER" "$PKGVER"
+            printf '\tsource = https://raw.githubusercontent.com/fabioudev/fixplay-diagnoseTool/v%s/src-tauri/icons/icon_256x256.png\n' "$PKGVER"
+            printf '\tsha256sums = SKIP\n'
+            printf '\tsha256sums = SKIP\n'
+            printf '\npkgname = fixplay-diagnosetool-bin\n'
+          } > .SRCINFO
 
       - name: Commit to main repository
         run: |
