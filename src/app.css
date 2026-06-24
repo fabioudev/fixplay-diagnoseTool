@@ -17,3 +17,18 @@
 * {
   border-color: hsl(var(--border));
 }
+
+/* Tablet / Touch Mode — larger touch targets */
+[data-tablet="true"] button {
+  min-height: 2.5rem;
+}
+[data-tablet="true"] select,
+[data-tablet="true"] input[type="text"],
+[data-tablet="true"] input[type="number"] {
+  min-height: 2.5rem;
+  font-size: 0.875rem;
+}
+[data-tablet="true"] input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+}

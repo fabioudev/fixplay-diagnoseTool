@@ -6,4 +6,5 @@ export const appSettings = writable<AppSettings>({
   archive_dir:    null,
   baud_rate:      115200,
   auto_reconnect: false,
+  tablet_mode:    false,
 });

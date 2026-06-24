@@ -142,6 +142,31 @@
         </p>
       </div>
 
+      <!-- Tablet Mode -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-gray-400">
+          Tablet-Modus
+        </label>
+        <label
+          class="flex items-center gap-2.5 cursor-pointer select-none"
+          title="Vergrößert Touch-Targets und Schaltflächen für Touch-Bedienung auf Tablets und Touchscreen-Geräten."
+        >
+          <input
+            type="checkbox"
+            checked={$appSettings.tablet_mode}
+            onchange={async (e) => {
+              appSettings.update(s => ({ ...s, tablet_mode: (e.target as HTMLInputElement).checked }));
+              await save();
+            }}
+            class="accent-blue-500 w-4 h-4"
+          />
+          <span class="text-xs text-gray-300">Größere Touch-Targets für Touch-Bedienung</span>
+        </label>
+        <p class="text-xs text-gray-600">
+          Aktiviert vergrößerte Schaltflächen und Abstände für Touchscreens. Auch schnell umschaltbar über den Tablet-Button im Header.
+        </p>
+      </div>
+
     </div>
 
     <!-- Footer hint -->

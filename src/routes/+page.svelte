@@ -3,53 +3,55 @@
   import ArchiveSection from '$lib/components/ArchiveSection.svelte';
   import UartPanel from '$lib/components/UartPanel.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
+  import Sidebar from '$lib/components/Sidebar.svelte';
+  import StatusBar from '$lib/components/StatusBar.svelte';
+  import Header from '$lib/components/Header.svelte';
+  import { sidebarCollapsed } from '$lib/stores/ui';
+  import { appSettings } from '$lib/stores/settings';
 
-  let activeTab     = $state<'flash' | 'uart'>('flash');
-  let settingsOpen  = $state(false);
+  type View = 'flash' | 'uart' | 'archive';
 
-  const tabs = [
-    { id: 'flash' as const, label: 'NOR Flash' },
-    { id: 'uart'  as const, label: 'UART' },
-  ];
+  let activeView   = $state<View>('flash');
+  let settingsOpen = $state(false);
 </script>
 
 <svelte:head>
   <title>fixplay diagnoseTool</title>
 </svelte:head>
 
-<main class="flex flex-col h-screen bg-gray-950 text-gray-100 overflow-hidden">
-  <nav class="flex items-center border-b border-gray-800 px-4 pt-2 gap-1 shrink-0 bg-gray-900">
-    {#each tabs as tab (tab.id)}
-      <button
-        onclick={() => (activeTab = tab.id)}
-        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {
-          activeTab === tab.id
-            ? 'border-b-2 border-blue-500 text-white bg-gray-950'
-            : 'text-gray-400 hover:text-gray-200'
-        }"
-      >
-        {tab.label}
-      </button>
-    {/each}
+<div class="flex h-screen bg-gray-950 text-gray-100 overflow-hidden" data-tablet={$appSettings.tablet_mode}>
+  <Sidebar
+    active={activeView}
+    collapsed={$sidebarCollapsed}
+    onnavigate={(v) => (activeView = v)}
+    onsettings={() => (settingsOpen = true)}
+  />
 
-    <button
-      onclick={() => (settingsOpen = true)}
-      class="ml-auto mb-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-base leading-none"
-      title="Einstellungen"
-    >⚙</button>
-  </nav>
+  <div class="flex flex-col flex-1 min-w-0">
+    <Header
+      view={activeView}
+      collapsed={$sidebarCollapsed}
+      onToggleSidebar={() => sidebarCollapsed.update(v => !v)}
+    />
 
-  <div class="flex-1 min-h-0 overflow-hidden">
-    {#if activeTab === 'flash'}
-      <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
-        <FlashPanel />
-        <ArchiveSection />
-      </div>
-    {/if}
-    <div class="{activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}">
-      <UartPanel />
-    </div>
+    <main class="flex-1 min-h-0 overflow-hidden">
+      {#if activeView === 'flash'}
+        <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
+          <FlashPanel />
+        </div>
+      {:else if activeView === 'uart'}
+        <div class="flex h-full p-4">
+          <UartPanel />
+        </div>
+      {:else if activeView === 'archive'}
+        <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
+          <ArchiveSection standalone />
+        </div>
+      {/if}
+    </main>
+
+    <StatusBar />
   </div>
-</main>
+</div>
 
 <SettingsPanel open={settingsOpen} onclose={() => (settingsOpen = false)} />

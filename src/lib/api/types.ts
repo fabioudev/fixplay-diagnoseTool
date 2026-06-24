@@ -137,4 +137,5 @@ export interface AppSettings {
   archive_dir:    string | null;
   baud_rate:      number;
   auto_reconnect: boolean;
+  tablet_mode:    boolean;
 }

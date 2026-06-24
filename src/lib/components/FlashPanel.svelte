@@ -4,7 +4,7 @@
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
     flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, flashWritePath, flashWritePreview, nextFlashLogId,
+    flashProgrammer, flashProgrammers, flashWritePath, flashWritePreview, nextFlashLogId,
   } from '$lib/stores/flash';
   import { flashListProgrammers, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
   import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult } from '$lib/api/types';
@@ -35,6 +35,7 @@
 
   onMount(async () => {
     programmers = await flashListProgrammers().catch(() => []);
+    flashProgrammers.set(programmers);
     if (programmers.length > 0 && !$flashProgrammer) {
       flashProgrammer.set(programmers[0]);
     }

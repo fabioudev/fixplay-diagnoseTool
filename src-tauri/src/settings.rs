@@ -9,13 +9,15 @@ pub struct AppSettings {
     pub baud_rate:      u32,
     #[serde(default)]
     pub auto_reconnect: bool,
+    #[serde(default)]
+    pub tablet_mode:    bool,
 }
 
 fn default_baud_rate() -> u32 { 115200 }
 
 impl Default for AppSettings {
     fn default() -> Self {
-        Self { flashrom_path: None, archive_dir: None, baud_rate: default_baud_rate(), auto_reconnect: false }
+        Self { flashrom_path: None, archive_dir: None, baud_rate: default_baud_rate(), auto_reconnect: false, tablet_mode: false }
     }
 }
 
@@ -71,6 +73,7 @@ mod tests {
             archive_dir:    Some("/tmp/dumps".to_string()),
             baud_rate:      9600,
             auto_reconnect: true,
+            tablet_mode:    false,
         };
         let json   = serde_json::to_string_pretty(&settings).unwrap();
         let loaded: AppSettings = serde_json::from_str(&json).unwrap();
