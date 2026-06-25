@@ -5,7 +5,7 @@
   import { appSettings } from '$lib/stores/settings';
   import { settingsGet, settingsSave } from '$lib/api/tauri';
 
-  type View = 'flash' | 'uart' | 'archive';
+  type View = 'flash' | 'uart' | 'archive' | 'controller';
 
   let {
     view,
@@ -21,6 +21,7 @@
     flash:   'NOR Flash Diagnose',
     uart:    'UART Diagnostik',
     archive: 'NOR-Dump Archiv',
+    controller: 'Controller-Diagnose',
   };
 
   async function toggleTabletMode() {

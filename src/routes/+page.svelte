@@ -2,6 +2,7 @@
   import FlashPanel from '$lib/components/FlashPanel.svelte';
   import ArchiveSection from '$lib/components/ArchiveSection.svelte';
   import UartPanel from '$lib/components/UartPanel.svelte';
+  import ControllerPanel from '$lib/components/ControllerPanel.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import StatusBar from '$lib/components/StatusBar.svelte';
@@ -9,7 +10,7 @@
   import { sidebarCollapsed } from '$lib/stores/ui';
   import { appSettings } from '$lib/stores/settings';
 
-  type View = 'flash' | 'uart' | 'archive';
+  type View = 'flash' | 'uart' | 'archive' | 'controller';
 
   let activeView   = $state<View>('flash');
   let settingsOpen = $state(false);
@@ -47,6 +48,8 @@
         <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
           <ArchiveSection standalone />
         </div>
+      {:else if activeView === 'controller'}
+        <ControllerPanel />
       {/if}
     </main>
 

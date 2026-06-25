@@ -1,10 +1,11 @@
 
 <script lang="ts">
-  import { Cpu, Usb, Archive, Settings } from 'lucide-svelte';
+
+  import { Cpu, Usb, Archive, Settings, Gamepad2 } from 'lucide-svelte';
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
 
-  type View = 'flash' | 'uart' | 'archive';
+  type View = 'flash' | 'uart' | 'archive' | 'controller';
 
   let {
     active,
@@ -21,6 +22,7 @@
   const items: { id: View; label: string; icon: typeof Cpu }[] = [
     { id: 'flash',   label: 'NOR Flash', icon: Cpu },
     { id: 'uart',    label: 'UART',      icon: Usb },
+    { id: 'controller', label: 'Controller', icon: Gamepad2 },
     { id: 'archive', label: 'Archiv',    icon: Archive },
   ];
 
