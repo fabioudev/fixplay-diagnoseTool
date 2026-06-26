@@ -1,8 +1,9 @@
+use crate::commands::hid::{HidCmd, HidReport};
 use fixplay_core::types::ErrlogEntry;
 use fixplay_uart::{ErrorDb, UartPort};
 use std::collections::VecDeque;
 use std::sync::atomic::AtomicBool;
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread::JoinHandle;
 
 /// A parsed errlog entry buffered for the frontend to drain via uart_poll.
@@ -33,6 +34,12 @@ pub struct AppState {
     /// Commands recently written to the port. The PS5 UART mirrors received
     /// characters back; the reader drops lines matching one of these echoes.
     pub recent_sent:        Arc<Mutex<VecDeque<String>>>,
+    /// Command channel to the HID reader thread.
+    pub hid_cmd_tx:         Mutex<Option<mpsc::SyncSender<HidCmd>>>,
+    /// Stop flag for the HID reader thread.
+    pub hid_stop:           Mutex<Option<Arc<AtomicBool>>>,
+    /// Input reports buffered by the HID reader thread — drained by hid_poll.
+    pub hid_reports:        Arc<Mutex<VecDeque<HidReport>>>,
 }
 
 impl Default for AppState {
@@ -52,6 +59,9 @@ impl Default for AppState {
             pending_entries:    Arc::new(Mutex::new(VecDeque::with_capacity(200))),
             loopback_triggered: Arc::new(AtomicBool::new(false)),
             recent_sent:        Arc::new(Mutex::new(VecDeque::with_capacity(20))),
+            hid_cmd_tx:         Mutex::new(None),
+            hid_stop:           Mutex::new(None),
+            hid_reports:        Arc::new(Mutex::new(VecDeque::with_capacity(512))),
         }
     }
 }

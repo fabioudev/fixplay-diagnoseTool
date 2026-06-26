@@ -17,13 +17,14 @@
     pushControllerLog,
     applyProcessedInput,
   } from '$lib/stores/controller';
+  import { invoke } from '@tauri-apps/api/core';
   import {
     createControllerManager,
     createControllerForDevice,
     type ControllerManager,
     type ProcessedInput,
   } from '$lib/controllers/controller-manager';
-  import type { HIDDeviceLike } from '$lib/controllers/base-controller';
+  import { hidConnect, type HidPollResult } from '$lib/controllers/tauri-hid-device';
 
   let manager = $state<ControllerManager | null>(null);
   let calibOpen = $state(false);
@@ -32,6 +33,7 @@
   let connectError = $state<string | null>(null);
   let fwVersion = $state<string>('—');
   let macAddress = $state<string>('—');
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   const BUTTON_LABELS: Record<string, string> = {
     triangle: '△', cross: '✕', circle: '○', square: '□',
@@ -44,40 +46,51 @@
     connecting = true;
     connectError = null;
     try {
-      // Request a HID device with DualSense vendor/product filters
-      const nav = navigator as Navigator & { hid?: { requestDevice: (opts: unknown) => Promise<HIDDeviceLike[]> } };
-      if (!nav.hid) {
-        throw new Error('WebHID wird in diesem Browser/WebView nicht unterstützt.');
+      // Try DualSense (0x0ce6) then DualSense Edge (0x0df2)
+      let device = null;
+      for (const productId of [0x0ce6, 0x0df2]) {
+        try {
+          device = await hidConnect(0x054c, productId);
+          break;
+        } catch {
+          // try next product id
+        }
       }
-      const devices = await nav.hid.requestDevice({
-        filters: [{ vendorId: 0x054c, productId: 0x0ce6 }],
-      });
-      if (!devices || devices.length === 0) {
-        connecting = false;
-        return;
+      if (!device) {
+        throw new Error('Kein DualSense per USB gefunden. Controller einstecken und erneut versuchen.');
       }
-      const device = devices[0];
-      if (!device.opened) {
-        await (device as unknown as { open: () => Promise<void> }).open();
-      }
+
       const ctrl = createControllerForDevice(device);
-      if (!ctrl) {
-        throw new Error('Nicht unterstützter Controller.');
-      }
+      if (!ctrl) throw new Error('Nicht unterstützter Controller.');
+
       manager = createControllerManager();
       manager.setControllerInstance(ctrl);
       manager.setInputHandler((input: ProcessedInput) => applyProcessedInput(input));
-      manager.setInputReportHandler(manager.getInputHandler());
 
       controllerConnected.set(true);
       controllerModel.set(ctrl.getModel());
       const info = await ctrl.getInfo();
       controllerInfo.set(info);
-      const fwItem = info.infoItems?.find((i) => i.key === 'FW Version');
-      const macItem = info.infoItems?.find((i) => i.key === 'Bluetooth Address');
-      fwVersion = fwItem?.value ?? '—';
-      macAddress = macItem?.value ?? '—';
+      fwVersion  = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
+      macAddress = info.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
       pushControllerLog(`Controller verbunden: ${ctrl.getModel()}`, 'info');
+
+      // Poll for input reports at ~60 fps
+      pollInterval = setInterval(async () => {
+        try {
+          const result = await invoke<HidPollResult>('hid_poll');
+          if (!result.connected) {
+            await disconnect();
+            return;
+          }
+          for (const report of result.reports) {
+            const data = new DataView(new Uint8Array(report.data).buffer);
+            manager?.processControllerInput({ data });
+          }
+        } catch {
+          // ignore transient poll errors
+        }
+      }, 16);
     } catch (e) {
       connectError = e instanceof Error ? e.message : String(e);
       pushControllerLog('Verbindung fehlgeschlagen: ' + connectError, 'error');
@@ -87,6 +100,10 @@
   }
 
   async function disconnect() {
+    if (pollInterval !== null) {
+      clearInterval(pollInterval);
+      pollInterval = null;
+    }
     if (manager) {
       await manager.disconnect();
       manager = null;
@@ -121,9 +138,7 @@
   }
 
   onDestroy(() => {
-    if (manager) {
-      manager.disconnect().catch(() => {});
-    }
+    disconnect().catch(() => {});
   });
 </script>
 

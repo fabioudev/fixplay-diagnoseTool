@@ -1,6 +1,6 @@
 [package]
 name    = "fixplay-tauri"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 
 [lib]
@@ -24,3 +24,4 @@ tracing       = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 anyhow        = { workspace = true }
 serialport    = "4"
+hidapi        = "2"

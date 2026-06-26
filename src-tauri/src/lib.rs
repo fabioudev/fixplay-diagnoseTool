@@ -107,6 +107,13 @@ pub fn run() {
             commands::uart::uart_loopback_test,
             commands::settings::settings_get,
             commands::settings::settings_save,
+            commands::hid::hid_list_devices,
+            commands::hid::hid_connect,
+            commands::hid::hid_disconnect,
+            commands::hid::hid_send_feature_report,
+            commands::hid::hid_receive_feature_report,
+            commands::hid::hid_send_output_report,
+            commands::hid::hid_poll,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
