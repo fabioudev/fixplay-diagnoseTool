@@ -105,6 +105,15 @@ impl XboxErrorDb {
     pub fn fetch_and_cache(path: &Path) -> Result<Self, I2cError> {
         let response = reqwest::blocking::get(DB_URL)
             .map_err(|e| I2cError::DbFetch(e.to_string()))?;
+        // Check HTTP status BEFORE reading/parsing/caching. raw.githubusercontent
+        // answers a missing file with HTTP 404 and a body of "404: Not Found"; if
+        // we let that through, serde reads `404` as an integer ("invalid type:
+        // integer `404`, expected struct RawDb") AND we'd overwrite a good cache
+        // file with the error page. A non-2xx is a clean "no remote DB" → caller
+        // falls back to the bundled resource.
+        if !response.status().is_success() {
+            return Err(I2cError::DbFetch(format!("HTTP {}", response.status())));
+        }
         let text = response.text()
             .map_err(|e| I2cError::DbFetch(e.to_string()))?;
         if let Some(parent) = path.parent() {
