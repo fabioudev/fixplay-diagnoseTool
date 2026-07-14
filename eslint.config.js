@@ -12,13 +12,22 @@ export default [
   ...svelte.configs['flat/prettier'],
   {
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node },
+      globals: { ...globals.browser, ...globals.node, __MOCK_MODE__: 'readonly' },
     },
   },
   {
     files: ['**/*.svelte'],
     languageOptions: {
       parserOptions: { parser: ts.parser },
+    },
+  },
+  {
+    // Honor the repo's `_`-prefix convention for intentionally-unused bindings.
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
     },
   },
   {

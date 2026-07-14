@@ -2,6 +2,7 @@
 <script lang="ts">
   import { flashBusy, flashProgrammers } from '$lib/stores/flash';
   import { uartConnected, uartReconnecting, dbCodeCount, dbLoading } from '$lib/stores/uart';
+  import { i2cConnected, xboxDbCount, xboxDbLoading } from '$lib/stores/i2c';
 
   const APP_VERSION = '0.1.5';
 </script>
@@ -17,6 +18,25 @@
     ></span>
     <span>UART {$uartConnected ? 'verbunden' : $uartReconnecting ? 'reconnecting' : 'getrennt'}</span>
   </div>
+
+  <!-- I2C / Pico status -->
+  <div class="flex items-center gap-1.5" title={$i2cConnected ? 'I2C / Pico verbunden' : 'I2C / Pico getrennt'}>
+    <span class="w-1.5 h-1.5 rounded-full {$i2cConnected ? 'bg-green-400' : 'bg-gray-600'}"></span>
+    <span>I2C {$i2cConnected ? 'verbunden' : 'getrennt'}</span>
+  </div>
+
+  <!-- Xbox DB status -->
+  {#if $xboxDbLoading}
+    <div class="flex items-center gap-1.5" title="Xbox-Fehlercode-DB lädt…">
+      <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+      <span>Xbox-DB lädt…</span>
+    </div>
+  {:else if $xboxDbCount !== null}
+    <div class="flex items-center gap-1.5" title="Xbox-Fehlercode-DB">
+      <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+      <span>Xbox-DB: {$xboxDbCount.toLocaleString()}</span>
+    </div>
+  {/if}
 
   <!-- Programmer status -->
   <div class="flex items-center gap-1.5" title={$flashProgrammers.length > 0 ? 'Programmer erkannt' : 'Kein Programmer'}>

@@ -1,1 +1,1 @@
-{}
+{"default":{"identifier":"default","description":"Default capabilities for the fixplay diagnoseTool main window: core, dialog (file pickers), updater + process (in-app update check / self-update / relaunch).","local":true,"windows":["*"],"permissions":["core:default","dialog:default","updater:default","process:default"]}}

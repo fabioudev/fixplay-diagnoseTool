@@ -43,6 +43,21 @@ ssh-keyscan -t rsa aur.archlinux.org
 
 Das Ergebnis (nur die Zeile mit `aur.archlinux.org`) speichere ich ggf. auch als Secret.
 
+## Schritt 5: GitHub-Environment `aur-release` anlegen
+
+Der `update-aur`-Job läuft im Environment `aur-release` (als Gate, ggf. später
+für Required Reviewers). Lege es einmalig an:
+https://github.com/fabioudev/fixplay-diagnoseTool/settings/environments →
+"New environment" → Name `aur-release` (kann leer bleiben).
+
+## Schritt 6: AUR-Pakete nicht manuell anlegen
+
+Der Workflow veröffentlicht **zwei** Pakete: `fixplay-diagnosetool-bin`
+(AppImage) und `fixplay-diagnosetool` (Source-Build). Beim ersten Release pusht
+er jeweils an `ssh://aur@aur.archlinux.org/<name>.git`; AUR legt das Repository
+beim ersten erfolgreichen Push automatisch an — du musst nichts vorab auf AUR
+anlegen.
+
 ---
 
 ## Troubleshooting

@@ -2,11 +2,34 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
 
 const host = process.env.TAURI_DEV_HOST;
 
+// When MOCK=1 is set, replace the Tauri API + dialog plugin with local mock
+// modules so the UI can run in a plain browser (no Rust backend / hardware).
+// The Tauri build (and normal `npm run dev` for the desktop app) is unaffected.
+const useMock = process.env.MOCK === '1';
+const mockDir = (f: string) => fileURLToPath(new URL(`./src/lib/mock/${f}`, import.meta.url));
+const mockAlias: Record<string, string> = useMock
+  ? {
+      '@tauri-apps/api/core': mockDir('core.ts'),
+      '@tauri-apps/api/event': mockDir('event.ts'),
+      '@tauri-apps/plugin-dialog': mockDir('dialog.ts'),
+      '@tauri-apps/plugin-updater': mockDir('updater.ts'),
+      '@tauri-apps/plugin-process': mockDir('process.ts'),
+    }
+  : {};
+
+// `__MOCK_MODE__` is inlined as a boolean literal so the UI can branch on it.
+// In MOCK builds it becomes `true` (and the MockPanel is rendered); in the real
+// Tauri build it becomes `false` so the panel and its handlers are dead code.
+const mockDefine = { __MOCK_MODE__: JSON.stringify(useMock) };
+
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
+  resolve: { alias: mockAlias },
+  define: mockDefine,
   clearScreen: false,
   server: {
     port: 5173,

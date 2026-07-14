@@ -20,3 +20,13 @@ pub trait UartDevice: Send + Sync {
     fn read_line(&self) -> Result<Option<String>, AppError>;
     fn is_connected(&self) -> bool;
 }
+
+/// A USB-CDC bridge that exposes an I2C bus (e.g. a Raspberry Pi Pico running
+/// `fixplay-pico-i2c`). The transport is the same serial line as [`UartDevice`];
+/// the higher-level request/response framing lives in the `fixplay-i2c` crate.
+pub trait I2cDevice: Send + Sync {
+    fn connect(&mut self, port: &str, baud_rate: u32) -> Result<(), AppError>;
+    fn disconnect(&mut self) -> Result<(), AppError>;
+    fn read_line(&self) -> Result<Option<String>, AppError>;
+    fn is_connected(&self) -> bool;
+}

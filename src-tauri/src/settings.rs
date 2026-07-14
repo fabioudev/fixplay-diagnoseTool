@@ -7,6 +7,10 @@ pub struct AppSettings {
     pub archive_dir:    Option<String>,
     #[serde(default = "default_baud_rate")]
     pub baud_rate:      u32,
+    /// Baud rate for the I2C-over-USB-CDC bridge (Pico). USB CDC ignores the
+    /// value in practice, but the serialport API still requires one.
+    #[serde(default = "default_baud_rate")]
+    pub i2c_baud_rate:  u32,
     #[serde(default)]
     pub auto_reconnect: bool,
     #[serde(default)]
@@ -17,7 +21,14 @@ fn default_baud_rate() -> u32 { 115200 }
 
 impl Default for AppSettings {
     fn default() -> Self {
-        Self { flashrom_path: None, archive_dir: None, baud_rate: default_baud_rate(), auto_reconnect: false, tablet_mode: false }
+        Self {
+            flashrom_path:  None,
+            archive_dir:    None,
+            baud_rate:      default_baud_rate(),
+            i2c_baud_rate:  default_baud_rate(),
+            auto_reconnect: false,
+            tablet_mode:    false,
+        }
     }
 }
 
@@ -62,6 +73,7 @@ mod tests {
     fn default_settings_has_expected_values() {
         let s = AppSettings::default();
         assert_eq!(s.baud_rate, 115200);
+        assert_eq!(s.i2c_baud_rate, 115200);
         assert!(s.flashrom_path.is_none());
         assert!(s.archive_dir.is_none());
     }
@@ -72,12 +84,14 @@ mod tests {
             flashrom_path:  Some("/usr/bin/flashrom".to_string()),
             archive_dir:    Some("/tmp/dumps".to_string()),
             baud_rate:      9600,
+            i2c_baud_rate:  115200,
             auto_reconnect: true,
             tablet_mode:    false,
         };
         let json   = serde_json::to_string_pretty(&settings).unwrap();
         let loaded: AppSettings = serde_json::from_str(&json).unwrap();
         assert_eq!(loaded.baud_rate, 9600);
+        assert_eq!(loaded.i2c_baud_rate, 115200);
         assert_eq!(loaded.flashrom_path,  Some("/usr/bin/flashrom".to_string()));
         assert_eq!(loaded.archive_dir,    Some("/tmp/dumps".to_string()));
         assert!(loaded.auto_reconnect);

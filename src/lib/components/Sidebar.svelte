@@ -1,11 +1,12 @@
 
 <script lang="ts">
 
-  import { Cpu, Usb, Archive, Settings, Gamepad2 } from 'lucide-svelte';
+  import { Cpu, Usb, Archive, Settings, Gamepad2, CircuitBoard } from 'lucide-svelte';
+  import FixplayIcon from '$lib/components/FixplayIcon.svelte';
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
 
-  type View = 'flash' | 'uart' | 'archive' | 'controller';
+  type View = 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
   let {
     active,
@@ -22,6 +23,7 @@
   const items: { id: View; label: string; icon: typeof Cpu }[] = [
     { id: 'flash',   label: 'NOR Flash', icon: Cpu },
     { id: 'uart',    label: 'UART',      icon: Usb },
+    { id: 'i2c',     label: 'I2C / Pico', icon: CircuitBoard },
     { id: 'controller', label: 'Controller', icon: Gamepad2 },
     { id: 'archive', label: 'Archiv',    icon: Archive },
   ];
@@ -37,8 +39,8 @@
 >
   <!-- Brand -->
   <div class="flex items-center gap-2.5 h-14 border-b border-gray-800 shrink-0 {collapsed ? 'justify-center px-2' : 'px-4'}">
-    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shrink-0">
-      <Cpu class="w-5 h-5 text-white" />
+    <div class="shrink-0">
+      <FixplayIcon class="w-8 h-8" />
     </div>
     {#if !collapsed}
       <div class="flex flex-col leading-tight min-w-0">

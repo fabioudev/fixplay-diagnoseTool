@@ -4,6 +4,7 @@ members = [
     "crates/fixplay-core",
     "crates/fixplay-flashrom",
     "crates/fixplay-uart",
+    "crates/fixplay-i2c",
     "src-tauri",
 ]
 

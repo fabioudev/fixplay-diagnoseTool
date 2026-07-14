@@ -40,6 +40,7 @@ jobs:
             build_args: -- --bundles appimage,deb,rpm
             artifact_glob: |
               target/release/bundle/appimage/*.AppImage
+              target/release/bundle/appimage/*.AppImage.sig
               target/release/bundle/deb/*.deb
               target/release/bundle/rpm/*.rpm
           - os: windows-latest
@@ -47,7 +48,10 @@ jobs:
             build_args: ""
             artifact_glob: |
               target/release/bundle/msi/*.msi
+              target/release/bundle/msi/*.msi.zip
+              target/release/bundle/msi/*.msi.zip.sig
               target/release/bundle/nsis/*.exe
+              target/release/bundle/nsis/*.exe.sig
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -119,6 +123,12 @@ jobs:
           node -e "const d=JSON.parse(require('fs').readFileSync('src-tauri/resources/error_codes.json','utf8'));const ok=d&&typeof d==='object'&&Object.values(d).some(v=>v&&Array.isArray(v.ErrorCodes)&&v.ErrorCodes.length>0);if(!ok){console.error('Error DB empty or invalid');process.exit(1)}"
 
       - name: Build Tauri bundles
+        env:
+          # When set, Tauri signs the updater bundles and emits .sig files
+          # (required for the in-app updater to verify downloads). If the
+          # secrets are absent the build still succeeds — just without sigs.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri build ${{ matrix.build_args }}
 
       - name: Upload bundles
@@ -231,6 +241,17 @@ jobs:
           pattern: '*-bundles'
           merge-multiple: true
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate updater manifest (latest.json)
+        run: |
+          node scripts/generate-latest-json.mjs release-assets "${{ needs.prepare.outputs.release_tag }}" release-assets/latest.json
+          echo "--- latest.json ---"
+          cat release-assets/latest.json
+
       - name: Generate SHA256 checksums
         run: |
           cd release-assets
@@ -250,11 +271,19 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(needs.prepare.outputs.release_tag, '-')"
     environment: aur-release
+    container:
+      image: archlinux:latest
+    defaults:
+      run:
+        shell: bash
     steps:
+      - name: Install AUR tooling
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git openssh
+
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup SSH for AUR
         env:
@@ -265,90 +294,67 @@ jobs:
           echo "$AUR_SSH_KEY" > ~/.ssh/aur_deploy
           chmod 600 ~/.ssh/aur_deploy
           ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null || true
-          cat >> ~/.ssh/config <<EOF
+          cat >> ~/.ssh/config <<'EOF'
           Host aur.archlinux.org
               IdentityFile ~/.ssh/aur_deploy
               User aur
               IdentitiesOnly yes
           EOF
 
-      - name: Update PKGBUILD
-        run: |
-          VERSION="${{ needs.prepare.outputs.release_tag }}"
-          VERSION="${VERSION#v}"  # Remove 'v' prefix
-          PKGBUILD="packaging/aur/fixplay-diagnosetool-bin/PKGBUILD"
-
-          sed -i "s/^pkgver=.*/pkgver=$VERSION/" "$PKGBUILD"
-          sed -i "s/^pkgrel=.*/pkgrel=1/" "$PKGBUILD"
-
-          cat "$PKGBUILD" | head -5
-
-      - name: Generate .SRCINFO
-        run: |
-          cd packaging/aur/fixplay-diagnosetool-bin
-          PKGVER=$(grep "^pkgver=" PKGBUILD | cut -d= -f2)
-          PKGREL=$(grep "^pkgrel=" PKGBUILD | cut -d= -f2)
-          {
-            printf 'pkgbase = fixplay-diagnosetool-bin\n'
-            printf '\tpkgdesc = Cross-platform diagnostic tool for gaming consoles (AppImage release build)\n'
-            printf '\tpkgver = %s\n' "$PKGVER"
-            printf '\tpkgrel = %s\n' "$PKGREL"
-            printf '\turl = https://github.com/fabioudev/fixplay-diagnoseTool\n'
-            printf '\tarch = x86_64\n'
-            printf '\tlicense = custom:unknown\n'
-            printf '\tdepends = fuse2\n'
-            printf '\toptdepends = flashrom: use the system flashrom binary instead of the bundled one\n'
-            printf '\tprovides = fixplay-diagnosetool\n'
-            printf '\tconflicts = fixplay-diagnosetool\n'
-            printf '\tsource = https://github.com/fabioudev/fixplay-diagnoseTool/releases/download/v%s/fixplay-diagnoseTool_%s_amd64.AppImage\n' "$PKGVER" "$PKGVER"
-            printf '\tsource = https://raw.githubusercontent.com/fabioudev/fixplay-diagnoseTool/v%s/src-tauri/icons/icon_256x256.png\n' "$PKGVER"
-            printf '\tsha256sums = SKIP\n'
-            printf '\tsha256sums = SKIP\n'
-            printf '\npkgname = fixplay-diagnosetool-bin\n'
-          } > .SRCINFO
-
-      - name: Commit to main repository
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-          cd packaging/aur/fixplay-diagnosetool-bin
-          git add PKGBUILD .SRCINFO
-          git commit -m "chore: update AUR package to ${{ needs.prepare.outputs.release_tag }}" || true
-
-          cd ../../../
-          git push origin main || true
-
-      - name: Clone and push to AUR
-        run: |
-          git clone ssh://aur@aur.archlinux.org/fixplay-diagnosetool-bin.git /tmp/aur-repo
-          cp packaging/aur/fixplay-diagnosetool-bin/{PKGBUILD,.SRCINFO} /tmp/aur-repo/
-
-          cd /tmp/aur-repo
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
-
-          git add PKGBUILD .SRCINFO
-          git commit -m "Update to ${{ needs.prepare.outputs.release_tag }}" || true
-          git push origin master
+      - name: Publish packages to AUR
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
         if: env.AUR_SSH_KEY != ''
-        continue-on-error: true
+        run: |
+          VERSION="${RELEASE_TAG#v}"
+          # makepkg refuses to run as root — use a dedicated builder user.
+          useradd -m builder
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
-      - name: Print AUR update instructions
+          publish() {
+            local pkg="$1"
+            local work="/tmp/aur-src/$pkg"
+            mkdir -p "$work"
+            cp "packaging/aur/$pkg/PKGBUILD" "$work/PKGBUILD"
+            sed -i "s/^pkgver=.*/pkgver=$VERSION/" "$work/PKGBUILD"
+            sed -i "s/^pkgrel=.*/pkgrel=1/" "$work/PKGBUILD"
+
+            # .SRCINFO from the real PKGBUILD metadata (no sources downloaded).
+            chown -R builder:builder "$work"
+            su builder -c "cd '$work' && makepkg --printsrcinfo > .SRCINFO"
+
+            # Clone existing AUR repo, or init a fresh one — AUR creates the
+            # package on the first push, so `git clone` failing just means we
+            # bootstrap it locally.
+            local repo="/tmp/aur-repo/$pkg"
+            rm -rf "$repo"
+            if git clone "ssh://aur@aur.archlinux.org/${pkg}.git" "$repo" 2>/dev/null; then
+              :
+            else
+              mkdir -p "$repo"
+              git -C "$repo" init
+              git -C "$repo" remote add origin "ssh://aur@aur.archlinux.org/${pkg}.git"
+              git -C "$repo" checkout -b master
+            fi
+            cp "$work/PKGBUILD" "$work/.SRCINFO" "$repo/"
+            git -C "$repo" add PKGBUILD .SRCINFO
+            git -C "$repo" commit -m "Update to v$VERSION" || true
+            git -C "$repo" push origin master
+            echo "✅ published $pkg @ v$VERSION"
+          }
+
+          publish fixplay-diagnosetool-bin
+          publish fixplay-diagnosetool
+
+      - name: AUR status
+        if: always()
         run: |
           if [ -z "${{ secrets.AUR_SSH_PRIVATE_KEY }}" ]; then
-            echo "## ⚠️ AUR SSH Key Not Configured"
+            echo "## ⚠️ AUR_SSH_PRIVATE_KEY not configured"
+            echo "Follow docs/AUR_SSH_SETUP.md and add the secret + the 'aur-release' environment."
           else
-            echo "## ✅ AUR Updated"
-          fi
-          echo ""
-          echo "PKGBUILD and .SRCINFO have been updated for version: ${{ needs.prepare.outputs.release_tag }}"
-          echo ""
-          if [ -z "${{ secrets.AUR_SSH_PRIVATE_KEY }}" ]; then
-            echo "To enable automatic AUR pushes:"
-            echo "  1. Follow docs/AUR_SSH_SETUP.md"
-            echo "  2. Add AUR_SSH_PRIVATE_KEY secret to GitHub"
+            echo "## AUR publish attempt finished (see previous step)."
           fi
 

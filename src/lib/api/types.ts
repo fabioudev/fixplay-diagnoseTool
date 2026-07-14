@@ -61,6 +61,41 @@ export interface UartPollResult {
   db_count:     number | null;
 }
 
+// ───────────────────────── I2C / Pico (USB CDC) ─────────────────────────
+
+export interface I2cPortInfo {
+  name:        string;
+  is_pico:     boolean;
+  is_bridge:   boolean;
+  description: string;
+}
+
+export interface I2cErrlogEntry {
+  code:        string;
+  timestamp:   number | null;
+  source:      string | null;
+  description: string | null;
+}
+
+export interface I2cInfo {
+  firmware: string;
+  bus:      string;
+  scl:      number;
+  sda:      number;
+  voltage?: string | null;
+}
+
+export interface I2cPollResult {
+  connected: boolean;
+  db_count:  number | null;
+}
+
+export interface I2cErrorSearchResult {
+  code:        string;
+  description: string;
+  category:    string;
+}
+
 export interface NorValidation {
   size_ok:       boolean;
   header_ok:     boolean;
@@ -136,6 +171,13 @@ export interface AppSettings {
   flashrom_path:  string | null;
   archive_dir:    string | null;
   baud_rate:      number;
+  i2c_baud_rate:  number;
   auto_reconnect: boolean;
   tablet_mode:    boolean;
+}
+
+/** How the running app was installed — decides self-update vs. package manager. */
+export interface UpdateChannel {
+  managed: boolean;
+  hint:    string;
 }

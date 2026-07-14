@@ -25,6 +25,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/icon.png",
       "icons/icon_32x32.png",
@@ -32,6 +33,16 @@
       "icons/icon_256x256.png",
       "icons/icon.ico"
     ],
-    "resources": ["binaries/flashrom", "binaries/flashrom.exe", "resources/error_codes.json"]
+    "resources": ["binaries/flashrom", "binaries/flashrom.exe", "resources/error_codes.json", "resources/xbox_error_codes.json"]
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFRjU4NzFCNDY4Rjc2MjkKUldRcGRvOUdHNGYxL2phZUh6L3VFK3BXU21meHh5R284TkNXUlhLTWIrRzMwRGpNbEg5MnJYL3MK",
+      "endpoints": ["https://github.com/fabioudev/fixplay-diagnoseTool/releases/latest/download/latest.json"],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

@@ -142,6 +142,34 @@
         </p>
       </div>
 
+      <!-- I2C / Pico Baud Rate -->
+      <div class="flex flex-col gap-1.5">
+        <label for="settings-i2c-baud-rate" class="text-xs font-medium text-gray-400">
+          I2C / Pico Baudrate
+        </label>
+        <div class="relative">
+          <select
+            id="settings-i2c-baud-rate"
+            value={$appSettings.i2c_baud_rate}
+            onchange={async (e) => {
+              appSettings.update(s => ({ ...s, i2c_baud_rate: Number((e.target as HTMLSelectElement).value) }));
+              await save();
+            }}
+            title="Baudrate des USB-CDC-Ports des Pico. USB CDC ignoriert den Wert in der Regel, aber der serielle Port benötigt einen. Standard 115200."
+            class="appearance-none w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 pr-6
+                   border border-gray-700 focus:outline-none focus:border-gray-500"
+          >
+            {#each BAUD_RATES as rate (rate)}
+              <option value={rate}>{rate}{rate === 115200 ? ' (Standard Pico)' : ''}</option>
+            {/each}
+          </select>
+          <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        </div>
+        <p class="text-xs text-gray-600">
+          USB CDC ignoriert die Baudrate meist — Standard 115200 beibehalten.
+        </p>
+      </div>
+
       <!-- Tablet Mode -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-gray-400">

@@ -4,7 +4,7 @@ import { appSettings } from './settings';
 
 describe('appSettings store', () => {
   beforeEach(() => {
-    appSettings.set({ flashrom_path: null, archive_dir: null, baud_rate: 115200, auto_reconnect: false, tablet_mode: false });
+    appSettings.set({ flashrom_path: null, archive_dir: null, baud_rate: 115200, i2c_baud_rate: 115200, auto_reconnect: false, tablet_mode: false });
   });
 
   it('starts with null paths and 115200 baud', () => {
@@ -12,6 +12,7 @@ describe('appSettings store', () => {
     expect(s.flashrom_path).toBeNull();
     expect(s.archive_dir).toBeNull();
     expect(s.baud_rate).toBe(115200);
+    expect(s.i2c_baud_rate).toBe(115200);
   });
 
   it('can update baud_rate', () => {

@@ -16,6 +16,8 @@ pub fn run() {
     tauri::Builder::default()
         .manage(AppState::default())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let cache_path    = app.path().app_data_dir()?.join("error_codes.json");
             let resource_path = app.path().resource_dir().ok()
@@ -82,9 +84,70 @@ pub fn run() {
                 });
             }
 
+            // Xbox error-code DB (I2C path) — same 3-step lifecycle as the PS5
+            // DB: user cache → bundled resource → background fetch.
+            let xbox_cache_path    = app.path().app_data_dir()?.join("xbox_error_codes.json");
+            let xbox_resource_path = crate::commands::i2c::xbox_db_resource_path(app.handle());
+            let xbox_cache_ok = match fixplay_i2c::XboxErrorDb::from_cache(&xbox_cache_path) {
+                Ok(db) => {
+                    let count = db.len();
+                    *state.xbox_error_db.lock().unwrap() = Some(db);
+                    tracing::info!("Xbox error DB loaded from cache ({} codes)", count);
+                    let _ = app.handle().emit("i2c://db-status",
+                        crate::commands::i2c::I2cDbStatusPayload {
+                            loaded: true, count: Some(count), source: "cache".into(),
+                        });
+                    true
+                }
+                Err(e) => { tracing::warn!("Xbox error DB cache miss: {}", e); false }
+            };
+            if !xbox_cache_ok {
+                if let Some(ref rpath) = xbox_resource_path {
+                    if let Ok(db) = fixplay_i2c::XboxErrorDb::from_cache(rpath) {
+                        let count = db.len();
+                        if count > 0 {
+                            *state.xbox_error_db.lock().unwrap() = Some(db);
+                            tracing::info!("Xbox error DB loaded from bundled resource ({} codes)", count);
+                            let _ = std::fs::copy(rpath, &xbox_cache_path);
+                            let _ = app.handle().emit("i2c://db-status",
+                                crate::commands::i2c::I2cDbStatusPayload {
+                                    loaded: true, count: Some(count), source: "bundled".into(),
+                                });
+                        }
+                    }
+                }
+                let xbox_db   = std::sync::Arc::clone(&state.xbox_error_db);
+                let app_handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    match fixplay_i2c::XboxErrorDb::fetch_and_cache(&xbox_cache_path) {
+                        Ok(db) => {
+                            let count = db.len();
+                            *xbox_db.lock().unwrap() = Some(db);
+                            tracing::info!("Xbox error DB fetched in background ({} codes)", count);
+                            let _ = app_handle.emit("i2c://db-status",
+                                crate::commands::i2c::I2cDbStatusPayload {
+                                    loaded: true, count: Some(count), source: "fetched".into(),
+                                });
+                        }
+                        Err(e) => {
+                            tracing::warn!("background Xbox DB fetch failed: {}", e);
+                            let guard  = xbox_db.lock().unwrap();
+                            let loaded = guard.is_some();
+                            let count  = guard.as_ref().map(|db| db.len());
+                            let _ = app_handle.emit("i2c://db-status",
+                                crate::commands::i2c::I2cDbStatusPayload {
+                                    loaded, count, source: "failed".into(),
+                                });
+                        }
+                    }
+                });
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::app::get_update_channel,
+            commands::app::app_version,
             commands::flash::open_path,
             commands::flash::flash_list_programmers,
             commands::flash::flash_read,
@@ -105,6 +168,19 @@ pub fn run() {
             commands::uart::uart_search_error_db,
             commands::uart::uart_poll,
             commands::uart::uart_loopback_test,
+            commands::i2c::i2c_list_ports,
+            commands::i2c::i2c_connect,
+            commands::i2c::i2c_disconnect,
+            commands::i2c::i2c_scan,
+            commands::i2c::i2c_read,
+            commands::i2c::i2c_write,
+            commands::i2c::i2c_read_eeprom,
+            commands::i2c::i2c_errlog,
+            commands::i2c::i2c_info,
+            commands::i2c::i2c_poll,
+            commands::i2c::i2c_update_xbox_db,
+            commands::i2c::i2c_get_db_info,
+            commands::i2c::i2c_search_xbox_db,
             commands::settings::settings_get,
             commands::settings::settings_save,
             commands::hid::hid_list_devices,

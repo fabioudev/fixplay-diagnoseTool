@@ -14,9 +14,12 @@ tauri-build = { version = "2", features = [] }
 fixplay-core      = { path = "../crates/fixplay-core" }
 fixplay-flashrom  = { path = "../crates/fixplay-flashrom" }
 fixplay-uart      = { path = "../crates/fixplay-uart" }
+fixplay-i2c       = { path = "../crates/fixplay-i2c" }
 tauri         = { version = "2", features = [] }
 open               = "5"
 tauri-plugin-dialog = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 serde         = { workspace = true }
 serde_json    = { workspace = true }
 tokio         = { workspace = true }

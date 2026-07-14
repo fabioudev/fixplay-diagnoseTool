@@ -1,11 +1,12 @@
 
 
 <script lang="ts">
-  import { PanelLeftClose, PanelLeftOpen, Tablet } from 'lucide-svelte';
+  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Tablet } from 'lucide-svelte';
   import { appSettings } from '$lib/stores/settings';
-  import { settingsGet, settingsSave } from '$lib/api/tauri';
+  import { settingsSave } from '$lib/api/tauri';
+  import { checkUpdates, updateAvailable, updateBusy } from '$lib/stores/updater';
 
-  type View = 'flash' | 'uart' | 'archive' | 'controller';
+  type View = 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
   let {
     view,
@@ -20,6 +21,7 @@
   const titles: Record<View, string> = {
     flash:   'NOR Flash Diagnose',
     uart:    'UART Diagnostik',
+    i2c:     'I2C / Pico Diagnostik',
     archive: 'NOR-Dump Archiv',
     controller: 'Controller-Diagnose',
   };
@@ -50,6 +52,24 @@
   <h1 class="text-sm font-semibold text-gray-100 truncate flex-1 min-w-0">
     {titles[view]}
   </h1>
+
+  <button
+    onclick={() => checkUpdates()}
+    class="relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0
+           {$updateAvailable
+             ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/40'
+             : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border border-transparent'}"
+    title={$updateAvailable
+      ? `Update verfügbar: v${$updateAvailable.version}`
+      : 'Nach Updates suchen'}
+    aria-label="Nach Updates suchen"
+  >
+    <RefreshCw class="w-4 h-4 {$updateBusy ? 'animate-spin' : ''}" />
+    {#if $updateAvailable}
+      <span class="hidden sm:inline">Update</span>
+      <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400"></span>
+    {/if}
+  </button>
 
   <button
     onclick={toggleTabletMode}
