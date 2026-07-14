@@ -52,24 +52,17 @@ jobs:
               UserKnownHostsFile /dev/null
           EOF
 
-      - name: Diagnose SSH key (compare printed pubkey to your AUR account)
+      - name: Diagnose SSH key (fingerprint + live AUR auth precheck)
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         if: env.AUR_SSH_KEY != ''
         run: |
-          echo "=== key file head/tail (no secret body shown) ==="
-          head -1 ~/.ssh/aur_deploy
-          tail -1 ~/.ssh/aur_deploy
           echo "=== fingerprint of the private key in the secret ==="
           ssh-keygen -lf ~/.ssh/aur_deploy
-          echo "=== public key derived from the private key in the secret ==="
-          echo "(paste-compare this against the SSH Public Key field at"
-          echo " https://aur.archlinux.org/account/ — they MUST match)"
-          ssh-keygen -yf ~/.ssh/aur_deploy
-          echo "=== live auth test vs AUR (-o BatchMode, no host-key check) ==="
+          echo "=== live auth test vs AUR (BatchMode, no host-key check) ==="
           ssh -i ~/.ssh/aur_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null -o BatchMode=yes -v \
-              aur@aur.archlinux.org 2>&1 | grep -iE 'Offering|publickey|permission|authenticated|Authenticat|key:|identity file|Server accepts' | head -30 || true
+              -o UserKnownHostsFile=/dev/null -o BatchMode=yes \
+              aur@aur.archlinux.org 2>&1 | head -5 || true
 
       - name: Publish packages to AUR
         env:
