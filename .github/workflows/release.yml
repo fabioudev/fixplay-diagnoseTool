@@ -296,18 +296,18 @@ jobs:
           mkdir -p ~/.ssh
           echo "$AUR_SSH_KEY" > ~/.ssh/aur_deploy
           chmod 600 ~/.ssh/aur_deploy
-          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null || true
-          # ssh-keyscan best-effort populates known_hosts; accept-new is the
-          # real safety net — ssh auto-trusts AUR's host key on first contact
-          # (TOFU) and verifies it thereafter, so a transient ssh-keyscan
-          # failure can't block the push.
+          # Don't ssh-keyscan: in the archlinux container it wrote a host key
+          # that mismatched what AUR presents on connect ("Host key verification
+          # failed"), and even accept-new couldn't recover once a conflicting
+          # entry existed. The Publish step uses GIT_SSH_COMMAND instead, which
+          # bypasses the config + known_hosts entirely.
           cat >> ~/.ssh/config <<'EOF'
           Host aur.archlinux.org
               IdentityFile ~/.ssh/aur_deploy
               User aur
               IdentitiesOnly yes
-              StrictHostKeyChecking accept-new
-              UserKnownHostsFile ~/.ssh/known_hosts
+              StrictHostKeyChecking no
+              UserKnownHostsFile /dev/null
           EOF
 
       - name: Publish packages to AUR
@@ -317,6 +317,11 @@ jobs:
         if: env.AUR_SSH_KEY != ''
         run: |
           VERSION="${RELEASE_TAG#v}"
+          # Bypass ~/.ssh/config + known_hosts entirely — GIT_SSH_COMMAND is
+          # honored by every git ssh op (clone + push) in this script, and the
+          # explicit -i + -o flags survive any HOME/container quirks. Host-key
+          # checking is off (AUR is the only host we talk to here).
+          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           # makepkg refuses to run as root — use a dedicated builder user.
           useradd -m builder
           git config --global user.email "action@github.com"

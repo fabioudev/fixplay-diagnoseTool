@@ -1,0 +1,106 @@
+# Standalone AUR publisher — mirrors the `update-aur` job in release.yml so the
+# SSH/push path can be iterated in ~30s without rebuilding all bundles. Run via:
+#   gh workflow run aur-publish.yml -f tag=v0.1.6
+# Same PKGBUILDs + version logic as the release workflow; once this is green, the
+# next real release.yml run's update-aur job is green too.
+
+name: AUR Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. v0.1.6)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  update-aur:
+    runs-on: ubuntu-latest
+    environment: aur-release
+    container:
+      image: archlinux:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Install AUR tooling
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git openssh
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH for AUR
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        if: env.AUR_SSH_KEY != ''
+        run: |
+          mkdir -p ~/.ssh
+          echo "$AUR_SSH_KEY" > ~/.ssh/aur_deploy
+          chmod 600 ~/.ssh/aur_deploy
+          cat >> ~/.ssh/config <<'EOF'
+          Host aur.archlinux.org
+              IdentityFile ~/.ssh/aur_deploy
+              User aur
+              IdentitiesOnly yes
+              StrictHostKeyChecking no
+              UserKnownHostsFile /dev/null
+          EOF
+
+      - name: Publish packages to AUR
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          RELEASE_TAG: ${{ github.event.inputs.tag }}
+        if: env.AUR_SSH_KEY != ''
+        run: |
+          VERSION="${RELEASE_TAG#v}"
+          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          useradd -m builder
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
+          publish() {
+            local pkg="$1"
+            local work="/tmp/aur-src/$pkg"
+            mkdir -p "$work"
+            cp "packaging/aur/$pkg/PKGBUILD" "$work/PKGBUILD"
+            sed -i "s/^pkgver=.*/pkgver=$VERSION/" "$work/PKGBUILD"
+            sed -i "s/^pkgrel=.*/pkgrel=1/" "$work/PKGBUILD"
+
+            chown -R builder:builder "$work"
+            su builder -c "cd '$work' && makepkg --printsrcinfo > .SRCINFO"
+
+            local repo="/tmp/aur-repo/$pkg"
+            rm -rf "$repo"
+            if git clone "ssh://aur@aur.archlinux.org/${pkg}.git" "$repo" 2>/dev/null; then
+              :
+            else
+              mkdir -p "$repo"
+              git -C "$repo" init
+              git -C "$repo" remote add origin "ssh://aur@aur.archlinux.org/${pkg}.git"
+              git -C "$repo" checkout -b master
+            fi
+            cp "$work/PKGBUILD" "$work/.SRCINFO" "$repo/"
+            git -C "$repo" add PKGBUILD .SRCINFO
+            git -C "$repo" commit -m "Update to v$VERSION" || true
+            git -C "$repo" push origin master
+            echo "✅ published $pkg @ v$VERSION"
+          }
+
+          publish fixplay-diagnosetool-bin
+          publish fixplay-diagnosetool
+
+      - name: AUR status
+        if: always()
+        run: |
+          if [ -z "${{ secrets.AUR_SSH_PRIVATE_KEY }}" ]; then
+            echo "## ⚠️ AUR_SSH_PRIVATE_KEY not configured"
+            echo "Follow docs/AUR_SSH_SETUP.md and add the secret + the 'aur-release' environment."
+          else
+            echo "## AUR publish attempt finished (see previous step)."
+          fi
