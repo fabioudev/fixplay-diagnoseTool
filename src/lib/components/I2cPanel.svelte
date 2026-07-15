@@ -90,7 +90,7 @@
     let r;
     try { r = await i2cPoll(); } catch { return; }
     i2cConnected.set(r.connected);
-    if (r.db_count !== null) {
+    if (r.db_count != null) {
       xboxDbCount.set(r.db_count);
       xboxDbLoading.set(false);
     }
@@ -347,7 +347,7 @@
         <span class="text-xs text-gray-500 flex items-center gap-1" title="Xbox-Fehlercodes-Datenbank wird geladen…">
           <span class="inline-block animate-spin">⟳</span> Lade DB…
         </span>
-      {:else if $xboxDbCount !== null}
+      {:else if $xboxDbCount != null}
         <span class="text-xs text-green-400" title="Anzahl der geladenen Xbox-Fehlercodes">
           {$xboxDbCount.toLocaleString()} Codes
         </span>

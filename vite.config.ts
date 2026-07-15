@@ -35,7 +35,13 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     host: host || false,
-    hmr: host ? { protocol: 'ws', host, port: 5183 } : undefined,
+    // HMR over the Cloudflare tunnel (how MOCK preview is exposed) is flaky:
+    // the HMR websocket's full-reload races with the dynamic-import fetch and
+    // Vite logs "Failed to fetch dynamically imported module" on every edit,
+    // which SvelteKit dev renders as an opaque 500 error page. MOCK preview is
+    // a stable browser view (not a live-coding session), so disable HMR there
+    // — a manual reload is more reliable than the tunnelled HMR loop.
+    hmr: useMock ? false : host ? { protocol: 'ws', host, port: 5183 } : undefined,
     watch: { ignored: ['**/src-tauri/**'] },
   },
   envPrefix: ['VITE_', 'TAURI_ENV_*'],

@@ -128,7 +128,7 @@
     }
 
     // --- error DB status ---
-    if (r.db_count !== null) {
+    if (r.db_count != null) {
       dbCodeCount.set(r.db_count);
       dbLoading.set(false);
     }
@@ -486,7 +486,7 @@
         <span class="text-xs text-gray-500 flex items-center gap-1" title="Fehlercodes-Datenbank wird geladen…">
           <span class="inline-block animate-spin">⟳</span> Lade DB…
         </span>
-      {:else if $dbCodeCount !== null}
+      {:else if $dbCodeCount != null}
         <span
           class="text-xs text-green-400"
           title="Anzahl der geladenen PS5-Fehlercodes in der lokalen Datenbank. Wird für die automatische Beschreibung von Errlog-Einträgen verwendet."

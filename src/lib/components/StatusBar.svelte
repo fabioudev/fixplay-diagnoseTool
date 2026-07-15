@@ -30,7 +30,7 @@
       <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
       <span>Xbox-DB lädt…</span>
     </div>
-  {:else if $xboxDbCount !== null}
+  {:else if $xboxDbCount != null}
     <div class="flex items-center gap-1.5" title="Xbox-Fehlercode-DB">
       <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
       <span>Xbox-DB: {$xboxDbCount.toLocaleString()}</span>
@@ -58,7 +58,7 @@
     {#if $dbLoading}
       <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
       <span>DB lädt…</span>
-    {:else if $dbCodeCount !== null}
+    {:else if $dbCodeCount != null}
       <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
       <span>DB: {$dbCodeCount.toLocaleString()} Codes</span>
     {:else}

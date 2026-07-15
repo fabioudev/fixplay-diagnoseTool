@@ -16,6 +16,11 @@ import type {
   AppSettings,
   UartPortInfo,
   UartPollResult,
+  I2cPortInfo,
+  I2cErrlogEntry,
+  I2cInfo,
+  I2cPollResult,
+  I2cErrorSearchResult,
 } from '../api/types';
 import type { HidDeviceInfo, HidPollResult } from '../controllers/tauri-hid-device';
 
@@ -173,6 +178,61 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
       connected: s.hid.connected,
       reports: [{ report_id: 1, data: Array.from({ length: 64 }, (_, i) => (i % 7 === 0 ? 128 : 0)) }],
     };
+  },
+
+  // --- i2c / Pico bridge / Xbox error-DB ---
+  i2c_list_ports: () => {
+    const s = getMockState();
+    return <I2cPortInfo[]>s.i2c.ports;
+  },
+  i2c_connect: async () => {
+    await delay(120);
+  },
+  i2c_disconnect: () => {},
+  i2c_scan: () => {
+    const s = getMockState();
+    return <number[]>[...s.i2c.scan_results];
+  },
+  i2c_read: (args) => {
+    const len = Number(args?.len ?? 16);
+    return <number[]>Array.from({ length: len }, (_, i) => (i % 17 === 0 ? 0xff : i & 0xff));
+  },
+  i2c_write: () => {},
+  i2c_read_eeprom: (args) => {
+    const len = Number(args?.len ?? 256);
+    return <number[]>Array.from({ length: len }, (_, i) => (i * 7 + 3) & 0xff);
+  },
+  i2c_errlog: () => {
+    const s = getMockState();
+    return <I2cErrlogEntry[]>s.i2c.errlog.map((e) => ({ ...e }));
+  },
+  i2c_info: () => {
+    const s = getMockState();
+    return <I2cInfo | null>(s.i2c.info ? { ...s.i2c.info } : null);
+  },
+  i2c_poll: () => {
+    const s = getMockState();
+    return <I2cPollResult>{
+      connected: s.i2c.connected,
+      db_count: s.i2c.db_count,
+    };
+  },
+  i2c_update_xbox_db: async () => {
+    await delay(400);
+    emitLocal('i2c://db-status', { count: 960, status: 'cached' });
+    return 960;
+  },
+  i2c_get_db_info: () => {
+    const s = getMockState();
+    return <number | null>s.i2c.db_count;
+  },
+  i2c_search_xbox_db: (args) => {
+    const s = getMockState();
+    const query = String(args?.query ?? '');
+    return <I2cErrorSearchResult[]>s.i2c.search_results.map((r) => ({
+      ...r,
+      description: r.description.replace('{query}', query),
+    }));
   },
 };
 

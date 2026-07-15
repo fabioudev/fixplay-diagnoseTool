@@ -20,6 +20,10 @@ import type {
   UartPortInfo,
   UartEntryEvent,
   ErrorSearchResult,
+  I2cPortInfo,
+  I2cErrlogEntry,
+  I2cInfo,
+  I2cErrorSearchResult,
 } from '$lib/api/types';
 import type { HidDeviceInfo } from '$lib/controllers/tauri-hid-device';
 
@@ -55,10 +59,23 @@ export interface MockHidState {
   connected: boolean;
 }
 
+export interface MockI2cState {
+  ports: I2cPortInfo[];
+  connected: boolean;
+  /** Xbox error-DB entry count, or null if "no DB". */
+  db_count: number | null;
+  /** Addresses returned by `i2c_scan`. */
+  scan_results: number[];
+  errlog: I2cErrlogEntry[];
+  info: I2cInfo | null;
+  search_results: I2cErrorSearchResult[];
+}
+
 export interface MockState {
   flash: MockFlashState;
   uart: MockUartState;
   hid: MockHidState;
+  i2c: MockI2cState;
 }
 
 const STORAGE_KEY = 'fixplay-mock-state';
@@ -167,6 +184,33 @@ export const DEFAULT_MOCK_STATE: MockState = {
     devices: defaultHidDevices(),
     connected: true,
   },
+  i2c: {
+    ports: [
+      { name: '/dev/i2c-1', is_pico: true, is_bridge: true, description: 'Pico I2C Bridge (Mock)' },
+      { name: '/dev/i2c-0', is_pico: false, is_bridge: false, description: 'On-board I2C bus (Mock)' },
+    ],
+    connected: true,
+    db_count: 960,
+    scan_results: [0x48, 0x50, 0x68],
+    errlog: [
+      {
+        code: 'E2000001',
+        timestamp: Date.now(),
+        source: 'GPU',
+        description: 'Beispiel-Xbox-Fehlereintrag (Mock)',
+      },
+    ],
+    info: {
+      firmware: 'pico-i2c-bridge 1.2.0 (Mock)',
+      bus: 'i2c-1',
+      scl: 3,
+      sda: 2,
+      voltage: '3.3V',
+    },
+    search_results: [
+      { code: 'E2000001', description: 'Mock-Xbox-Treffer für "{query}"', category: 'generic' },
+    ],
+  },
 };
 
 function clone(state: MockState): MockState {
@@ -188,6 +232,7 @@ function load(): MockState {
     }
     if (saved.uart) Object.assign(base.uart, saved.uart);
     if (saved.hid) Object.assign(base.hid, saved.hid);
+    if (saved.i2c) Object.assign(base.i2c, saved.i2c);
   } catch {
     // Corrupt entry — fall back to defaults.
   }
