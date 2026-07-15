@@ -10,6 +10,13 @@ export interface ChipId {
   description: string;
 }
 
+/** flashrom binary self-check result (queried on mount; see flash_get_binary_status). */
+export interface FlashBinaryStatus {
+  ok:     boolean;
+  reason: string | null;
+  path:   string;
+}
+
 export interface FlashInfo {
   chip_id: ChipId;
   size_bytes: number;
@@ -59,6 +66,8 @@ export interface UartPollResult {
   lines:        string[];
   entries:      UartEntryEvent[];
   db_count:     number | null;
+  /** Lines dropped at the backend buffer cap since the last poll (overflow). */
+  dropped_lines: number;
 }
 
 // ───────────────────────── I2C / Pico (USB CDC) ─────────────────────────

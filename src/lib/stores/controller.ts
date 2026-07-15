@@ -20,6 +20,25 @@ export const buttonState = writable<Record<string, boolean>>({});
 export const triggerState = writable<{ l2: number; r2: number }>({ l2: 0, r2: 0 });
 export const touchPoints = writable<TouchPoint[]>([]);
 
+/**
+ * Stick deadzone radius (0..1 of full deflection) used by the stick
+ * visualizers and the range-calibration result. Ephemeral per session — the
+ * slider in ControllerPanel adjusts it live; it is not (yet) persisted across
+ * restarts.
+ */
+export const stickDeadzone = writable<number>(0.1);
+
+/**
+ * Per-stick circularity polygon produced by range calibration: 48 radii (one
+ * per angular bin, see CIRCULARITY_DATA_SIZE), or null when no range
+ * calibration has been run yet. Consumed by the stick visualizer to render the
+ * green/red circularity overlay.
+ */
+export const stickCircularity = writable<{ left: number[] | null; right: number[] | null }>({
+  left: null,
+  right: null,
+});
+
 export const batteryStatus = writable<{
   charge_level: number;
   cable_connected: boolean;

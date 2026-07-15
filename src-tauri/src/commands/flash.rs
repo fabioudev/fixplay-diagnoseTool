@@ -1,6 +1,7 @@
 use fixplay_core::{
+    error::FlashError,
     nor,
-    types::{FlashProgress, FlashReadResult, NorValidation, NvsData},
+    types::{ChipId, FlashProgress, FlashReadResult, NorValidation, NvsData},
 };
 use fixplay_flashrom::FlashromDevice;
 use fixplay_core::traits::FlashDevice;
@@ -23,6 +24,51 @@ struct FlashStatusEvent {
 #[tauri::command]
 pub fn open_path(path: String) -> Result<(), String> {
     open::that(path).map_err(|e| e.to_string())
+}
+
+/// Result of the flashrom binary self-check, queried by the frontend on mount
+/// (the startup `flash://binary-status` event fires before listeners attach).
+#[derive(Serialize, Clone)]
+pub struct FlashBinaryStatus {
+    pub ok:     bool,
+    pub reason: Option<String>,
+    pub path:   String,
+}
+
+#[tauri::command]
+pub fn flash_get_binary_status(app: AppHandle) -> FlashBinaryStatus {
+    let resource_dir = app.path().resource_dir().ok();
+    let settings     = crate::settings::load_settings(&app);
+    let binary_path  = resource_dir
+        .as_ref()
+        .map(|r| crate::settings::resolve_flashrom_path(&settings, r))
+        .unwrap_or_default();
+    let (ok, reason) = crate::check_flashrom_binary(&binary_path);
+    FlashBinaryStatus {
+        ok,
+        reason,
+        path: binary_path.to_string_lossy().to_string(),
+    }
+}
+
+/// Read the chip ID (JEDEC vendor/device + textual name) via flashrom
+/// `--flash-name`. Runs on a blocking task because flashrom probes the chip.
+#[tauri::command]
+pub async fn flash_read_id(
+    programmer: String,
+    app:        AppHandle,
+) -> Result<ChipId, String> {
+    let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
+    let settings     = crate::settings::load_settings(&app);
+    let device = FlashromDevice {
+        programmer:  programmer.clone(),
+        binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
+    };
+    info!("flash_read_id: programmer={}", programmer);
+    tokio::task::spawn_blocking(move || device.read_id())
+        .await
+        .map_err(|e| e.to_string())?
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -164,9 +210,8 @@ pub async fn flash_write(
         };
 
         if read_back != data {
-            let diff = read_back.iter().zip(data.iter()).filter(|(a, b)| a != b).count()
-                + read_back.len().abs_diff(data.len());
-            return Err(format!("Verify fehlgeschlagen: {} Bytes weichen ab", diff));
+            let diff = count_diff_bytes(&data, &read_back);
+            return Err(FlashError::VerifyFailed { diff_bytes: diff }.to_string());
         }
         emit_status(&app, "Verify OK ✓", "info");
     } else {
@@ -174,6 +219,15 @@ pub async fn flash_write(
     }
 
     Ok(())
+}
+
+/// Count bytes that differ between the image we wrote and the one we read back.
+/// Mismatched length counts each surplus/missing byte as a difference, so a
+/// truncated read-back is reported rather than silently passing when the
+/// common prefix happens to match.
+fn count_diff_bytes(written: &[u8], read_back: &[u8]) -> usize {
+    read_back.iter().zip(written.iter()).filter(|(a, b)| a != b).count()
+        + read_back.len().abs_diff(written.len())
 }
 
 fn emit_status(app: &AppHandle, message: &str, level: &str) {
@@ -452,19 +506,27 @@ mod validate_tests {
 
 #[cfg(test)]
 mod verify_tests {
+    use super::count_diff_bytes;
+
     #[test]
     fn verify_counts_differing_bytes() {
         let written:   Vec<u8> = vec![0x00, 0x01, 0x02, 0x03];
         let read_back: Vec<u8> = vec![0x00, 0xFF, 0x02, 0xFF];
-        let diff = read_back.iter().zip(written.iter()).filter(|(a, b)| a != b).count();
-        assert_eq!(diff, 2);
+        assert_eq!(count_diff_bytes(&written, &read_back), 2);
     }
 
     #[test]
     fn verify_passes_when_identical() {
         let written:   Vec<u8> = vec![0xAA, 0xBB];
         let read_back: Vec<u8> = vec![0xAA, 0xBB];
-        let diff = read_back.iter().zip(written.iter()).filter(|(a, b)| a != b).count();
-        assert_eq!(diff, 0);
+        assert_eq!(count_diff_bytes(&written, &read_back), 0);
+    }
+
+    #[test]
+    fn verify_counts_length_mismatch_as_diff() {
+        // truncated read-back: prefix matches but 2 bytes are missing
+        let written:   Vec<u8> = vec![0x00, 0x01, 0x02, 0x03];
+        let read_back: Vec<u8> = vec![0x00, 0x01];
+        assert_eq!(count_diff_bytes(&written, &read_back), 2);
     }
 }

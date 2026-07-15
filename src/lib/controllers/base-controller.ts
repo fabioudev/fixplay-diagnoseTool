@@ -130,7 +130,7 @@ export abstract class BaseController {
     try {
       await this.device.sendFeatureReport(reportId, data as BufferSource);
     } catch (error) {
-      throw new Error(error instanceof Error ? error.stack ?? error.message : String(error));
+      throw new Error(error instanceof Error ? error.stack ?? error.message : String(error), { cause: error });
     }
   }
 

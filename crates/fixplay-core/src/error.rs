@@ -14,12 +14,14 @@ pub enum AppError {
 
 #[derive(Debug, Error)]
 pub enum FlashError {
-    #[error("flashrom not found")]
+    #[error("flashrom binary not found or empty — install flashrom or set the path in Settings")]
     NotFound,
     #[error("subprocess error: {0}")]
     Subprocess(String),
     #[error("I/O error: {0}")]
     Io(String),
+    #[error("Verify fehlgeschlagen: {diff_bytes} Bytes weichen zwischen geschriebenem und zurückgelesenem Image ab")]
+    VerifyFailed { diff_bytes: usize },
 }
 
 #[derive(Debug, Error)]
@@ -60,7 +62,18 @@ mod tests {
     #[test]
     fn flash_not_found_message() {
         let err = FlashError::NotFound;
-        assert_eq!(err.to_string(), "flashrom not found");
+        let msg = err.to_string();
+        assert!(msg.contains("not found"), "{msg}");
+        assert!(msg.contains("Settings"), "{msg}");
+    }
+
+    #[test]
+    fn flash_verify_failed_message() {
+        let err = FlashError::VerifyFailed { diff_bytes: 1337 };
+        let msg = err.to_string();
+        assert!(msg.contains("Verify fehlgeschlagen"), "{msg}");
+        assert!(msg.contains("1337"), "{msg}");
+        assert!(msg.contains("Bytes weichen"), "{msg}");
     }
 
     #[test]

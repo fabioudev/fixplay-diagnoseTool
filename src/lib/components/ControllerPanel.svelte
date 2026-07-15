@@ -1,7 +1,7 @@
 
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, Volume2, RefreshCw, Power } from 'lucide-svelte';
+  import { onDestroy } from 'svelte';
+  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power } from 'lucide-svelte';
   import StickVisualizer from './StickVisualizer.svelte';
   import CalibrationModal from './CalibrationModal.svelte';
   import QuickTestModal from './QuickTestModal.svelte';
@@ -13,6 +13,8 @@
     buttonState,
     triggerState,
     stickState,
+    stickDeadzone,
+    stickCircularity,
     controllerLog,
     pushControllerLog,
     applyProcessedInput,
@@ -207,13 +209,39 @@
       </div>
       <div class="flex justify-center gap-6">
         <div class="flex flex-col items-center gap-2">
-          <StickVisualizer side="left" size={140} />
+          <StickVisualizer
+            side="left"
+            size={140}
+            enableZoomCenter
+            deadzone={$stickDeadzone}
+            circularityData={$stickCircularity.left}
+          />
           <span class="text-xs text-gray-500">Links (L3)</span>
         </div>
         <div class="flex flex-col items-center gap-2">
-          <StickVisualizer side="right" size={140} />
+          <StickVisualizer
+            side="right"
+            size={140}
+            enableZoomCenter
+            deadzone={$stickDeadzone}
+            circularityData={$stickCircularity.right}
+          />
           <span class="text-xs text-gray-500">Rechts (R3)</span>
         </div>
+      </div>
+      <!-- Deadzone slider — visualized as the shaded disc in the stick dials -->
+      <div class="mt-3 flex items-center gap-3">
+        <span class="text-xs text-gray-500 shrink-0 w-20">Deadzone</span>
+        <input
+          type="range"
+          min="0"
+          max="0.5"
+          step="0.01"
+          value={$stickDeadzone}
+          oninput={(e) => stickDeadzone.set(parseFloat((e.target as HTMLInputElement).value))}
+          class="flex-1 accent-blue-500"
+        />
+        <span class="text-xs text-gray-400 w-10 text-right">{$stickDeadzone.toFixed(2)}</span>
       </div>
     </div>
 
@@ -240,7 +268,7 @@
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-3 text-sm font-medium text-gray-300">Buttons</div>
       <div class="flex flex-wrap gap-2">
-        {#each Object.keys(BUTTON_LABELS) as btn}
+        {#each Object.keys(BUTTON_LABELS) as btn (btn)}
           <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs {$buttonState[btn] ? 'bg-green-600/30 text-green-300' : 'bg-gray-700/50 text-gray-400'}">
             <span class="font-medium">{BUTTON_LABELS[btn]}</span>
           </div>
@@ -268,7 +296,7 @@
     <div class="rounded-xl bg-gray-900/60 p-3">
       <div class="mb-2 text-xs font-medium text-gray-500">Protokoll</div>
       <div class="max-h-40 space-y-1 overflow-y-auto text-xs font-mono">
-        {#each $controllerLog as entry}
+        {#each $controllerLog as entry (entry.id)}
           <div class="{entry.level === 'error' ? 'text-red-400' : entry.level === 'warn' ? 'text-amber-400' : 'text-gray-400'}">
             <span class="text-gray-600">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span> {entry.message}
           </div>

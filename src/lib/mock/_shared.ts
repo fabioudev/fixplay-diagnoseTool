@@ -27,7 +27,6 @@ export function emitLocal(event: string, payload: unknown): void {
     try {
       cb({ event, payload });
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.warn(`[mock] listener for ${event} threw`, err);
     }
   }

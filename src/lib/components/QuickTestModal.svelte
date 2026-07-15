@@ -1,6 +1,8 @@
 
 <script lang="ts">
-  import { pushControllerLog } from '$lib/stores/controller';
+  import { onDestroy } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
+  import { pushControllerLog, buttonState } from '$lib/stores/controller';
   import { X, Loader2, Play, Square } from 'lucide-svelte';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
 
@@ -42,6 +44,71 @@
 
   let lightsInterval: ReturnType<typeof setInterval> | null = null;
 
+  // ── Buttons test: require every digital button to be pressed at least once ──
+  // The analog triggers (l2/r2) are exercised via the trigger readout, not here.
+  const EXPECTED_BUTTONS = [
+    'up', 'right', 'down', 'left',
+    'square', 'cross', 'circle', 'triangle',
+    'l1', 'r1', 'create', 'options', 'l3', 'r3',
+    'ps', 'touchpad', 'mute',
+  ] as const;
+  const BUTTONS_TIMEOUT_MS = 45_000;
+  let buttonsUnsub: (() => void) | null = null;
+  let buttonsTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Resolve fn of the currently-running buttons-test promise, if any. */
+  let buttonsResolve: (() => void) | null = null;
+  /** Buttons still missing from the current buttons test run (reactive). */
+  let missingButtons = $state<string[]>([]);
+
+  async function runButtonsTest() {
+    // Clean up any previous run first (also resolves a still-pending promise).
+    abortButtonsTest();
+    const pressed = new SvelteSet<string>();
+    missingButtons = [...EXPECTED_BUTTONS];
+    statuses.buttons = 'running';
+
+    await new Promise<void>((resolve) => {
+      buttonsResolve = resolve;
+      const finish = (result: TestStatus, logMsg?: string) => {
+        stopButtonsTest();
+        buttonsResolve = null;
+        statuses.buttons = result;
+        if (logMsg) pushControllerLog(logMsg, result === 'pass' ? 'info' : 'error');
+        resolve();
+      };
+
+      buttonsUnsub = buttonState.subscribe((b) => {
+        for (const name of EXPECTED_BUTTONS) {
+          if (b[name]) pressed.add(name);
+        }
+        missingButtons = EXPECTED_BUTTONS.filter((n) => !pressed.has(n));
+        if (missingButtons.length === 0) {
+          finish('pass', "Quick test 'buttons' completed — all buttons pressed");
+        }
+      });
+
+      buttonsTimer = setTimeout(() => {
+        finish('fail', "Quick test 'buttons' timed out — not all buttons pressed");
+      }, BUTTONS_TIMEOUT_MS);
+    });
+  }
+
+  function stopButtonsTest() {
+    if (buttonsUnsub) { buttonsUnsub(); buttonsUnsub = null; }
+    if (buttonsTimer) { clearTimeout(buttonsTimer); buttonsTimer = null; }
+  }
+
+  /** stopButtonsTest + resolve a still-pending buttons-test promise so closing
+   *  the modal mid-test doesn't leave an orphaned `await` hanging forever. */
+  function abortButtonsTest() {
+    stopButtonsTest();
+    if (buttonsResolve) {
+      const resolve = buttonsResolve;
+      buttonsResolve = null;
+      resolve();
+    }
+  }
+
   async function runTest(id: TestId) {
     if (!manager) return;
     statuses[id] = 'running';
@@ -73,7 +140,7 @@
           });
           break;
         case 'buttons':
-          statuses[id] = 'pass';
+          await runButtonsTest();
           break;
       }
       pushControllerLog(`Quick test '${id}' completed`, 'info');
@@ -82,6 +149,11 @@
       pushControllerLog(`Quick test '${id}' failed: ${e}`, 'error');
     }
   }
+
+  // Whether the running lights test has already recorded an HID write error.
+  // Set from the interval callback and read by stopLightsTest so a silent
+  // failure surfaces as 'fail' instead of an unconditional 'pass'.
+  let lightsTestFailed = false;
 
   async function startLightsTest() {
     if (!manager) return;
@@ -93,6 +165,7 @@
     const patterns = [0b10001, 0b01010, 0b00100, 0b11111, 0b00000];
     let ci = 0;
     let pi = 0;
+    lightsTestFailed = false;
     await manager.setMuteLed(2);
     lightsInterval = setInterval(async () => {
       try {
@@ -100,8 +173,17 @@
         await manager!.setPlayerIndicator(patterns[pi]);
         pi = (pi + 1) % patterns.length;
         if (pi === 0) ci = (ci + 1) % colors.length;
-      } catch {
-        /* ignore */
+      } catch (e) {
+        // A real HID write failure (e.g. controller gone) must surface as a
+        // failed test — previously this was swallowed and the test reported
+        // "pass" with the lights not actually changing.
+        lightsTestFailed = true;
+        if (lightsInterval) {
+          clearInterval(lightsInterval);
+          lightsInterval = null;
+        }
+        statuses.lights = 'fail';
+        pushControllerLog(`Quick test 'lights' failed: ${e}`, 'error');
       }
     }, 200);
   }
@@ -114,11 +196,13 @@
     if (manager) {
       try {
         await manager.resetLights();
-      } catch {
-        /* ignore */
+      } catch (e) {
+        // A reset failure is also a real failure, not a silent "pass".
+        lightsTestFailed = true;
+        pushControllerLog(`Quick test 'lights' reset failed: ${e}`, 'error');
       }
     }
-    statuses.lights = 'pass';
+    statuses.lights = lightsTestFailed ? 'fail' : 'pass';
   }
 
   function close() {
@@ -126,6 +210,8 @@
       clearInterval(lightsInterval);
       lightsInterval = null;
     }
+    abortButtonsTest();
+    missingButtons = [];
     if (manager) {
       manager.setVibration(0, 0).catch(() => {});
       manager.setAdaptiveTrigger({ mode: 'off', force: 0, start: 0, end: 0 }, { mode: 'off', force: 0, start: 0, end: 0 }).catch(() => {});
@@ -135,6 +221,16 @@
     open = false;
     statuses = { buttons: 'idle', haptic: 'idle', adaptive: 'idle', lights: 'idle', speaker: 'idle' };
   }
+
+  // Tear down subscriptions/timers if the panel unmounts mid-test (route
+  // change). close() covers the user-initiated case; this covers the rest.
+  onDestroy(() => {
+    abortButtonsTest();
+    if (lightsInterval) {
+      clearInterval(lightsInterval);
+      lightsInterval = null;
+    }
+  });
 
   function statusColor(s: TestStatus): string {
     return s === 'pass'
@@ -167,6 +263,15 @@
             <div>
               <div class="text-sm font-medium text-slate-800 dark:text-slate-100">{test.label}</div>
               <div class="text-xs text-slate-500 dark:text-slate-400">{test.desc}</div>
+              {#if test.id === 'buttons' && statuses.buttons === 'running'}
+                <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  {#if missingButtons.length > 0}
+                    Fehlend: {missingButtons.join(', ')}
+                  {:else}
+                    Alle gedrückt ✓
+                  {/if}
+                </div>
+              {/if}
             </div>
             <div class="flex items-center gap-3">
               <span class="text-xs font-medium {statusColor(statuses[test.id])}">

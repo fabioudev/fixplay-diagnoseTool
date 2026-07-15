@@ -8,6 +8,9 @@ export interface DrawStickOpts {
   circularity_data?: number[] | null;
   enable_zoom_center?: boolean;
   highlight?: boolean;
+  /** Deadzone radius (0..1 of full deflection). Drawn as a shaded disc so the
+   *  user can see where stick motion is treated as center. 0 = no deadzone. */
+  deadzone?: number;
 }
 
 function applyCenterZoom(x: number, y: number): { x: number; y: number } {
@@ -40,7 +43,7 @@ export function drawStickDial(
   stickY: number,
   opts: DrawStickOpts = {}
 ): void {
-  const { circularity_data = null, enable_zoom_center = false, highlight = false } = opts;
+  const { circularity_data = null, enable_zoom_center = false, highlight = false, deadzone = 0 } = opts;
 
   // Base circle
   ctx.lineWidth = 1;
@@ -51,6 +54,19 @@ export function drawStickDial(
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+
+  // Deadzone disc — shaded so the user sees where motion counts as center.
+  if (deadzone > 0) {
+    const dzRadius = Math.min(Math.max(deadzone, 0), 1) * sz;
+    ctx.fillStyle = 'rgba(120, 120, 120, 0.25)';
+    ctx.strokeStyle = 'rgba(120, 120, 120, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, dzRadius, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
 
   // Circularity visualization
   if (circularity_data && circularity_data.length > 0) {

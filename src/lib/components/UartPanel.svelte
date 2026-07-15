@@ -146,6 +146,14 @@
       items.reverse();
       uartLog.update((log) => [...items, ...log].slice(0, 500));
     }
+
+    // --- overflow warning: backend dropped lines at its buffer cap ---
+    if (r.dropped_lines > 0) {
+      pushLog(
+        `[${r.dropped_lines} Zeile(n) verworfen — Puffer-Überlauf, Ausgabe unvollständig]`,
+        'error',
+      );
+    }
   }
 
   function onSearchInput(e: Event) {

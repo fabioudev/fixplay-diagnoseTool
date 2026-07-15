@@ -50,6 +50,10 @@ pub struct UartPollResult {
     pub lines:        Vec<String>,
     pub entries:      Vec<UartEntryPayload>,
     pub db_count:     Option<usize>,
+    /// Lines dropped at the buffer cap since the connection started (overflow).
+    /// Reset to 0 here after each poll (the UI is responsible for surfacing
+    /// a running total — draining keeps the value meaningful per poll window).
+    pub dropped_lines: u64,
 }
 
 fn detect_bridge(port: &serialport::SerialPortInfo) -> (bool, String) {
@@ -148,12 +152,51 @@ pub async fn uart_connect(
     *state.uart_stop.lock().unwrap()   = Some(stop_flag);
     *state.uart_thread.lock().unwrap() = Some(handle);
 
-    *state.reconnect_port.lock().unwrap() = Some(port);
+    *state.reconnect_port.lock().unwrap() = Some(port.clone());
+
+    // Remember the cable's VID/PID so auto-reconnect can find it again after a
+    // re-plug that changes the OS-assigned port name (e.g. /dev/ttyUSB0 →
+    // /dev/ttyUSB1, COM3 → COM5). Falls back to the port name when the cable
+    // is not USB-serial (e.g. a native /dev/ttyS0).
+    let (vid, pid) = lookup_usb_vid_pid(&port);
+    *state.reconnect_vid.lock().unwrap() = vid;
+    *state.reconnect_pid.lock().unwrap() = pid;
 
     let saved_auto_reconnect = crate::settings::load_settings(&app).auto_reconnect;
     state.auto_reconnect.store(saved_auto_reconnect, Ordering::Release);
 
     Ok(())
+}
+
+/// Resolve the USB VID/PID of a serial port by its OS port name. Returns
+/// `(None, None)` for non-USB ports (native UARTs, virtual) or if enumeration
+/// fails — callers keep the port name as the reconnect fallback in that case.
+fn lookup_usb_vid_pid(port_name: &str) -> (Option<u16>, Option<u16>) {
+    let Ok(ports) = serialport::available_ports() else { return (None, None) };
+    for p in ports {
+        if p.port_name == port_name {
+            if let serialport::SerialPortType::UsbPort(ref usb) = p.port_type {
+                return (Some(usb.vid), Some(usb.pid));
+            }
+            return (None, None);
+        }
+    }
+    (None, None)
+}
+
+/// Re-resolve the current port name for a cable identified by VID/PID. On a
+/// re-plug the OS-assigned name may change; this finds the live name. Returns
+/// `None` if no matching USB-serial port is currently present.
+fn find_port_name_by_vid_pid(vid: u16, pid: u16) -> Option<String> {
+    let ports = serialport::available_ports().ok()?;
+    for p in ports {
+        if let serialport::SerialPortType::UsbPort(ref usb) = p.port_type {
+            if usb.vid == vid && usb.pid == pid {
+                return Some(p.port_name);
+            }
+        }
+    }
+    None
 }
 
 #[tauri::command]
@@ -293,7 +336,12 @@ pub fn uart_poll(state: State<'_, AppState>) -> UartPollResult {
 
     let db_count = state.error_db.lock().unwrap().as_ref().map(|db| db.len());
 
-    UartPollResult { connected, reconnecting, lines, entries, db_count }
+    // Fetch-and-reset: report how many lines were dropped since the last poll,
+    // so the UI can flash a "N Zeilen verworfen" warning on overflow without
+    // an ever-growing counter.
+    let dropped_lines = state.dropped_lines.swap(0, Ordering::Relaxed);
+
+    UartPollResult { connected, reconnecting, lines, entries, db_count, dropped_lines }
 }
 
 #[tauri::command]
@@ -419,18 +467,30 @@ fn spawn_reconnect_if_enabled(state: &AppState, app: &AppHandle) {
         Some(p) => p,
         None => return,
     };
+    let vid = *state.reconnect_vid.lock().unwrap();
+    let pid = *state.reconnect_pid.lock().unwrap();
     let baud_rate  = crate::settings::load_settings(app).baud_rate;
     let stop_flag  = Arc::new(AtomicBool::new(false));
     let stop_clone = Arc::clone(&stop_flag);
     let app_clone  = app.clone();
     let handle = std::thread::spawn(move || {
-        reconnect_loop(port, baud_rate, app_clone, stop_clone);
+        reconnect_loop(port, vid, pid, baud_rate, app_clone, stop_clone);
     });
     *state.reconnect_stop.lock().unwrap()   = Some(stop_flag);
     *state.reconnect_thread.lock().unwrap() = Some(handle);
 }
 
-fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<AtomicBool>) {
+/// Re-open the cable after a disconnect. The cable is identified by VID/PID
+/// when available (so a re-plug that changes the OS port name still matches);
+/// otherwise the remembered port name is used as a fallback.
+fn reconnect_loop(
+    fallback_port: String,
+    vid: Option<u16>,
+    pid: Option<u16>,
+    baud_rate: u32,
+    app: AppHandle,
+    stop: Arc<AtomicBool>,
+) {
     loop {
         // 2 seconds in 100ms increments so stop flag is checked often
         for _ in 0..20 {
@@ -440,11 +500,25 @@ fn reconnect_loop(port: String, baud_rate: u32, app: AppHandle, stop: Arc<Atomic
             std::thread::sleep(Duration::from_millis(100));
         }
 
-        let open_result = serialport::new(&port, baud_rate)
+        // Prefer matching by VID/PID: survives a re-plug that renames the port.
+        // Fall back to the original port name for non-USB cables.
+        let port_to_open = match (vid, pid) {
+            (Some(v), Some(p)) => find_port_name_by_vid_pid(v, p).unwrap_or_else(|| fallback_port.clone()),
+            _ => fallback_port.clone(),
+        };
+
+        let open_result = serialport::new(&port_to_open, baud_rate)
             .timeout(Duration::from_millis(100))
             .open();
 
         if let Ok(open_port) = open_result {
+            // Found it again — update the remembered name so subsequent
+            // disconnects reconnect to the current (possibly new) name.
+            if port_to_open != fallback_port {
+                if let Some(state) = app.try_state::<AppState>() {
+                    *state.reconnect_port.lock().unwrap() = Some(port_to_open.clone());
+                }
+            }
             let write_port = match open_port.try_clone() {
                 Ok(p) => p,
                 Err(e) => { error!("reconnect_loop: try_clone (write) failed: {}", e); continue }
@@ -524,12 +598,14 @@ fn handle_line(line: String, state: &AppState) {
         let mut pe = state.pending_entries.lock().unwrap();
         if pe.len() >= 200 {
             pe.pop_front();
+            state.dropped_lines.fetch_add(1, Ordering::Relaxed);
         }
         pe.push_back(PendingEntry { entry, description });
     } else {
         let mut rl = state.raw_lines.lock().unwrap();
         if rl.len() >= 500 {
             rl.pop_front();
+            state.dropped_lines.fetch_add(1, Ordering::Relaxed);
         }
         rl.push_back(line);
     }
@@ -680,6 +756,7 @@ mod poll_result_tests {
             lines:        vec![],
             entries:      vec![],
             db_count:     None,
+            dropped_lines: 0,
         };
         let json = serde_json::to_string(&r).unwrap();
         assert!(json.contains("\"connected\":false"));
@@ -697,10 +774,12 @@ mod poll_result_tests {
             lines:        vec!["hello".into()],
             entries:      vec![],
             db_count:     Some(42),
+            dropped_lines: 7,
         };
         let json = serde_json::to_string(&r).unwrap();
         assert!(json.contains("\"connected\":true"));
         assert!(json.contains("\"lines\":[\"hello\"]"));
         assert!(json.contains("\"db_count\":42"));
+        assert!(json.contains("\"dropped_lines\":7"));
     }
 }

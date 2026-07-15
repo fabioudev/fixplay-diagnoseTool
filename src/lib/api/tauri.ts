@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings, UartPortInfo, UartPollResult, I2cPortInfo, I2cErrlogEntry, I2cInfo, I2cPollResult, I2cErrorSearchResult, UpdateChannel } from './types';
+import type { DeviceInfo, FlashReadResult, ChipId, FlashBinaryStatus, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings, UartPortInfo, UartPollResult, I2cPortInfo, I2cErrlogEntry, I2cInfo, I2cPollResult, I2cErrorSearchResult, UpdateChannel } from './types';
 
 export const scanDevices = (): Promise<DeviceInfo[]> =>
   invoke<DeviceInfo[]>('scan_devices');
@@ -23,8 +23,12 @@ export const uartSearchErrorDb = (query: string) =>
   invoke<ErrorSearchResult[]>('uart_search_error_db', { query });
 
 export const flashListProgrammers = () => invoke<string[]>('flash_list_programmers');
+export const flashGetBinaryStatus = (): Promise<FlashBinaryStatus> =>
+  invoke<FlashBinaryStatus>('flash_get_binary_status');
 export const flashRead  = (programmer: string) =>
   invoke<FlashReadResult>('flash_read', { programmer });
+export const flashReadId = (programmer: string): Promise<ChipId> =>
+  invoke<ChipId>('flash_read_id', { programmer });
 export const flashWrite = (path: string, programmer: string, verify: boolean): Promise<void> =>
   invoke<void>('flash_write', { path, programmer, verify });
 export const openPath   = (path: string) => invoke<void>('open_path', { path });

@@ -122,6 +122,58 @@ jobs:
           curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
           node -e "const d=JSON.parse(require('fs').readFileSync('src-tauri/resources/error_codes.json','utf8'));const ok=d&&typeof d==='object'&&Object.values(d).some(v=>v&&Array.isArray(v.ErrorCodes)&&v.ErrorCodes.length>0);if(!ok){console.error('Error DB empty or invalid');process.exit(1)}"
 
+      # ── Build a real Windows flashrom.exe from upstream source ─────────────
+      # The committed src-tauri/binaries/flashrom.exe is a 0-byte placeholder
+      # (kept so `tauri build`'s resource declaration resolves in dev). For
+      # releases we overwrite it with a freshly built flashrom so the Windows
+      # app actually works out of the box — no manual binary for the user.
+      # This step is Windows-only and intentionally fails loudly if the flashrom
+      # toolchain/flags disagree, so we iterate here rather than ship a broken
+      # bundle. PIN NOTE: flashrom v1.5.0+ dropped the Makefile and is meson-only
+      # (meson.build + ninja). v1.4.0 still ships the classic Makefile with the
+      # CONFIG_* flags used below — stay on v1.4.0 for the make-based flow, or
+      # rewrite this step to `meson setup ... -Dch341a_spi=enabled && ninja` if
+      # you want to move to a newer flashrom.
+      - name: Setup MSYS2 (Windows only)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-libusb make pkg-config git
+
+      - name: Build flashrom.exe (Windows only)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        env:
+          FLASHROM_REF: v1.4.0
+        run: |
+          set -euo pipefail
+          # Capture the checkout root before we cd away — $GITHUB_WORKSPACE is a
+          # Windows backslash path that msys2 bash can't use directly.
+          WORK="$PWD"
+          git clone --depth 1 --branch "$FLASHROM_REF" https://github.com/flashrom/flashrom.git /tmp/flashrom
+          cd /tmp/flashrom
+          # Minimal programmer set for the workshop: CH341A SPI (libusb) + the
+          # common serial/FTDI programmers. Disable internal/PCI programmers
+          # (they need kernel portio we don't ship on Windows) and the RAIDen
+          # USB debugger (not needed here). Note: v1.4.0 has no CONFIG_RAID /
+          # CONFIG_USB vars — only CONFIG_RAIDEN_DEBUG_SPI and the implicit
+          # libusb1 programmer group (enabled when libusb-1.0 is found).
+          make CC=gcc \
+            CONFIG_INTERNAL=no \
+            CONFIG_SERPROG=yes \
+            CONFIG_BUSPIRATE_SPI=yes \
+            CONFIG_FT2232_SPI=yes \
+            CONFIG_CH341A_SPI=yes \
+            CONFIG_DEDIPROG=yes \
+            CONFIG_PONY_SPI=yes \
+            CONFIG_RAIDEN_DEBUG_SPI=no
+          # flashrom produces `flashrom.exe` under mingw.
+          test -s flashrom.exe
+          cp flashrom.exe "$WORK/src-tauri/binaries/flashrom.exe"
+          echo "Staged flashrom.exe: $(ls -l "$WORK/src-tauri/binaries/flashrom.exe")"
+
       - name: Build Tauri bundles
         env:
           # When set, Tauri signs the updater bundles and emits .sig files

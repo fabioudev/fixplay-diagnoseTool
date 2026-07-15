@@ -1,7 +1,9 @@
 
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { sleep } from '$lib/controllers/utils';
-  import { pushControllerLog } from '$lib/stores/controller';
+  import { pushControllerLog, stickState, stickCircularity, stickDeadzone } from '$lib/stores/controller';
+  import { CIRCULARITY_DATA_SIZE, calculateCircularityError } from '$lib/utils/stick-renderer';
   import StickVisualizer from './StickVisualizer.svelte';
   import { X, Loader2 } from 'lucide-svelte';
 
@@ -24,12 +26,43 @@
   let success = $state(false);
   let statusText = $state('');
 
+  // ── Range calibration: live sampling of stick motion ──
+  // For each stick we keep 48 angular bins (CIRCULARITY_DATA_SIZE) and record
+  // the maximum radius seen in each bin as the user sweeps the stick in a
+  // full circle. The result feeds the circularity overlay in the stick dial.
+  let rangeUnsub: (() => void) | null = null;
+  let rangeLeft = new Array<number>(CIRCULARITY_DATA_SIZE).fill(0);
+  let rangeRight = new Array<number>(CIRCULARITY_DATA_SIZE).fill(0);
+  /** Fraction of angular bins that have received motion (0..1), reactive. */
+  let rangeCoverage = $state(0);
+
+  function resetRangeSampling() {
+    if (rangeUnsub) { rangeUnsub(); rangeUnsub = null; }
+    rangeLeft = new Array<number>(CIRCULARITY_DATA_SIZE).fill(0);
+    rangeRight = new Array<number>(CIRCULARITY_DATA_SIZE).fill(0);
+    rangeCoverage = 0;
+  }
+
+  /** Record a stick sample into a 48-bin max-radius circularity array. */
+  function sampleStick(x: number, y: number, bins: number[]) {
+    const r = Math.sqrt(x * x + y * y);
+    if (r < 0.08) return; // ignore near-center noise
+    const angle = Math.atan2(y, x); // -π..π
+    const bin = Math.floor(((angle + Math.PI) / (2 * Math.PI)) * CIRCULARITY_DATA_SIZE) % CIRCULARITY_DATA_SIZE;
+    if (r > bins[bin]) bins[bin] = r;
+  }
+
+  function coverage(bins: number[]): number {
+    return bins.filter((b) => b > 0.2).length / CIRCULARITY_DATA_SIZE;
+  }
+
   function reset() {
     step = 0;
     busy = false;
     error = null;
     success = false;
     statusText = '';
+    resetRangeSampling();
   }
 
   async function runCenterCalibration() {
@@ -80,18 +113,25 @@
     busy = true;
     error = null;
     success = false;
+    resetRangeSampling();
     try {
       statusText = 'Starte Range-Kalibrierung...';
       step = 1;
       await manager.calibrateRangeBegin();
-      statusText = 'Bewege beide Sticks mehrfach im vollen Kreis.';
       step = 2;
-      // In a full implementation we'd monitor stick movement here.
-      // For now we just wait for user to press Done.
+      statusText = 'Bewege beide Sticks mehrfach im vollen Kreis.';
+      // Sample stick motion live while the user sweeps. The subscription stays
+      // active until finishRangeCalibration() (or close/reset) tears it down.
+      rangeUnsub = stickState.subscribe((s) => {
+        sampleStick(s.left.x, s.left.y, rangeLeft);
+        sampleStick(s.right.x, s.right.y, rangeRight);
+        rangeCoverage = Math.min(coverage(rangeLeft), coverage(rangeRight));
+      });
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
       statusText = 'Fehler: ' + error;
       pushControllerLog('Range calibration begin failed: ' + error, 'error');
+      resetRangeSampling();
       busy = false;
     }
   }
@@ -100,12 +140,19 @@
     if (!manager) return;
     busy = true;
     try {
+      // Stop sampling before sending the end feature report.
+      if (rangeUnsub) { rangeUnsub(); rangeUnsub = null; }
       statusText = 'Speichere Range-Kalibrierung...';
       step = 3;
       await manager.calibrateRangeEnd();
       step = 4;
       success = true;
-      statusText = 'Range-Kalibrierung abgeschlossen!';
+      // Publish the sampled circularity polygons so the stick visualizers in
+      // the controller panel render the green/red range overlay.
+      stickCircularity.set({ left: [...rangeLeft], right: [...rangeRight] });
+      const leftErr = calculateCircularityError(rangeLeft);
+      const rightErr = calculateCircularityError(rangeRight);
+      statusText = `Range-Kalibrierung abgeschlossen! (Kreisförmigkeit L: ${leftErr.toFixed(1)}%, R: ${rightErr.toFixed(1)}%)`;
       pushControllerLog('Range calibration completed', 'info');
       onDone?.(true, 'Range-Kalibrierung abgeschlossen');
     } catch (e) {
@@ -133,6 +180,10 @@
     open = false;
     reset();
   }
+
+  // If the panel unmounts while range sampling is mid-flight (e.g. route
+  // change), tear down the stickState subscription so it doesn't leak.
+  onDestroy(resetRangeSampling);
 
   let prevOpen = $state(false);
   $effect(() => {
@@ -207,11 +258,23 @@
       <!-- Stick preview -->
       <div class="mb-4 flex justify-center gap-4">
         <div class="flex flex-col items-center gap-1">
-          <StickVisualizer side="left" size={100} />
+          <StickVisualizer
+            side="left"
+            size={100}
+            enableZoomCenter
+            deadzone={$stickDeadzone}
+            circularityData={$stickCircularity.left}
+          />
           <span class="text-xs text-slate-500">Links</span>
         </div>
         <div class="flex flex-col items-center gap-1">
-          <StickVisualizer side="right" size={100} />
+          <StickVisualizer
+            side="right"
+            size={100}
+            enableZoomCenter
+            deadzone={$stickDeadzone}
+            circularityData={$stickCircularity.right}
+          />
           <span class="text-xs text-slate-500">Rechts</span>
         </div>
       </div>
@@ -219,6 +282,10 @@
       {#if mode === 'range' && step === 2 && !success}
         <div class="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
           Bewege beide Sticks mehrfach vollständig im Kreis. Klicke "Fertig" wenn du bereit bist.
+          <div class="mt-1 text-xs">
+            Überdeckung: {Math.round(rangeCoverage * 100)}%
+            {#if rangeCoverage < 1}— weiter kreisen{/if}
+          </div>
         </div>
       {/if}
 

@@ -6,12 +6,14 @@
     flashBusy, flashProgress, flashResult, flashLog,
     flashProgrammer, flashProgrammers, flashWritePath, flashWritePreview, nextFlashLogId,
   } from '$lib/stores/flash';
-  import { flashListProgrammers, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
-  import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult } from '$lib/api/types';
+  import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
+  import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult, ChipId } from '$lib/api/types';
 
   let programmers = $state<string[]>([]);
   let phaseLabel  = $state('');
   let writeVerify = $state(true);
+  let chipId      = $state<ChipId | null>(null);
+  let chipIdBusy  = $state(false);
 
   const PHASE_LABELS: Record<string, string> = {
     read1:  'Lesen 1/2…',
@@ -40,6 +42,22 @@
       flashProgrammer.set(programmers[0]);
     }
 
+    // flashrom binary self-check: warn up front if the bundled/user flashrom
+    // is missing, empty, or not executable — rather than an opaque failure on
+    // the first read/write.
+    const binaryStatus = await flashGetBinaryStatus().catch(() => null);
+    if (binaryStatus && !binaryStatus.ok) {
+      flashLog.update((log) => [
+        {
+          id: nextFlashLogId(),
+          timestamp_ms: Date.now(),
+          message: `flashrom-Problem: ${binaryStatus.reason ?? 'unbekannt'} (Pfad: ${binaryStatus.path}). flashrom installieren oder Pfad in den Einstellungen setzen.`,
+          level: 'error',
+        },
+        ...log,
+      ]);
+    }
+
     const [u1, u2, u3] = await Promise.all([
       listen<FlashProgressEvent>('flash://progress', (e) => {
         flashProgress.set(e.payload);
@@ -66,6 +84,22 @@
   });
 
   onDestroy(() => unlisten.forEach((fn) => fn()));
+
+  async function handleReadId() {
+    if (!$flashProgrammer) return;
+    chipIdBusy = true;
+    try {
+      chipId = await flashReadId($flashProgrammer);
+    } catch (e: unknown) {
+      chipId = null;
+      flashLog.update((log) => [
+        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: `Chip-ID lesen fehlgeschlagen: ${String(e)}`, level: 'error' },
+        ...log,
+      ]);
+    } finally {
+      chipIdBusy = false;
+    }
+  }
 
   async function handleRead() {
     flashBusy.set(true);
@@ -115,6 +149,12 @@
   async function confirmWrite() {
     const preview = $flashWritePreview;
     if (!preview) return;
+
+    // Without verify a silent write error can brick the chip — make the bypass
+    // a deliberate choice rather than an accidental checkbox state.
+    if (!writeVerify && !confirm('Ohne Verify schreiben? Schreibfehler bleiben unbemerkt — Brick-Risiko für die Konsole.')) {
+      return;
+    }
 
     flashWritePreview.set(null);
     flashBusy.set(true);
@@ -185,12 +225,35 @@
       Schreiben
     </button>
 
+    <button
+      onclick={handleReadId}
+      disabled={chipIdBusy || !$flashProgrammer}
+      title="Fragt die Chip-Kennung (JEDEC ID) vom Programmer ab — Hersteller- + Geräte-ID und Chip-Name, ohne einen vollen Lesevorgang zu starten."
+      class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-100
+             disabled:opacity-40"
+    >
+      {chipIdBusy ? 'Läuft…' : 'Chip erkennen'}
+    </button>
+
     {#if !$flashProgrammer && programmers.length === 0}
       <span class="text-xs text-yellow-500">
         ⚠ Kein Programmer erkannt — USB prüfen und flashrom installiert?
       </span>
     {/if}
   </div>
+
+  <!-- Chip identification (from flash_read_id / JEDEC ID) -->
+  {#if chipId}
+    <div class="rounded bg-gray-800 border border-gray-700 px-3 py-2 text-xs flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span class="text-gray-500 font-semibold">Chip:</span>
+      <span class="text-gray-100">{chipId.description}</span>
+      <span class="text-gray-500">Hersteller: <span class="text-gray-200 font-mono">0x{chipId.manufacturer.toString(16).padStart(2, '0')}</span></span>
+      <span class="text-gray-500">Gerät: <span class="text-gray-200 font-mono">0x{chipId.device.toString(16).padStart(4, '0')}</span></span>
+      {#if chipId.manufacturer === 0 && chipId.device === 0}
+        <span class="text-gray-500" title="Keine numerische JEDEC ID vom Programmer gemeldet — nur der Chip-Name ist verfügbar.">(keine JEDEC ID)</span>
+      {/if}
+    </div>
+  {/if}
 
   <!-- Progress bar -->
   {#if $flashProgress !== null}
@@ -275,6 +338,14 @@
           />
           Nach dem Schreiben verifizieren (empfohlen)
         </label>
+        {#if !writeVerify}
+          <div
+            class="flex items-center gap-2 text-xs text-red-400 font-medium"
+            title="Ohne Verify wird der Chip nach dem Schreiben nicht zurückgelesen. Ein unbemerkter Schreibfehler kann den Chip (und damit die Konsole) unbrauchbar machen."
+          >
+            <span>⚠ Verify ist AUS — Schreibfehler bleiben unbemerkt. Brick-Risiko. Nur für bekannte Test-Setups deaktivieren.</span>
+          </div>
+        {/if}
         <div class="flex items-center gap-2">
           <button
             onclick={confirmWrite}

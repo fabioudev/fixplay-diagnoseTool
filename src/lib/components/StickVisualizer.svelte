@@ -8,11 +8,13 @@
     size = 120,
     enableZoomCenter = false,
     circularityData = null as number[] | null,
+    deadzone = 0,
   }: {
     side?: 'left' | 'right';
     size?: number;
     enableZoomCenter?: boolean;
     circularityData?: number[] | null;
+    deadzone?: number;
   } = $props();
 
   let canvas: HTMLCanvasElement;
@@ -37,6 +39,7 @@
     drawStickDial(ctx, cx, cy, sz, stick.x, stick.y, {
       circularity_data: circularityData,
       enable_zoom_center: enableZoomCenter,
+      deadzone,
       highlight: false,
     });
   }

@@ -129,6 +129,7 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
       lines: [...s.uart.lines],
       entries: s.uart.entries.map((e) => ({ ...e, entry: { ...e.entry } })),
       db_count: s.uart.db_count,
+      dropped_lines: 0,
     };
   },
   uart_loopback_test: async () => {

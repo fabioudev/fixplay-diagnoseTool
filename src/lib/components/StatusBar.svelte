@@ -3,8 +3,7 @@
   import { flashBusy, flashProgrammers } from '$lib/stores/flash';
   import { uartConnected, uartReconnecting, dbCodeCount, dbLoading } from '$lib/stores/uart';
   import { i2cConnected, xboxDbCount, xboxDbLoading } from '$lib/stores/i2c';
-
-  const APP_VERSION = '0.1.5';
+  import { currentVersion } from '$lib/stores/updater';
 </script>
 
 <footer
@@ -68,5 +67,5 @@
     {/if}
   </div>
 
-  <span class="ml-auto text-gray-600">v{APP_VERSION}</span>
+  <span class="ml-auto text-gray-600">v{$currentVersion || '?'}</span>
 </footer>

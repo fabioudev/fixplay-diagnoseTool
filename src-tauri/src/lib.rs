@@ -143,6 +143,45 @@ pub fn run() {
                 });
             }
 
+            // ── flashrom binary self-check ──────────────────────────────────
+            // The bundled Windows `flashrom.exe` is a 0-byte placeholder that CI
+            // replaces at release-build time; in dev or a broken install the
+            // binary may be missing/empty/not executable. Warn the UI up front
+            // (via `flash://binary-status`) instead of letting the first flash
+            // fail with an opaque subprocess error. The app still starts — a
+            // later flash attempt surfaces `FlashError::NotFound`.
+            {
+                #[derive(serde::Serialize, Clone)]
+                struct BinaryStatus {
+                    ok:     bool,
+                    reason: Option<String>,
+                    path:   String,
+                }
+                let resource_dir = app.path().resource_dir().ok();
+                let settings     = crate::settings::load_settings(app.handle());
+                let binary_path  = resource_dir
+                    .as_ref()
+                    .map(|r| crate::settings::resolve_flashrom_path(&settings, r))
+                    .unwrap_or_default();
+
+                let (ok, reason) = check_flashrom_binary(&binary_path);
+                if !ok {
+                    tracing::error!(
+                        "flashrom binary self-check failed: {:?} ({})",
+                        binary_path,
+                        reason.as_deref().unwrap_or("?")
+                    );
+                }
+                let _ = app.handle().emit(
+                    "flash://binary-status",
+                    BinaryStatus {
+                        ok,
+                        reason,
+                        path: binary_path.to_string_lossy().to_string(),
+                    },
+                );
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -150,7 +189,9 @@ pub fn run() {
             commands::app::app_version,
             commands::flash::open_path,
             commands::flash::flash_list_programmers,
+            commands::flash::flash_get_binary_status,
             commands::flash::flash_read,
+            commands::flash::flash_read_id,
             commands::flash::flash_write,
             commands::flash::archive_list_dumps,
             commands::flash::archive_delete_dump,
@@ -193,4 +234,32 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// Verify the flashrom binary is usable: present, non-empty, and (on Unix)
+/// executable. Returns `(false, Some(reason))` when a check fails so the setup
+/// block can emit a `flash://binary-status` warning to the UI.
+pub fn check_flashrom_binary(path: &std::path::Path) -> (bool, Option<String>) {
+    if path.as_os_str().is_empty() {
+        return (false, Some("flashrom path is empty".into()));
+    }
+    let meta = match std::fs::metadata(path) {
+        Ok(m) => m,
+        Err(_) => return (false, Some("flashrom binary not found".into())),
+    };
+    if !meta.is_file() {
+        return (false, Some("flashrom path is not a file".into()));
+    }
+    if meta.len() == 0 {
+        return (false, Some("flashrom binary is empty (0 bytes)".into()));
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        const EXEC_BITS: u32 = 0o111;
+        if meta.permissions().mode() & EXEC_BITS == 0 {
+            return (false, Some("flashrom binary is not executable".into()));
+        }
+    }
+    (true, None)
 }

@@ -27,6 +27,19 @@ fn parse_progress(line: &str) -> Option<u8> {
     line[start + 1..end].trim().parse::<u8>().ok()
 }
 
+/// Classify an error from launching the flashrom subprocess. A missing binary
+/// (the bundled `flashrom.exe` is 0-byte, or a user-configured path points
+/// nowhere) becomes a clear [`FlashError::NotFound`] so the UI can tell the user
+/// to install flashrom or set the path — instead of an opaque "subprocess
+/// error". Everything else stays a `Subprocess` error.
+fn classify_launch_err(e: std::io::Error) -> FlashError {
+    if e.kind() == std::io::ErrorKind::NotFound {
+        FlashError::NotFound
+    } else {
+        FlashError::Subprocess(e.to_string())
+    }
+}
+
 impl FlashDevice for FlashromDevice {
     fn read_flash(&self, on_progress: &dyn Fn(FlashProgress)) -> Result<Vec<u8>, AppError> {
         info!("reading flash with programmer {}", self.programmer);
@@ -39,7 +52,7 @@ impl FlashDevice for FlashromDevice {
             .stderr(Stdio::piped())
             .stdout(Stdio::null())
             .spawn()
-            .map_err(|e| FlashError::Subprocess(e.to_string()))?;
+            .map_err(classify_launch_err)?;
 
         if let Some(stderr) = child.stderr.take() {
             for line in BufReader::new(stderr).lines().map_while(Result::ok) {
@@ -74,7 +87,7 @@ impl FlashDevice for FlashromDevice {
             .stderr(Stdio::piped())
             .stdout(Stdio::null())
             .spawn()
-            .map_err(|e| FlashError::Subprocess(e.to_string()))?;
+            .map_err(classify_launch_err)?;
 
         if let Some(stderr) = child.stderr.take() {
             for line in BufReader::new(stderr).lines().map_while(Result::ok) {
@@ -99,7 +112,7 @@ impl FlashDevice for FlashromDevice {
         let status = Command::new(&self.binary_path)
             .args(["-p", &self.programmer, "--erase"])
             .status()
-            .map_err(|e| FlashError::Subprocess(e.to_string()))?;
+            .map_err(classify_launch_err)?;
         if !status.success() {
             return Err(FlashError::Subprocess(
                 format!("flashrom erase exited with status {}", status)
@@ -113,16 +126,60 @@ impl FlashDevice for FlashromDevice {
         let output = Command::new(&self.binary_path)
             .args(["-p", &self.programmer, "--flash-name"])
             .output()
-            .map_err(|e| FlashError::Subprocess(e.to_string()))?;
-        let text = String::from_utf8_lossy(&output.stdout).to_string();
+            .map_err(classify_launch_err)?;
+        // flashrom prints both stdout and stderr; --flash-name emits the chip
+        // name on stdout, but detection/JEDEC info may land on stderr.
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let text = format!("{stdout}\n{stderr}");
+
         let name = text
             .lines()
             .find(|l| l.contains("name="))
             .and_then(|l| l.split("name=").nth(1))
-            .map(|s| s.trim().to_string())
+            .map(|s| s.trim_matches('"').trim().to_string())
             .ok_or_else(|| FlashError::Subprocess("flashrom --flash-name: missing 'name=' in output".into()))?;
-        Ok(ChipId { manufacturer: 0, device: 0, description: name })
+
+        // JEDEC ID bytes (e.g. "JEDEC ID: 0xc2 0x20 0x18") — when flashrom
+        // emits them, byte[0] is the manufacturer and the following bytes are
+        // the device id (little-endian). Not all programmer/chip combos expose
+        // a numeric ID; in that case we keep 0 and rely on the description.
+        let (manufacturer, device) = parse_jedec_id(&text);
+
+        Ok(ChipId { manufacturer, device, description: name })
     }
+}
+
+/// Extract `(manufacturer, device)` from a flashrom output blob if it contains
+/// a `JEDEC ID: 0x.. 0x.. 0x..` line. Returns `(0, 0)` when no numeric ID is
+/// present (the textual `name=` is still reported via the description).
+fn parse_jedec_id(text: &str) -> (u8, u16) {
+    let Some(line) = text.lines().find(|l| l.contains("JEDEC ID")) else {
+        return (0, 0);
+    };
+    let bytes: Vec<u8> = line
+        .split_whitespace()
+        .filter_map(|tok| {
+            let h = tok.strip_prefix("0x").or_else(|| tok.strip_prefix("0X"))?;
+            // flashrom usually separates the ID bytes with spaces, but some
+            // builds emit "JEDEC ID: 0xc2, 0x20, 0x18" with trailing commas —
+            // strip any trailing non-hexdigit so the token still parses.
+            let h = h.trim_end_matches(|c: char| !c.is_ascii_hexdigit());
+            u8::from_str_radix(h, 16).ok()
+        })
+        .collect();
+    if bytes.is_empty() {
+        return (0, 0);
+    }
+    let manufacturer = bytes[0];
+    let device = if bytes.len() >= 3 {
+        (bytes[1] as u16) | ((bytes[2] as u16) << 8)
+    } else if bytes.len() == 2 {
+        bytes[1] as u16
+    } else {
+        0
+    };
+    (manufacturer, device)
 }
 
 #[cfg(test)]
@@ -157,5 +214,44 @@ mod tests {
     #[test]
     fn parse_progress_empty_line() {
         assert_eq!(parse_progress(""), None);
+    }
+
+    #[test]
+    fn parse_jedec_id_three_bytes() {
+        // manufacturer 0xc2, device = 0x20 | (0x18 << 8) = 0x1820
+        let text = "Found Macronix flash chip \"MX25L12873G\"\nJEDEC ID: 0xc2 0x20 0x18";
+        assert_eq!(parse_jedec_id(text), (0xc2, 0x1820));
+    }
+
+    #[test]
+    fn parse_jedec_id_two_bytes() {
+        let text = "JEDEC ID: 0xef 0x40";
+        assert_eq!(parse_jedec_id(text), (0xef, 0x40));
+    }
+
+    #[test]
+    fn parse_jedec_id_with_trailing_commas() {
+        // Some flashrom builds separate the bytes with commas — the parser
+        // must still extract them ("0xc2," → 0xc2).
+        let text = "JEDEC ID: 0xc2, 0x20, 0x18";
+        assert_eq!(parse_jedec_id(text), (0xc2, 0x1820));
+    }
+
+    #[test]
+    fn parse_jedec_id_missing_returns_zeros() {
+        assert_eq!(parse_jedec_id("no jedec here"), (0, 0));
+        assert_eq!(parse_jedec_id("JEDEC ID: garbage"), (0, 0));
+    }
+
+    #[test]
+    fn classify_not_found_io_error_becomes_notfound() {
+        let err = std::io::Error::from(std::io::ErrorKind::NotFound);
+        assert!(matches!(classify_launch_err(err), FlashError::NotFound));
+    }
+
+    #[test]
+    fn classify_other_io_error_becomes_subprocess() {
+        let err = std::io::Error::from(std::io::ErrorKind::PermissionDenied);
+        assert!(matches!(classify_launch_err(err), FlashError::Subprocess(_)));
     }
 }
