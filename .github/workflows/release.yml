@@ -155,16 +155,19 @@ jobs:
           git clone --depth 1 --branch "$FLASHROM_REF" https://github.com/flashrom/flashrom.git /tmp/flashrom
           cd /tmp/flashrom
           # Minimal programmer set for the workshop: CH341A SPI (libusb) + the
-          # common serial/FTDI programmers. Disable internal/PCI programmers
-          # (they need kernel portio we don't ship on Windows) and the RAIDen
-          # USB debugger (not needed here). Note: v1.4.0 has no CONFIG_RAID /
-          # CONFIG_USB vars — only CONFIG_RAIDEN_DEBUG_SPI and the implicit
-          # libusb1 programmer group (enabled when libusb-1.0 is found).
+          # common serial programmers. Disable internal/PCI programmers (they
+          # need kernel portio we don't ship on Windows), the RAIDen USB
+          # debugger (not needed here), and FT2232_SPI — FT2232 needs libftdi
+          # (ftdi.h), which isn't in the MSYS2 install below and would make the
+          # build fragile for a programmer the CH341A workshop doesn't use.
+          # Re-enable by adding mingw-w64-ucrt-x86_64-libftdi + CONFIG_FT2232_SPI=yes.
+          # Note: v1.4.0 has no CONFIG_RAID/CONFIG_USB vars — only
+          # CONFIG_RAIDEN_DEBUG_SPI and the implicit libusb1 programmer group.
           make CC=gcc \
             CONFIG_INTERNAL=no \
             CONFIG_SERPROG=yes \
             CONFIG_BUSPIRATE_SPI=yes \
-            CONFIG_FT2232_SPI=yes \
+            CONFIG_FT2232_SPI=no \
             CONFIG_CH341A_SPI=yes \
             CONFIG_DEDIPROG=yes \
             CONFIG_PONY_SPI=yes \
