@@ -60,6 +60,14 @@ impl ErrorDb {
     pub fn from_cache(path: &Path) -> Result<Self, UartError> {
         let json = std::fs::read_to_string(path)
             .map_err(|e| UartError::Serial(e.to_string()))?;
+        // Poisoned-cache guard: a stale cache file (e.g. written by an older
+        // `fetch_and_cache` without an HTTP status check) may hold a 404 error
+        // body instead of JSON, which serde would surface as a confusing
+        // "invalid type: integer `404`, expected struct RawDb". Treat anything
+        // that isn't a JSON object as a clean cache miss.
+        if !json.trim_start().starts_with('{') {
+            return Err(UartError::DbFetch("cached DB is not valid JSON (poisoned)".into()));
+        }
         Self::from_json(&json)
     }
 
@@ -165,6 +173,24 @@ mod tests {
     fn from_cache_missing_file_returns_err() {
         let path = std::path::Path::new("/tmp/this_file_does_not_exist_fixplay.json");
         assert!(ErrorDb::from_cache(path).is_err());
+    }
+
+    #[test]
+    fn from_cache_poisoned_404_body_returns_clean_err() {
+        // A stale cache written by an older fetch_and_cache (no HTTP status
+        // check) may hold a 404 error body — that must surface as a clean
+        // error, not a serde "invalid type: integer `404`" message.
+        let dir = std::env::temp_dir().join("fixplay_test_uart_poisoned");
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("error_codes_poisoned.json");
+        std::fs::write(&path, "404: Not Found").unwrap();
+        let err = match ErrorDb::from_cache(&path) {
+            Ok(_) => panic!("expected poisoned-cache error, got Ok"),
+            Err(e) => e,
+        };
+        assert!(err.to_string().contains("poisoned"),
+            "expected poisoned-cache error, got: {err}");
+        std::fs::remove_file(&path).ok();
     }
 
     #[test]

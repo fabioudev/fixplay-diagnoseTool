@@ -18,8 +18,15 @@ use std::path::Path;
 /// Xbox equivalent of the PS5 amoamare DB, so this is a *best-effort* override
 /// channel: the bundled resource ships a curated baseline that is always
 /// available offline; "DB aktualisieren" pulls a fresher copy from here when
-/// the user hosts one. A failed fetch is non-fatal.
-const DB_URL: &str = "https://raw.githubusercontent.com/fixplay-xbox/error-codes/main/xbox_error_codes.json";
+/// the user wants a refresh. A failed fetch is non-fatal.
+///
+/// This points at the same `xbox_error_codes.json` shipped as a bundled
+/// resource in this repo (`src-tauri/resources/xbox_error_codes.json`) — the
+/// previous URL (`fixplay-xbox/error-codes`) was a dead repo that only ever
+/// returned 404, so every "DB aktualisieren" failed. Self-hosting the bundled
+/// baseline on the project's default branch means the refresh channel actually
+/// resolves and tracks the file the app already ships.
+const DB_URL: &str = "https://raw.githubusercontent.com/fabioudev/fixplay-diagnoseTool/main/src-tauri/resources/xbox_error_codes.json";
 
 #[derive(Debug)]
 pub struct XboxErrorEntry {
@@ -99,6 +106,15 @@ impl XboxErrorDb {
     pub fn from_cache(path: &Path) -> Result<Self, I2cError> {
         let json = std::fs::read_to_string(path)
             .map_err(|e| I2cError::Serial(e.to_string()))?;
+        // Poisoned-cache guard: an older `fetch_and_cache` had no HTTP status
+        // check, so a stale cache file may hold a 404 error body ("404: Not
+        // Found") rather than JSON. serde would then surface a confusing
+        // "invalid type: integer `404`, expected struct RawDb" instead of a
+        // clean miss. Treat anything that isn't a JSON object as a cache miss
+        // so the caller falls back to the bundled resource.
+        if !json.trim_start().starts_with('{') {
+            return Err(I2cError::DbFetch("cached DB is not valid JSON (poisoned)".into()));
+        }
         Self::from_json(&json)
     }
 
@@ -231,6 +247,24 @@ mod tests {
     fn from_cache_missing_file_returns_err() {
         let path = std::path::Path::new("/tmp/this_xbox_file_does_not_exist_fixplay.json");
         assert!(XboxErrorDb::from_cache(path).is_err());
+    }
+
+    #[test]
+    fn from_cache_poisoned_404_body_returns_clean_err() {
+        // An older fetch_and_cache (no HTTP status check) could write a 404
+        // error body to the cache. That must surface as a clean error, not a
+        // serde "invalid type: integer `404`" panic-ish message.
+        let dir = std::env::temp_dir().join("fixplay_test_xbox_poisoned");
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("xbox_poisoned.json");
+        std::fs::write(&path, "404: Not Found").unwrap();
+        let err = match XboxErrorDb::from_cache(&path) {
+            Ok(_) => panic!("expected poisoned-cache error, got Ok"),
+            Err(e) => e,
+        };
+        assert!(err.to_string().contains("poisoned"),
+            "expected poisoned-cache error, got: {err}");
+        std::fs::remove_file(&path).ok();
     }
 
     #[test]

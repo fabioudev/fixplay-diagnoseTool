@@ -316,7 +316,11 @@ pub fn i2c_search_xbox_db(
 /// Called from `lib.rs` setup to wire the bundled resource path for the Xbox
 /// error-code DB. Kept here next to the DB commands for discoverability.
 pub(crate) fn xbox_db_resource_path(app: &AppHandle) -> Option<std::path::PathBuf> {
-    app.path().resource_dir().ok().map(|r| r.join("xbox_error_codes.json"))
+    // Tauri preserves the `resources/` subdir from tauri.conf.json
+    // `bundle.resources`, so the bundled Xbox DB lives at
+    // `<resource_dir>/resources/xbox_error_codes.json`.
+    app.path().resource_dir().ok()
+        .map(|r| r.join("resources").join("xbox_error_codes.json"))
 }
 
 #[cfg(test)]

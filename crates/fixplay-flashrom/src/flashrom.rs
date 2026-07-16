@@ -15,10 +15,15 @@ pub struct FlashromDevice {
 }
 
 pub fn flashrom_path(resource_dir: &std::path::Path) -> PathBuf {
+    // Tauri's resource bundler PRESERVES the `binaries/` subdir declared in
+    // tauri.conf.json `bundle.resources`, so the binary lands at
+    // `<resource_dir>/binaries/flashrom` — not `<resource_dir>/flashrom`.
+    // Joining without `binaries/` made every launch fail the self-check and
+    // silently fall back to a PATH/system flashrom (or none).
     #[cfg(target_os = "windows")]
-    return resource_dir.join("flashrom.exe");
+    return resource_dir.join("binaries").join("flashrom.exe");
     #[cfg(not(target_os = "windows"))]
-    resource_dir.join("flashrom")
+    resource_dir.join("binaries").join("flashrom")
 }
 
 fn parse_progress(line: &str) -> Option<u8> {

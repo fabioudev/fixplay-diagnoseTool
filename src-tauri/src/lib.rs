@@ -20,8 +20,11 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let cache_path    = app.path().app_data_dir()?.join("error_codes.json");
+            // Tauri preserves the `resources/` subdir from tauri.conf.json
+            // `bundle.resources`, so the bundled PS5 DB lives at
+            // `<resource_dir>/resources/error_codes.json`.
             let resource_path = app.path().resource_dir().ok()
-                                   .map(|r| r.join("error_codes.json"));
+                                   .map(|r| r.join("resources").join("error_codes.json"));
             let state         = app.state::<AppState>();
 
             // Step 1: try user cache
