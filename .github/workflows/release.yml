@@ -199,6 +199,10 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
           for img in target/release/bundle/appimage/*.AppImage; do
+            # Make the glob result absolute — we cd into a temp dir below to
+            # run the AppImage's --appimage-extract, and a relative path
+            # wouldn't resolve from there (exit 127, "command not found").
+            img="$(cd "$(dirname "$img")" && pwd)/$(basename "$img")"
             echo "::group::repack $img"
             work="$(mktemp -d)"
             ( cd "$work" && "$img" --appimage-extract >/dev/null 2>&1 )
