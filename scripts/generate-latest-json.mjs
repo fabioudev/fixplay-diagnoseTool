@@ -12,8 +12,8 @@
 //
 // The `signature` field is the *content* of the .sig file (not a URL), as the
 // Tauri updater requires. `url` points at the GitHub release asset download.
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { basename, join, relative } from 'node:path';
 
 const REPO = 'fabioudev/fixplay-diagnoseTool';
 const RELEASE_BASE = `https://github.com/${REPO}/releases/download`;
@@ -26,14 +26,33 @@ if (!assetsDir || !version) {
   process.exit(1);
 }
 
-const files = readdirSync(assetsDir);
+// Collect files RECURSIVELY. `actions/upload-artifact@v4` preserves the
+// least-common-ancestor dir of the globbed `path`s (here `target/release/
+// bundle/`), so each bundle artifact is a zip with `appimage/`, `nsis/`, …
+// subdirs. `download-artifact@v4 --merge-multiple` then extracts them into
+// release-assets/ WITH those subdirs intact — a flat `readdirSync(assetsDir)`
+// only sees the subdir names and finds no bundles, yielding an empty
+// `platforms` map and a silently-broken in-app updater. Walk the tree.
+const files = (function walk(dir, acc) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) walk(p, acc);
+    else acc.push(relative(assetsDir, p));
+  }
+  return acc;
+})(assetsDir, []);
 const find = (re) => files.find((f) => re.test(f));
 const sigOf = (bundleName) => {
-  // Tauri emits <bundle>.sig next to the bundle.
-  const sig = files.find((f) => f === `${bundleName}.sig`);
+  // Tauri emits <bundle>.sig next to the bundle. Match by basename so it
+  // works regardless of which subdir the artifact merge placed it in.
+  const want = `${bundleName}.sig`;
+  const sig = files.find((f) => f === want || f.endsWith(`/${want}`));
   return sig ? readFileSync(join(assetsDir, sig), 'utf8').trim() : null;
 };
-const urlFor = (name) => `${RELEASE_BASE}/v${version}/${name}`;
+// GitHub release asset URLs are flat under /<tag>/<basename> — strip any
+// subdir the artifact merge introduced (e.g. `appimage/foo.AppImage` →
+// `foo.AppImage`) so the updater downloads from the real asset URL.
+const urlFor = (name) => `${RELEASE_BASE}/v${version}/${basename(name)}`;
 
 const platforms = {};
 
