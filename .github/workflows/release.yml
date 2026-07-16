@@ -95,24 +95,7 @@ jobs:
           #!/usr/bin/env bash
           set -euo pipefail
           export APPIMAGE_EXTRACT_AND_RUN=1
-          "$HOME/.local/bin/linuxdeploy.AppImage" "$@"
-          # libwayland-client.so.0 must come from the host (Wayland compositor
-          # side); a bundled copy breaks EGL/GL context creation (tauri#8541 ->
-          # blank window). linuxdeploy deploys it into the AppDir; strip it
-          # there so it isn't squashed into the AppImage. Same reason
-          # libGL/libEGL/libdrm are never bundled. (Belt-and-suspenders: the
-          # appimagetool wrapper re-strips right before packaging.)
-          APPDIR=""
-          prev=""
-          for arg in "$@"; do
-            if [ "$prev" = "--appdir" ]; then
-              APPDIR="$arg"
-            fi
-            prev="$arg"
-          done
-          if [ -n "$APPDIR" ] && [ -d "$APPDIR/usr/lib" ]; then
-            rm -fv "$APPDIR"/usr/lib/libwayland-client.so.0* 2>/dev/null || true
-          fi
+          exec "$HOME/.local/bin/linuxdeploy.AppImage" "$@"
           EOF
           chmod +x "$HOME/.local/bin/linuxdeploy"
 
@@ -125,17 +108,6 @@ jobs:
           #!/usr/bin/env bash
           set -euo pipefail
           export APPIMAGE_EXTRACT_AND_RUN=1
-          # Strip bundled libwayland-client.so.0 from the AppDir right before
-          # packaging. It must come from the host (Wayland side); a bundled
-          # copy breaks EGL (tauri#8541 -> blank window). appimagetool's first
-          # existing-directory arg is the AppDir (tauri calls:
-          # appimagetool <AppDir> <output.AppImage>).
-          for arg in "$@"; do
-            if [ -d "$arg/usr/lib" ]; then
-              rm -fv "$arg"/usr/lib/libwayland-client.so.0* 2>/dev/null || true
-              break
-            fi
-          done
           exec "$HOME/.local/bin/appimagetool.AppImage" "$@"
           EOF
           chmod +x "$HOME/.local/bin/appimagetool"
@@ -213,6 +185,45 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri build ${{ matrix.build_args }}
+
+      - name: Strip bundled libwayland-client from AppImage (repack + re-sign)
+        if: matrix.artifact_name == 'linux-bundles'
+        env:
+          # Same signing env as the build step. The repack invalidates the
+          # .sig the build produced, so re-sign here (tauri signer reads these
+          # env vars) — the in-app updater still verifies against the public
+          # key in tauri.conf.json plugins.updater.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for img in target/release/bundle/appimage/*.AppImage; do
+            echo "::group::repack $img"
+            work="$(mktemp -d)"
+            ( cd "$work" && "$img" --appimage-extract >/dev/null 2>&1 )
+            root="$work/squashfs-root"
+            # libwayland-client.so.0 must come from the host (Wayland compositor
+            # side); a bundled copy breaks EGL/GL context creation (tauri#8541
+            # -> blank window). Tauri's AppImage bundler downloads its OWN
+            # linuxdeploy (ignores the one on PATH), so the lib can't be
+            # excluded during bundling — strip it from the built AppImage and
+            # repack. libGL/libEGL/libdrm are already not bundled (linuxdeploy
+            # blacklist); libwayland-server is left (a NEEDED dep of a bundled
+            # lib; removing risks a load failure for no EGL benefit).
+            rm -fv "$root"/usr/lib/libwayland-client.so.0* 2>/dev/null || true
+            # Repack the AppImage in place (the appimagetool wrapper on PATH
+            # sets APPIMAGE_EXTRACT_AND_RUN=1 so it runs without FUSE on CI).
+            appimagetool "$root" "$img" >/dev/null
+            rm -rf "$work"
+            # Regenerate the .sig for the repacked AppImage (the build's .sig
+            # was for the pre-repack AppImage; drop it so signer writes fresh).
+            rm -f "$img".sig
+            npx tauri signer sign "$img"
+            echo "::endgroup::"
+          done
+          echo "repacked + re-signed AppImage(s):"
+          ls -l target/release/bundle/appimage/*.AppImage target/release/bundle/appimage/*.AppImage.sig
 
       - name: Upload bundles
         uses: actions/upload-artifact@v4
