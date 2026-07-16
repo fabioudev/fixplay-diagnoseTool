@@ -8,6 +8,7 @@
 //! instead points the user at `yay -Syu` / their AUR helper.
 
 use serde::Serialize;
+use tauri::AppHandle;
 
 #[derive(Clone, Copy, Serialize)]
 pub struct UpdateChannel {
@@ -44,11 +45,15 @@ pub fn get_update_channel() -> UpdateChannel {
     classify_exe(&exe)
 }
 
-/// Current app version (from compile-time `Cargo.toml`), exposed so the
-/// frontend can show "you're on X.Y.Z" next to an available update.
+/// Current app version, exposed so the frontend can show "you're on X.Y.Z"
+/// next to an available update. Reads the `tauri.conf.json` `version` (the
+/// canonical release version, bumped every release) via Tauri's
+/// `package_info()` — NOT `env!("CARGO_PKG_VERSION")`, which reads
+/// `src-tauri/Cargo.toml` and is intentionally kept back at 0.1.6, so the
+/// displayed version would otherwise lag the installed release forever.
 #[tauri::command]
-pub fn app_version() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
+pub fn app_version(app: AppHandle) -> String {
+    app.package_info().version.to_string()
 }
 
 #[cfg(test)]
