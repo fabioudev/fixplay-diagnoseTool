@@ -38,14 +38,14 @@
   data-tablet={tabletMode}
 >
   <!-- Brand -->
-  <div class="flex items-center gap-2.5 h-14 border-b border-gray-800 shrink-0 {collapsed ? 'justify-center px-2' : 'px-4'}">
+  <div class="flex items-center justify-center gap-2.5 h-14 border-b border-gray-800 shrink-0 {collapsed ? 'px-2' : 'px-4'}">
     <div class="shrink-0">
-      <FixplayIcon class="w-8 h-8" />
+      <FixplayIcon class="w-10 h-10" />
     </div>
     {#if !collapsed}
-      <div class="flex flex-col leading-tight min-w-0">
-        <span class="text-sm font-semibold text-gray-100 truncate">fixplay</span>
-        <span class="text-[10px] text-gray-500 truncate">diagnoseTool</span>
+      <div class="flex flex-col items-center leading-tight min-w-0">
+        <span class="text-base font-semibold text-gray-100 truncate">Fixplay</span>
+        <span class="text-[11px] text-gray-500 truncate">diagnoseTool</span>
       </div>
     {/if}
   </div>

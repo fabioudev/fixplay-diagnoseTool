@@ -191,7 +191,7 @@
           <span class="text-xs text-gray-300">Größere Touch-Targets für Touch-Bedienung</span>
         </label>
         <p class="text-xs text-gray-600">
-          Aktiviert vergrößerte Schaltflächen und Abstände für Touchscreens. Auch schnell umschaltbar über den Tablet-Button im Header.
+          Aktiviert vergrößerte Schaltflächen und Abstände für Touchscreens.
         </p>
       </div>
 
