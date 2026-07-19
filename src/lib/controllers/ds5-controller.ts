@@ -11,6 +11,7 @@ import type {
   AdaptiveTriggerConfig,
   HIDDeviceLike,
 } from './base-controller';
+import { fillOutputReportCrc } from './crc32';
 import { sleep, buf2hex, dec2hex, dec2hex32, dec2hex8, formatMacFromView, reverseStr } from './utils';
 
 const DS5_BUTTON_MAP = [
@@ -208,6 +209,8 @@ function ds5Color(serialNumber: string): string {
 
 export class DS5Controller extends BaseController {
   currentOutputState: OutputState;
+  /** Monotonic counter for the Bluetooth output report tag (low nibble used). */
+  private _btOutputSeq = 0;
 
   constructor(device: HIDDeviceLike) {
     super(device);
@@ -226,7 +229,25 @@ export class DS5Controller extends BaseController {
 
   async sendOutputReport(data: ArrayBuffer, _reason = ''): Promise<void> {
     if (!this.device?.opened) throw new Error('Device is not opened');
-    await this.device.sendReport(DS5_OUTPUT_REPORT.USB_REPORT_ID, new Uint8Array(data));
+    const common = new Uint8Array(data);
+    if (this.transport !== 'bt') {
+      // USB: report id 0x02 + 47-byte common payload (hidapi pads to 64). This
+      // is the original, hardware-verified path — left byte-identical.
+      await this.device.sendReport(DS5_OUTPUT_REPORT.USB_REPORT_ID, common);
+      return;
+    }
+    // Bluetooth: report 0x31 is a 77-byte frame — [seq<<4][0x10][47 common]
+    // [24 padding][4-byte CRC32 over 0xA2,0x31 ++ frame[0..72]]. Without this
+    // wrapping a BT controller silently ignores lightbar / rumble / adaptive
+    // trigger commands (the historical bug). Frame layout matches daidr's
+    // dualsense-tester (verified on real BT hardware) byte-for-byte.
+    const frame = new Uint8Array(77);
+    frame[0] = (this._btOutputSeq & 0x0f) << 4;
+    this._btOutputSeq = (this._btOutputSeq + 1) & 0xff;
+    frame[1] = 0x10;
+    frame.set(common.subarray(0, Math.min(common.byteLength, 47)), 2);
+    fillOutputReportCrc(frame);
+    await this.device.sendReport(DS5_OUTPUT_REPORT.BT_REPORT_ID, frame);
   }
 
   updateCurrentOutputState(outputStruct: DS5OutputStruct): void {

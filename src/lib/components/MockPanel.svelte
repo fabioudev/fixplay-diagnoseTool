@@ -5,7 +5,7 @@
   // the hosted web preview. State persists to localStorage (see state.ts).
 
   import { mockState, resetMockState, DEFAULT_MOCK_STATE } from '$lib/mock/state';
-  import type { MockFlashState, MockUartState, MockHidState } from '$lib/mock/state';
+  import type { MockFlashState, MockUartState, MockHidState, MockControllerInput } from '$lib/mock/state';
   import type { DeviceInfo, NvsData, NorValidation, UartPortInfo, UartEntryEvent, ErrorSearchResult, DumpEntry } from '$lib/api/types';
   import type { HidDeviceInfo } from '$lib/controllers/tauri-hid-device';
 
@@ -168,6 +168,27 @@
   function removeHidDevice(i: number): void {
     mockState.update((s) => ({ ...s, hid: { ...s.hid, devices: s.hid.devices.filter((_, idx) => idx !== i) } }));
   }
+
+  // --- simulated controller input (drives the live visualizer in MOCK mode) ---
+  const SIM_BUTTONS = [
+    'up', 'down', 'left', 'right',
+    'triangle', 'circle', 'cross', 'square',
+    'l1', 'r1', 'l3', 'r3',
+    'create', 'options', 'ps', 'touchpad', 'mute',
+  ] as const;
+  function setInput<K extends keyof MockControllerInput>(key: K, val: MockControllerInput[K]): void {
+    mockState.update((s) => ({ ...s, hid: { ...s.hid, input: { ...s.hid.input, [key]: val } } }));
+  }
+  function toggleButton(name: string): void {
+    mockState.update((s) => ({ ...s, hid: { ...s.hid, input: { ...s.hid.input, buttons: { ...s.hid.input.buttons, [name]: !s.hid.input.buttons[name] } } } }));
+  }
+  function clearButtons(): void {
+    mockState.update((s) => ({ ...s, hid: { ...s.hid, input: { ...s.hid.input, buttons: {} } } }));
+  }
+  function resetInput(): void {
+    mockState.update((s) => ({ ...s, hid: { ...s.hid, input: { ...DEFAULT_MOCK_STATE.hid.input, buttons: {} } } }));
+  }
+  function signed(v: string): number { const n = Number(v); return Number.isFinite(n) ? Math.max(-1, Math.min(1, n)) : 0; }
 
   // --- helpers ---
   function hex(n: number): string { return '0x' + n.toString(16); }
@@ -415,6 +436,41 @@
                 <input value={dev.product ?? ''} oninput={(e) => setHidDevice(i, { product: (e.target as HTMLInputElement).value || null })} placeholder="Produkt" class={inputCls} />
               </div>
             {/each}
+          </div>
+        </section>
+
+        <section class="flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Simulierter Input</h3>
+            <button onclick={resetInput} class={btnCls}>Reset</button>
+          </div>
+          <p class="text-[11px] text-gray-600">Steuerung für die Live-Visualisierung. Tasten klicken zum Umschalten, Sticks/Trigger per Slider.</p>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-1"><label class={lblCls}>LX (-1…1)</label><input type="range" min="-1" max="1" step="0.01" value={$mockState.hid.input.lx} oninput={(e) => setInput('lx', signed((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>LY (-1…1)</label><input type="range" min="-1" max="1" step="0.01" value={$mockState.hid.input.ly} oninput={(e) => setInput('ly', signed((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>RX (-1…1)</label><input type="range" min="-1" max="1" step="0.01" value={$mockState.hid.input.rx} oninput={(e) => setInput('rx', signed((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>RY (-1…1)</label><input type="range" min="-1" max="1" step="0.01" value={$mockState.hid.input.ry} oninput={(e) => setInput('ry', signed((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>L2 (0…255)</label><input type="range" min="0" max="255" value={$mockState.hid.input.l2} oninput={(e) => setInput('l2', num((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>R2 (0…255)</label><input type="range" min="0" max="255" value={$mockState.hid.input.r2} oninput={(e) => setInput('r2', num((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class={lblCls}>Batterie (0…100)</label>
+            <input type="range" min="0" max="100" value={$mockState.hid.input.battery} oninput={(e) => setInput('battery', num((e.target as HTMLInputElement).value))} class="accent-teal-500" />
+            <label class="flex items-center gap-2 cursor-pointer select-none mt-1"><input type="checkbox" checked={$mockState.hid.input.charging} onchange={(e) => setInput('charging', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">lädt</span></label>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between"><label class={lblCls}>Buttons</label><button onclick={clearButtons} class={btnCls}>alle lösen</button></div>
+            <div class="flex flex-wrap gap-1.5">
+              {#each SIM_BUTTONS as name (name)}
+                <button
+                  onclick={() => toggleButton(name)}
+                  class="px-2 py-1 text-xs rounded border {$mockState.hid.input.buttons[name] ? 'bg-teal-500/30 border-teal-400 text-teal-200' : 'bg-gray-800/60 border-gray-700 text-gray-400 hover:bg-gray-700'}"
+                >{name}</button>
+              {/each}
+            </div>
           </div>
         </section>
       {/if}

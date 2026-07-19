@@ -2,6 +2,10 @@
 // Base controller class providing common functionality for all controller types.
 // Ported from dualshock-tools/js/controllers/base-controller.js
 
+import { fillFeatureReportCrc } from './crc32';
+
+export type ControllerTransport = 'usb' | 'bt';
+
 export interface InputConfig {
   buttonMap: ButtonMapEntry[];
   dpadByte: number;
@@ -85,9 +89,22 @@ export abstract class BaseController {
   protected device: HIDDeviceLike;
   model = 'undefined';
   finetuneMaxValue = 0;
+  /**
+   * Active transport, detected from the first input report (USB report id
+   * 0x01 / BT report id 0x31). Defaults to `'usb'` until the first report
+   * arrives — matching the historical USB-only behaviour so the USB path is
+   * byte-identical and unaffected by BT support. Output/feature reports are
+   * framed differently over Bluetooth (extra header + CRC32), so this must be
+   * correct before sending anything that should take effect on a BT controller.
+   */
+  transport: ControllerTransport = 'usb';
 
   constructor(device: HIDDeviceLike) {
     this.device = device;
+  }
+
+  setTransport(t: ControllerTransport): void {
+    this.transport = t;
   }
 
   getModel(): string {
@@ -124,11 +141,24 @@ export abstract class BaseController {
   }
 
   async sendFeatureReport(reportId: number, data: ArrayBuffer | number[] | Uint8Array): Promise<void> {
+    let buf: Uint8Array;
     if (Array.isArray(data)) {
-      data = this.allocReq(reportId, data);
+      buf = this.allocReq(reportId, data);
+    } else if (data instanceof Uint8Array) {
+      buf = data;
+    } else {
+      buf = new Uint8Array(data);
+    }
+    // Bluetooth feature reports carry a CRC32 trailer (seed 0x53). The
+    // allocReq buffer is 64 bytes for every DS5 feature report id, so the CRC
+    // lives at offset 60. USB sends the padded buffer as-is (no CRC).
+    if (this.transport === 'bt' && buf.byteLength >= 4) {
+      const padded = buf.byteLength >= 64 ? buf : this.allocReq(reportId, Array.from(buf));
+      fillFeatureReportCrc(reportId, padded);
+      buf = padded;
     }
     try {
-      await this.device.sendFeatureReport(reportId, data as BufferSource);
+      await this.device.sendFeatureReport(reportId, buf as BufferSource);
     } catch (error) {
       throw new Error(error instanceof Error ? error.stack ?? error.message : String(error), { cause: error });
     }

@@ -7,6 +7,7 @@
 // the MockPanel can change it at runtime — edits apply to the next invoke().
 import { emitLocal, delay, settingsStore } from './_shared';
 import { getMockState } from './state';
+import type { MockControllerInput } from './state';
 import type {
   DeviceInfo,
   FlashReadResult,
@@ -26,6 +27,59 @@ import type { HidDeviceInfo, HidPollResult } from '../controllers/tauri-hid-devi
 
 const warn = (cmd: string) =>
   console.warn(`[mock] invoke('${cmd}') has no fake handler — returning undefined`);
+
+/**
+ * Build a 64-byte DualSense USB input-report body (report id stripped) from the
+ * simulated controller state, mirroring the byte layout the real DS5 emits and
+ * the ControllerManager parses: sticks @0-3, L2/R2 @4/5, dpad+face @7,
+ * shoulder/misc @8, ps/touch/mute @9, battery @52.
+ */
+function buildDs5InputReport(input: MockControllerInput): number[] {
+  const r = new Array<number>(64).fill(0);
+  const axis = (v: number) => Math.round(((Math.max(-1, Math.min(1, v)) + 1) / 2) * 255);
+  r[0] = axis(input.lx);
+  r[1] = axis(input.ly);
+  r[2] = axis(input.rx);
+  r[3] = axis(input.ry);
+  r[4] = Math.max(0, Math.min(255, Math.round(input.l2)));
+  r[5] = Math.max(0, Math.min(255, Math.round(input.r2)));
+
+  const b = input.buttons;
+  // D-pad hat (low nibble of byte 7): 0=U 1=UR 2=R 3=DR 4=D 5=DL 6=L 7=UL 8=neutral
+  const up = !!b.up;
+  const down = !!b.down;
+  const left = !!b.left;
+  const right = !!b.right;
+  let hat = 8;
+  if (up && left) hat = 7;
+  else if (up && right) hat = 1;
+  else if (down && left) hat = 5;
+  else if (down && right) hat = 3;
+  else if (up) hat = 0;
+  else if (right) hat = 2;
+  else if (down) hat = 4;
+  else if (left) hat = 6;
+  r[7] = hat | (b.square ? 0x10 : 0) | (b.cross ? 0x20 : 0) | (b.circle ? 0x40 : 0) | (b.triangle ? 0x80 : 0);
+
+  r[8] =
+    (b.l1 ? 0x01 : 0) |
+    (b.r1 ? 0x02 : 0) |
+    (b.create ? 0x10 : 0) |
+    (b.options ? 0x20 : 0) |
+    (b.l3 ? 0x40 : 0) |
+    (b.r3 ? 0x80 : 0);
+
+  r[9] = (b.ps ? 0x01 : 0) | (b.touchpad ? 0x02 : 0) | (b.mute ? 0x04 : 0);
+
+  // Battery @52: status<<4 | charge. status 0=discharge, 1=charging, 2=complete.
+  const charge = Math.max(0, Math.min(10, Math.floor(input.battery / 10)));
+  let status = 0;
+  if (input.battery >= 100) status = 2;
+  else if (input.charging) status = 1;
+  r[52] = (status << 4) | charge;
+
+  return r;
+}
 
 async function flashReadSequence(): Promise<FlashReadResult> {
   const s = getMockState();
@@ -176,7 +230,7 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
     const s = getMockState();
     return <HidPollResult>{
       connected: s.hid.connected,
-      reports: [{ report_id: 1, data: Array.from({ length: 64 }, (_, i) => (i % 7 === 0 ? 128 : 0)) }],
+      reports: s.hid.connected ? [{ report_id: 1, data: buildDs5InputReport(s.hid.input) }] : [],
     };
   },
 

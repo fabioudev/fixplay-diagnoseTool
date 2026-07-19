@@ -3,6 +3,8 @@
   import { onDestroy } from 'svelte';
   import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power } from 'lucide-svelte';
   import StickVisualizer from './StickVisualizer.svelte';
+  import ControllerVisualizer from './ControllerVisualizer.svelte';
+  import TesterPanel from './TesterPanel.svelte';
   import CalibrationModal from './CalibrationModal.svelte';
   import QuickTestModal from './QuickTestModal.svelte';
   import {
@@ -36,13 +38,6 @@
   let fwVersion = $state<string>('—');
   let macAddress = $state<string>('—');
   let pollInterval: ReturnType<typeof setInterval> | null = null;
-
-  const BUTTON_LABELS: Record<string, string> = {
-    triangle: '△', cross: '✕', circle: '○', square: '□',
-    l1: 'L1', r1: 'R1', l3: 'L3', r3: 'R3',
-    up: 'D↑', down: 'D↓', left: 'D←', right: 'D→',
-    create: 'Create', touchpad: 'Touch', options: 'Options', ps: 'PS', mute: 'Mute',
-  };
 
   async function connect() {
     connecting = true;
@@ -87,7 +82,7 @@
           }
           for (const report of result.reports) {
             const data = new DataView(new Uint8Array(report.data).buffer);
-            manager?.processControllerInput({ data });
+            manager?.processControllerInput({ data, reportId: report.report_id });
           }
         } catch {
           // ignore transient poll errors
@@ -202,6 +197,19 @@
       </div>
     </div>
 
+    <!-- Live controller graphic — buttons/sticks/triggers highlight as pressed -->
+    <div class="rounded-xl bg-gray-800/40 p-4">
+      <div class="mb-2 flex items-center gap-2 text-sm font-medium text-gray-300">
+        <Gamepad2 class="h-4 w-4" /> Live-Controller
+      </div>
+      <div class="flex justify-center">
+        <ControllerVisualizer size={460} />
+      </div>
+    </div>
+
+    <!-- Manual testers: lights / vibration / adaptive triggers -->
+    <TesterPanel {manager} />
+
     <!-- Sticks -->
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-3 flex items-center gap-2 text-sm font-medium text-gray-300">
@@ -264,18 +272,6 @@
       </div>
     </div>
 
-    <!-- Buttons -->
-    <div class="rounded-xl bg-gray-800/40 p-4">
-      <div class="mb-3 text-sm font-medium text-gray-300">Buttons</div>
-      <div class="flex flex-wrap gap-2">
-        {#each Object.keys(BUTTON_LABELS) as btn (btn)}
-          <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs {$buttonState[btn] ? 'bg-green-600/30 text-green-300' : 'bg-gray-700/50 text-gray-400'}">
-            <span class="font-medium">{BUTTON_LABELS[btn]}</span>
-          </div>
-        {/each}
-      </div>
-    </div>
-
     <!-- Actions -->
     <div class="flex flex-wrap gap-2">
       <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700" onclick={() => (calibOpen = true)}>
@@ -284,8 +280,8 @@
       <button class="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700" onclick={() => (quickTestOpen = true)}>
         <Zap class="h-4 w-4" /> Schnelltest
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController}>
-        <Lightbulb class="h-4 w-4" /> Flash
+      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title="Änderungen im nichtflüchtigen Speicher (NVS) des Controllers speichern">
+        <Lightbulb class="h-4 w-4" /> NVS speichern
       </button>
       <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetController}>
         <RefreshCw class="h-4 w-4" /> Reset

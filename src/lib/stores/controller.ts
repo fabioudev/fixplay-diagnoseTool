@@ -21,6 +21,13 @@ export const triggerState = writable<{ l2: number; r2: number }>({ l2: 0, r2: 0 
 export const touchPoints = writable<TouchPoint[]>([]);
 
 /**
+ * Last lightbar color applied to the controller (0-255 RGB). Driven by the
+ * LightbarTester and mirrored live on the controller graphic's lightbar strip.
+ * Ephemeral — not the controller's actual state, just the UI's last command.
+ */
+export const lightbarColor = writable<{ r: number; g: number; b: number }>({ r: 0, g: 0, b: 255 });
+
+/**
  * Stick deadzone radius (0..1 of full deflection) used by the stick
  * visualizers and the range-calibration result. Ephemeral per session — the
  * slider in ControllerPanel adjusts it live; it is not (yet) persisted across

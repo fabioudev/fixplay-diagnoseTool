@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { stickState } from '$lib/stores/controller';
   import { drawStickDial } from '$lib/utils/stick-renderer';
 
@@ -18,7 +18,6 @@
   } = $props();
 
   let canvas: HTMLCanvasElement;
-  let rafId: number | null = null;
 
   function render() {
     if (!canvas) return;
@@ -44,17 +43,23 @@
     });
   }
 
-  function loop() {
+  // Re-render only when the inputs actually change — the old implementation
+  // ran a permanent requestAnimationFrame loop (60 fps forever) even with a
+  // motionless stick, burning CPU/battery for no visual update. $effect tracks
+  // the reactive reads inside render() (stick state, deadzone, circularity,
+  // size) and re-runs precisely when one of them changes.
+  $effect(() => {
+    // Touch every reactive input so the effect re-runs on any change.
+    const _s = $stickState[side];
+    const _d = deadzone;
+    const _c = circularityData;
+    const _z = size;
+    void _s; void _d; void _c; void _z;
     render();
-    rafId = requestAnimationFrame(loop);
-  }
-
-  onMount(() => {
-    loop();
   });
 
-  onDestroy(() => {
-    if (rafId !== null) cancelAnimationFrame(rafId);
+  onMount(() => {
+    render();
   });
 </script>
 

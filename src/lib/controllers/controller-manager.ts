@@ -7,6 +7,9 @@ import { DS5Controller } from './ds5-controller';
 import type { InputConfig, BatteryStatus, NvStatus, AdaptiveTriggerConfig, HIDDeviceLike, HIDInputReportEvent } from './base-controller';
 import { sleep } from './utils';
 
+/** DualSense Bluetooth input report id (USB is 0x01). Used for transport detection. */
+const DS5_BT_INPUT_REPORT_ID = 0x31;
+
 export interface StickPosition {
   x: number;
   y: number;
@@ -330,15 +333,30 @@ export class ControllerManager {
     return { ...batteryInfo, bat_txt: batTxt, changed };
   }
 
-  processControllerInput(inputData: { data: DataView }): void {
+  processControllerInput(inputData: { data: DataView; reportId?: number }): void {
     if (!this.currentController) return;
-    const { data } = inputData;
+    const { data, reportId } = inputData;
+    // Transport detection from the input report id: USB = 0x01, BT = 0x31.
+    // Over Bluetooth the report carries a 1-byte sequence tag after the
+    // (already-stripped) report id, so the 47-byte common payload starts at
+    // data[1]. Dropping that byte realigns the common payload to the same
+    // offsets the USB path uses (sticks @0-3, dpad @7, triggers @4/5, …).
+    if (reportId === DS5_BT_INPUT_REPORT_ID) {
+      this.currentController.setTransport('bt');
+    } else if (reportId !== undefined) {
+      this.currentController.setTransport('usb');
+    }
+    const common =
+      this.currentController.transport === 'bt'
+        ? new DataView(data.buffer, data.byteOffset + 1, data.byteLength - 1)
+        : data;
+
     const inputConfig = this.currentController.getInputConfig();
     const { buttonMap, dpadByte, l2AnalogByte, r2AnalogByte, touchpadOffset } = inputConfig;
 
-    const changes = this._recordButtonStates(data, buttonMap, dpadByte, l2AnalogByte, r2AnalogByte);
-    if (touchpadOffset) this.touchPoints = this._parseTouchPoints(data, touchpadOffset);
-    this.batteryStatus = this._parseBatteryStatus(data);
+    const changes = this._recordButtonStates(common, buttonMap, dpadByte, l2AnalogByte, r2AnalogByte);
+    if (touchpadOffset) this.touchPoints = this._parseTouchPoints(common, touchpadOffset);
+    this.batteryStatus = this._parseBatteryStatus(common);
 
     const result: ProcessedInput = {
       changes,

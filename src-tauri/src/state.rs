@@ -48,6 +48,11 @@ pub struct AppState {
     pub hid_cmd_tx:         Mutex<Option<mpsc::SyncSender<HidCmd>>>,
     /// Stop flag for the HID reader thread.
     pub hid_stop:           Mutex<Option<Arc<AtomicBool>>>,
+    /// Liveness flag for the HID reader thread — set false on thread exit (any
+    /// path, via a Drop guard) so `hid_poll` can distinguish a real disconnect
+    /// from a merely idle device. Without this the frontend kept polling a dead
+    /// handle forever (silent stall) because `hid_cmd_tx` stayed `Some`.
+    pub hid_alive:          Mutex<Option<Arc<AtomicBool>>>,
     /// Input reports buffered by the HID reader thread — drained by hid_poll.
     pub hid_reports:        Arc<Mutex<VecDeque<HidReport>>>,
     /// I2C-over-USB-CDC bridge (Raspberry Pi Pico running fixplay-pico-i2c).
@@ -79,6 +84,7 @@ impl Default for AppState {
             recent_sent:        Arc::new(Mutex::new(VecDeque::with_capacity(20))),
             hid_cmd_tx:         Mutex::new(None),
             hid_stop:           Mutex::new(None),
+            hid_alive:          Mutex::new(None),
             hid_reports:        Arc::new(Mutex::new(VecDeque::with_capacity(512))),
             i2c:                Mutex::new(None),
             xbox_error_db:      Arc::new(Mutex::new(None)),

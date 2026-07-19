@@ -54,9 +54,29 @@ export interface MockUartState {
   loopback_ok: boolean;
 }
 
+export interface MockControllerInput {
+  /** Stick axes, normalized -1..+1. */
+  lx: number;
+  ly: number;
+  rx: number;
+  ry: number;
+  /** Analog triggers 0..255. */
+  l2: number;
+  r2: number;
+  /** Pressed digital buttons (keys match DS5_BUTTON_MAP names). */
+  buttons: Record<string, boolean>;
+  /** Battery 0..100. */
+  battery: number;
+  charging: boolean;
+}
+
 export interface MockHidState {
   devices: HidDeviceInfo[];
   connected: boolean;
+  /** Simulated controller input — the mock hid_poll builds a DS5 input report
+   * from this so the visualizer + testers can be exercised in a browser with no
+   * hardware. Driven by the MockPanel "Controller" tab. */
+  input: MockControllerInput;
 }
 
 export interface MockI2cState {
@@ -183,6 +203,17 @@ export const DEFAULT_MOCK_STATE: MockState = {
   hid: {
     devices: defaultHidDevices(),
     connected: true,
+    input: {
+      lx: 0,
+      ly: 0,
+      rx: 0,
+      ry: 0,
+      l2: 0,
+      r2: 0,
+      buttons: {},
+      battery: 75,
+      charging: false,
+    },
   },
   i2c: {
     ports: [

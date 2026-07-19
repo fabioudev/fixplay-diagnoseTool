@@ -37,12 +37,31 @@ pub enum HidCmd {
     Stop,
 }
 
+/// RAII guard that flips the `hid_alive` flag to false when the reader thread
+/// exits — on *any* path (Stop command, channel disconnect, panic unwind, or
+/// loop end). This is what lets `hid_poll` report a dead connection instead of
+/// stalling silently on a `Some` cmd channel whose thread is gone.
+struct AliveGuard {
+    alive: Arc<AtomicBool>,
+}
+
+impl Drop for AliveGuard {
+    fn drop(&mut self) {
+        self.alive.store(false, Ordering::Relaxed);
+        info!("HID reader thread alive=false (exit)");
+    }
+}
+
 fn run_hid_thread(
     device:  hidapi::HidDevice,
     cmd_rx:  mpsc::Receiver<HidCmd>,
     reports: Arc<Mutex<VecDeque<HidReport>>>,
     stop:    Arc<AtomicBool>,
+    alive:   Arc<AtomicBool>,
 ) {
+    // Drops on return / unwind / channel close → marks the thread dead.
+    let _guard = AliveGuard { alive: Arc::clone(&alive) };
+    alive.store(true, Ordering::Relaxed);
     let mut buf = [0u8; 128];
     info!("HID reader thread started");
 
@@ -155,13 +174,16 @@ pub fn hid_connect(vendor_id: u16, product_id: u16, state: State<'_, AppState>) 
     let reports    = Arc::clone(&state.hid_reports);
     let stop       = Arc::new(AtomicBool::new(false));
     let stop_clone = Arc::clone(&stop);
+    let alive      = Arc::new(AtomicBool::new(true));
+    let alive_clone = Arc::clone(&alive);
     let (cmd_tx, cmd_rx) = mpsc::sync_channel::<HidCmd>(32);
 
     *state.hid_cmd_tx.lock().unwrap() = Some(cmd_tx);
     *state.hid_stop.lock().unwrap()   = Some(stop);
+    *state.hid_alive.lock().unwrap()  = Some(alive);
     state.hid_reports.lock().unwrap().clear();
 
-    std::thread::spawn(move || run_hid_thread(device, cmd_rx, reports, stop_clone));
+    std::thread::spawn(move || run_hid_thread(device, cmd_rx, reports, stop_clone, alive_clone));
 
     info!("HID connected: vendor={:#06x} product={:#06x}", vendor_id, product_id);
     Ok(())
@@ -175,6 +197,7 @@ pub fn hid_disconnect(state: State<'_, AppState>) -> Result<(), String> {
     if let Some(s) = state.hid_stop.lock().unwrap().take() {
         s.store(true, Ordering::Relaxed);
     }
+    state.hid_alive.lock().unwrap().take();
     state.hid_reports.lock().unwrap().clear();
     info!("HID disconnected");
     Ok(())
@@ -197,7 +220,25 @@ pub fn hid_send_output_report(data: Vec<u8>, state: State<'_, AppState>) -> Resu
 
 #[tauri::command]
 pub fn hid_poll(state: State<'_, AppState>) -> HidPollResult {
-    let connected = state.hid_cmd_tx.lock().unwrap().is_some();
+    // A connection is only "connected" if the reader thread is still alive AND
+    // the command channel is still installed. If the thread died (device
+    // unplugged / panicked) the alive flag flips false via the AliveGuard —
+    // tear down the stale cmd channel so the frontend's next poll sees
+    // connected=false and disconnects instead of stalling on a dead handle.
+    let alive = state
+        .hid_alive
+        .lock()
+        .unwrap()
+        .as_ref()
+        .map(|a| a.load(Ordering::Relaxed))
+        .unwrap_or(false);
+    let mut cmd = state.hid_cmd_tx.lock().unwrap();
+    if !alive && cmd.is_some() {
+        let _ = cmd.take();
+    }
+    let connected = alive && cmd.is_some();
+    drop(cmd);
+
     let reports: Vec<HidReport> = state.hid_reports.lock().unwrap().drain(..).collect();
     HidPollResult { connected, reports }
 }
