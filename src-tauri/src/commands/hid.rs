@@ -86,7 +86,7 @@ fn run_hid_thread(
                     rbuf[0] = report_id;
                     let r = device
                         .get_feature_report(&mut rbuf)
-                        .map(|n| rbuf[1..n.max(1)].to_vec())
+                        .map(|n| rbuf[..n].to_vec())
                         .map_err(|e| e.to_string());
                     reply.send(r).ok();
                 }

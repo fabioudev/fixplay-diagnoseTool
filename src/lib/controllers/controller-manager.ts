@@ -38,6 +38,10 @@ export interface ProcessedInput {
   changes: InputChanges;
   touchPoints: TouchPoint[];
   batteryStatus: BatteryStatus & { bat_txt: string; changed: boolean };
+  /** Input report byte 53 bit 1 — microphone connected. */
+  micConnected: boolean;
+  /** Input report byte 53 bit 0 — headphones connected. */
+  headphoneConnected: boolean;
 }
 
 export class ControllerManager {
@@ -358,10 +362,18 @@ export class ControllerManager {
     if (touchpadOffset) this.touchPoints = this._parseTouchPoints(common, touchpadOffset);
     this.batteryStatus = this._parseBatteryStatus(common);
 
+    // Mic / headphone presence from status byte 53 (reference: daidr/dualsense-tester
+    // InputInfo.vue — status1 & 2 = mic, status1 & 1 = headphone).
+    const status1 = common.byteLength > 53 ? common.getUint8(53) : 0;
+    const micConnected = (status1 & 0x02) !== 0;
+    const headphoneConnected = (status1 & 0x01) !== 0;
+
     const result: ProcessedInput = {
       changes,
       touchPoints: this.touchPoints,
       batteryStatus: this.batteryStatus,
+      micConnected,
+      headphoneConnected,
     };
     this.inputHandler?.(result);
   }

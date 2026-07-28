@@ -27,6 +27,11 @@ export const touchPoints = writable<TouchPoint[]>([]);
  */
 export const lightbarColor = writable<{ r: number; g: number; b: number }>({ r: 0, g: 0, b: 255 });
 
+/** Whether a microphone is connected (input report byte 53 bit 1). */
+export const micConnected = writable<boolean>(false);
+/** Whether headphones are connected (input report byte 53 bit 0). */
+export const headphoneConnected = writable<boolean>(false);
+
 /**
  * Stick deadzone radius (0..1 of full deflection) used by the stick
  * visualizers and the range-calibration result. Ephemeral per session — the
@@ -86,5 +91,7 @@ export function applyProcessedInput(input: ProcessedInput): void {
   if (input.batteryStatus.changed) {
     batteryStatus.set(input.batteryStatus);
   }
+  micConnected.set(input.micConnected);
+  headphoneConnected.set(input.headphoneConnected);
 }
 

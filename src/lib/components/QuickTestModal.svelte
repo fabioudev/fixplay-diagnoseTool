@@ -2,11 +2,12 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { pushControllerLog, buttonState } from '$lib/stores/controller';
-  import { X, Loader2, Play, Square } from 'lucide-svelte';
+  import { pushControllerLog, buttonState, micConnected } from '$lib/stores/controller';
+  import { X, Loader2, Play, Square, Mic } from 'lucide-svelte';
+  import MicLevelMeter from './MicLevelMeter.svelte';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
 
-  type TestId = 'buttons' | 'haptic' | 'adaptive' | 'lights' | 'speaker';
+  type TestId = 'buttons' | 'haptic' | 'adaptive' | 'lights' | 'speaker' | 'microphone';
   type TestStatus = 'idle' | 'running' | 'pass' | 'fail';
 
   let {
@@ -32,6 +33,7 @@
     { id: 'adaptive', label: 'Adaptive Trigger', desc: 'Setzt Trigger-Widerstand.' },
     { id: 'lights', label: 'Lichter', desc: 'Lightbar und Player-LED.' },
     { id: 'speaker', label: 'Lautsprecher', desc: 'Spielt einen Ton ab.' },
+    { id: 'microphone', label: 'Mikrofon', desc: 'Prüft Mikrofon-Präsenz und Pegel.' },
   ];
 
   let statuses = $state<Record<TestId, TestStatus>>({
@@ -40,9 +42,11 @@
     adaptive: 'idle',
     lights: 'idle',
     speaker: 'idle',
+    microphone: 'idle',
   });
 
   let lightsInterval: ReturnType<typeof setInterval> | null = null;
+  let micActive = $state(false);
 
   // ── Buttons test: require every digital button to be pressed at least once ──
   // The analog triggers (l2/r2) are exercised via the trigger readout, not here.
@@ -142,6 +146,18 @@
         case 'buttons':
           await runButtonsTest();
           break;
+        case 'microphone':
+          micActive = true;
+          // Wait 500ms for the mic level meter to stabilise, then check presence
+          await new Promise((r) => setTimeout(r, 500));
+          if ($micConnected) {
+            statuses[id] = 'pass';
+            pushControllerLog("Quick test 'microphone' — Mikrofon erkannt", 'info');
+          } else {
+            statuses[id] = 'fail';
+            pushControllerLog("Quick test 'microphone' — kein Mikrofon erkannt", 'error');
+          }
+          break;
       }
       pushControllerLog(`Quick test '${id}' completed`, 'info');
     } catch (e) {
@@ -218,8 +234,9 @@
       manager.resetLights().catch(() => {});
       manager.resetSpeakerSettings().catch(() => {});
     }
+    micActive = false;
     open = false;
-    statuses = { buttons: 'idle', haptic: 'idle', adaptive: 'idle', lights: 'idle', speaker: 'idle' };
+    statuses = { buttons: 'idle', haptic: 'idle', adaptive: 'idle', lights: 'idle', speaker: 'idle', microphone: 'idle' };
   }
 
   // Tear down subscriptions/timers if the panel unmounts mid-test (route
@@ -264,12 +281,46 @@
               <div class="text-sm font-medium text-slate-800 dark:text-slate-100">{test.label}</div>
               <div class="text-xs text-slate-500 dark:text-slate-400">{test.desc}</div>
               {#if test.id === 'buttons' && statuses.buttons === 'running'}
-                <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                  {#if missingButtons.length > 0}
-                    Fehlend: {missingButtons.join(', ')}
-                  {:else}
-                    Alle gedrückt ✓
-                  {/if}
+                <div class="mt-2">
+                  <svg viewBox="0 0 200 120" class="w-full max-w-[200px]" role="img" aria-label="Button-Übersicht">
+                    <!-- Body -->
+                    <rect x="8" y="10" width="184" height="100" rx="28" fill="#1e293b" stroke="#334155" stroke-width="1" />
+                    <!-- D-pad -->
+                    <g transform="translate(48 55)">
+                      <rect x="-6" y="-18" width="12" height="12" rx="2" fill={missingButtons.includes('up') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('up') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                      <rect x="-6" y="6" width="12" height="12" rx="2" fill={missingButtons.includes('down') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('down') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                      <rect x="-18" y="-6" width="12" height="12" rx="2" fill={missingButtons.includes('left') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('left') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                      <rect x="6" y="-6" width="12" height="12" rx="2" fill={missingButtons.includes('right') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('right') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                    </g>
+                    <!-- Face buttons -->
+                    <g transform="translate(152 55)">
+                      <circle cx="0" cy="-12" r="5" fill={missingButtons.includes('triangle') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('triangle') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                      <circle cx="12" cy="0" r="5" fill={missingButtons.includes('circle') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('circle') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                      <circle cx="0" cy="12" r="5" fill={missingButtons.includes('cross') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('cross') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                      <circle cx="-12" cy="0" r="5" fill={missingButtons.includes('square') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('square') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                    </g>
+                    <!-- L1/R1 -->
+                    <rect x="20" y="18" width="24" height="6" rx="3" fill={missingButtons.includes('l1') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('l1') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                    <rect x="156" y="18" width="24" height="6" rx="3" fill={missingButtons.includes('r1') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('r1') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                    <!-- L3/R3 -->
+                    <circle cx="70" cy="85" r="10" fill="none" stroke={missingButtons.includes('l3') ? '#ef4444' : '#22c55e'} stroke-width="1" />
+                    <circle cx="130" cy="85" r="10" fill="none" stroke={missingButtons.includes('r3') ? '#ef4444' : '#22c55e'} stroke-width="1" />
+                    <!-- Create/Options -->
+                    <rect x="72" y="30" width="8" height="4" rx="2" fill={missingButtons.includes('create') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('create') ? '#ef4444' : '#22c55e'} stroke-width="0.6" />
+                    <rect x="120" y="30" width="8" height="4" rx="2" fill={missingButtons.includes('options') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('options') ? '#ef4444' : '#22c55e'} stroke-width="0.6" />
+                    <!-- PS + Touchpad + Mute -->
+                    <circle cx="100" cy="70" r="4" fill={missingButtons.includes('ps') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('ps') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                    <rect x="80" y="22" width="40" height="10" rx="3" fill={missingButtons.includes('touchpad') ? '#7f1d1d' : '#14532d'} stroke={missingButtons.includes('touchpad') ? '#ef4444' : '#22c55e'} stroke-width="0.8" />
+                    <circle cx="100" cy="58" r="2" fill={missingButtons.includes('mute') ? '#7f1d1d' : '#fbbf24'} stroke={missingButtons.includes('mute') ? '#ef4444' : '#22c55e'} stroke-width="0.6" />
+                  </svg>
+                  <div class="text-xs text-gray-500 mt-1 text-center">
+                    {missingButtons.length === 0 ? 'Alle gedrückt ✓' : `${missingButtons.length} fehlen`}
+                  </div>
+                </div>
+              {/if}
+              {#if test.id === 'microphone' && statuses.microphone === 'running'}
+                <div class="mt-2">
+                  <MicLevelMeter active={micActive} />
                 </div>
               {/if}
             </div>

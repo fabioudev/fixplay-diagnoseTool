@@ -212,5 +212,57 @@ describe('createControllerForDevice', () => {
   });
 });
 
+describe('_getInfo feature-report parsing', () => {
+  /** Build a realistic 64-byte DS5 feature-report 0x20 buffer.
+   *  Byte 0 = report id (0x20), matching the WebHID convention the parser
+   *  expects. The Rust backend now returns the full buffer (rbuf[..n]) so
+   *  byte 0 IS the report id — this test guards against regressions. */
+  function makeInfoReport(): ArrayBuffer {
+    const buf = new ArrayBuffer(64);
+    const v = new DataView(buf);
+    v.setUint8(0, 0x20); // report id
+    // buildDate "2024-05-01" (11 bytes at offset 1)
+    const bd = new TextEncoder().encode('2024-05-01 ');
+    new Uint8Array(buf, 1, 11).set(bd.subarray(0, 11));
+    // buildTime "10:30:00" (8 bytes at offset 12)
+    const bt = new TextEncoder().encode('10:30:00');
+    new Uint8Array(buf, 12, 8).set(bt);
+    v.setUint16(20, 2, true);   // fwType
+    v.setUint16(22, 1, true);   // swSeries
+    v.setUint32(24, 0xABCD, true); // hwInfo
+    v.setUint32(28, 0x15010400, true); // fwVersion → "21.01.04.00"
+    v.setUint16(44, 0x200, true); // updateVersion
+    v.setUint8(46, 0x42);       // updateImageInfo
+    v.setUint32(48, 0x01020304, true); // sblFwVersion
+    v.setUint32(52, 0x05060708, true); // dspFwVersion
+    v.setUint32(56, 0x090A0B0C, true); // spiderDspFwVersion
+    return buf;
+  }
+
+  it('parses FW Version and build date from a 0x20 report with report-id at byte 0', async () => {
+    const infoBuf = makeInfoReport();
+    const dev = makeFakeDevice();
+    // Override receiveFeatureReport to return our realistic buffer.
+    dev.receiveFeatureReport = async (_reportId: number) => new DataView(infoBuf);
+    const ctrl = new DS5Controller(dev as unknown as HIDDeviceLike);
+    const info = await ctrl._getInfo(false);
+    expect(info.ok).toBe(true);
+    const fw = info.infoItems?.find((i) => i.key === 'FW Version')?.value;
+    expect(fw).toBe('0x15010400');
+    const bd = info.infoItems?.find((i) => i.key === 'FW Build Date')?.value;
+    expect(bd).toContain('2024-05-01');
+  });
+
+  it('returns ok:false when report-id byte is not 0x20', async () => {
+    const buf = new ArrayBuffer(64);
+    new DataView(buf).setUint8(0, 0x00); // wrong report id
+    const dev = makeFakeDevice();
+    dev.receiveFeatureReport = async () => new DataView(buf);
+    const ctrl = new DS5Controller(dev as unknown as HIDDeviceLike);
+    const info = await ctrl._getInfo(false);
+    expect(info.ok).toBe(false);
+  });
+});
+
 // Keep tsc happy about the unused event type alias import in some configs.
 export type _UnusedHidEvent = HIDInputReportEvent;

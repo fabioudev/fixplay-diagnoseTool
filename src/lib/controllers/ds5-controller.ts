@@ -283,7 +283,7 @@ export class DS5Controller extends BaseController {
     try {
       const view = await this.receiveFeatureReport(0x20);
       const cmd = view.getUint8(0);
-      if (cmd != 0x20 || view.buffer.byteLength != 64) {
+      if (cmd != 0x20) {
         return { ok: false, error: new Error('Invalid response for ds5_info'), disable_bits: 1 };
       }
 

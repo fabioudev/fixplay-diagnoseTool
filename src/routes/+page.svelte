@@ -4,6 +4,7 @@
   import UartPanel from '$lib/components/UartPanel.svelte';
   import I2cPanel from '$lib/components/I2cPanel.svelte';
   import ControllerPanel from '$lib/components/ControllerPanel.svelte';
+  import HomePanel from '$lib/components/HomePanel.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import StatusBar from '$lib/components/StatusBar.svelte';
@@ -14,9 +15,9 @@
   import { refreshUpdateContext, checkUpdates } from '$lib/stores/updater';
   import { onMount } from 'svelte';
 
-  type View = 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
+  type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
-  let activeView   = $state<View>('flash');
+  let activeView   = $state<View>('home');
   let settingsOpen = $state(false);
 
   // On startup: load install channel + current version, then quietly check for
@@ -51,7 +52,9 @@
     <UpdateBanner onCheck={() => checkUpdates()} />
 
     <main class="flex-1 min-h-0 overflow-hidden">
-      {#if activeView === 'flash'}
+      {#if activeView === 'home'}
+        <HomePanel onnavigate={(v) => (activeView = v)} />
+      {:else if activeView === 'flash'}
         <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
           <FlashPanel />
         </div>

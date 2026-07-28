@@ -11,14 +11,16 @@
     open = $bindable(false),
     manager,
     onDone,
+    initialMode = 'center' as 'center' | 'range',
   }: {
     open: boolean;
     manager: { calibrateSticksBegin: () => Promise<void>; calibrateSticksSample: () => Promise<void>; calibrateSticksEnd: () => Promise<void>; calibrateRangeBegin: () => Promise<void>; calibrateRangeEnd: () => Promise<void>; } | null;
     onDone?: (success: boolean, message: string) => void;
+    initialMode?: 'center' | 'range';
   } = $props();
 
   type Mode = 'center' | 'range';
-  let mode = $state<Mode>('center');
+  let mode = $state<Mode>(initialMode);
   let step = $state(0);
   let totalSteps = $state(6);
   let busy = $state(false);
@@ -188,6 +190,7 @@
   let prevOpen = $state(false);
   $effect(() => {
     if (open && !prevOpen) {
+      mode = initialMode;
       start();
     }
     prevOpen = open;

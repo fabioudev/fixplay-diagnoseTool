@@ -5,10 +5,11 @@
   // live sliders / pickers so you can dial in a value and watch the controller
   // respond — the "tester für lichter / vibratoren / adaptive trigger" the
   // panel was missing.
-  import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw } from 'lucide-svelte';
-  import { pushControllerLog, lightbarColor, triggerState } from '$lib/stores/controller';
+  import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic } from 'lucide-svelte';
+  import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
+  import MicLevelMeter from './MicLevelMeter.svelte';
 
   let {
     manager,
@@ -16,7 +17,7 @@
     manager: ControllerManager | null;
   } = $props();
 
-  type Tab = 'lights' | 'vibration' | 'trigger';
+  type Tab = 'lights' | 'vibration' | 'trigger' | 'speaker';
   let tab = $state<Tab>('lights');
 
   // ── Lights ────────────────────────────────────────────────────────────────
@@ -169,6 +170,164 @@
     pushControllerLog('Adaptive Trigger zurückgesetzt', 'info');
   }
 
+  // ── Test-pattern auto-sequences (one-click per category) ──────────────────
+  let lightsRunning = $state(false);
+  let vibRunning = $state(false);
+  let triggerRunning = $state(false);
+  let patternAbort: (() => void) | null = null;
+
+  function stopPattern(): void {
+    patternAbort?.();
+    patternAbort = null;
+    lightsRunning = false;
+    vibRunning = false;
+    triggerRunning = false;
+  }
+
+  async function runLightsPattern(): Promise<void> {
+    if (!manager || lightsRunning) return;
+    lightsRunning = true;
+    let aborted = false;
+    patternAbort = () => { aborted = true; };
+    try {
+      const colors = [
+        { r: 255, g: 0, b: 0 },    // Rot
+        { r: 0, g: 255, b: 0 },    // Grün
+        { r: 0, g: 0, b: 255 },    // Blau
+        { r: 255, g: 255, b: 255 }, // Weiß
+        { r: 255, g: 0, b: 255 },  // Pink
+        { r: 0, g: 255, b: 255 },  // Cyan
+      ];
+      for (const c of colors) {
+        if (aborted) break;
+        r = c.r; g = c.g; b = c.b;
+        await manager.setLightbarColor(c.r, c.g, c.b);
+        lightbarColor.set(c);
+        await sleep(400);
+      }
+      // Cycle player LEDs 1→5
+      for (const pattern of [0b10001, 0b10010, 0b10101, 0b10110, 0b11111]) {
+        if (aborted) break;
+        leds = [0, 1, 2, 3, 4].map((i) => ((pattern >> i) & 1) === 1);
+        await manager.setPlayerIndicator(pattern);
+        await sleep(350);
+      }
+      // Mute LED: on → pulse → off
+      if (!aborted) { muteMode = 1; await manager.setMuteLed(1); await sleep(400); }
+      if (!aborted) { muteMode = 2; await manager.setMuteLed(2); await sleep(500); }
+      if (!aborted) { muteMode = 0; await manager.setMuteLed(0); await sleep(200); }
+      // Reset
+      if (!aborted) await resetLights();
+      pushControllerLog('Licht-Testmuster abgeschlossen', 'info');
+    } catch (e) {
+      pushControllerLog('Licht-Testmuster Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+    } finally {
+      lightsRunning = false;
+      if (patternAbort) patternAbort = null;
+    }
+  }
+
+  async function runVibPattern(): Promise<void> {
+    if (!manager || vibRunning) return;
+    vibRunning = true;
+    let aborted = false;
+    patternAbort = () => { aborted = true; };
+    try {
+      // Ramp up heavy motor
+      for (let v = 0; v <= 255 && !aborted; v += 51) {
+        heavy = v; light = 0;
+        await manager.setVibration(heavy, light);
+        await sleep(120);
+      }
+      // Ramp up light motor
+      for (let v = 0; v <= 200 && !aborted; v += 50) {
+        heavy = 0; light = v;
+        await manager.setVibration(heavy, light);
+        await sleep(120);
+      }
+      // Pulse both 3×
+      for (let i = 0; i < 3 && !aborted; i++) {
+        await manager.setVibration(200, 150);
+        await sleep(200);
+        await manager.setVibration(0, 0);
+        await sleep(200);
+      }
+      if (!aborted) {
+        heavy = 0; light = 0;
+        await manager.setVibration(0, 0);
+      }
+      pushControllerLog('Vibrations-Testmuster abgeschlossen', 'info');
+    } catch (e) {
+      pushControllerLog('Vibrations-Testmuster Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+    } finally {
+      vibRunning = false;
+      if (patternAbort) patternAbort = null;
+    }
+  }
+
+  async function runTriggerPattern(): Promise<void> {
+    if (!manager || triggerRunning) return;
+    triggerRunning = true;
+    let aborted = false;
+    patternAbort = () => { aborted = true; };
+    try {
+      const modes: { mode: TriggerMode; start: number; end: number; force: number; freq?: number }[] = [
+        { mode: 'resistance', start: 0, end: 0, force: 200 },
+        { mode: 'single', start: 80, end: 200, force: 150 },
+        { mode: 'auto', start: 0, end: 0, force: 120, freq: 10 },
+        { mode: 'off', start: 0, end: 0, force: 0 },
+      ];
+      for (const m of modes) {
+        if (aborted) break;
+        lMode = m.mode; rMode = m.mode;
+        lStart = m.start; rStart = m.start;
+        lEnd = m.end; rEnd = m.end;
+        lForce = m.force; rForce = m.force;
+        if (m.freq !== undefined) { lFreq = m.freq; rFreq = m.freq; }
+        const cfg: AdaptiveTriggerConfig = { mode: m.mode, start: m.start, end: m.end, force: m.force };
+        if (m.freq !== undefined) (cfg as { frequency?: number }).frequency = m.freq;
+        await manager.setAdaptiveTrigger(cfg, cfg);
+        await sleep(1200);
+      }
+      if (!aborted) await resetTriggers();
+      pushControllerLog('Trigger-Testmuster abgeschlossen', 'info');
+    } catch (e) {
+      pushControllerLog('Trigger-Testmuster Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+    } finally {
+      triggerRunning = false;
+      if (patternAbort) patternAbort = null;
+    }
+  }
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  // ── Speaker / Microphone ──────────────────────────────────────────────────
+  let speakerPlaying = $state(false);
+  let micActive = $state(false);
+
+  async function playSpeakerTone(durationMs: number): Promise<void> {
+    if (!manager || speakerPlaying) return;
+    speakerPlaying = true;
+    try {
+      await new Promise<void>((resolve) => {
+        manager!.setSpeakerTone('speaker', durationMs, () => resolve());
+      });
+      pushControllerLog(`Lautsprecher-Ton (${durationMs}ms) abgespielt`, 'info');
+    } catch (e) {
+      pushControllerLog('Lautsprecher-Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+    } finally {
+      speakerPlaying = false;
+    }
+  }
+
+  async function stopSpeaker(): Promise<void> {
+    if (!manager) return;
+    await manager.resetSpeakerSettings().catch(() => {});
+    speakerPlaying = false;
+  }
+
   // ── Typed slider/row descriptors ──────────────────────────────────────────
   // Declared as *typed* arrays (not inline literals in markup) so the `#each`
   // destructuring keeps each member's exact type. Inline mixed tuples get
@@ -211,6 +370,7 @@
     { id: 'lights', label: 'Lichter', icon: Lightbulb },
     { id: 'vibration', label: 'Vibration', icon: Vibrate },
     { id: 'trigger', label: 'Trigger', icon: Gauge },
+    { id: 'speaker', label: 'Audio', icon: Volume2 },
   ];
 </script>
 
@@ -283,6 +443,11 @@
 
       <div class="flex gap-2 pt-2">
         <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyLights}><Play class="h-4 w-4" /> Anwenden</button>
+        {#if lightsRunning}
+          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> Stop</button>
+        {:else}
+          <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runLightsPattern}><Play class="h-4 w-4" /> Testmuster</button>
+        {/if}
         <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetLights}><RotateCcw class="h-4 w-4" /> Reset</button>
       </div>
     </div>
@@ -300,6 +465,11 @@
         <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyVibration}><Play class="h-4 w-4" /> Start</button>
         <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runPulse}><Vibrate class="h-4 w-4" /> Puls</button>
         <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopVibration}><Square class="h-4 w-4" /> Stop</button>
+        {#if vibRunning}
+          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> Stop Muster</button>
+        {:else}
+          <button class="flex items-center gap-1.5 rounded-lg bg-purple-600/20 px-4 py-2 text-sm text-purple-400 hover:bg-purple-600/30" onclick={runVibPattern}><Play class="h-4 w-4" /> Testmuster</button>
+        {/if}
       </div>
     </div>
   {:else if tab === 'trigger'}
@@ -378,7 +548,61 @@
       {/each}
       <div class="flex gap-2 pt-1">
         <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyTriggers}><Play class="h-4 w-4" /> Anwenden</button>
+        {#if triggerRunning}
+          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> Stop</button>
+        {:else}
+          <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runTriggerPattern}><Play class="h-4 w-4" /> Testmuster</button>
+        {/if}
         <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetTriggers}><RotateCcw class="h-4 w-4" /> Reset</button>
+      </div>
+    </div>
+  {:else if tab === 'speaker'}
+    <div class="flex flex-col gap-3">
+      <!-- Mic presence + mute -->
+      <div class="flex items-center gap-3 text-xs">
+        <span class="text-gray-400">Mikrofon:</span>
+        <span class="flex items-center gap-1 { $micConnected ? 'text-teal-400' : 'text-gray-600' }">
+          <Mic class="h-3.5 w-3.5" />
+          {$micConnected ? 'angeschlossen' : 'nicht angeschlossen'}
+        </span>
+        <span class="text-gray-600">|</span>
+        <span class="text-gray-400">Mute:</span>
+        <span class={$buttonState['mute'] ? 'text-amber-400' : 'text-gray-600'}>
+          {$buttonState['mute'] ? 'stumm' : 'aktiv'}
+        </span>
+      </div>
+
+      <!-- Live mic level meter -->
+      <div class="border-t border-gray-700 pt-2">
+        <div class="text-xs text-gray-400 mb-1.5">Mikrofon-Pegel (live)</div>
+        <MicLevelMeter active={micActive} />
+        <div class="flex gap-2 mt-2">
+          {#if micActive}
+            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (micActive = false)}><Square class="h-3.5 w-3.5" /> Pegel aus</button>
+          {:else}
+            <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (micActive = true)}><Mic class="h-3.5 w-3.5" /> Pegel an</button>
+          {/if}
+        </div>
+      </div>
+
+      <!-- Speaker tone test -->
+      <div class="border-t border-gray-700 pt-2">
+        <div class="text-xs text-gray-400 mb-1.5">Lautsprecher-Ton (eingebauter Controller-Ton)</div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs text-white hover:bg-teal-700 disabled:opacity-50"
+            onclick={() => playSpeakerTone(500)}
+            disabled={speakerPlaying}
+          ><Volume2 class="h-3.5 w-3.5" /> Kurz (500ms)</button>
+          <button
+            class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs text-white hover:bg-teal-700 disabled:opacity-50"
+            onclick={() => playSpeakerTone(2000)}
+            disabled={speakerPlaying}
+          ><Volume2 class="h-3.5 w-3.5" /> Lang (2s)</button>
+          {#if speakerPlaying}
+            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={stopSpeaker}><Square class="h-3.5 w-3.5" /> Stop</button>
+          {/if}
+        </div>
       </div>
     </div>
   {/if}

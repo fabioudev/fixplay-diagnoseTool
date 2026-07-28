@@ -1,7 +1,7 @@
 
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power } from 'lucide-svelte';
+  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair } from 'lucide-svelte';
   import StickVisualizer from './StickVisualizer.svelte';
   import ControllerVisualizer from './ControllerVisualizer.svelte';
   import TesterPanel from './TesterPanel.svelte';
@@ -32,6 +32,7 @@
 
   let manager = $state<ControllerManager | null>(null);
   let calibOpen = $state(false);
+  let circOpen = $state(false);
   let quickTestOpen = $state(false);
   let connecting = $state(false);
   let connectError = $state<string | null>(null);
@@ -66,13 +67,12 @@
 
       controllerConnected.set(true);
       controllerModel.set(ctrl.getModel());
-      const info = await ctrl.getInfo();
-      controllerInfo.set(info);
-      fwVersion  = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
-      macAddress = info.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
-      pushControllerLog(`Controller verbunden: ${ctrl.getModel()}`, 'info');
 
-      // Poll for input reports at ~60 fps
+      // Start polling before getInfo so transport (USB vs BT) is detected
+      // from the first input report. Feature-report writes need correct CRC
+      // framing on Bluetooth, and transport defaults to 'usb' until an input
+      // report arrives — without this, getBdAddr's 0x80 write would be sent
+      // without CRC on BT and silently dropped by the controller.
       pollInterval = setInterval(async () => {
         try {
           const result = await invoke<HidPollResult>('hid_poll');
@@ -88,6 +88,15 @@
           // ignore transient poll errors
         }
       }, 16);
+
+      // Brief pause for the first input report to arrive and set transport.
+      await new Promise((r) => setTimeout(r, 80));
+
+      const info = await ctrl.getInfo();
+      controllerInfo.set(info);
+      fwVersion  = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
+      macAddress = info.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
+      pushControllerLog(`Controller verbunden: ${ctrl.getModel()}`, 'info');
     } catch (e) {
       connectError = e instanceof Error ? e.message : String(e);
       pushControllerLog('Verbindung fehlgeschlagen: ' + connectError, 'error');
@@ -197,6 +206,25 @@
       </div>
     </div>
 
+    <!-- Quick actions — calibration, circularity test, quick test (most important, at top) -->
+    <div class="flex flex-wrap gap-2">
+      <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700" onclick={() => (calibOpen = true)}>
+        <Wrench class="h-4 w-4" /> Kalibrierung
+      </button>
+      <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={() => (circOpen = true)}>
+        <Crosshair class="h-4 w-4" /> Rundheit
+      </button>
+      <button class="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700" onclick={() => (quickTestOpen = true)}>
+        <Zap class="h-4 w-4" /> Schnelltest
+      </button>
+      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title="Änderungen dauerhaft im Controller speichern">
+        <Lightbulb class="h-4 w-4" /> Speichern
+      </button>
+      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetController}>
+        <RefreshCw class="h-4 w-4" /> Reset
+      </button>
+    </div>
+
     <!-- Live controller graphic — buttons/sticks/triggers highlight as pressed -->
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-2 flex items-center gap-2 text-sm font-medium text-gray-300">
@@ -237,20 +265,6 @@
           <span class="text-xs text-gray-500">Rechts (R3)</span>
         </div>
       </div>
-      <!-- Deadzone slider — visualized as the shaded disc in the stick dials -->
-      <div class="mt-3 flex items-center gap-3">
-        <span class="text-xs text-gray-500 shrink-0 w-20">Deadzone</span>
-        <input
-          type="range"
-          min="0"
-          max="0.5"
-          step="0.01"
-          value={$stickDeadzone}
-          oninput={(e) => stickDeadzone.set(parseFloat((e.target as HTMLInputElement).value))}
-          class="flex-1 accent-blue-500"
-        />
-        <span class="text-xs text-gray-400 w-10 text-right">{$stickDeadzone.toFixed(2)}</span>
-      </div>
     </div>
 
     <!-- Triggers -->
@@ -272,22 +286,6 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="flex flex-wrap gap-2">
-      <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700" onclick={() => (calibOpen = true)}>
-        <Wrench class="h-4 w-4" /> Kalibrierung
-      </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700" onclick={() => (quickTestOpen = true)}>
-        <Zap class="h-4 w-4" /> Schnelltest
-      </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title="Änderungen im nichtflüchtigen Speicher (NVS) des Controllers speichern">
-        <Lightbulb class="h-4 w-4" /> NVS speichern
-      </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetController}>
-        <RefreshCw class="h-4 w-4" /> Reset
-      </button>
-    </div>
-
     <!-- Log -->
     <div class="rounded-xl bg-gray-900/60 p-3">
       <div class="mb-2 text-xs font-medium text-gray-500">Protokoll</div>
@@ -303,5 +301,6 @@
 </div>
 
 <CalibrationModal bind:open={calibOpen} {manager} />
+<CalibrationModal bind:open={circOpen} {manager} initialMode="range" />
 <QuickTestModal bind:open={quickTestOpen} {manager} />
 

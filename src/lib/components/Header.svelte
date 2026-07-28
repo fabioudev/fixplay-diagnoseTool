@@ -4,7 +4,7 @@
   import { PanelLeftClose, PanelLeftOpen, RefreshCw } from 'lucide-svelte';
   import { checkUpdates, updateAvailable, updateBusy } from '$lib/stores/updater';
 
-  type View = 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
+  type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
   let {
     view,
@@ -17,6 +17,7 @@
   } = $props();
 
   const titles: Record<View, string> = {
+    home:    'Start',
     flash:   'NOR Flash Diagnose',
     uart:    'UART Diagnostik',
     i2c:     'I2C / Pico Diagnostik',

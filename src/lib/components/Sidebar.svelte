@@ -1,12 +1,12 @@
 
 <script lang="ts">
 
-  import { Cpu, Usb, Archive, Settings, Gamepad2, CircuitBoard } from 'lucide-svelte';
+  import { Cpu, Usb, Archive, Settings, Gamepad2, CircuitBoard, Home } from 'lucide-svelte';
   import FixplayIcon from '$lib/components/FixplayIcon.svelte';
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
 
-  type View = 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
+  type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
   let {
     active,
@@ -21,6 +21,7 @@
   } = $props();
 
   const items: { id: View; label: string; icon: typeof Cpu }[] = [
+    { id: 'home',    label: 'Start',      icon: Home },
     { id: 'flash',   label: 'NOR Flash', icon: Cpu },
     { id: 'uart',    label: 'UART',      icon: Usb },
     { id: 'i2c',     label: 'I2C / Pico', icon: CircuitBoard },
