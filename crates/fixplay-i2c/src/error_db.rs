@@ -28,13 +28,18 @@ use std::path::Path;
 /// resolves and tracks the file the app already ships.
 const DB_URL: &str = "https://raw.githubusercontent.com/fabioudev/fixplay-diagnoseTool/main/src-tauri/resources/xbox_error_codes.json";
 
+/// One Xbox error code with its description and category.
 #[derive(Debug)]
 pub struct XboxErrorEntry {
+    /// The code string (e.g. `E74`, `0102`).
     pub code:        String,
+    /// The full error message text.
     pub description: String,
+    /// Category (from the JSON, or derived from the message).
     pub category:    String,
 }
 
+/// In-memory Xbox error-code database, keyed by the normalized code string.
 pub struct XboxErrorDb {
     entries: HashMap<String, XboxErrorEntry>,
 }
@@ -80,6 +85,7 @@ fn extract_category(message: &str, fallback: &str) -> String {
 }
 
 impl XboxErrorDb {
+    /// Build the database from a raw JSON string (the Xbox error-code format).
     pub fn from_json(json: &str) -> Result<Self, I2cError> {
         let raw: RawDb = serde_json::from_str(json)
             .map_err(|e| I2cError::DbFetch(e.to_string()))?;
@@ -103,6 +109,9 @@ impl XboxErrorDb {
         Ok(Self { entries })
     }
 
+    /// Load the database from a cached JSON file. A poisoned (non-JSON) cache
+    /// surfaces as a clean error so the caller can fall back to the bundled
+    /// resource or a fresh fetch.
     pub fn from_cache(path: &Path) -> Result<Self, I2cError> {
         let json = std::fs::read_to_string(path)
             .map_err(|e| I2cError::DbFetch(e.to_string()))?;
@@ -118,6 +127,8 @@ impl XboxErrorDb {
         Self::from_json(&json)
     }
 
+    /// Fetch the database from the upstream URL and write it to `path` for
+    /// future cache hits, with HTTP-status and size guards.
     pub fn fetch_and_cache(path: &Path) -> Result<Self, I2cError> {
         let response = reqwest::blocking::get(DB_URL)
             .map_err(|e| I2cError::DbFetch(e.to_string()))?;
@@ -148,18 +159,23 @@ impl XboxErrorDb {
         Self::from_json(&text)
     }
 
+    /// Look up an entry by code (case-insensitive, `0x`-tolerant).
     pub fn lookup(&self, code: &str) -> Option<&XboxErrorEntry> {
         self.entries.get(&normalize(code))
     }
 
+    /// Number of entries in the database.
     pub fn len(&self) -> usize {
         self.entries.len()
     }
 
+    /// Whether the database holds no entries.
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
     }
 
+    /// Case-insensitive substring search over code, description, and category,
+    /// sorted by code, truncated to `limit` results.
     pub fn search(&self, query: &str, limit: usize) -> Vec<&XboxErrorEntry> {
         let q = query.to_lowercase();
         let mut results: Vec<&XboxErrorEntry> = self.entries.values()
@@ -174,6 +190,8 @@ impl XboxErrorDb {
         results
     }
 
+    /// Load from cache, falling back to a fresh fetch + cache write on any
+    /// cache error.
     pub fn load(path: &Path) -> Result<Self, I2cError> {
         match Self::from_cache(path) {
             Ok(db) => Ok(db),

@@ -31,25 +31,40 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "cmd", rename_all = "snake_case")]
 pub enum I2cRequest {
+    /// Scan the bus for responding addresses.
     Scan,
+    /// Read `len` bytes from `addr`, optionally at register `reg`.
     Read {
+        /// 7-bit I2C address (no R/W bit).
         addr: u8,
+        /// Optional register to read from; `None` reads from the current pointer.
         #[serde(skip_serializing_if = "Option::is_none")]
         reg: Option<u8>,
+        /// Number of bytes to read.
         len: u16,
     },
+    /// Write `data` to `addr`, optionally at register `reg`.
     Write {
+        /// 7-bit I2C address.
         addr: u8,
+        /// Optional register to write to; `None` writes at the current pointer.
         #[serde(skip_serializing_if = "Option::is_none")]
         reg: Option<u8>,
+        /// Bytes to write.
         data: Vec<u8>,
     },
+    /// Paged EEPROM read of `len` bytes starting at `offset`.
     ReadEeprom {
+        /// 7-bit I2C address of the EEPROM.
         addr: u8,
+        /// Byte offset to start reading from.
         offset: u16,
+        /// Number of bytes to read.
         len: u16,
     },
+    /// Read the Xbox error log.
     Errlog,
+    /// Query bridge/firmware info.
     Info,
 }
 
@@ -60,12 +75,18 @@ impl I2cRequest {
     }
 }
 
+/// Firmware/bridge info reported by the Pico in response to [`I2cRequest::Info`].
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct InfoPayload {
+    /// Firmware version string.
     pub firmware: String,
+    /// I2C bus in use (e.g. `i2c0`).
     pub bus:       String,
+    /// SCL pin number.
     pub scl:       u8,
+    /// SDA pin number.
     pub sda:       u8,
+    /// Measured voltage, if the firmware reports one.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub voltage:   Option<String>,
 }
@@ -75,9 +96,12 @@ pub struct InfoPayload {
 /// resolves it against [`crate::XboxErrorDb`].
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ErrlogItem {
+    /// Decoded error code string.
     pub code: String,
+    /// Entry timestamp, if the firmware reports one.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timestamp: Option<u32>,
+    /// Source/origin of the error, if reported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source:    Option<String>,
     /// Raw bytes the code was decoded from, for auditing. Serialized as a JSON
@@ -91,24 +115,33 @@ pub struct ErrlogItem {
 /// `type` is optional; callers extract the relevant one based on `type`.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct I2cResponse {
+    /// Whether the request succeeded.
     pub ok: bool,
+    /// Echoed command name (e.g. `scan`, `read`).
     #[serde(rename = "type")]
     pub resp_type: String,
+    /// Addresses found by a `scan`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub addresses: Option<Vec<u8>>,
+    /// Address a `read`/`write` targeted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub addr:      Option<u8>,
+    /// Bytes returned by a `read`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data:      Option<Vec<u8>>,
+    /// Errlog entries returned by an `errlog` request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entries:   Option<Vec<ErrlogItem>>,
+    /// Info payload returned by an `info` request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub info:      Option<InfoPayload>,
+    /// Error message when `ok` is false.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error:     Option<String>,
 }
 
 impl I2cResponse {
+    /// Parse an NDJSON response line into the envelope.
     pub fn parse(line: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(line.trim())
     }

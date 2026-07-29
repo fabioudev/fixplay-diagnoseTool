@@ -24,10 +24,13 @@ const READ_TIMEOUT_MS: u64 = 2000;
 /// Per-byte budget used while accumulating a response line.
 const BYTE_POLL_MS: u64 = 100;
 
+/// USB-CDC bridge to the `fixplay-pico-i2c` firmware. A single serial port
+/// handle is kept behind a mutex; request/response is synchronous under that
+/// lock (no reader thread, no shared buffers).
 pub struct I2cBridge {
-    pub connected: bool,
-    port:          Mutex<Option<Box<dyn SerialPort + Send>>>,
-    pub stop_flag: Arc<AtomicBool>,
+    connected: bool,
+    port:      Mutex<Option<Box<dyn SerialPort + Send>>>,
+    stop_flag: Arc<AtomicBool>,
 }
 
 impl Default for I2cBridge {
@@ -42,7 +45,7 @@ impl I2cBridge {
     pub fn list_ports() -> Result<Vec<String>, I2cError> {
         info!("listing available serial ports for I2C bridge");
         let ports = serialport::available_ports()
-            .map_err(|e| I2cError::Serial(e.to_string()))?;
+            .map_err(|e| I2cError::Serial(e.into()))?;
         Ok(ports.into_iter().map(|p| p.port_name).collect())
     }
 
@@ -54,17 +57,24 @@ impl I2cBridge {
         name.to_lowercase().contains("pico") || name.to_lowercase().contains("2e8a")
     }
 
+    /// Install an already-open serial port handle and mark the bridge connected.
     pub fn set_port(&mut self, port: Box<dyn SerialPort + Send>) {
         *self.port.lock().unwrap() = Some(port);
         self.connected = true;
         self.stop_flag.store(false, Ordering::Relaxed);
     }
 
+    /// Handle to the reader stop flag (exposed as a cloned `Arc` so the struct's
+    /// connection state stays encapsulated rather than a `pub` field).
+    pub fn stop_flag(&self) -> Arc<AtomicBool> {
+        Arc::clone(&self.stop_flag)
+    }
+
     /// Write a raw line (no added terminator) to the bridge.
     pub fn write_line(&self, line: &str) -> Result<(), I2cError> {
         let mut guard = self.port.lock().unwrap();
         match guard.as_mut() {
-            Some(p) => p.write_all(line.as_bytes()).map_err(|e| I2cError::Serial(e.to_string())),
+            Some(p) => p.write_all(line.as_bytes()).map_err(|e| I2cError::Serial(e.into())),
             None => Err(I2cError::NotConnected),
         }
     }
@@ -82,9 +92,9 @@ impl I2cBridge {
         let _ = port.clear(serialport::ClearBuffer::Input);
 
         port.write_all(line.as_bytes())
-            .map_err(|e| I2cError::Serial(e.to_string()))?;
+            .map_err(|e| I2cError::Serial(e.into()))?;
         port.write_all(b"\n")
-            .map_err(|e| I2cError::Serial(e.to_string()))?;
+            .map_err(|e| I2cError::Serial(e.into()))?;
         port.flush().ok();
 
         let response = read_line(port, Duration::from_millis(READ_TIMEOUT_MS))?;
@@ -104,7 +114,7 @@ impl I2cDevice for I2cBridge {
         let p = serialport::new(port, baud_rate)
             .timeout(Duration::from_millis(BYTE_POLL_MS))
             .open()
-            .map_err(|e| I2cError::Serial(e.to_string()))?;
+            .map_err(|e| I2cError::Serial(e.into()))?;
         self.set_port(p);
         Ok(())
     }
@@ -114,22 +124,6 @@ impl I2cDevice for I2cBridge {
         *self.port.lock().unwrap() = None;
         self.connected = false;
         Ok(())
-    }
-
-    fn read_line(&self) -> Result<Option<String>, AppError> {
-        let mut guard = self.port.lock().unwrap();
-        let port = match guard.as_mut() {
-            Some(p) => p,
-            None => return Err(I2cError::NotConnected.into()),
-        };
-        match read_line(port, Duration::from_millis(BYTE_POLL_MS * 2)) {
-            Ok(line) => Ok(Some(line)),
-            // Only treat WouldBlock/TimedOut as "no data yet"; other serial
-            // errors (broken cable, USB disconnect) propagate as real errors.
-            Err(I2cError::Serial(ref msg))
-                if msg.contains("timed out") || msg.contains("WouldBlock") => Ok(None),
-            Err(e) => Err(e.into()),
-        }
     }
 
     fn is_connected(&self) -> bool {
@@ -184,7 +178,7 @@ fn read_line(port: &mut Box<dyn SerialPort + Send>, deadline: Duration) -> Resul
             // value is unexpected but harmless to ignore.
             Ok(_) => {}
             Err(e) if e.kind() == std::io::ErrorKind::TimedOut => continue,
-            Err(e) => return Err(I2cError::Serial(e.to_string())),
+            Err(e) => return Err(I2cError::Serial(e.into())),
         }
     }
 }
@@ -220,15 +214,17 @@ mod tests {
     }
 
     #[test]
-    fn read_line_when_disconnected_returns_err() {
+    fn stop_flag_default_is_false() {
         let b = I2cBridge::default();
-        assert!(b.read_line().is_err());
+        assert!(!b.stop_flag().load(Ordering::Relaxed));
     }
 
     #[test]
-    fn stop_flag_default_is_false() {
-        let b = I2cBridge::default();
-        assert!(!b.stop_flag.load(Ordering::Relaxed));
+    fn disconnect_raises_stop_flag() {
+        let mut b = I2cBridge::default();
+        b.disconnect().unwrap();
+        assert!(b.stop_flag().load(Ordering::Relaxed));
+        assert!(!b.is_connected());
     }
 
     #[test]

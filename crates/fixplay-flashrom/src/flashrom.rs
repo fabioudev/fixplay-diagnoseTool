@@ -8,12 +8,18 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use tracing::info;
 
+/// A handle to the `flashrom` binary configured for a specific programmer.
+/// Cheap to share — the per-operation work happens in [`FlashDevice`] methods
+/// that spawn the subprocess on a blocking thread.
 #[derive(Clone)]
 pub struct FlashromDevice {
+    /// The `flashrom -p` programmer argument (e.g. `ch341a`, `dummy`).
     pub programmer:  String,
+    /// Absolute path to the `flashrom` binary to invoke.
     pub binary_path: PathBuf,
 }
 
+/// Resolve the bundled `flashrom` binary path inside a Tauri resource dir.
 pub fn flashrom_path(resource_dir: &std::path::Path) -> PathBuf {
     // Tauri's resource bundler PRESERVES the `binaries/` subdir declared in
     // tauri.conf.json `bundle.resources`, so the binary lands at
@@ -90,7 +96,7 @@ impl FlashDevice for FlashromDevice {
             ).into());
         }
 
-        let bytes = std::fs::read(&tmp).map_err(|e| FlashError::Io(e.to_string()))?;
+        let bytes = std::fs::read(&tmp).map_err(|e| FlashError::Io(e.into()))?;
         let _ = std::fs::remove_file(&tmp);
         Ok(bytes)
     }
@@ -99,7 +105,7 @@ impl FlashDevice for FlashromDevice {
         info!("writing flash with programmer {}", self.programmer);
         let tmp = std::env::temp_dir()
             .join(format!("fixplay_write_{}.bin", std::process::id()));
-        std::fs::write(&tmp, data).map_err(|e| FlashError::Io(e.to_string()))?;
+        std::fs::write(&tmp, data).map_err(|e| FlashError::Io(e.into()))?;
 
         let tmp_str = tmp.to_str().ok_or_else(|| AppError::from(FlashError::Io("temp path is not valid UTF-8".into())))?;
         let mut child = Command::new(&self.binary_path)

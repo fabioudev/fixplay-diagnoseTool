@@ -1,9 +1,11 @@
 use fixplay_core::types::ErrlogEntry;
 
+/// Trailing checksum byte for a PS5 UART command (sum of bytes mod 256).
 pub fn checksum(cmd: &str) -> u8 {
     (cmd.bytes().map(|b| b as u32).sum::<u32>() % 256) as u8
 }
 
+/// Frame `cmd` as a PS5 UART line: `<cmd>:<XX>\r\n` with the hex checksum.
 pub fn build_command(cmd: &str) -> String {
     format!("{}:{:02X}\r\n", cmd, checksum(cmd))
 }

@@ -6,6 +6,7 @@ use fixplay_core::{
 use fixplay_flashrom::FlashromDevice;
 use fixplay_core::traits::FlashDevice;
 use serde::Serialize;
+use std::sync::Arc;
 use tauri::{AppHandle, Emitter, Manager};
 use tracing::info;
 
@@ -115,17 +116,17 @@ pub async fn flash_read(
     validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
     let settings     = crate::settings::load_settings_or_default(&app);
-    let device = FlashromDevice {
+    let device = Arc::new(FlashromDevice {
         programmer:  programmer.clone(),
         binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
-    };
+    });
 
     emit_status(&app, "Erster Lesevorgang...", "info");
     info!("flash_read: first pass, programmer={}", programmer);
 
     let bytes1 = {
         let app_c  = app.clone();
-        let dev    = device.clone();
+        let dev    = Arc::clone(&device);
         tokio::task::spawn_blocking(move || {
             dev.read_flash(&|p: FlashProgress| {
                 let _ = app_c.emit("flash://progress", FlashProgressEvent {
@@ -144,7 +145,7 @@ pub async fn flash_read(
 
     let bytes2 = {
         let app_c = app.clone();
-        let dev   = device.clone();
+        let dev   = Arc::clone(&device);
         tokio::task::spawn_blocking(move || {
             dev.read_flash(&|p: FlashProgress| {
                 let _ = app_c.emit("flash://progress", FlashProgressEvent {
@@ -192,10 +193,10 @@ pub async fn flash_write(
     validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
     let settings     = crate::settings::load_settings_or_default(&app);
-    let device = FlashromDevice {
+    let device = Arc::new(FlashromDevice {
         programmer:  programmer.clone(),
         binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
-    };
+    });
 
     let data = std::fs::read(&path).map_err(|e| e.to_string())?;
     emit_status(&app, "Schreibe NOR (Löschen + Schreiben)...", "info");
@@ -203,7 +204,7 @@ pub async fn flash_write(
 
     {
         let app_c     = app.clone();
-        let dev       = device.clone();
+        let dev       = Arc::clone(&device);
         let data_copy = data.clone();
         tokio::task::spawn_blocking(move || {
             dev.write_flash(&data_copy, &|p: FlashProgress| {
@@ -222,7 +223,7 @@ pub async fn flash_write(
         emit_status(&app, "Verifiziere...", "info");
         let read_back = {
             let app_c = app.clone();
-            let dev   = device.clone();
+            let dev   = Arc::clone(&device);
             tokio::task::spawn_blocking(move || {
                 dev.read_flash(&|p: FlashProgress| {
                     let _ = app_c.emit("flash://progress", FlashProgressEvent {

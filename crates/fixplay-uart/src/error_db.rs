@@ -2,13 +2,18 @@ use fixplay_core::error::UartError;
 use std::collections::HashMap;
 use std::path::Path;
 
+/// One PS5 error code with its human-readable description and category.
 #[derive(Debug)]
 pub struct ErrorEntry {
+    /// The numeric error code.
     pub code:        u32,
+    /// The full error message text.
     pub description: String,
+    /// Category extracted from the message (the part before the first dash).
     pub category:    String,
 }
 
+/// In-memory PS5 error-code database, keyed by code.
 pub struct ErrorDb {
     entries: HashMap<u32, ErrorEntry>,
 }
@@ -41,6 +46,7 @@ fn extract_category(message: &str) -> String {
 }
 
 impl ErrorDb {
+    /// Build the database from a raw JSON string (the Console-Service-Tool format).
     pub fn from_json(json: &str) -> Result<Self, UartError> {
         let raw: RawDb = serde_json::from_str(json)
             .map_err(|e| UartError::DbFetch(e.to_string()))?;
@@ -57,6 +63,8 @@ impl ErrorDb {
         Ok(Self { entries })
     }
 
+    /// Load the database from a cached JSON file. A poisoned (non-JSON) cache
+    /// surfaces as a clean error so the caller can fall back to a fresh fetch.
     pub fn from_cache(path: &Path) -> Result<Self, UartError> {
         let json = std::fs::read_to_string(path)
             .map_err(|e| UartError::DbFetch(e.to_string()))?;
@@ -71,6 +79,8 @@ impl ErrorDb {
         Self::from_json(&json)
     }
 
+    /// Fetch the database from the upstream URL and write it to `path` for
+    /// future cache hits, with a size guard against a compromised upstream.
     pub fn fetch_and_cache(path: &Path) -> Result<Self, UartError> {
         let response = reqwest::blocking::get(DB_URL)
             .map_err(|e| UartError::DbFetch(e.to_string()))?;
@@ -97,18 +107,23 @@ impl ErrorDb {
         Self::from_json(&text)
     }
 
+    /// Look up an entry by error code.
     pub fn lookup(&self, code: u32) -> Option<&ErrorEntry> {
         self.entries.get(&code)
     }
 
+    /// Number of entries in the database.
     pub fn len(&self) -> usize {
         self.entries.len()
     }
 
+    /// Whether the database holds no entries.
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
     }
 
+    /// Case-insensitive substring search over description + category, sorted
+    /// by code, truncated to `limit` results.
     pub fn search(&self, query: &str, limit: usize) -> Vec<&ErrorEntry> {
         let q = query.to_lowercase();
         let mut results: Vec<&ErrorEntry> = self.entries.values()
@@ -122,6 +137,8 @@ impl ErrorDb {
         results
     }
 
+    /// Load from cache, falling back to a fresh fetch + cache write on any
+    /// cache error (missing file, poisoned JSON).
     pub fn load(path: &Path) -> Result<Self, UartError> {
         match Self::from_cache(path) {
             Ok(db) => Ok(db),

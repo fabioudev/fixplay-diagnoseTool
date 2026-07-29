@@ -1,5 +1,6 @@
 use crate::types::{NorValidation, NvsData};
 
+/// Expected NOR dump size (2 MB).
 pub const EXPECTED_SIZE: usize = 0x200000; // 2 MB
 
 const HEADER_MAGIC:    &[u8; 32] = b"SONY COMPUTER ENTERTAINMENT INC.";
@@ -20,6 +21,8 @@ const SKU_OFFSET:        usize = 0x1C7230;
 const BOARD_ID_OFFSET:   usize = 0x1C7250;
 const FW_VERSION_OFFSET: usize = 0x1C8068;
 
+/// Validate a NOR dump by checking the magic bytes of each known section
+/// (header, MBRs, EMC/IPL, USB-PDC) and the overall size.
 pub fn validate(data: &[u8]) -> NorValidation {
     let check = |offset: usize, magic: &[u8]| -> bool {
         data.len() >= offset + magic.len() && &data[offset..offset + magic.len()] == magic
@@ -36,6 +39,8 @@ pub fn validate(data: &[u8]) -> NorValidation {
     }
 }
 
+/// Parse the non-volatile storage (serial, MAC, SKU, board id, firmware
+/// version) out of a NOR dump. Returns `None` if the dump is too short.
 pub fn parse_nvs(data: &[u8]) -> Option<NvsData> {
     if data.len() < EXPECTED_SIZE {
         return None;
@@ -129,9 +134,7 @@ mod tests {
         let mut data = make_valid_nor();
         let serial = b"AE12345678";
         data[SERIAL_OFFSET..SERIAL_OFFSET + serial.len()].copy_from_slice(serial);
-        for i in (SERIAL_OFFSET + serial.len())..(SERIAL_OFFSET + 32) {
-            data[i] = 0xFF;
-        }
+        data[SERIAL_OFFSET + serial.len()..SERIAL_OFFSET + 32].fill(0xFF);
         let nvs = parse_nvs(&data).unwrap();
         assert_eq!(nvs.serial, "AE12345678");
     }

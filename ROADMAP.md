@@ -96,23 +96,23 @@
 - [x] **#80** No `.nvmrc` or `.node-version` for local development — `.nvmrc` → Node 22
 - [x] **#81** No `.vscode/extensions.json` for contributor onboarding — added
 - [x] **#82** No `[workspace.package]` in root `Cargo.toml` — added (version/edition/license/repository)
-- [ ] **#83** Duplicate `reqwest` (0.12 + 0.13) in `Cargo.lock`
-- [ ] **#84** `#[allow(dead_code)]` on entire `AppState` struct masks unused fields
+- [x] **#83** Duplicate `reqwest` (0.12 + 0.13) in `Cargo.lock` — uart + i2c crates bumped to `reqwest = "0.13"` (matching tauri-plugin-updater); lock now resolves a single reqwest 0.13.4
+- [x] **#84** `#[allow(dead_code)]` on entire `AppState` struct masks unused fields — blanket allow removed; clippy -D warnings confirms every field is used (per-field allows added if any go unused)
 - [ ] **#85** Inconsistent log entry types across stores
 - [ ] **#86** Inconsistent connection state models across subsystems
 - [ ] **#87** `flashWritePath` used as ad-hoc cross-component event bus
 - [ ] **#88** Missing shared stores: archive, notifications, app state
-- [ ] **#89** `I2cDevice` and `UartDevice` traits are identical (4 same method signatures)
+- [x] **#89** `I2cDevice` and `UartDevice` traits are identical (4 same method signatures) — `I2cDevice` is now `pub use UartDevice as I2cDevice` (a trait alias); single definition, existing call sites unchanged
 - [ ] **#90** `ErrorDb` (PS5) and `XboxErrorDb` (Xbox) are ~90% duplicated code
-- [ ] **#91** `UartPort::read_line()` is dead code (stub, never called)
-- [ ] **#92** `UartPort` and `I2cBridge` have `pub` fields breaking encapsulation
-- [ ] **#93** Inconsistent `write_line` signatures: `&mut self` vs `&self`
-- [ ] **#94** Error chain loss in `FlashError::Io(String)`, `UartError::Serial(String)`, `I2cError::Serial(String)`
+- [x] **#91** `UartPort::read_line()` is dead code (stub, never called) — removed from the `UartDevice` trait and both impls (UartPort stub + I2cBridge's unused trait method); the i2c free-function `read_line` used by `request()` is unaffected
+- [x] **#92** `UartPort` and `I2cBridge` have `pub` fields breaking encapsulation — `connected`/`stop_flag` are now private; `stop_flag()` accessor returns a cloned `Arc`
+- [x] **#93** Inconsistent `write_line` signatures: `&mut self` vs `&self` — `UartPort::write_line` is now `&self` (matching `I2cBridge`); uart command call sites use `as_ref()` instead of `as_mut()`
+- [x] **#94** Error chain loss in `FlashError::Io(String)`, `UartError::Serial(String)`, `I2cError::Serial(String)` — variants now hold `#[source] Box<dyn std::error::Error + Send + Sync>` (keeps fixplay-core free of hardware deps while preserving `Error::source()`); Display unchanged
 - [x] **#95** `ErrorDb::from_cache()` uses semantically wrong error variant — file-read error now maps to `DbFetch` (was `Serial`) in both uart + i2c crates
-- [ ] **#96** No `#[deny(missing_docs)]` or `#[warn(missing_docs)]` in any crate
+- [x] **#96** No `#[deny(missing_docs)]` or `#[warn(missing_docs)]` in any crate — `#![warn(missing_docs)]` added to all 4 library crates (fixplay-core/flashrom/uart/i2c); every public item, struct field, enum variant, and trait method now documented (clippy --all-targets -D warnings clean)
 - [ ] **#97** No file-based logging for release builds on Windows
-- [ ] **#98** Single-byte UART read loop is inefficient
-- [ ] **#99** `FlashromDevice` cloned unnecessarily in `flash_read`/`flash_write`
+- [x] **#98** Single-byte UART read loop is inefficient — `reader_loop` now reads into a 256-byte buffer per syscall (consuming a full line in one read) and accumulates across reads; plus a 64 KB runaway-line guard
+- [x] **#99** `FlashromDevice` cloned unnecessarily in `flash_read`/`flash_write` — the device is now shared via `Arc<FlashromDevice>` and `Arc::clone`d into each `spawn_blocking` thread instead of cloning the `String`+`PathBuf`
 - [ ] **#100** No macOS build target in CI
 - [ ] **#101** No ARM64 Linux or Windows ARM64 builds
 

@@ -14,7 +14,6 @@ pub struct PendingEntry {
     pub description: Option<String>,
 }
 
-#[allow(dead_code)]
 pub struct AppState {
     pub uart:               Mutex<Option<UartPort>>,
     pub uart_stop:          Mutex<Option<Arc<AtomicBool>>>,

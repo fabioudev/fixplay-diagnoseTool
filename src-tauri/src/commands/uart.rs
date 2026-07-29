@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tauri::{AppHandle, Manager, State};
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 // NOTE on architecture: Tauri events emitted from background threads are not
 // reliably delivered to the webview in this setup. All UART state therefore
@@ -242,9 +242,9 @@ pub async fn uart_disconnect(state: State<'_, AppState>) -> Result<(), String> {
 /// Write a command to the port and remember it so the reader can drop the
 /// echo the PS5 UART mirrors back.
 fn send_tracked(state: &AppState, cmd: &str) -> Result<(), String> {
-    let mut guard = state.uart.lock().unwrap();
+    let guard = state.uart.lock().unwrap();
     guard
-        .as_mut()
+        .as_ref()
         .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
         .write_line(cmd)
         .map_err(|e| format!("Senden fehlgeschlagen: {}", e))?;
@@ -293,9 +293,9 @@ pub async fn uart_loopback_test(state: State<'_, AppState>) -> Result<bool, Stri
     state.loopback_triggered.store(false, Ordering::Release);
 
     {
-        let mut guard = state.uart.lock().unwrap();
+        let guard = state.uart.lock().unwrap();
         guard
-            .as_mut()
+            .as_ref()
             .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
             .write_line("LOOPBACK:PING\r\n")
             .map_err(|e| format!("Senden fehlgeschlagen: {}", e))?;
@@ -620,30 +620,45 @@ fn reader_loop(
     stop: Arc<AtomicBool>,
     app: AppHandle,
 ) {
-    let mut buf = Vec::<u8>::with_capacity(256);
-    let mut byte = [0u8; 1];
+    // Accumulate the current line across reads; `read_buf` absorbs as many
+    // bytes as the OS has ready per syscall instead of one-at-a-time, which
+    // previously turned a single 115200-baud line into hundreds of 1-byte
+    // reads (each a blocking syscall + timeout check). serialport::read
+    // returns however many bytes are available (up to the buffer length), so
+    // a full line is usually consumed in one read while byte-by-byte dribble
+    // still works correctly.
+    let mut line_buf = Vec::<u8>::with_capacity(512);
+    let mut read_buf = [0u8; 256];
+    // Guard against a runaway device that streams without ever sending `\n`:
+    // drop the accumulated bytes past this point instead of growing forever.
+    const MAX_LINE_BYTES: usize = 65_536;
 
     loop {
         if stop.load(Ordering::Relaxed) {
             break;
         }
-        match port.read(&mut byte) {
-            Ok(1) => {
-                if byte[0] == b'\n' {
-                    let line = String::from_utf8_lossy(&buf)
-                        .trim_end_matches('\r')
-                        .to_string();
-                    buf.clear();
-                    if line.is_empty() {
-                        continue;
+        match port.read(&mut read_buf) {
+            Ok(0) => {}
+            Ok(n) => {
+                for &byte in &read_buf[..n] {
+                    if byte == b'\n' {
+                        let line = String::from_utf8_lossy(&line_buf)
+                            .trim_end_matches('\r')
+                            .to_string();
+                        line_buf.clear();
+                        if !line.is_empty() {
+                            let Some(state) = app.try_state::<AppState>() else { return; };
+                            handle_line(line, &state);
+                        }
+                    } else {
+                        line_buf.push(byte);
+                        if line_buf.len() > MAX_LINE_BYTES {
+                            warn!("reader_loop: line exceeded {MAX_LINE_BYTES} bytes without a newline — dropping");
+                            line_buf.clear();
+                        }
                     }
-                    let Some(state) = app.try_state::<AppState>() else { return; };
-                    handle_line(line, &state);
-                } else {
-                    buf.push(byte[0]);
                 }
             }
-            Ok(_) => {}
             Err(e) if e.kind() == std::io::ErrorKind::TimedOut => {}
             Err(e) => {
                 error!("reader_loop error: {}", e);
