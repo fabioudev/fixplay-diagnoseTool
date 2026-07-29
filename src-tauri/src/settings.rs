@@ -62,6 +62,35 @@ pub fn save_settings(app: &tauri::AppHandle, settings: &AppSettings) -> Result<(
     std::fs::write(&path, json).map_err(|e| e.to_string())
 }
 
+/// Sane baud-rate bounds. Covers every standard rate from 300 (old industrial
+/// devices) up to 921600 (high-speed USB-serial bridges). Anything outside
+/// this range is almost certainly a corrupt settings file or a malicious
+/// invoke() call — the serialport crate would accept nonsense like 0 or
+/// 4_000_000_000 and either fail opaquely or misbehave.
+pub const MIN_BAUD: u32 = 300;
+pub const MAX_BAUD: u32 = 921600;
+
+/// Validate a baud rate, returning it unchanged if in range or an error
+/// otherwise. Callers that should never hard-fail (background reconnect loops)
+/// can use `clamp_baud_rate` instead.
+pub fn validate_baud_rate(baud: u32) -> Result<u32, String> {
+    if (MIN_BAUD..=MAX_BAUD).contains(&baud) {
+        Ok(baud)
+    } else {
+        Err(format!(
+            "Baudrate {} liegt außerhalb des gültigen Bereichs ({}–{}).",
+            baud, MIN_BAUD, MAX_BAUD
+        ))
+    }
+}
+
+/// Clamp a baud rate into the valid range. Used where a bad value must not
+/// abort the operation (e.g. auto-reconnect) — a corrupt settings file with
+/// baud_rate=0 would otherwise repeatedly fail to open the port.
+pub fn clamp_baud_rate(baud: u32) -> u32 {
+    baud.clamp(MIN_BAUD, MAX_BAUD)
+}
+
 pub fn resolve_flashrom_path(settings: &AppSettings, resource_dir: &std::path::Path) -> std::path::PathBuf {
     settings.flashrom_path.as_ref()
         .map(std::path::PathBuf::from)
@@ -153,5 +182,27 @@ mod tests {
         let s    = AppSettings::default();
         let base = resolve_archive_base(&s, std::path::Path::new("/default"));
         assert_eq!(base, std::path::PathBuf::from("/default"));
+    }
+
+    #[test]
+    fn validate_baud_rate_accepts_standard_rates() {
+        for &rate in &[300, 9600, 115200, 460800, 921600] {
+            assert_eq!(validate_baud_rate(rate).unwrap(), rate);
+        }
+    }
+
+    #[test]
+    fn validate_baud_rate_rejects_out_of_range() {
+        assert!(validate_baud_rate(0).is_err());
+        assert!(validate_baud_rate(299).is_err());
+        assert!(validate_baud_rate(921601).is_err());
+        assert!(validate_baud_rate(u32::MAX).is_err());
+    }
+
+    #[test]
+    fn clamp_baud_rate_pulls_into_range() {
+        assert_eq!(clamp_baud_rate(0), MIN_BAUD);
+        assert_eq!(clamp_baud_rate(u32::MAX), MAX_BAUD);
+        assert_eq!(clamp_baud_rate(115200), 115200);
     }
 }

@@ -10,3 +10,12 @@ export async function open(
   await new Promise<void>((r) => setTimeout(r, 80));
   return '/mock/selected-dump.bin';
 }
+
+/** Drop-in replacement for the dialog plugin's `save`. */
+export async function save(
+  _options?: unknown,
+  _target?: unknown,
+): Promise<string | null> {
+  await new Promise<void>((r) => setTimeout(r, 80));
+  return '/mock/controller-log.txt';
+}

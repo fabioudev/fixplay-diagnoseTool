@@ -22,13 +22,13 @@
     onabout?: () => void;
   } = $props();
 
-  const items: { id: View; label: string; icon: typeof Cpu }[] = [
-    { id: 'home',    label: 'Start',      icon: Home },
-    { id: 'flash',   label: 'NOR Flash', icon: Cpu },
-    { id: 'uart',    label: 'UART',      icon: Usb },
-    { id: 'i2c',     label: 'I2C / Pico', icon: CircuitBoard },
-    { id: 'controller', label: 'Controller', icon: Gamepad2 },
-    { id: 'archive', label: 'Archiv',    icon: Archive },
+  const items: { id: View; label: string; icon: typeof Cpu; key: number }[] = [
+    { id: 'home',    label: 'Start',      icon: Home,          key: 1 },
+    { id: 'flash',   label: 'NOR Flash', icon: Cpu,           key: 2 },
+    { id: 'uart',    label: 'UART',      icon: Usb,           key: 3 },
+    { id: 'i2c',     label: 'I2C / Pico', icon: CircuitBoard, key: 4 },
+    { id: 'controller', label: 'Controller', icon: Gamepad2,  key: 5 },
+    { id: 'archive', label: 'Archiv',    icon: Archive,       key: 6 },
   ];
 
   const programmerCount = $derived($flashProgrammers.length);
@@ -66,7 +66,7 @@
                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'}"
         aria-current={active === item.id ? 'page' : undefined}
         aria-label={item.label}
-        title={collapsed ? item.label : undefined}
+        title={`${item.label}  (Ctrl+${item.key})`}
       >
         <item.icon class="w-5 h-5 shrink-0" />
         {#if !collapsed}

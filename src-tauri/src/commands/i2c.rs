@@ -92,7 +92,9 @@ pub async fn i2c_connect(
 ) -> Result<(), String> {
     info!("i2c_connect: {}", port);
 
-    let baud_rate = crate::settings::load_settings_or_default(&app).i2c_baud_rate;
+    let baud_rate = crate::settings::validate_baud_rate(
+        crate::settings::load_settings_or_default(&app).i2c_baud_rate,
+    )?;
 
     // Open the new port and swap it in under a single lock so that a concurrent
     // `i2c_disconnect` cannot leave us in a half-applied state: disconnect

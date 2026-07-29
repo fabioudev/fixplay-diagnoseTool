@@ -29,6 +29,8 @@ export const flashReadId = (programmer: string): Promise<ChipId> =>
 export const flashWrite = (path: string, programmer: string, verify: boolean): Promise<void> =>
   invoke<void>('flash_write', { path, programmer, verify });
 export const openPath   = (path: string) => invoke<void>('open_path', { path });
+export const saveTextFile = (path: string, content: string) =>
+  invoke<void>('save_text_file', { path, content });
 export const flashValidateFile = (path: string) =>
   invoke<FlashPreviewResult>('flash_validate_file', { path });
 
@@ -39,6 +41,7 @@ export const archiveDeleteDump = (binPath: string) =>
 
 export const settingsGet  = ()                       => invoke<AppSettings>('settings_get');
 export const settingsSave = (settings: AppSettings)  => invoke<void>('settings_save', { settings });
+export const appDataDirPath = () => invoke<string>('app_data_dir_path');
 
 // ───────────────────────── I2C / Pico (USB CDC) ─────────────────────────
 // The Pico enumerates as a USB CDC serial device and speaks a line-oriented

@@ -41,6 +41,15 @@ pub fn open_path(path: String) -> Result<(), String> {
     open::that(path).map_err(|e| e.to_string())
 }
 
+/// Write arbitrary text (e.g. an exported log) to a user-chosen file. The
+/// frontend opens a save dialog and passes the resulting path here — we never
+/// pick the path ourselves, so this can't be used to clobber arbitrary files
+/// without the user explicitly confirming in the OS dialog.
+#[tauri::command]
+pub fn save_text_file(path: String, content: String) -> Result<(), String> {
+    std::fs::write(&path, content).map_err(|e| e.to_string())
+}
+
 /// Result of the flashrom binary self-check, queried by the frontend on mount
 /// (the startup `flash://binary-status` event fires before listeners attach).
 #[derive(Serialize, Clone)]
@@ -392,6 +401,43 @@ fn delete_dump_files(bin_path: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Resolve `path` to a canonical absolute path and verify it lives inside `dir`.
+/// Prevents a compromised frontend from passing `../../etc/passwd`-style paths
+/// to destructive commands — the candidate is canonicalized (following
+/// symlinks) and required to start with the canonical archive root. If the
+/// target itself doesn't exist yet, its parent is canonicalized and the file
+/// name re-joined, so deletion of a just-listed file still works.
+fn ensure_within_dir(path: &str, dir: &std::path::Path) -> Result<std::path::PathBuf, String> {
+    let candidate = std::path::Path::new(path);
+    if !candidate.is_absolute() {
+        return Err(format!(
+            "Pfad '{}' muss absolut sein und innerhalb des Archivs liegen", path
+        ));
+    }
+    let canonical = if candidate.exists() {
+        candidate.canonicalize().map_err(|e| e.to_string())?
+    } else {
+        let parent = candidate.parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .ok_or_else(|| format!("Ungültiger Pfad: '{}'", path))?;
+        let canon_parent = parent.canonicalize()
+            .map_err(|e| format!("Verzeichnis '{}' nicht auflösbar: {}", parent.display(), e))?;
+        let file_name = candidate.file_name()
+            .ok_or_else(|| format!("Ungültiger Dateiname in '{}'", path))?;
+        canon_parent.join(file_name)
+    };
+    let canon_dir = dir.canonicalize()
+        .map_err(|e| format!("Archiv-Verzeichnis nicht auflösbar: {}", e))?;
+    if canonical.starts_with(&canon_dir) {
+        Ok(canonical)
+    } else {
+        Err(format!(
+            "Pfad '{}' liegt außerhalb des Archivs '{}' — Löschen verweigert.",
+            path, canon_dir.display()
+        ))
+    }
+}
+
 #[tauri::command]
 pub fn archive_list_dumps(app: AppHandle) -> Result<Vec<SerialArchive>, String> {
     let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
@@ -401,8 +447,15 @@ pub fn archive_list_dumps(app: AppHandle) -> Result<Vec<SerialArchive>, String> 
 }
 
 #[tauri::command]
-pub fn archive_delete_dump(bin_path: String) -> Result<(), String> {
-    delete_dump_files(&bin_path)
+pub fn archive_delete_dump(bin_path: String, app: AppHandle) -> Result<(), String> {
+    // Defense-in-depth: a compromised webview could invoke this with an
+    // arbitrary path and delete files outside the archive. Resolve the archive
+    // root from settings and refuse anything that doesn't canonicalize inside it.
+    let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let settings = crate::settings::load_settings_or_default(&app);
+    let dumps_dir = crate::settings::resolve_archive_base(&settings, &data_dir).join("dumps");
+    let safe = ensure_within_dir(&bin_path, &dumps_dir)?;
+    delete_dump_files(&safe.to_string_lossy())
 }
 
 #[derive(Serialize, Clone)]
@@ -494,6 +547,44 @@ mod archive_tests {
         assert_eq!(archives[0].dumps[0].timestamp, 1718100000);
 
         std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn ensure_within_dir_accepts_nested_file() {
+        let root   = std::env::temp_dir().join("fixplay_within_ok");
+        let serial = root.join("SN1");
+        std::fs::create_dir_all(&serial).unwrap();
+        let bin = serial.join("nor_1.bin");
+        std::fs::write(&bin, b"x").unwrap();
+        let canon = ensure_within_dir(bin.to_str().unwrap(), &root).unwrap();
+        assert!(canon.starts_with(root.canonicalize().unwrap()));
+        std::fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn ensure_within_dir_rejects_relative() {
+        let root = std::env::temp_dir().join("fixplay_within_rel");
+        std::fs::create_dir_all(&root).unwrap();
+        let err = ensure_within_dir("nor_1.bin", &root).unwrap_err();
+        assert!(err.contains("absolut"));
+        std::fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn ensure_within_dir_rejects_escape() {
+        // A path inside the temp dir must be rejected when the archive root
+        // is a *sibling* directory — simulates ../../ traversal.
+        let root   = std::env::temp_dir().join("fixplay_within_arch");
+        let outside = std::env::temp_dir().join("fixplay_within_other");
+        std::fs::create_dir_all(&root).unwrap();
+        std::fs::create_dir_all(&outside).unwrap();
+        let bin = outside.join("secret.bin");
+        std::fs::write(&bin, b"x").unwrap();
+        let res = ensure_within_dir(bin.to_str().unwrap(), &root);
+        assert!(res.is_err());
+        assert!(res.unwrap_err().contains("außerhalb"));
+        std::fs::remove_dir_all(&root).ok();
+        std::fs::remove_dir_all(&outside).ok();
     }
 }
 

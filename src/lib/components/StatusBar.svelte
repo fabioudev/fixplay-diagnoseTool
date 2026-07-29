@@ -4,13 +4,25 @@
   import { uartConnected, uartReconnecting, dbCodeCount, dbLoading } from '$lib/stores/uart';
   import { i2cConnected, xboxDbCount, xboxDbLoading } from '$lib/stores/i2c';
   import { currentVersion } from '$lib/stores/updater';
+  import { WifiOff } from 'lucide-svelte';
 
   type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
   let { onnavigate }: { onnavigate?: (v: View) => void } = $props();
 
   const btnCls = 'flex items-center gap-1.5 hover:text-gray-300 transition-colors cursor-pointer';
+
+  // Online/offline detection — DB updates and update checks need network.
+  // navigator.onLine is reliable for "definitely offline" (cable unplugged /
+  // Wi-Fi off) but can false-positive "online" behind a captive portal; we only
+  // use it to warn, never to gate functionality.
+  let online = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
 </script>
+
+<svelte:window
+  ononline={() => (online = true)}
+  onoffline={() => (online = false)}
+/>
 
 <footer
   class="flex items-center gap-4 h-7 px-4 bg-gray-900 border-t border-gray-800 text-[11px] text-gray-500 shrink-0 select-none"
@@ -72,6 +84,12 @@
       <span>DB nicht geladen</span>
     {/if}
   </button>
+
+  {#if !online}
+    <span class="flex items-center gap-1 text-amber-400" title="Keine Netzwerkverbindung — DB-Aktualisierung und Update-Prüfung sind offline nicht verfügbar. Lokal gecachte DB bleibt nutzbar.">
+      <WifiOff class="w-3 h-3" /> Offline
+    </span>
+  {/if}
 
   <span class="ml-auto text-gray-600">v{$currentVersion || '?'}</span>
 </footer>

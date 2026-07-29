@@ -1,8 +1,10 @@
 
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText } from 'lucide-svelte';
+  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download } from 'lucide-svelte';
   import { copyToClipboard } from '$lib/utils/clipboard';
+  import { save as saveDialog } from '@tauri-apps/plugin-dialog';
+  import { saveTextFile } from '$lib/api/tauri';
   import StickVisualizer from './StickVisualizer.svelte';
   import ControllerVisualizer from './ControllerVisualizer.svelte';
   import TesterPanel from './TesterPanel.svelte';
@@ -48,6 +50,30 @@
     await copyToClipboard(text, (ok) => {
       if (ok) { copied = label; setTimeout(() => (copied = null), 1500); }
     });
+  }
+
+  function logToText(): string {
+    return $controllerLog
+      .map((e) => `${new Date(e.timestamp_ms).toLocaleTimeString()} [${e.level}] ${e.message}`)
+      .join('\n');
+  }
+
+  async function copyLog() {
+    await copyToClipboard(logToText(), (ok) => {
+      if (ok) { copied = 'Protokoll'; setTimeout(() => (copied = null), 1500); }
+    });
+  }
+
+  async function exportLog() {
+    const path = await saveDialog({
+      title: 'Protokoll speichern',
+      defaultPath: `controller-log-${Date.now()}.txt`,
+      filters: [{ name: 'Text', extensions: ['txt'] }],
+    }).catch(() => null);
+    if (path && typeof path === 'string') {
+      await saveTextFile(path, logToText()).catch(console.error);
+      copied = 'Protokoll gespeichert'; setTimeout(() => (copied = null), 1500);
+    }
   }
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -318,6 +344,12 @@
       <div class="mb-2 flex items-center justify-between">
         <span class="text-xs font-medium text-gray-500">Protokoll</span>
         <div class="flex items-center gap-1">
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={copyLog} title="Protokoll kopieren">
+            <Copy class="h-3 w-3" />
+          </button>
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={exportLog} title="Protokoll als Datei speichern">
+            <Download class="h-3 w-3" />
+          </button>
           <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => (wrapLog = !wrapLog)} title={wrapLog ? 'Zeilenumbruch aus' : 'Zeilenumbruch an'}>
             <WrapText class="h-3 w-3 {wrapLog ? 'text-teal-400' : ''}" />
           </button>

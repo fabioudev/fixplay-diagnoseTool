@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AlertTriangle } from 'lucide-svelte';
+  import { trapFocus } from '$lib/utils/focusTrap';
 
   let {
     open = $bindable(false),
@@ -35,9 +36,11 @@
   }
 </script>
 
+<svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') close(); }} />
+
 {#if open}
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="w-full max-w-sm rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700">
+    <div class="w-full max-w-sm rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700" use:trapFocus>
       <div class="mb-4 flex items-start gap-3">
         <AlertTriangle class="h-6 w-6 shrink-0 mt-0.5 {confirmDanger ? 'text-red-400' : 'text-amber-400'}" />
         <div>

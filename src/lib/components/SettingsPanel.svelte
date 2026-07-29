@@ -2,19 +2,32 @@
   import { onMount } from 'svelte';
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import { appSettings } from '$lib/stores/settings';
-  import { settingsGet, settingsSave } from '$lib/api/tauri';
+  import { settingsGet, settingsSave, flashGetBinaryStatus, appDataDirPath, openPath } from '$lib/api/tauri';
+  import type { FlashBinaryStatus } from '$lib/api/types';
+  import { checkUpdates, updateAvailable, updateError } from '$lib/stores/updater';
+  import { CheckCircle2, XCircle, RefreshCw, RotateCcw, FolderOpen } from 'lucide-svelte';
 
   let { open, onclose }: { open: boolean; onclose: () => void } = $props();
 
   const BAUD_RATES = [9600, 19200, 38400, 57600, 115200, 230400];
 
+  let flashromStatus = $state<FlashBinaryStatus | null>(null);
+  let updateChecking = $state(false);
+  let updateCheckMsg = $state<string | null>(null);
+
   onMount(async () => {
     const s = await settingsGet().catch(() => null);
     if (s) appSettings.set(s);
+    flashromStatus = await flashGetBinaryStatus().catch(() => null);
   });
+
+  async function refreshFlashrom() {
+    flashromStatus = await flashGetBinaryStatus().catch(() => null);
+  }
 
   async function save() {
     await settingsSave($appSettings).catch(console.error);
+    flashromStatus = await flashGetBinaryStatus().catch(() => null);
   }
 
   async function browseFlashrom() {
@@ -31,6 +44,49 @@
       appSettings.update(s => ({ ...s, archive_dir: result }));
       await save();
     }
+  }
+
+  async function checkForUpdates() {
+    updateChecking = true;
+    updateCheckMsg = null;
+    try {
+      await checkUpdates();
+      if ($updateAvailable) {
+        updateCheckMsg = `Update v${$updateAvailable.version} verfügbar.`;
+      } else if ($updateError) {
+        updateCheckMsg = `Prüfung fehlgeschlagen: ${$updateError}`;
+      } else {
+        updateCheckMsg = 'Du nutzt die aktuelle Version.';
+      }
+    } catch (e) {
+      updateCheckMsg = 'Prüfung fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e));
+    } finally {
+      updateChecking = false;
+    }
+  }
+
+  async function resetSettings() {
+    if (!confirm('Alle Einstellungen auf Standard zurücksetzen?')) return;
+    appSettings.set({
+      flashrom_path:  null,
+      archive_dir:    null,
+      baud_rate:      115200,
+      i2c_baud_rate:  115200,
+      auto_reconnect: false,
+      tablet_mode:    false,
+    });
+    await settingsSave($appSettings).catch(console.error);
+    refreshFlashrom();
+  }
+
+  async function openConfigDir() {
+    const dir = await appDataDirPath().catch(() => null);
+    if (dir) openPath(dir).catch(console.error);
+  }
+
+  async function openArchiveDir() {
+    const dir = $appSettings.archive_dir ?? await appDataDirPath().catch(() => null);
+    if (dir) openPath(dir).catch(console.error);
   }
 </script>
 
@@ -83,6 +139,20 @@
         <p class="text-xs text-gray-600">
           Leer lassen für die mitgelieferte Binary. Eigene Version nur nötig wenn der gebundelte flashrom deinen Programmer nicht erkennt.
         </p>
+        {#if flashromStatus}
+          <div class="flex items-center gap-1.5 text-xs {flashromStatus.ok ? 'text-emerald-400' : 'text-amber-400'}" title={flashromStatus.path}>
+            {#if flashromStatus.ok}
+              <CheckCircle2 class="w-3.5 h-3.5 shrink-0" />
+              <span class="truncate">flashrom gefunden</span>
+            {:else}
+              <XCircle class="w-3.5 h-3.5 shrink-0" />
+              <span class="truncate" title={flashromStatus.reason ?? ''}>{flashromStatus.reason ?? 'nicht gefunden'}</span>
+            {/if}
+            <button onclick={refreshFlashrom} class="ml-auto text-gray-500 hover:text-gray-300 shrink-0" title="Erneut prüfen">
+              <RefreshCw class="w-3 h-3" />
+            </button>
+          </div>
+        {/if}
       </div>
 
       <!-- Archive Directory -->
@@ -195,11 +265,60 @@
         </p>
       </div>
 
+      <!-- Open folders -->
+      <div class="flex flex-col gap-1.5">
+        <span class="text-xs font-medium text-gray-400">Ordner öffnen</span>
+        <div class="flex gap-2">
+          <button
+            onclick={openArchiveDir}
+            class="flex items-center gap-1.5 flex-1 px-2.5 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
+            title="Archiv-Ordner im Dateimanager öffnen"
+          >
+            <FolderOpen class="w-3.5 h-3.5" /> Archiv
+          </button>
+          <button
+            onclick={openConfigDir}
+            class="flex items-center gap-1.5 flex-1 px-2.5 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
+            title="Konfigurations-Ordner (settings.json) öffnen"
+          >
+            <FolderOpen class="w-3.5 h-3.5" /> Konfig
+          </button>
+        </div>
+      </div>
+
+      <!-- Updates -->
+      <div class="flex flex-col gap-1.5">
+        <span class="text-xs font-medium text-gray-400">Updates</span>
+        <button
+          onclick={checkForUpdates}
+          disabled={updateChecking}
+          class="flex items-center justify-center gap-1.5 w-full px-3 py-2 text-xs rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-gray-200 transition-colors"
+        >
+          <RefreshCw class="w-3.5 h-3.5 {updateChecking ? 'animate-spin' : ''}" />
+          {updateChecking ? 'Prüfe …' : 'Nach Update suchen'}
+        </button>
+        {#if updateCheckMsg}
+          <p class="text-xs {updateCheckMsg.includes('verfügbar') || updateCheckMsg.includes('aktuelle') ? 'text-emerald-400' : 'text-amber-400'}">
+            {updateCheckMsg}
+          </p>
+        {/if}
+        <p class="text-xs text-gray-600">
+          Prüft manuell auf eine neue Version. Bei einem verfügbaren Update erscheint oben der Update-Banner.
+        </p>
+      </div>
+
     </div>
 
     <!-- Footer hint -->
-    <div class="px-4 py-3 border-t border-gray-700">
-      <p class="text-xs text-gray-600">Alle Einstellungen werden sofort beim Verlassen des Feldes gespeichert.</p>
+    <div class="px-4 py-3 border-t border-gray-700 flex items-center justify-between gap-2">
+      <p class="text-xs text-gray-600">Automatisch gespeichert beim Verlassen.</p>
+      <button
+        onclick={resetSettings}
+        class="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 transition-colors"
+        title="Alle Einstellungen auf Standard zurücksetzen"
+      >
+        <RotateCcw class="w-3.5 h-3.5" /> Zurücksetzen
+      </button>
     </div>
   </div>
 {/if}

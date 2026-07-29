@@ -3,16 +3,49 @@
   import { flashResult, flashWritePath } from '$lib/stores/flash';
   import { archiveListDumps, archiveDeleteDump, openPath } from '$lib/api/tauri';
   import type { SerialArchive, DumpEntry } from '$lib/api/types';
+  import { Search, ArrowUpDown } from 'lucide-svelte';
 
   let open          = $state(false);
   let archives      = $state<SerialArchive[]>([]);
   let loading       = $state(false);
   let confirmDelete = $state<string | null>(null);
   let loadedPath    = $state<string | null>(null);
+  let query         = $state('');
+  let sortMode      = $state<'newest' | 'oldest' | 'serial'>('newest');
 
   let { standalone = false }: { standalone?: boolean } = $props();
 
   const totalDumps = $derived(archives.reduce((n, a) => n + a.dumps.length, 0));
+
+  // Filter by serial / firmware substring, then sort. Sorting by newest/oldest
+  // uses the most recent dump in each serial group so groups stay intact.
+  const filteredArchives = $derived.by(() => {
+    const q = query.trim().toLowerCase();
+    let list = archives;
+    if (q) {
+      list = list
+        .map((a) => ({
+          ...a,
+          dumps: a.dumps.filter(
+            (d) => a.serial.toLowerCase().includes(q)
+              || (d.fw_version ?? '').toLowerCase().includes(q),
+          ),
+        }))
+        .filter((a) => a.dumps.length > 0);
+    }
+    const sorted = [...list];
+    if (sortMode === 'serial') {
+      sorted.sort((a, b) => a.serial.localeCompare(b.serial));
+    } else {
+      const dir = sortMode === 'newest' ? -1 : 1;
+      sorted.sort((a, b) => {
+        const ta = Math.max(...a.dumps.map((d) => d.timestamp));
+        const tb = Math.max(...b.dumps.map((d) => d.timestamp));
+        return dir * (ta - tb);
+      });
+    }
+    return sorted;
+  });
 
   async function load() {
     loading = true;
@@ -69,8 +102,39 @@
         <p class="text-gray-600 text-xs">Starte einen Lesevorgang im NOR-Flash-Tab um Dumps zu erstellen.</p>
       </div>
     {:else}
+      <!-- Search + sort toolbar -->
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <Search class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Seriennummer oder Firmware suchen…"
+            value={query}
+            oninput={(e) => (query = (e.target as HTMLInputElement).value)}
+            class="w-full bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-2 py-1.5
+                   border border-gray-700 placeholder:text-gray-600
+                   focus:outline-none focus:border-gray-500"
+          />
+        </div>
+        <div class="relative">
+          <ArrowUpDown class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+          <select
+            value={sortMode}
+            onchange={(e) => (sortMode = (e.target as HTMLSelectElement).value as typeof sortMode)}
+            title="Sortierung der Seriennummern-Gruppen"
+            class="appearance-none bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-6 py-1.5
+                   border border-gray-700 focus:outline-none focus:border-gray-500"
+          >
+            <option value="newest">Neueste zuerst</option>
+            <option value="oldest">Älteste zuerst</option>
+            <option value="serial">Seriennummer A→Z</option>
+          </select>
+          <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+        </div>
+      </div>
+
       <div class="flex flex-col gap-3 overflow-y-auto">
-        {#each archives as archive (archive.serial)}
+        {#each filteredArchives as archive (archive.serial)}
           <div class="p-3 rounded-lg bg-gray-800 border border-gray-700">
             <p
               class="text-xs font-semibold text-gray-400 mb-2 font-mono"
@@ -149,6 +213,10 @@
               {/each}
             </div>
           </div>
+        {:else}
+          <p class="text-gray-600 text-xs text-center py-8">
+            Keine Dumps passen auf die Suche.
+          </p>
         {/each}
       </div>
     {/if}
@@ -169,7 +237,32 @@
 
     {#if open}
       <div class="border-t border-gray-800">
-        {#each archives as archive (archive.serial)}
+        <div class="flex items-center gap-2 p-3 border-b border-gray-800">
+          <div class="relative flex-1">
+            <Search class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Suchen…"
+              value={query}
+              oninput={(e) => (query = (e.target as HTMLInputElement).value)}
+              class="w-full bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-2 py-1.5
+                     border border-gray-700 placeholder:text-gray-600
+                     focus:outline-none focus:border-gray-500"
+            />
+          </div>
+          <select
+            value={sortMode}
+            onchange={(e) => (sortMode = (e.target as HTMLSelectElement).value as typeof sortMode)}
+            title="Sortierung"
+            class="appearance-none bg-gray-800 text-gray-200 text-xs rounded px-2 py-1.5
+                   border border-gray-700 focus:outline-none focus:border-gray-500"
+          >
+            <option value="newest">Neueste</option>
+            <option value="oldest">Älteste</option>
+            <option value="serial">Seriennr.</option>
+          </select>
+        </div>
+        {#each filteredArchives as archive (archive.serial)}
           <div class="p-3 border-b border-gray-800 last:border-0">
             <p
               class="text-xs font-semibold text-gray-400 mb-2 font-mono"
@@ -250,7 +343,9 @@
           </div>
         {:else}
           <p class="text-gray-600 text-xs p-4">
-            Keine Dumps archiviert — starte einen Lesevorgang im Flash-Panel.
+            {archives.length === 0
+              ? 'Keine Dumps archiviert — starte einen Lesevorgang im Flash-Panel.'
+              : 'Keine Dumps passen auf die Suche.'}
           </p>
         {/each}
       </div>

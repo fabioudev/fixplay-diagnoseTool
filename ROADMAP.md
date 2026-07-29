@@ -27,28 +27,28 @@
 - [x] **#17** No confirmation dialog for destructive operations — ConfirmDialog component created
 - [x] **#18** No window close confirmation during flash operations — onCloseRequested guard added
 - [x] **#19** No error boundary or crash isolation — ErrorBoundary wraps all panels
-- [ ] **#20** No keyboard navigation anywhere
-- [ ] **#21** No log export or copy functionality
-- [ ] **#22** No archive search, sort, or filter
+- [x] **#20** No keyboard navigation anywhere — Ctrl/Cmd+1..6 panel shortcuts, Ctrl/Cmd+, settings, sidebar hints
+- [x] **#21** No log export or copy functionality — copy + save-to-file buttons on controller log
+- [x] **#22** No archive search, sort, or filter — search field + sort (newest/oldest/serial)
 - [ ] **#23** No "first run" experience or onboarding
-- [ ] **#24** No offline detection or degraded-mode handling
+- [x] **#24** No offline detection or degraded-mode handling — StatusBar offline badge via navigator.onLine
 - [x] **#25** No "copy to clipboard" for displayed data values — copyToClipboard utility + MAC/FW copy buttons
 - [x] **#26** No "clear log" button on any log view — added to ControllerPanel log
 - [x] **#27** No word wrap toggle in log views — added to ControllerPanel log
 - [x] **#28** No "always on top" toggle — Pin button in Header
 - [x] **#29** Status bar items are not clickable for navigation — all items now navigate to panels
-- [ ] **#30** No "open logs directory" or "open config directory" shortcuts
-- [ ] **#31** No "check for updates" in settings
-- [ ] **#32** No "reset all settings" button
+- [x] **#30** No "open logs directory" or "open config directory" shortcuts — "Archiv"/"Konfig" folder buttons in settings
+- [x] **#31** No "check for updates" in settings — manual update-check button
+- [x] **#32** No "reset all settings" button — reset-to-defaults in settings footer
 - [x] **#33** No "about" dialog — AboutDialog with version, credits, links
-- [ ] **#34** No changelog link in update banner
-- [ ] **#35** No "remind me later" for updates
+- [x] **#34** No changelog link in update banner — "What's new" link to release tag
+- [x] **#35** No "remind me later" for updates — "Später" 24h localStorage snooze
 - [ ] **#36** No "recently used" or "favorites" in sidebar
 - [ ] **#37** No timestamp format option in logs
-- [ ] **#38** No focus management in modals
+- [x] **#38** No focus management in modals — `trapFocus` action + Escape-to-close on all modals
 - [ ] **#39** No loading skeletons; bare text placeholders
-- [ ] **#40** No progress indicator for background DB fetches
-- [ ] **#41** No "flashrom version" display
+- [x] **#40** No progress indicator for background DB fetches — spinner shown during DB load/update
+- [x] **#41** No "flashrom version" display — binary status (found/missing + reason) in settings
 - [ ] **#42** No estimated time remaining for flash operations
 - [ ] **#43** No disk space indicator
 - [ ] **#44** No "what's new" dialog after update
@@ -68,7 +68,7 @@
 - [x] **#55** No headphone connection indicator on visualizer — 🎧 icon when connected
 - [ ] **#56** No gyro/accelerometer visualization
 - [ ] **#57** No touchpad gesture visualization
-- [ ] **#58** No peak hold on mic level meter
+- [x] **#58** No peak hold on mic level meter — peak hold with 2s decay
 - [ ] **#59** No frequency spectrum view for mic
 - [ ] **#60** No "copy state as JSON" in MockPanel
 - [ ] **#61** No `flashrom` PATH fallback
@@ -77,7 +77,7 @@
 
 ## 🟢 Quality
 
-- [ ] **#64** No CI on PRs or branch pushes
+- [x] **#64** No CI on PRs or branch pushes — `ci.yml` runs frontend+rust+audit on push/PR to main
 - [ ] **#65** Zero component tests (5,001 lines of Svelte with 0% coverage)
 - [ ] **#66** Controller input processing pipeline has zero tests
 - [ ] **#67** DS5Controller calibration and NVS operations have zero tests
@@ -87,15 +87,15 @@
 - [ ] **#71** Store tests are tautological (test Svelte's `writable()`, not app logic)
 - [ ] **#72** No mock error-state simulation
 - [ ] **#73** No integration tests anywhere
-- [ ] **#74** No `rust-toolchain.toml` for reproducible builds
-- [ ] **#75** No Dependabot or Renovate for automated dependency updates
-- [ ] **#76** No `cargo audit` or vulnerability scanning in CI
-- [ ] **#77** No `rustfmt.toml`; formatting is inconsistent across contributors
-- [ ] **#78** No `.prettierignore`; Prettier may scan build artifacts
-- [ ] **#79** No `engine-strict=true` in `.npmrc`
-- [ ] **#80** No `.nvmrc` or `.node-version` for local development
-- [ ] **#81** No `.vscode/extensions.json` for contributor onboarding
-- [ ] **#82** No `[workspace.package]` in root `Cargo.toml`
+- [x] **#74** No `rust-toolchain.toml` for reproducible builds — added
+- [x] **#75** No Dependabot or Renovate for automated dependency updates — `.github/dependabot.yml` (npm + all 5 cargo workspaces, weekly)
+- [x] **#76** No `cargo audit` or vulnerability scanning in CI — `audit` job in CI (advisory, continue-on-error)
+- [x] **#77** No `rustfmt.toml`; formatting is inconsistent across contributors — added
+- [x] **#78** No `.prettierignore`; Prettier may scan build artifacts — added
+- [x] **#79** No `engine-strict=true` in `.npmrc` — added
+- [x] **#80** No `.nvmrc` or `.node-version` for local development — `.nvmrc` → Node 22
+- [x] **#81** No `.vscode/extensions.json` for contributor onboarding — added
+- [x] **#82** No `[workspace.package]` in root `Cargo.toml` — added (version/edition/license/repository)
 - [ ] **#83** Duplicate `reqwest` (0.12 + 0.13) in `Cargo.lock`
 - [ ] **#84** `#[allow(dead_code)]` on entire `AppState` struct masks unused fields
 - [ ] **#85** Inconsistent log entry types across stores
@@ -118,7 +118,7 @@
 
 ## 🟣 Security
 
-- [ ] **#102** No server-side validation of `programmer` argument (flashrom flag injection)
-- [ ] **#103** Unvalidated file paths in four Tauri commands (path traversal from frontend)
-- [ ] **#104** CSP disabled entirely (`null`)
-- [ ] **#105** No baud rate range validation
+- [x] **#102** No server-side validation of `programmer` argument (flashrom flag injection) — `validate_programmer` allowlist in all flash commands
+- [x] **#103** Unvalidated file paths in four Tauri commands (path traversal from frontend) — archive_delete_dump contained to archive root via canonicalize check
+- [x] **#104** CSP disabled entirely (`null`) — restrictive CSP set in tauri.conf.json
+- [x] **#105** No baud rate range validation — validate_baud_rate/clamp_baud_rate at all use sites

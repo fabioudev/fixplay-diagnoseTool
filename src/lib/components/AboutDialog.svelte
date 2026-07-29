@@ -2,13 +2,16 @@
   import { X, ExternalLink } from 'lucide-svelte';
   import FixplayIcon from './FixplayIcon.svelte';
   import { currentVersion } from '$lib/stores/updater';
+  import { trapFocus } from '$lib/utils/focusTrap';
 
   let { open = $bindable(false) }: { open: boolean } = $props();
 </script>
 
+<svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') open = false; }} />
+
 {#if open}
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="w-full max-w-sm rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700 text-center">
+    <div class="w-full max-w-sm rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700 text-center" use:trapFocus>
       <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-300" onclick={() => (open = false)}>
         <X class="h-5 w-5" />
       </button>

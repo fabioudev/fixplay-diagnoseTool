@@ -142,6 +142,13 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
   open_path: (args) => {
     console.log(`[mock] open_path(${args?.path}) — no-op in browser`);
   },
+  save_text_file: (args) => {
+    const len = (args?.content as string | undefined)?.length ?? 0;
+    console.log(`[mock] save_text_file(${args?.path}, ${len} bytes) — no-op in browser`);
+  },
+  app_data_dir_path: () => {
+    return '/mock/app-data';
+  },
 
   // --- archive ---
   archive_list_dumps: () => {

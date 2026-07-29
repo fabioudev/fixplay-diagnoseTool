@@ -24,6 +24,26 @@
   let settingsOpen = $state(false);
   let aboutOpen    = $state(false);
 
+  // Global keyboard shortcuts: Ctrl/Cmd+1..6 jump between panels, Ctrl/Cmd+, opens
+  // settings. Skipped when focus is in a text/input/textarea field so we don't
+  // swallow typing (e.g. user pressing Cmd+1 inside the flashrom path field).
+  const SHORTCUT_VIEWS: View[] = ['home', 'flash', 'uart', 'i2c', 'controller', 'archive'];
+  function isTypingTarget(t: EventTarget | null): boolean {
+    const el = t as HTMLElement | null;
+    if (!el) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  }
+  function onKeydown(e: KeyboardEvent) {
+    if (!e.ctrlKey && !e.metaKey) return;
+    if (e.key === ',') { e.preventDefault(); settingsOpen = true; return; }
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= SHORTCUT_VIEWS.length && !isTypingTarget(e.target)) {
+      e.preventDefault();
+      activeView = SHORTCUT_VIEWS[n - 1];
+    }
+  }
+
   onMount(() => {
     if (!__MOCK_MODE__) {
       refreshUpdateContext().then(() => checkUpdates());
@@ -49,6 +69,8 @@
 <svelte:head>
   <title>fixplay diagnoseTool</title>
 </svelte:head>
+
+<svelte:window onkeydown={onKeydown} />
 
 <div class="flex h-screen bg-gray-950 text-gray-100 overflow-hidden" data-tablet={$appSettings.tablet_mode}>
   <Sidebar
