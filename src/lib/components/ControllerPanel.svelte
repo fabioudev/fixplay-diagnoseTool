@@ -195,11 +195,11 @@
   {:else}
     <!-- Info bar -->
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="rounded-lg bg-gray-800/60 p-3">
+      <div class="rounded-lg bg-gray-800/60 p-3" title="DualSense-Modell (DS5 = Standard, DS5 Edge = Pro-Controller)">
         <div class="text-xs text-gray-500">Modell</div>
         <div class="text-sm font-medium text-gray-200">{$controllerModel ?? '—'}</div>
       </div>
-      <div class="rounded-lg bg-gray-800/60 p-3">
+      <div class="rounded-lg bg-gray-800/60 p-3" title="Akkustand des Controllers">
         <div class="text-xs text-gray-500">Batterie</div>
         <div class="flex items-center gap-1.5 text-sm font-medium text-gray-200">
           <Battery class="h-4 w-4" /> {$batteryStatus.bat_txt || '—'}
@@ -271,7 +271,11 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.left}
           />
+          {@const driftL = Math.sqrt($stickState.left.x ** 2 + $stickState.left.y ** 2)}
           <span class="text-xs text-gray-500">Links (L3)</span>
+          <span class="text-[10px] {driftL < 0.05 ? 'text-green-500' : driftL < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+            Drift: {(driftL * 100).toFixed(1)}%
+          </span>
         </div>
         <div class="flex flex-col items-center gap-2">
           <StickVisualizer
@@ -281,7 +285,11 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.right}
           />
+          {@const driftR = Math.sqrt($stickState.right.x ** 2 + $stickState.right.y ** 2)}
           <span class="text-xs text-gray-500">Rechts (R3)</span>
+          <span class="text-[10px] {driftR < 0.05 ? 'text-green-500' : driftR < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+            Drift: {(driftR * 100).toFixed(1)}%
+          </span>
         </div>
       </div>
     </div>

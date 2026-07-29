@@ -12,6 +12,7 @@
   let { active = false }: { active?: boolean } = $props();
 
   let level = $state(0);        // 0..100
+  let peak = $state(0);         // peak hold, decays over 2s
   let deviceFound = $state(false);
   let permissionDenied = $state(false);
   let errorMsg = $state<string | null>(null);
@@ -20,6 +21,7 @@
   let analyser: AnalyserNode | null = null;
   let stream: MediaStream | null = null;
   let rafId: number | null = null;
+  let peakDecay: ReturnType<typeof setInterval> | null = null;
 
   async function start(): Promise<void> {
     if (audioCtx) return; // already running
@@ -56,6 +58,8 @@
       analyser.smoothingTimeConstant = 0.4;
       source.connect(analyser);
 
+      peakDecay = setInterval(() => { peak = Math.max(0, peak - 2); }, 100);
+
       const data = new Uint8Array(analyser.frequencyBinCount);
       const tick = () => {
         if (!analyser) return;
@@ -66,7 +70,8 @@
           sum += v * v;
         }
         const rms = Math.sqrt(sum / data.length);
-        level = Math.round(Math.min(100, rms * 400)); // scale to 0..100
+        level = Math.round(Math.min(100, rms * 400));
+        if (level > peak) peak = level;
         rafId = requestAnimationFrame(tick);
       };
       tick();
@@ -82,10 +87,12 @@
 
   function stop(): void {
     if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    if (peakDecay) { clearInterval(peakDecay); peakDecay = null; }
     if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
     if (audioCtx) { audioCtx.close(); audioCtx = null; }
     analyser = null;
     level = 0;
+    peak = 0;
     deviceFound = false;
     permissionDenied = false;
     errorMsg = null;
@@ -112,6 +119,7 @@
         ></div>
       </div>
       <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{level}%</span>
+      <span class="text-[10px] text-gray-600 w-8 text-right tabular-nums">max {peak}%</span>
     </div>
   {:else if active && !deviceFound}
     <div class="flex items-center gap-2 text-xs text-gray-500">
