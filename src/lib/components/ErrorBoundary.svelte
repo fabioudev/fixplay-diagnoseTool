@@ -34,7 +34,5 @@
     ><RefreshCw class="h-4 w-4" /> Neu laden</button>
   </div>
 {:else}
-  {#key key}
-    <slot />
-  {/key}
+  <slot />
 {/if}

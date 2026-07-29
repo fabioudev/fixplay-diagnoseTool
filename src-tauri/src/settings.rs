@@ -47,6 +47,12 @@ pub fn load_settings(app: &tauri::AppHandle) -> Result<AppSettings, String> {
     }
 }
 
+/// Convenience: load settings, falling back to defaults on any error.
+/// Use in internal code paths where a corrupt file shouldn't crash the app.
+pub fn load_settings_or_default(app: &tauri::AppHandle) -> AppSettings {
+    load_settings(app).unwrap_or_default()
+}
+
 pub fn save_settings(app: &tauri::AppHandle, settings: &AppSettings) -> Result<(), String> {
     let path = settings_path(app)?;
     if let Some(parent) = path.parent() {

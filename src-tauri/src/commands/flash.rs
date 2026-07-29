@@ -53,7 +53,7 @@ pub struct FlashBinaryStatus {
 #[tauri::command]
 pub fn flash_get_binary_status(app: AppHandle) -> FlashBinaryStatus {
     let resource_dir = app.path().resource_dir().ok();
-    let settings     = crate::settings::load_settings(&app);
+    let settings     = crate::settings::load_settings_or_default(&app);
     let binary_path  = resource_dir
         .as_ref()
         .map(|r| crate::settings::resolve_flashrom_path(&settings, r))
@@ -75,7 +75,7 @@ pub async fn flash_read_id(
 ) -> Result<ChipId, String> {
     validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
-    let settings     = crate::settings::load_settings(&app);
+    let settings     = crate::settings::load_settings_or_default(&app);
     let device = FlashromDevice {
         programmer:  programmer.clone(),
         binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
@@ -105,7 +105,7 @@ pub async fn flash_read(
 ) -> Result<FlashReadResult, String> {
     validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
-    let settings     = crate::settings::load_settings(&app);
+    let settings     = crate::settings::load_settings_or_default(&app);
     let device = FlashromDevice {
         programmer:  programmer.clone(),
         binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
@@ -182,7 +182,7 @@ pub async fn flash_write(
 ) -> Result<(), String> {
     validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
-    let settings     = crate::settings::load_settings(&app);
+    let settings     = crate::settings::load_settings_or_default(&app);
     let device = FlashromDevice {
         programmer:  programmer.clone(),
         binary_path: crate::settings::resolve_flashrom_path(&settings, &resource_dir),
@@ -279,7 +279,7 @@ fn archive_dump(
     }
 
     let data_dir  = app.path().app_data_dir().map_err(|e| e.to_string())?;
-    let settings  = crate::settings::load_settings(app)?;
+    let settings  = crate::settings::load_settings_or_default(app)?;
     let base = crate::settings::resolve_archive_base(&settings, &data_dir)
         .join("dumps")
         .join(&serial_dir);
@@ -395,7 +395,7 @@ fn delete_dump_files(bin_path: &str) -> Result<(), String> {
 #[tauri::command]
 pub fn archive_list_dumps(app: AppHandle) -> Result<Vec<SerialArchive>, String> {
     let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
-    let settings = crate::settings::load_settings(&app);
+    let settings = crate::settings::load_settings_or_default(&app);
     let dumps_dir = crate::settings::resolve_archive_base(&settings, &data_dir).join("dumps");
     Ok(list_dumps_from_dir(&dumps_dir))
 }

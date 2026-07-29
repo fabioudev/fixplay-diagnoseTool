@@ -111,7 +111,7 @@ pub async fn uart_connect(
         let _ = handle.join();
     }
 
-    let baud_rate = crate::settings::load_settings(&app).baud_rate;
+    let baud_rate = crate::settings::load_settings_or_default(&app).baud_rate;
     let open_port = serialport::new(&port, baud_rate)
         .timeout(Duration::from_millis(100))
         .open()
@@ -162,7 +162,7 @@ pub async fn uart_connect(
     *state.reconnect_vid.lock().unwrap() = vid;
     *state.reconnect_pid.lock().unwrap() = pid;
 
-    let saved_auto_reconnect = crate::settings::load_settings(&app).auto_reconnect;
+    let saved_auto_reconnect = crate::settings::load_settings_or_default(&app).auto_reconnect;
     state.auto_reconnect.store(saved_auto_reconnect, Ordering::Release);
 
     Ok(())
@@ -469,7 +469,7 @@ fn spawn_reconnect_if_enabled(state: &AppState, app: &AppHandle) {
     };
     let vid = *state.reconnect_vid.lock().unwrap();
     let pid = *state.reconnect_pid.lock().unwrap();
-    let baud_rate  = crate::settings::load_settings(app).baud_rate;
+    let baud_rate  = crate::settings::load_settings_or_default(app).baud_rate;
     let stop_flag  = Arc::new(AtomicBool::new(false));
     let stop_clone = Arc::clone(&stop_flag);
     let app_clone  = app.clone();

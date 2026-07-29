@@ -117,13 +117,13 @@ mod tests {
 
     #[test]
     fn flash_progress_percentage() {
-        let p = FlashProgress { percent_done: 512, bytes_total: 1024 };
+        let p = FlashProgress { percent_done: 512, percent_total: 1024 };
         assert_eq!(p.percent(), 50);
     }
 
     #[test]
     fn flash_progress_zero_total() {
-        let p = FlashProgress { percent_done: 0, bytes_total: 0 };
+        let p = FlashProgress { percent_done: 0, percent_total: 0 };
         assert_eq!(p.percent(), 0);
     }
 }

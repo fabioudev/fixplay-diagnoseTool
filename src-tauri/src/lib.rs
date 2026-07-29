@@ -161,7 +161,7 @@ pub fn run() {
                     path:   String,
                 }
                 let resource_dir = app.path().resource_dir().ok();
-                let settings     = crate::settings::load_settings(app.handle());
+                let settings     = crate::settings::load_settings_or_default(app.handle());
                 let binary_path  = resource_dir
                     .as_ref()
                     .map(|r| crate::settings::resolve_flashrom_path(&settings, r))
