@@ -2,10 +2,12 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { pushControllerLog, buttonState, micConnected } from '$lib/stores/controller';
-  import { X, Loader2, Play, Square, Mic } from 'lucide-svelte';
+  import { pushControllerLog, buttonState, micConnected, controllerModel, controllerInfo } from '$lib/stores/controller';
+  import { X, Loader2, Play, Square, Mic, FileDown } from 'lucide-svelte';
   import { trapFocus } from '$lib/utils/focusTrap';
   import { fade, scale } from 'svelte/transition';
+  import { save as saveDialog } from '@tauri-apps/plugin-dialog';
+  import { saveTextFile } from '$lib/api/tauri';
   import MicLevelMeter from './MicLevelMeter.svelte';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
 
@@ -264,6 +266,52 @@
   function statusLabel(s: TestStatus): string {
     return s === 'pass' ? '✓ OK' : s === 'fail' ? '✗ Fehler' : s === 'running' ? 'Läuft…' : 'Nicht getestet';
   }
+
+  // Build a human-readable test report summarizing every quick-test result,
+  // plus the controller identity and a pass/fail totals line, and save it as
+  // a timestamped .txt the technician can archive alongside the repair.
+  function buildReport(): string {
+    const info = $controllerInfo;
+    const fw = info?.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
+    const mac = info?.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
+    const ts = new Date().toLocaleString();
+    const lines: string[] = [
+      'fixplay diagnoseTool — Schnelltest-Report',
+      '==========================================',
+      `Datum:      ${ts}`,
+      `Controller: ${$controllerModel ?? '—'}`,
+      `Firmware:   ${fw}`,
+      `MAC:        ${mac}`,
+      '',
+      'Testergebnisse:',
+    ];
+    let pass = 0, fail = 0, skipped = 0;
+    for (const t of tests) {
+      const s = statuses[t.id];
+      const mark = s === 'pass' ? '[OK]    ' : s === 'fail' ? '[FEHLER]' : s === 'running' ? '[LÄUFT]' : '[--]    ';
+      lines.push(`  ${mark}  ${t.label}`);
+      if (s === 'pass') pass++; else if (s === 'fail') fail++; else skipped++;
+    }
+    lines.push('');
+    const overall = fail > 0 ? 'NICHT BESTANDEN' : (skipped > 0 || pass === 0) ? 'UNVOLLSTÄNDIG' : 'BESTANDEN';
+    lines.push(`Gesamt: ${pass} OK, ${fail} Fehler, ${skipped} übersprungen — ${overall}`);
+    return lines.join('\n');
+  }
+
+  async function exportReport() {
+    const report = buildReport();
+    try {
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const path = await saveDialog({
+        defaultPath: `fixplay-quicktest-${stamp}.txt`,
+        filters: [{ name: 'Text', extensions: ['txt'] }],
+      });
+      if (path) await saveTextFile(path, report);
+      pushControllerLog('Quicktest-Report exportiert', 'info');
+    } catch (e) {
+      pushControllerLog('Report-Export fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+    }
+  }
 </script>
 
 <svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') close(); }} />
@@ -355,7 +403,10 @@
         {/each}
       </div>
 
-      <div class="mt-4 flex justify-end">
+      <div class="mt-4 flex justify-end gap-2">
+        <button class="flex items-center gap-1.5 rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500" onclick={exportReport} title="Test-Report als Textdatei speichern">
+          <FileDown class="h-4 w-4" /> Report
+        </button>
         <button class="rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500" onclick={close}>
           Schließen
         </button>

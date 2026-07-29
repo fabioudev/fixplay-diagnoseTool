@@ -57,7 +57,7 @@
 
 - [ ] **#45** No UART raw terminal mode
 - [x] **#46** No stick drift visualization — DriftSparkline rolling history (80-sample magnitude sparkline with green/amber/red threshold bands) under each stick, complementing the instantaneous drift %
-- [ ] **#47** No test report generation
+- [x] **#47** No test report generation — QuickTestModal "Report" button builds a timestamped .txt (controller identity, per-test OK/FEHLER, pass/fail/skipped totals + overall verdict) via saveDialog + saveTextFile
 - [ ] **#48** No calibration before/after comparison
 - [x] **#49** No "undo" or "restore defaults" for controller operations — "Verwerfen" button restores the in-memory finetune snapshot (taken on connect + after each successful flash) via writeFinetuneData, discarding calibration changes without touching persisted NVS
 - [ ] **#50** No speaker-to-mic loopback test
