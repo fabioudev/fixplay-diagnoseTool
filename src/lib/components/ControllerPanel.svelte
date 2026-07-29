@@ -7,6 +7,7 @@
   import { saveTextFile } from '$lib/api/tauri';
   import { logTimestampFormat, formatLogTimestamp, setLogTimestampFormat, type LogTimestampFormat } from '$lib/utils/time';
   import StickVisualizer from './StickVisualizer.svelte';
+  import DriftSparkline from './DriftSparkline.svelte';
   import ControllerVisualizer from './ControllerVisualizer.svelte';
   import TesterPanel from './TesterPanel.svelte';
   import CalibrationModal from './CalibrationModal.svelte';
@@ -334,6 +335,7 @@
           <span class="text-[10px] {driftLeft < 0.05 ? 'text-green-500' : driftLeft < 0.15 ? 'text-amber-400' : 'text-red-400'}">
             Drift: {(driftLeft * 100).toFixed(1)}%
           </span>
+          <DriftSparkline side="left" />
         </div>
         <div class="flex flex-col items-center gap-2">
           <StickVisualizer
@@ -347,6 +349,7 @@
           <span class="text-[10px] {driftRight < 0.05 ? 'text-green-500' : driftRight < 0.15 ? 'text-amber-400' : 'text-red-400'}">
             Drift: {(driftRight * 100).toFixed(1)}%
           </span>
+          <DriftSparkline side="right" />
         </div>
       </div>
     </div>

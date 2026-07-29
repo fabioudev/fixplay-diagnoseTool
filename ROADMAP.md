@@ -56,7 +56,7 @@
 ## 🔵 Features
 
 - [ ] **#45** No UART raw terminal mode
-- [ ] **#46** No stick drift visualization
+- [x] **#46** No stick drift visualization — DriftSparkline rolling history (80-sample magnitude sparkline with green/amber/red threshold bands) under each stick, complementing the instantaneous drift %
 - [ ] **#47** No test report generation
 - [ ] **#48** No calibration before/after comparison
 - [x] **#49** No "undo" or "restore defaults" for controller operations — "Verwerfen" button restores the in-memory finetune snapshot (taken on connect + after each successful flash) via writeFinetuneData, discarding calibration changes without touching persisted NVS
