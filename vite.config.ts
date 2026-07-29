@@ -26,9 +26,22 @@ const mockAlias: Record<string, string> = useMock
 // Tauri build it becomes `false` so the panel and its handlers are dead code.
 const mockDefine = { __MOCK_MODE__: JSON.stringify(useMock) };
 
+// Under vitest, Svelte's bare `svelte` specifier resolves to the *server* build
+// (the package's `default` export condition), where `mount()` is unavailable —
+// so @testing-library/svelte can't render components. Force it to the client
+// entry, but ONLY when VITEST is set so the real app build (which needs the
+// server build for SSG prerender) is unaffected. Use an exact-match regex so
+// subpath imports like `svelte/transition` and `svelte/internal/client` keep
+// resolving normally.
+const svelteClientEntry = fileURLToPath(new URL('./node_modules/svelte/src/index-client.js', import.meta.url));
+const aliasEntries: Array<{ find: string | RegExp; replacement: string }> = [
+  ...Object.entries(mockAlias).map(([find, replacement]) => ({ find, replacement })),
+  ...(process.env.VITEST ? [{ find: /^svelte$/, replacement: svelteClientEntry }] : []),
+];
+
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
-  resolve: { alias: mockAlias },
+  resolve: { alias: aliasEntries },
   define: mockDefine,
   clearScreen: false,
   server: {
@@ -52,5 +65,9 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
+    // Default environment stays node for the logic tests (stores/utils/mock);
+    // component tests opt into jsdom via a `// @vitest-environment jsdom`
+    // file-level directive. jest-dom matchers are registered globally here.
+    setupFiles: ['src/tests-setup.ts'],
   },
 });
