@@ -8,6 +8,7 @@
   import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
   import AboutDialog from '$lib/components/AboutDialog.svelte';
   import OnboardingModal from '$lib/components/OnboardingModal.svelte';
+  import WhatsNewDialog from '$lib/components/WhatsNewDialog.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import StatusBar from '$lib/components/StatusBar.svelte';
@@ -16,7 +17,7 @@
   import { sidebarCollapsed } from '$lib/stores/ui';
   import { appSettings } from '$lib/stores/settings';
   import { flashBusy } from '$lib/stores/flash';
-  import { refreshUpdateContext, checkUpdates } from '$lib/stores/updater';
+  import { refreshUpdateContext, checkUpdates, currentVersion } from '$lib/stores/updater';
   import { onMount } from 'svelte';
 
   type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
@@ -25,6 +26,7 @@
   let settingsOpen = $state(false);
   let aboutOpen    = $state(false);
   let onboardingOpen = $state(false);
+  let whatsNewOpen    = $state(false);
 
   // Global keyboard shortcuts: Ctrl/Cmd+1..6 jump between panels, Ctrl/Cmd+, opens
   // settings. Skipped when focus is in a text/input/textarea field so we don't
@@ -68,6 +70,22 @@
         });
       }).catch(() => {}); // not available in mock mode
     }
+  });
+
+  // "What's new" dialog — show once when the running version differs from the
+  // last one the user saw. Fires after currentVersion is populated.
+  $effect(() => {
+    const v = $currentVersion;
+    if (!v) return;
+    try {
+      const last = localStorage.getItem('fixplay-last-version');
+      if (last !== v) {
+        // Don't pop on the very first install (onboarding covers that) — only
+        // when there's a previous version recorded.
+        if (last !== null) whatsNewOpen = true;
+        localStorage.setItem('fixplay-last-version', v);
+      }
+    } catch {}
   });
 </script>
 
@@ -138,6 +156,7 @@
 <SettingsPanel open={settingsOpen} onclose={() => (settingsOpen = false)} />
 <AboutDialog bind:open={aboutOpen} />
 <OnboardingModal bind:open={onboardingOpen} />
+<WhatsNewDialog bind:open={whatsNewOpen} />
 
 {#if __MOCK_MODE__}
   {#await import('$lib/components/MockPanel.svelte')}

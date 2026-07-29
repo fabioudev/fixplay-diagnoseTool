@@ -51,7 +51,7 @@
 - [x] **#41** No "flashrom version" display — binary status (found/missing + reason) in settings
 - [ ] **#42** No estimated time remaining for flash operations
 - [ ] **#43** No disk space indicator
-- [ ] **#44** No "what's new" dialog after update
+- [x] **#44** No "what's new" dialog after update — WhatsNewDialog on version change
 
 ## 🔵 Features
 
@@ -79,11 +79,11 @@
 
 - [x] **#64** No CI on PRs or branch pushes — `ci.yml` runs frontend+rust+audit on push/PR to main
 - [ ] **#65** Zero component tests (5,001 lines of Svelte with 0% coverage)
-- [ ] **#66** Controller input processing pipeline has zero tests
+- [x] **#66** Controller input processing pipeline has zero tests — applyProcessedInput store tests (sticks/triggers/buttons/battery/mic)
 - [ ] **#67** DS5Controller calibration and NVS operations have zero tests
 - [ ] **#68** Mock layer has zero tests (600 lines of infrastructure code)
 - [ ] **#69** HID backend commands have zero tests
-- [ ] **#70** Stick renderer has zero tests despite being pure math
+- [x] **#70** Stick renderer has zero tests despite being pure math — calculateCircularityError tests
 - [ ] **#71** Store tests are tautological (test Svelte's `writable()`, not app logic)
 - [ ] **#72** No mock error-state simulation
 - [ ] **#73** No integration tests anywhere
