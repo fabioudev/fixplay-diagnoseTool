@@ -279,7 +279,7 @@ fn archive_dump(
     }
 
     let data_dir  = app.path().app_data_dir().map_err(|e| e.to_string())?;
-    let settings  = crate::settings::load_settings_or_default(app)?;
+    let settings  = crate::settings::load_settings_or_default(app);
     let base = crate::settings::resolve_archive_base(&settings, &data_dir)
         .join("dumps")
         .join(&serial_dir);

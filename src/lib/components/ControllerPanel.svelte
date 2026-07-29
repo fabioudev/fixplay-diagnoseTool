@@ -41,6 +41,8 @@
   let macAddress = $state<string>('—');
   let copied = $state<string | null>(null);
   let wrapLog = $state(false);
+  const driftLeft = $derived(Math.sqrt($stickState.left.x ** 2 + $stickState.left.y ** 2));
+  const driftRight = $derived(Math.sqrt($stickState.right.x ** 2 + $stickState.right.y ** 2));
 
   async function doCopy(text: string, label: string) {
     await copyToClipboard(text, (ok) => {
@@ -271,10 +273,9 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.left}
           />
-          {@const driftL = Math.sqrt($stickState.left.x ** 2 + $stickState.left.y ** 2)}
           <span class="text-xs text-gray-500">Links (L3)</span>
-          <span class="text-[10px] {driftL < 0.05 ? 'text-green-500' : driftL < 0.15 ? 'text-amber-400' : 'text-red-400'}">
-            Drift: {(driftL * 100).toFixed(1)}%
+          <span class="text-[10px] {$driftLeft < 0.05 ? 'text-green-500' : $driftLeft < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+            Drift: {($driftLeft * 100).toFixed(1)}%
           </span>
         </div>
         <div class="flex flex-col items-center gap-2">
@@ -285,10 +286,9 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.right}
           />
-          {@const driftR = Math.sqrt($stickState.right.x ** 2 + $stickState.right.y ** 2)}
           <span class="text-xs text-gray-500">Rechts (R3)</span>
-          <span class="text-[10px] {driftR < 0.05 ? 'text-green-500' : driftR < 0.15 ? 'text-amber-400' : 'text-red-400'}">
-            Drift: {(driftR * 100).toFixed(1)}%
+          <span class="text-[10px] {$driftRight < 0.05 ? 'text-green-500' : $driftRight < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+            Drift: {($driftRight * 100).toFixed(1)}%
           </span>
         </div>
       </div>

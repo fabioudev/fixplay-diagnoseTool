@@ -2,7 +2,7 @@ use crate::state::AppState;
 use hidapi::HidApi;
 use serde::Serialize;
 use std::collections::VecDeque;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{mpsc, Arc, Mutex};
 use tauri::State;
 use tracing::info;
