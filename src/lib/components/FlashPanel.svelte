@@ -8,6 +8,7 @@
   } from '$lib/stores/flash';
   import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
   import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult, ChipId } from '$lib/api/types';
+  import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
 
   let programmers = $state<string[]>([]);
   let phaseLabel  = $state('');
@@ -447,7 +448,7 @@
         entry.level === 'warn'  ? 'text-yellow-400' :
                                   'text-green-400'
       }">
-        <span class="text-gray-600 mr-2">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span>
+        <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>
         {entry.message}
       </div>
     {:else}

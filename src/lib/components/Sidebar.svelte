@@ -5,6 +5,7 @@
   import FixplayIcon from '$lib/components/FixplayIcon.svelte';
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
+  import { recentViews, type RecentView } from '$lib/stores/recents';
 
   type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
@@ -33,6 +34,15 @@
 
   const programmerCount = $derived($flashProgrammers.length);
   const tabletMode      = $derived($appSettings.tablet_mode);
+
+  // Map a recent view id back to its label/icon so the quick-row reuses the
+  // same visual identity as the main nav.
+  const byId = $derived(new Map(items.map((i) => [i.id, i])));
+  const recents = $derived(
+    $recentViews
+      .map((v) => byId.get(v as RecentView))
+      .filter((i): i is (typeof items)[number] => i !== undefined)
+  );
 </script>
 
 <aside
@@ -74,6 +84,27 @@
         {/if}
       </button>
     {/each}
+
+    <!-- Recently used: auto-tracked quick-row, only when expanded and non-empty -->
+    {#if !collapsed && recents.length > 0}
+      <div class="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-600">
+        Zuletzt genutzt
+      </div>
+      {#each recents as item (item.id)}
+        <button
+          onclick={() => onnavigate(item.id)}
+          class="flex items-center rounded-lg font-medium transition-colors text-left gap-2.5 px-3 py-1.5 text-xs
+                 {active === item.id
+                   ? 'bg-blue-600/15 text-blue-300'
+                   : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/60'}"
+          aria-current={active === item.id ? 'page' : undefined}
+          title={item.label}
+        >
+          <item.icon class="w-4 h-4 shrink-0" />
+          <span class="truncate">{item.label}</span>
+        </button>
+      {/each}
+    {/if}
   </nav>
 
   <!-- Footer: programmer status + settings -->

@@ -4,7 +4,7 @@
   // store, so every edit changes what the next backend `invoke()` returns in
   // the hosted web preview. State persists to localStorage (see state.ts).
 
-  import { mockState, resetMockState, DEFAULT_MOCK_STATE } from '$lib/mock/state';
+  import { mockState, resetMockState, DEFAULT_MOCK_STATE, ERROR_INJECTABLE } from '$lib/mock/state';
   import type { MockFlashState, MockUartState, MockHidState, MockI2cState, MockControllerInput } from '$lib/mock/state';
   import type { DeviceInfo, NvsData, NorValidation, UartPortInfo, UartEntryEvent, ErrorSearchResult, DumpEntry } from '$lib/api/types';
   import type { HidDeviceInfo } from '$lib/controllers/tauri-hid-device';
@@ -210,6 +210,18 @@
     resetMockState();
     programmersText = DEFAULT_MOCK_STATE.flash.programmers.join('\n');
     linesText = DEFAULT_MOCK_STATE.uart.lines.join('\n');
+  }
+
+  // --- error injection (#72): arm/clear a simulated failure for a command ---
+  function setMockError(cmd: string, msg: string): void {
+    mockState.update((s) => {
+      const errors = { ...s.errors };
+      if (msg) errors[cmd] = msg; else delete errors[cmd];
+      return { ...s, errors };
+    });
+  }
+  function clearAllErrors(): void {
+    mockState.update((s) => ({ ...s, errors: {} }));
   }
 </script>
 
@@ -531,6 +543,26 @@
           </div>
         </section>
       {/if}
+
+      <!-- ===================== ERROR INJECTION (#72) ===================== -->
+      <section class="flex flex-col gap-2 pt-2 border-t border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-semibold text-red-300 uppercase tracking-wide">Fehler simulieren</h3>
+          <button onclick={clearAllErrors} class={btnCls}>alle lösen</button>
+        </div>
+        <p class="text-[11px] text-gray-600">Bekommt ein Befehl hier einen Text, wirft der Mock beim nächsten Aufruf diesen Fehler — so lassen sich die Error-Pfade der UI (Toast/Log/Banner) in der Vorschau testen. Leer = Fehler gelöscht.</p>
+        {#each ERROR_INJECTABLE as cmd (cmd)}
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono text-gray-400 w-44 shrink-0 truncate" title={cmd}>{cmd}</span>
+            <input
+              value={$mockState.errors[cmd] ?? ''}
+              oninput={(e) => setMockError(cmd, (e.target as HTMLInputElement).value)}
+              placeholder="z.B. Programmer nicht gefunden"
+              class={inputCls}
+            />
+          </div>
+        {/each}
+      </section>
 
     </div>
 

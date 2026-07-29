@@ -43,8 +43,8 @@
 - [x] **#33** No "about" dialog — AboutDialog with version, credits, links
 - [x] **#34** No changelog link in update banner — "What's new" link to release tag
 - [x] **#35** No "remind me later" for updates — "Später" 24h localStorage snooze
-- [ ] **#36** No "recently used" or "favorites" in sidebar
-- [ ] **#37** No timestamp format option in logs
+- [x] **#36** No "recently used" or "favorites" in sidebar — "Zuletzt genutzt" quick-row auto-tracked in localStorage (recents store + navigate helper)
+- [x] **#37** No timestamp format option in logs — Clock toggle (local/iso/seconds) in log toolbars, shared formatLogTimestamp util across flash/uart/i2c/controller logs
 - [x] **#38** No focus management in modals — `trapFocus` action + Escape-to-close on all modals
 - [x] **#39** No loading skeletons; bare text placeholders — pulse skeleton in archive list
 - [x] **#40** No progress indicator for background DB fetches — spinner shown during DB load/update
@@ -81,11 +81,11 @@
 - [ ] **#65** Zero component tests (5,001 lines of Svelte with 0% coverage)
 - [x] **#66** Controller input processing pipeline has zero tests — applyProcessedInput store tests (sticks/triggers/buttons/battery/mic)
 - [ ] **#67** DS5Controller calibration and NVS operations have zero tests
-- [ ] **#68** Mock layer has zero tests (600 lines of infrastructure code)
+- [x] **#68** Mock layer has zero tests (600 lines of infrastructure code) — 13 tests covering invoke routing, settings round-trip, search {query} substitution, DS5 report encoding, flash progress events, no-op commands
 - [ ] **#69** HID backend commands have zero tests
 - [x] **#70** Stick renderer has zero tests despite being pure math — calculateCircularityError tests
 - [ ] **#71** Store tests are tautological (test Svelte's `writable()`, not app logic)
-- [ ] **#72** No mock error-state simulation
+- [x] **#72** No mock error-state simulation — MockPanel "Fehler simulieren" section arms per-command errors (errors map in mock state); invoke() rejects with the armed message; 3 tests
 - [ ] **#73** No integration tests anywhere
 - [x] **#74** No `rust-toolchain.toml` for reproducible builds — added
 - [x] **#75** No Dependabot or Renovate for automated dependency updates — `.github/dependabot.yml` (npm + all 5 cargo workspaces, weekly)
@@ -108,7 +108,7 @@
 - [ ] **#92** `UartPort` and `I2cBridge` have `pub` fields breaking encapsulation
 - [ ] **#93** Inconsistent `write_line` signatures: `&mut self` vs `&self`
 - [ ] **#94** Error chain loss in `FlashError::Io(String)`, `UartError::Serial(String)`, `I2cError::Serial(String)`
-- [ ] **#95** `ErrorDb::from_cache()` uses semantically wrong error variant
+- [x] **#95** `ErrorDb::from_cache()` uses semantically wrong error variant — file-read error now maps to `DbFetch` (was `Serial`) in both uart + i2c crates
 - [ ] **#96** No `#[deny(missing_docs)]` or `#[warn(missing_docs)]` in any crate
 - [ ] **#97** No file-based logging for release builds on Windows
 - [ ] **#98** Single-byte UART read loop is inefficient

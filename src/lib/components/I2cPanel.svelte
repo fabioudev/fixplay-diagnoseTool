@@ -10,6 +10,7 @@
     i2cSearchXboxDb,
   } from '$lib/api/tauri';
   import type { I2cPortInfo, I2cInfo, I2cErrorSearchResult } from '$lib/api/types';
+  import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
 
   let selectedPort = $state('');
   let loading      = $state(false);
@@ -496,7 +497,7 @@
     <div class="max-h-28 overflow-y-auto bg-gray-950 rounded p-2 flex flex-col gap-0.5 font-mono text-[11px]">
       {#each $i2cLog.slice(0, 50) as entry (entry.id)}
         <div class={entry.kind === 'error' ? 'text-red-400' : entry.kind === 'status' ? 'text-gray-500 italic' : 'text-green-400'}>
-          <span class="text-gray-600 mr-2">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span>{entry.raw}
+          <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>{entry.raw}
         </div>
       {/each}
     </div>

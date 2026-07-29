@@ -105,7 +105,7 @@ impl XboxErrorDb {
 
     pub fn from_cache(path: &Path) -> Result<Self, I2cError> {
         let json = std::fs::read_to_string(path)
-            .map_err(|e| I2cError::Serial(e.to_string()))?;
+            .map_err(|e| I2cError::DbFetch(e.to_string()))?;
         // Poisoned-cache guard: an older `fetch_and_cache` had no HTTP status
         // check, so a stale cache file may hold a 404 error body ("404: Not
         // Found") rather than JSON. serde would then surface a confusing

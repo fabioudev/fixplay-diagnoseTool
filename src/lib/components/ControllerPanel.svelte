@@ -1,10 +1,11 @@
 
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download } from 'lucide-svelte';
+  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download, Clock } from 'lucide-svelte';
   import { copyToClipboard } from '$lib/utils/clipboard';
   import { save as saveDialog } from '@tauri-apps/plugin-dialog';
   import { saveTextFile } from '$lib/api/tauri';
+  import { logTimestampFormat, formatLogTimestamp, setLogTimestampFormat, type LogTimestampFormat } from '$lib/utils/time';
   import StickVisualizer from './StickVisualizer.svelte';
   import ControllerVisualizer from './ControllerVisualizer.svelte';
   import TesterPanel from './TesterPanel.svelte';
@@ -54,7 +55,7 @@
 
   function logToText(): string {
     return $controllerLog
-      .map((e) => `${new Date(e.timestamp_ms).toLocaleTimeString()} [${e.level}] ${e.message}`)
+      .map((e) => `${formatLogTimestamp(e.timestamp_ms, $logTimestampFormat)} [${e.level}] ${e.message}`)
       .join('\n');
   }
 
@@ -350,6 +351,13 @@
           <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={exportLog} title="Protokoll als Datei speichern">
             <Download class="h-3 w-3" />
           </button>
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => {
+            const order: LogTimestampFormat[] = ['local', 'iso', 'seconds'];
+            const cur = $logTimestampFormat;
+            setLogTimestampFormat(order[(order.indexOf(cur) + 1) % order.length]);
+          }} title={`Zeitstempel-Format: ${$logTimestampFormat} (klicken zum Wechseln)`}>
+            <Clock class="h-3 w-3" />
+          </button>
           <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => (wrapLog = !wrapLog)} title={wrapLog ? 'Zeilenumbruch aus' : 'Zeilenumbruch an'}>
             <WrapText class="h-3 w-3 {wrapLog ? 'text-teal-400' : ''}" />
           </button>
@@ -361,7 +369,7 @@
       <div class="max-h-40 space-y-1 overflow-y-auto text-xs font-mono {wrapLog ? 'break-words' : 'whitespace-nowrap'}">
         {#each $controllerLog as entry (entry.id)}
           <div class="{entry.level === 'error' ? 'text-red-400' : entry.level === 'warn' ? 'text-amber-400' : 'text-gray-400'}">
-            <span class="text-gray-600">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span> {entry.message}
+            <span class="text-gray-600">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span> {entry.message}
           </div>
         {/each}
       </div>

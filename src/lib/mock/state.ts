@@ -96,7 +96,27 @@ export interface MockState {
   uart: MockUartState;
   hid: MockHidState;
   i2c: MockI2cState;
+  /**
+   * Error injection: map a command name → error message. When an entry exists,
+   * `invoke(cmd)` rejects with that message instead of running the handler, so
+   * the UI's error paths (toast/log/red banner) can be exercised in the
+   * hosted preview without real hardware failing. An empty string clears it.
+   * Only the keys listed in `ERROR_INJECTABLE` are honored.
+   */
+  errors: Record<string, string>;
 }
+
+/** Commands the MockPanel is allowed to inject errors for. */
+export const ERROR_INJECTABLE: string[] = [
+  'flash_read',
+  'flash_write',
+  'flash_read_id',
+  'uart_connect',
+  'i2c_connect',
+  'hid_connect',
+  'uart_update_error_db',
+  'i2c_update_xbox_db',
+];
 
 const STORAGE_KEY = 'fixplay-mock-state';
 
@@ -242,6 +262,7 @@ export const DEFAULT_MOCK_STATE: MockState = {
       { code: 'E2000001', description: 'Mock-Xbox-Treffer für "{query}"', category: 'generic' },
     ],
   },
+  errors: {},
 };
 
 function clone(state: MockState): MockState {

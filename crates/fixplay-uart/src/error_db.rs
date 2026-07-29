@@ -59,7 +59,7 @@ impl ErrorDb {
 
     pub fn from_cache(path: &Path) -> Result<Self, UartError> {
         let json = std::fs::read_to_string(path)
-            .map_err(|e| UartError::Serial(e.to_string()))?;
+            .map_err(|e| UartError::DbFetch(e.to_string()))?;
         // Poisoned-cache guard: a stale cache file (e.g. written by an older
         // `fetch_and_cache` without an HTTP status check) may hold a 404 error
         // body instead of JSON, which serde would surface as a confusing

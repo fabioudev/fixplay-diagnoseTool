@@ -15,6 +15,7 @@
   import Header from '$lib/components/Header.svelte';
   import UpdateBanner from '$lib/components/UpdateBanner.svelte';
   import { sidebarCollapsed } from '$lib/stores/ui';
+  import { pushRecent } from '$lib/stores/recents';
   import { appSettings } from '$lib/stores/settings';
   import { flashBusy } from '$lib/stores/flash';
   import { refreshUpdateContext, checkUpdates, currentVersion } from '$lib/stores/updater';
@@ -44,8 +45,15 @@
     const n = parseInt(e.key, 10);
     if (n >= 1 && n <= SHORTCUT_VIEWS.length && !isTypingTarget(e.target)) {
       e.preventDefault();
-      activeView = SHORTCUT_VIEWS[n - 1];
+      navigate(SHORTCUT_VIEWS[n - 1]);
     }
+  }
+
+  // Centralize navigation so we can record recently-visited panels for the
+  // sidebar quick-row. Every panel switch goes through this helper.
+  function navigate(v: View) {
+    activeView = v;
+    pushRecent(v);
   }
 
   onMount(() => {
@@ -99,7 +107,7 @@
   <Sidebar
     active={activeView}
     collapsed={$sidebarCollapsed}
-    onnavigate={(v) => (activeView = v)}
+    onnavigate={navigate}
     onsettings={() => (settingsOpen = true)}
     onabout={() => (aboutOpen = true)}
   />
@@ -116,7 +124,7 @@
     <main class="flex-1 min-h-0 overflow-hidden">
       {#if activeView === 'home'}
         <ErrorBoundary panel="Start">
-          <HomePanel onnavigate={(v) => (activeView = v)} />
+          <HomePanel onnavigate={navigate} />
         </ErrorBoundary>
       {:else if activeView === 'flash'}
         <ErrorBoundary panel="NOR Flash">
@@ -149,7 +157,7 @@
       {/if}
     </main>
 
-    <StatusBar onnavigate={(v) => (activeView = v)} />
+    <StatusBar onnavigate={navigate} />
   </div>
 </div>
 

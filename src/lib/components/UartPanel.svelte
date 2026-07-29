@@ -19,6 +19,7 @@
     settingsSave,
   } from '$lib/api/tauri';
   import { appSettings } from '$lib/stores/settings';
+  import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
   import type { UartEntryEvent, ErrorSearchResult, UartPortInfo, UartLogEntry } from '$lib/api/types';
 
   let selectedPort    = $state('');
@@ -585,7 +586,7 @@
               0x{entry.parsed.entry.error_code.toString(16).toUpperCase().padStart(8, '0')}
             </span>
             <span class="text-gray-500 shrink-0">
-              {new Date(entry.timestamp_ms).toLocaleTimeString()}
+              {formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}
             </span>
           </div>
           {#if entry.parsed.description}
@@ -610,7 +611,7 @@
           entry.raw.startsWith('LOOPBACK:')    ? 'text-cyan-400 font-semibold' :
                                                  'text-green-400'
         }">
-          <span class="text-gray-600 mr-2">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span>{entry.raw.startsWith('LOOPBACK:') ? `✓ Echo: ${entry.raw}` : entry.raw}
+          <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>{entry.raw.startsWith('LOOPBACK:') ? `✓ Echo: ${entry.raw}` : entry.raw}
         </div>
       {/if}
     {:else}

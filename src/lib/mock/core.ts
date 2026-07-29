@@ -300,6 +300,12 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
 
 /** Drop-in replacement for Tauri's `invoke`. */
 export async function invoke<T = unknown>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  // Error injection: if the MockPanel armed an error for this command, reject
+  // with the configured message so the UI's error handling is exercised.
+  const err = getMockState().errors[cmd];
+  if (err) {
+    throw new Error(err);
+  }
   const handler = handlers[cmd];
   if (!handler) {
     warn(cmd);
