@@ -92,9 +92,17 @@ pub fn clamp_baud_rate(baud: u32) -> u32 {
 }
 
 pub fn resolve_flashrom_path(settings: &AppSettings, resource_dir: &std::path::Path) -> std::path::PathBuf {
-    settings.flashrom_path.as_ref()
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(|| flashrom_path(resource_dir))
+    if let Some(custom) = settings.flashrom_path.as_ref() {
+        return std::path::PathBuf::from(custom);
+    }
+    let bundled = flashrom_path(resource_dir);
+    // If the bundled binary is missing (e.g. dev build without the resource
+    // step, or a stripped package), fall back to a system `flashrom` resolved
+    // via PATH at spawn time. Returning the bare name lets the OS search PATH.
+    if !bundled.exists() {
+        return std::path::PathBuf::from("flashrom");
+    }
+    bundled
 }
 
 pub fn resolve_archive_base(settings: &AppSettings, default_data_dir: &std::path::Path) -> std::path::PathBuf {
@@ -161,10 +169,25 @@ mod tests {
     }
 
     #[test]
-    fn resolve_flashrom_path_uses_bundled_when_none() {
+    fn resolve_flashrom_path_uses_bundled_when_present() {
+        // Create the bundled binary location so the fallback to PATH isn't taken.
+        let tmp = std::env::temp_dir().join("fp_res_bundled");
+        std::fs::create_dir_all(tmp.join("binaries")).unwrap();
+        let bin = tmp.join("binaries").join("flashrom");
+        std::fs::write(&bin, b"#!/bin/sh\n").unwrap();
         let s    = AppSettings::default();
-        let path = resolve_flashrom_path(&s, std::path::Path::new("/res"));
-        assert!(path.starts_with("/res"));
+        let path = resolve_flashrom_path(&s, &tmp);
+        assert_eq!(path, bin);
+        std::fs::remove_dir_all(&tmp).ok();
+    }
+
+    #[test]
+    fn resolve_flashrom_path_falls_back_to_path_when_bundled_missing() {
+        // /res does not exist on disk → bundled binary missing → bare "flashrom"
+        // so the OS resolves it via PATH at spawn time.
+        let s    = AppSettings::default();
+        let path = resolve_flashrom_path(&s, std::path::Path::new("/res/does/not/exist"));
+        assert_eq!(path, std::path::PathBuf::from("flashrom"));
     }
 
     #[test]

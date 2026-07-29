@@ -95,7 +95,14 @@
     </div>
 
     {#if loading}
-      <p class="text-gray-500 text-xs">Lade Dumps…</p>
+      <div class="flex flex-col gap-3">
+        {#each Array(3) as _}
+          <div class="p-3 rounded-lg bg-gray-800 border border-gray-700 animate-pulse">
+            <div class="h-3 w-32 bg-gray-700 rounded mb-2"></div>
+            <div class="h-5 w-full bg-gray-700/70 rounded"></div>
+          </div>
+        {/each}
+      </div>
     {:else if archives.length === 0}
       <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
         <p class="text-gray-400 text-sm">Keine Dumps archiviert</p>

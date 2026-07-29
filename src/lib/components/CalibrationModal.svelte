@@ -7,6 +7,7 @@
   import StickVisualizer from './StickVisualizer.svelte';
   import { X, Loader2 } from 'lucide-svelte';
   import { trapFocus } from '$lib/utils/focusTrap';
+  import { fade, scale } from 'svelte/transition';
 
   let {
     open = $bindable(false),
@@ -201,8 +202,8 @@
 <svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') close(); }} />
 
 {#if open}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800" use:trapFocus>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" transition:fade={{ duration: 150 }}>
+    <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800" use:trapFocus transition:scale={{ duration: 150, start: 0.96 }}>
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
           {mode === 'center' ? 'Stick-Mittelkalibrierung' : 'Range-Kalibrierung'}

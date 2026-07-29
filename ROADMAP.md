@@ -30,7 +30,7 @@
 - [x] **#20** No keyboard navigation anywhere — Ctrl/Cmd+1..6 panel shortcuts, Ctrl/Cmd+, settings, sidebar hints
 - [x] **#21** No log export or copy functionality — copy + save-to-file buttons on controller log
 - [x] **#22** No archive search, sort, or filter — search field + sort (newest/oldest/serial)
-- [ ] **#23** No "first run" experience or onboarding
+- [x] **#23** No "first run" experience or onboarding — OnboardingModal shown once per install
 - [x] **#24** No offline detection or degraded-mode handling — StatusBar offline badge via navigator.onLine
 - [x] **#25** No "copy to clipboard" for displayed data values — copyToClipboard utility + MAC/FW copy buttons
 - [x] **#26** No "clear log" button on any log view — added to ControllerPanel log
@@ -46,7 +46,7 @@
 - [ ] **#36** No "recently used" or "favorites" in sidebar
 - [ ] **#37** No timestamp format option in logs
 - [x] **#38** No focus management in modals — `trapFocus` action + Escape-to-close on all modals
-- [ ] **#39** No loading skeletons; bare text placeholders
+- [x] **#39** No loading skeletons; bare text placeholders — pulse skeleton in archive list
 - [x] **#40** No progress indicator for background DB fetches — spinner shown during DB load/update
 - [x] **#41** No "flashrom version" display — binary status (found/missing + reason) in settings
 - [ ] **#42** No estimated time remaining for flash operations
@@ -61,7 +61,7 @@
 - [ ] **#48** No calibration before/after comparison
 - [ ] **#49** No "undo" or "restore defaults" for controller operations
 - [ ] **#50** No speaker-to-mic loopback test
-- [ ] **#51** No I2C mock tab in MockPanel
+- [x] **#51** No I2C mock tab in MockPanel — added I2C tab (ports, db, scan, errlog, info)
 - [ ] **#52** No dark/light theme support
 - [ ] **#53** No i18n infrastructure; all strings hardcoded in German
 - [x] **#54** No battery level on controller visualizer — battery bar + % below PS button
@@ -70,10 +70,10 @@
 - [ ] **#57** No touchpad gesture visualization
 - [x] **#58** No peak hold on mic level meter — peak hold with 2s decay
 - [ ] **#59** No frequency spectrum view for mic
-- [ ] **#60** No "copy state as JSON" in MockPanel
-- [ ] **#61** No `flashrom` PATH fallback
-- [ ] **#62** No tooltip/detail on info bar items
-- [ ] **#63** No animation/transition on state changes
+- [x] **#60** No "copy state as JSON" in MockPanel — copy-state-as-JSON button
+- [x] **#61** No `flashrom` PATH fallback — bundled-missing → bare `flashrom` (PATH)
+- [x] **#62** No tooltip/detail on info bar items — all four controller info cards have tooltips
+- [x] **#63** No animation/transition on state changes — fade+scale transitions on all modals
 
 ## 🟢 Quality
 

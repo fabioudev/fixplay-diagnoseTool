@@ -7,6 +7,7 @@
   import HomePanel from '$lib/components/HomePanel.svelte';
   import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
   import AboutDialog from '$lib/components/AboutDialog.svelte';
+  import OnboardingModal from '$lib/components/OnboardingModal.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import StatusBar from '$lib/components/StatusBar.svelte';
@@ -23,6 +24,7 @@
   let activeView   = $state<View>('home');
   let settingsOpen = $state(false);
   let aboutOpen    = $state(false);
+  let onboardingOpen = $state(false);
 
   // Global keyboard shortcuts: Ctrl/Cmd+1..6 jump between panels, Ctrl/Cmd+, opens
   // settings. Skipped when focus is in a text/input/textarea field so we don't
@@ -45,6 +47,9 @@
   }
 
   onMount(() => {
+    // First-run onboarding — show once per install.
+    try { if (!localStorage.getItem('fixplay-onboarding-done')) onboardingOpen = true; } catch {}
+
     if (!__MOCK_MODE__) {
       refreshUpdateContext().then(() => checkUpdates());
 
@@ -132,6 +137,7 @@
 
 <SettingsPanel open={settingsOpen} onclose={() => (settingsOpen = false)} />
 <AboutDialog bind:open={aboutOpen} />
+<OnboardingModal bind:open={onboardingOpen} />
 
 {#if __MOCK_MODE__}
   {#await import('$lib/components/MockPanel.svelte')}

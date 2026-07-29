@@ -5,12 +5,15 @@
   // the hosted web preview. State persists to localStorage (see state.ts).
 
   import { mockState, resetMockState, DEFAULT_MOCK_STATE } from '$lib/mock/state';
-  import type { MockFlashState, MockUartState, MockHidState, MockControllerInput } from '$lib/mock/state';
+  import type { MockFlashState, MockUartState, MockHidState, MockI2cState, MockControllerInput } from '$lib/mock/state';
   import type { DeviceInfo, NvsData, NorValidation, UartPortInfo, UartEntryEvent, ErrorSearchResult, DumpEntry } from '$lib/api/types';
   import type { HidDeviceInfo } from '$lib/controllers/tauri-hid-device';
+  import { copyToClipboard } from '$lib/utils/clipboard';
+  import { Copy } from 'lucide-svelte';
 
   let open = $state(false);
-  let tab = $state<'flash' | 'uart' | 'controller'>('flash');
+  let tab = $state<'flash' | 'uart' | 'i2c' | 'controller'>('flash');
+  let copiedState = $state(false);
 
   // Local mirrors for multi-line textareas (bind:value) so the cursor stays put.
   let programmersText = $state(($mockState.flash.programmers.join('\n')));
@@ -45,6 +48,14 @@
   }
   function setUart<K extends keyof MockUartState>(key: K, val: MockUartState[K]): void {
     mockState.update((s) => ({ ...s, uart: { ...s.uart, [key]: val } }));
+  }
+  function setI2c<K extends keyof MockI2cState>(key: K, val: MockI2cState[K]): void {
+    mockState.update((s) => ({ ...s, i2c: { ...s.i2c, [key]: val } }));
+  }
+  function copyState() {
+    copyToClipboard(JSON.stringify($mockState, null, 2), (ok) => {
+      if (ok) { copiedState = true; setTimeout(() => (copiedState = false), 1500); }
+    });
   }
   function setHid<K extends keyof MockHidState>(key: K, val: MockHidState[K]): void {
     mockState.update((s) => ({ ...s, hid: { ...s.hid, [key]: val } }));
@@ -229,6 +240,9 @@
         <span class="text-[10px] text-gray-500">Nur Vorschau — Änderungen gelten live</span>
       </div>
       <div class="flex items-center gap-2">
+        <button onclick={copyState} class={btnCls} title="Gesamten Mock-State als JSON kopieren (für Bug-Reports)">
+          <Copy class="w-3 h-3 inline -mt-0.5 mr-1" />{copiedState ? 'Kopiert!' : 'State als JSON'}
+        </button>
         <button onclick={reset} class={btnDanger} title="Alle Mock-Werte auf Standard zurücksetzen">Zurücksetzen</button>
         <button onclick={() => (open = false)} class="text-gray-400 hover:text-gray-200 text-lg leading-none" title="Schließen">✕</button>
       </div>
@@ -236,7 +250,7 @@
 
     <!-- Tabs -->
     <div class="flex border-b border-gray-700 shrink-0">
-      {#each ([{ id: 'flash', label: 'Flash' }, { id: 'uart', label: 'UART' }, { id: 'controller', label: 'Controller' }] as const) as t (t.id)}
+      {#each ([{ id: 'flash', label: 'Flash' }, { id: 'uart', label: 'UART' }, { id: 'i2c', label: 'I2C' }, { id: 'controller', label: 'Controller' }] as const) as t (t.id)}
         <button
           onclick={() => (tab = t.id)}
           class="flex-1 px-3 py-2.5 text-xs font-medium transition-colors
@@ -412,6 +426,49 @@
               <input value={res.description} oninput={(e) => setSearch(i, { description: (e.target as HTMLInputElement).value })} placeholder="Beschreibung" class={inputCls} />
             </div>
           {/each}
+        </section>
+
+      <!-- ===================== I2C / Pico ===================== -->
+      {:else if tab === 'i2c'}
+        <section class="flex flex-col gap-3">
+          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">I2C / Pico Bridge</h3>
+          <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.i2c.connected} onchange={(e) => setI2c('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">verbunden (i2c_poll)</span></label>
+
+          <div class="flex flex-col gap-1">
+            <label class={lblCls}>Xbox-DB Code-Anzahl (null = nicht geladen)</label>
+            <input type="number" value={$mockState.i2c.db_count ?? 0} oninput={(e) => setI2c('db_count', num((e.target as HTMLInputElement).value) || null)} class={inputCls} />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class={lblCls}>i2c_scan Treffer (komma-getrennte Hex-Adressen)</label>
+            <input
+              value={$mockState.i2c.scan_results.map((a) => '0x' + a.toString(16)).join(', ')}
+              oninput={(e) => setI2c('scan_results', (e.target as HTMLInputElement).value
+                .split(',').map((t) => t.trim()).filter(Boolean)
+                .map((t) => parseInt(t, t.startsWith('0x') ? 16 : 10)).filter((n) => !isNaN(n)))}
+              class={inputCls}
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class={lblCls}>Errlog-Einträge (JSON-Array)</label>
+            <textarea
+              rows="3"
+              value={JSON.stringify($mockState.i2c.errlog)}
+              oninput={(e) => { try { setI2c('errlog', JSON.parse((e.target as HTMLTextAreaElement).value)); } catch {} }}
+              class={inputCls + ' font-mono'}
+            ></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class={lblCls}>i2c_info (JSON oder leer)</label>
+            <textarea
+              rows="3"
+              value={$mockState.i2c.info ? JSON.stringify($mockState.i2c.info) : ''}
+              oninput={(e) => { try { const v = (e.target as HTMLTextAreaElement).value; setI2c('info', v ? JSON.parse(v) : null); } catch {} }}
+              class={inputCls + ' font-mono'}
+            ></textarea>
+          </div>
         </section>
 
       <!-- ===================== CONTROLLER ===================== -->

@@ -233,7 +233,7 @@
           <Battery class="h-4 w-4" /> {$batteryStatus.bat_txt || '—'}
         </div>
       </div>
-      <div class="rounded-lg bg-gray-800/60 p-3">
+      <div class="rounded-lg bg-gray-800/60 p-3" title="Bluetooth-MAC-Adresse des Controllers">
         <div class="text-xs text-gray-500">MAC</div>
         <div class="flex items-center justify-between gap-1">
           <div class="text-sm font-medium text-gray-200 truncate">{macAddress}</div>
@@ -242,7 +242,7 @@
           </button>
         </div>
       </div>
-      <div class="rounded-lg bg-gray-800/60 p-3">
+      <div class="rounded-lg bg-gray-800/60 p-3" title="Firmware-Version des Controllers">
         <div class="text-xs text-gray-500">Firmware</div>
         <div class="flex items-center justify-between gap-1">
           <div class="text-sm font-medium text-gray-200 truncate">{fwVersion}</div>
