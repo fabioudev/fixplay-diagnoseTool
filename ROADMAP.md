@@ -59,7 +59,7 @@
 - [ ] **#46** No stick drift visualization
 - [ ] **#47** No test report generation
 - [ ] **#48** No calibration before/after comparison
-- [ ] **#49** No "undo" or "restore defaults" for controller operations
+- [x] **#49** No "undo" or "restore defaults" for controller operations — "Verwerfen" button restores the in-memory finetune snapshot (taken on connect + after each successful flash) via writeFinetuneData, discarding calibration changes without touching persisted NVS
 - [ ] **#50** No speaker-to-mic loopback test
 - [x] **#51** No I2C mock tab in MockPanel — added I2C tab (ports, db, scan, errlog, info)
 - [ ] **#52** No dark/light theme support

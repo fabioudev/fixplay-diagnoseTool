@@ -1,7 +1,7 @@
 
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download, Clock } from 'lucide-svelte';
+  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download, Clock, Undo2 } from 'lucide-svelte';
   import { copyToClipboard } from '$lib/utils/clipboard';
   import { save as saveDialog } from '@tauri-apps/plugin-dialog';
   import { saveTextFile } from '$lib/api/tauri';
@@ -44,6 +44,17 @@
   let macAddress = $state<string>('—');
   let copied = $state<string | null>(null);
   let wrapLog = $state(false);
+  // In-memory calibration undo: a snapshot of the controller's finetune module
+  // data taken on connect (and after every successful flash). "Verwerfen" writes
+  // it back, discarding calibration changes made since the snapshot without
+  // touching the persisted NVS — the discard counterpart to "Speichern".
+  let calibSnapshot = $state<number[] | null>(null);
+
+  async function snapshotCalibration(): Promise<void> {
+    if (!manager) { calibSnapshot = null; return; }
+    try { calibSnapshot = await manager.getInMemoryModuleData(); }
+    catch { calibSnapshot = null; }
+  }
   const driftLeft = $derived(Math.sqrt($stickState.left.x ** 2 + $stickState.left.y ** 2));
   const driftRight = $derived(Math.sqrt($stickState.right.x ** 2 + $stickState.right.y ** 2));
 
@@ -135,6 +146,9 @@
       fwVersion  = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
       macAddress = info.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
       pushControllerLog(`Controller verbunden: ${ctrl.getModel()}`, 'info');
+      // Snapshot the in-memory finetune data so "Verwerfen" can undo calibration
+      // changes made this session back to the connected state.
+      await snapshotCalibration();
     } catch (e) {
       connectError = e instanceof Error ? e.message : String(e);
       pushControllerLog('Verbindung fehlgeschlagen: ' + connectError, 'error');
@@ -152,6 +166,7 @@
       await manager.disconnect();
       manager = null;
     }
+    calibSnapshot = null;
     controllerConnected.set(false);
     controllerModel.set(null);
     controllerInfo.set(null);
@@ -166,8 +181,20 @@
     try {
       const res = await manager.flash();
       pushControllerLog(res.message, res.success ? 'info' : 'error');
+      // Persisting the in-memory changes makes them the new undo baseline.
+      if (res.success) await snapshotCalibration();
     } catch (e) {
       pushControllerLog('Flash fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+    }
+  }
+
+  async function undoCalibration() {
+    if (!manager || !calibSnapshot) return;
+    try {
+      await manager.writeFinetuneData(calibSnapshot);
+      pushControllerLog('Kalibrierungsänderungen verworfen (in-memory zurückgesetzt)', 'info');
+    } catch (e) {
+      pushControllerLog('Verwerfen fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
     }
   }
 
@@ -267,6 +294,9 @@
       </button>
       <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title="Änderungen dauerhaft im Controller speichern">
         <Lightbulb class="h-4 w-4" /> Speichern
+      </button>
+      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed" onclick={undoCalibration} disabled={!calibSnapshot} title={calibSnapshot ? 'Kalibrierungsänderungen seit Verbinden/Speichern verwerfen' : 'Noch keine Änderungen zum Verwerfen'}>
+        <Undo2 class="h-4 w-4" /> Verwerfen
       </button>
       <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetController}>
         <RefreshCw class="h-4 w-4" /> Reset
