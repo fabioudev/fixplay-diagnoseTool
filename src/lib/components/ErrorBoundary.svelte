@@ -10,8 +10,9 @@
   let error = $state<string | null>(null);
   let key = $state(0);
 
-  function onWindowError(e: ErrorEvent) {
-    error = e.message || 'Unbekannter Fehler';
+  function onWindowError(e: Event) {
+    const msg = e instanceof ErrorEvent ? e.message : 'Unbekannter Fehler';
+    error = msg;
   }
 
   function retry() {

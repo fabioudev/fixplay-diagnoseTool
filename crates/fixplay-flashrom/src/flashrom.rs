@@ -67,18 +67,18 @@ impl FlashDevice for FlashromDevice {
             }
         }
 
-        // Wait with a 5-minute timeout — flashrom should never take longer for a
-        // single read/write. If it hangs (bad hardware, locked chip), kill it
-        // instead of hanging the app forever.
+        // Wait with a 5-minute timeout. Use Arc<Mutex> so the watchdog thread
+        // and the timeout path can both access the child (for wait + kill).
         let status = {
-            let mut child = child;
+            let child = std::sync::Arc::new(std::sync::Mutex::new(child));
+            let child2 = std::sync::Arc::clone(&child);
             let (tx, rx) = std::sync::mpsc::channel();
             std::thread::spawn(move || {
-                let _ = tx.send(child.wait());
+                let _ = tx.send(child2.lock().unwrap().wait());
             });
             rx.recv_timeout(std::time::Duration::from_secs(300))
                 .map_err(|_| {
-                    let _ = child.kill();
+                    let _ = child.lock().unwrap().kill();
                     FlashError::Subprocess("flashrom timed out after 5 minutes — Vorgang abgebrochen".into())
                 })?
                 .map_err(|e| FlashError::Subprocess(e.to_string()))?
@@ -118,14 +118,15 @@ impl FlashDevice for FlashromDevice {
         }
 
         let status = {
-            let mut child = child;
+            let child = std::sync::Arc::new(std::sync::Mutex::new(child));
+            let child2 = std::sync::Arc::clone(&child);
             let (tx, rx) = std::sync::mpsc::channel();
             std::thread::spawn(move || {
-                let _ = tx.send(child.wait());
+                let _ = tx.send(child2.lock().unwrap().wait());
             });
             rx.recv_timeout(std::time::Duration::from_secs(300))
                 .map_err(|_| {
-                    let _ = child.kill();
+                    let _ = child.lock().unwrap().kill();
                     FlashError::Subprocess("flashrom timed out after 5 minutes — Vorgang abgebrochen".into())
                 })?
                 .map_err(|e| FlashError::Subprocess(e.to_string()))?
