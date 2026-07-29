@@ -49,7 +49,7 @@
 - [x] **#39** No loading skeletons; bare text placeholders — pulse skeleton in archive list
 - [x] **#40** No progress indicator for background DB fetches — spinner shown during DB load/update
 - [x] **#41** No "flashrom version" display — binary status (found/missing + reason) in settings
-- [ ] **#42** No estimated time remaining for flash operations
+- [x] **#42** No estimated time remaining for flash operations — per-phase ETA extrapolated from observed progress rate (shown at ≥20% of each phase)
 - [ ] **#43** No disk space indicator
 - [x] **#44** No "what's new" dialog after update — WhatsNewDialog on version change
 
@@ -84,7 +84,7 @@
 - [x] **#68** Mock layer has zero tests (600 lines of infrastructure code) — 13 tests covering invoke routing, settings round-trip, search {query} substitution, DS5 report encoding, flash progress events, no-op commands
 - [ ] **#69** HID backend commands have zero tests
 - [x] **#70** Stick renderer has zero tests despite being pure math — calculateCircularityError tests
-- [ ] **#71** Store tests are tautological (test Svelte's `writable()`, not app logic)
+- [x] **#71** Store tests are tautological (test Svelte's `writable()`, not app logic) — rewritten to test id-generator uniqueness/monotonicity, log prepend+cap contracts, parsed-entry shape, nullable db-count semantic, and partial-update preservation instead of bare set/get round-trips
 - [x] **#72** No mock error-state simulation — MockPanel "Fehler simulieren" section arms per-command errors (errors map in mock state); invoke() rejects with the armed message; 3 tests
 - [ ] **#73** No integration tests anywhere
 - [x] **#74** No `rust-toolchain.toml` for reproducible builds — added

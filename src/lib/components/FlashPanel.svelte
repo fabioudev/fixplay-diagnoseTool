@@ -12,9 +12,26 @@
 
   let programmers = $state<string[]>([]);
   let phaseLabel  = $state('');
+  let etaLabel    = $state('');
   let writeVerify = $state(true);
   let chipId      = $state<ChipId | null>(null);
   let chipIdBusy  = $state(false);
+
+  // Per-phase ETA tracking. Progress resets to 0 at each phase (read1/read2/
+  // write/verify), so we anchor on the first event of the current phase and
+  // extrapolate the remaining time from the observed rate. Only shown once
+  // enough of the phase has elapsed to give a non-noisy estimate.
+  let etaPhase  = $state('');
+  let etaStart  = $state(0);
+
+  function formatDuration(ms: number): string {
+    if (!Number.isFinite(ms) || ms < 0) return '';
+    const s = Math.round(ms / 1000);
+    if (s < 60) return `~${s}s`;
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `~${m}m ${r}s`;
+  }
 
   const PHASE_LABELS: Record<string, string> = {
     read1:  'Lesen 1/2…',
@@ -63,6 +80,19 @@
       listen<FlashProgressEvent>('flash://progress', (e) => {
         flashProgress.set(e.payload);
         phaseLabel = PHASE_LABELS[e.payload.phase] ?? e.payload.phase;
+        // ETA: re-anchor whenever the phase changes, then extrapolate from the
+        // observed rate once ≥20% of the phase is done.
+        const now = Date.now();
+        if (etaPhase !== e.payload.phase) { etaPhase = e.payload.phase; etaStart = now; }
+        const elapsed = now - etaStart;
+        const pct = e.payload.percent;
+        if (pct > 0 && pct < 100 && elapsed > 0) {
+          etaLabel = pct >= 20
+            ? `Restzeit ${formatDuration((100 - pct) * elapsed / pct)}`
+            : '';
+        } else if (pct >= 100) {
+          etaLabel = '';
+        }
       }),
       listen<FlashStatusEvent>('flash://status', (e) => {
         flashLog.update((log) => [
@@ -79,6 +109,7 @@
         flashResult.set(e.payload);
         flashBusy.set(false);
         flashProgress.set(null);
+        etaLabel = ''; etaPhase = ''; etaStart = 0;
       }),
     ]);
     unlisten.push(u1, u2, u3);
@@ -261,7 +292,7 @@
     <div class="flex flex-col gap-1">
       <div class="flex justify-between text-xs text-gray-400">
         <span>{phaseLabel}</span>
-        <span>{$flashProgress.percent}%</span>
+        <span>{$flashProgress.percent}%{etaLabel ? ` · ${etaLabel}` : ''}</span>
       </div>
       <div class="w-full bg-gray-700 rounded-full h-2">
         <div
@@ -273,7 +304,7 @@
         <p class="text-xs text-gray-600">Vorgang läuft — nicht unterbrechen.</p>
         <button
           class="text-xs text-red-400 hover:text-red-300 underline"
-          onclick={() => { flashBusy.set(false); flashProgress.set(null); flashLog.update((l) => [{ id: nextFlashLogId(), timestamp_ms: Date.now(), message: 'Vorgang vom Benutzer abgebrochen (UI-Reset). Der flashrom-Prozess läuft möglicherweise weiter.', level: 'warn' }, ...l]); }}
+          onclick={() => { flashBusy.set(false); flashProgress.set(null); etaLabel = ''; etaPhase = ''; etaStart = 0; flashLog.update((l) => [{ id: nextFlashLogId(), timestamp_ms: Date.now(), message: 'Vorgang vom Benutzer abgebrochen (UI-Reset). Der flashrom-Prozess läuft möglicherweise weiter.', level: 'warn' }, ...l]); }}
         >Force Stop</button>
       </div>
     </div>
