@@ -274,8 +274,8 @@
             circularityData={$stickCircularity.left}
           />
           <span class="text-xs text-gray-500">Links (L3)</span>
-          <span class="text-[10px] {$driftLeft < 0.05 ? 'text-green-500' : $driftLeft < 0.15 ? 'text-amber-400' : 'text-red-400'}">
-            Drift: {($driftLeft * 100).toFixed(1)}%
+          <span class="text-[10px] {driftLeft < 0.05 ? 'text-green-500' : driftLeft < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+            Drift: {(driftLeft * 100).toFixed(1)}%
           </span>
         </div>
         <div class="flex flex-col items-center gap-2">
@@ -287,8 +287,8 @@
             circularityData={$stickCircularity.right}
           />
           <span class="text-xs text-gray-500">Rechts (R3)</span>
-          <span class="text-[10px] {$driftRight < 0.05 ? 'text-green-500' : $driftRight < 0.15 ? 'text-amber-400' : 'text-red-400'}">
-            Drift: {($driftRight * 100).toFixed(1)}%
+          <span class="text-[10px] {driftRight < 0.05 ? 'text-green-500' : driftRight < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+            Drift: {(driftRight * 100).toFixed(1)}%
           </span>
         </div>
       </div>
