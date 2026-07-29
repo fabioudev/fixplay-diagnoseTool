@@ -78,7 +78,7 @@
 ## 🟢 Quality
 
 - [x] **#64** No CI on PRs or branch pushes — `ci.yml` runs frontend+rust+audit on push/PR to main
-- [ ] **#65** Zero component tests (5,001 lines of Svelte with 0% coverage)
+- [x] **#65** Zero component tests (5,001 lines of Svelte with 0% coverage) — infrastructure added (@testing-library/svelte + jest-dom + jsdom; VITEST-only `svelte`→client alias; jsdom Web Animations polyfill in tests-setup.ts); 9 component tests (StatusBar store→badge wiring, ConfirmDialog render/gate/closure/danger); suite now 75 tests / 10 files green
 - [x] **#66** Controller input processing pipeline has zero tests — applyProcessedInput store tests (sticks/triggers/buttons/battery/mic)
 - [ ] **#67** DS5Controller calibration and NVS operations have zero tests
 - [x] **#68** Mock layer has zero tests (600 lines of infrastructure code) — 13 tests covering invoke routing, settings round-trip, search {query} substitution, DS5 report encoding, flash progress events, no-op commands
