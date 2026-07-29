@@ -37,9 +37,8 @@ impl Default for I2cBridge {
 }
 
 impl I2cBridge {
-    /// List serial ports and tag those that look like a Raspberry Pi Pico CDC
-    /// bridge (RP2040 VID 0x2E8A). Generic USB-CDC bridges are returned too so
-    /// the user can pick a non-Pico adapter manually.
+    /// List serial port names. Pico detection (VID 0x2E8A) happens in the
+    /// Tauri command layer (`i2c_list_ports` → `detect_pico`), not here.
     pub fn list_ports() -> Result<Vec<String>, I2cError> {
         info!("listing available serial ports for I2C bridge");
         let ports = serialport::available_ports()
@@ -125,7 +124,10 @@ impl I2cDevice for I2cBridge {
         };
         match read_line(port, Duration::from_millis(BYTE_POLL_MS * 2)) {
             Ok(line) => Ok(Some(line)),
-            Err(I2cError::Serial(_)) => Ok(None), // timeout → no line yet
+            // Only treat WouldBlock/TimedOut as "no data yet"; other serial
+            // errors (broken cable, USB disconnect) propagate as real errors.
+            Err(I2cError::Serial(ref msg))
+                if msg.contains("timed out") || msg.contains("WouldBlock") => Ok(None),
             Err(e) => Err(e.into()),
         }
     }

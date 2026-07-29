@@ -8,6 +8,12 @@ members = [
     "src-tauri",
 ]
 
+[workspace.package]
+version = "0.2.1"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/fabioudev/fixplay-diagnoseTool"
+
 [workspace.dependencies]
 serde       = { version = "1", features = ["derive"] }
 thiserror   = "1"

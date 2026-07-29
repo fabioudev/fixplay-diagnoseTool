@@ -4,57 +4,63 @@
   import { uartConnected, uartReconnecting, dbCodeCount, dbLoading } from '$lib/stores/uart';
   import { i2cConnected, xboxDbCount, xboxDbLoading } from '$lib/stores/i2c';
   import { currentVersion } from '$lib/stores/updater';
+
+  type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
+
+  let { onnavigate }: { onnavigate?: (v: View) => void } = $props();
+
+  const btnCls = 'flex items-center gap-1.5 hover:text-gray-300 transition-colors cursor-pointer';
 </script>
 
 <footer
   class="flex items-center gap-4 h-7 px-4 bg-gray-900 border-t border-gray-800 text-[11px] text-gray-500 shrink-0 select-none"
 >
   <!-- UART status -->
-  <div class="flex items-center gap-1.5" title={$uartConnected ? 'UART verbunden' : 'UART getrennt'}>
+  <button class={btnCls} onclick={() => onnavigate?.('uart')} title="Zum UART-Panel">
     <span
       class="w-1.5 h-1.5 rounded-full
         {$uartConnected ? 'bg-green-400' : $uartReconnecting ? 'bg-yellow-400 animate-pulse' : 'bg-gray-600'}"
     ></span>
     <span>UART {$uartConnected ? 'verbunden' : $uartReconnecting ? 'reconnecting' : 'getrennt'}</span>
-  </div>
+  </button>
 
   <!-- I2C / Pico status -->
-  <div class="flex items-center gap-1.5" title={$i2cConnected ? 'I2C / Pico verbunden' : 'I2C / Pico getrennt'}>
+  <button class={btnCls} onclick={() => onnavigate?.('i2c')} title="Zum I2C/Pico-Panel">
     <span class="w-1.5 h-1.5 rounded-full {$i2cConnected ? 'bg-green-400' : 'bg-gray-600'}"></span>
     <span>I2C {$i2cConnected ? 'verbunden' : 'getrennt'}</span>
-  </div>
+  </button>
 
   <!-- Xbox DB status -->
   {#if $xboxDbLoading}
-    <div class="flex items-center gap-1.5" title="Xbox-Fehlercode-DB lädt…">
+    <button class={btnCls} onclick={() => onnavigate?.('i2c')} title="Zum I2C/Pico-Panel">
       <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
       <span>Xbox-DB lädt…</span>
-    </div>
+    </button>
   {:else if $xboxDbCount != null}
-    <div class="flex items-center gap-1.5" title="Xbox-Fehlercode-DB">
+    <button class={btnCls} onclick={() => onnavigate?.('i2c')} title="Zum I2C/Pico-Panel">
       <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
       <span>Xbox-DB: {$xboxDbCount.toLocaleString()}</span>
-    </div>
+    </button>
   {/if}
 
   <!-- Programmer status -->
-  <div class="flex items-center gap-1.5" title={$flashProgrammers.length > 0 ? 'Programmer erkannt' : 'Kein Programmer'}>
+  <button class={btnCls} onclick={() => onnavigate?.('flash')} title="Zum NOR-Flash-Panel">
     <span
       class="w-1.5 h-1.5 rounded-full {$flashProgrammers.length > 0 ? 'bg-green-400' : 'bg-gray-600'}"
     ></span>
     <span>{$flashProgrammers.length > 0 ? 'Programmer bereit' : 'Kein Programmer'}</span>
-  </div>
+  </button>
 
   <!-- Flash busy -->
   {#if $flashBusy}
-    <div class="flex items-center gap-1.5 text-blue-400">
+    <button class={btnCls} onclick={() => onnavigate?.('flash')} title="Zum NOR-Flash-Panel">
       <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-      <span>Flash aktiv</span>
-    </div>
+      <span class="text-blue-400">Flash aktiv</span>
+    </button>
   {/if}
 
   <!-- DB status -->
-  <div class="flex items-center gap-1.5" title="Fehlercode-Datenbank Status">
+  <button class={btnCls} onclick={() => onnavigate?.('uart')} title="Zum UART-Panel">
     {#if $dbLoading}
       <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
       <span>DB lädt…</span>
@@ -65,7 +71,7 @@
       <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
       <span>DB nicht geladen</span>
     {/if}
-  </div>
+  </button>
 
   <span class="ml-auto text-gray-600">v{$currentVersion || '?'}</span>
 </footer>

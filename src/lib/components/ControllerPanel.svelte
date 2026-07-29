@@ -1,7 +1,8 @@
 
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair } from 'lucide-svelte';
+  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText } from 'lucide-svelte';
+  import { copyToClipboard } from '$lib/utils/clipboard';
   import StickVisualizer from './StickVisualizer.svelte';
   import ControllerVisualizer from './ControllerVisualizer.svelte';
   import TesterPanel from './TesterPanel.svelte';
@@ -38,6 +39,14 @@
   let connectError = $state<string | null>(null);
   let fwVersion = $state<string>('—');
   let macAddress = $state<string>('—');
+  let copied = $state<string | null>(null);
+  let wrapLog = $state(false);
+
+  async function doCopy(text: string, label: string) {
+    await copyToClipboard(text, (ok) => {
+      if (ok) { copied = label; setTimeout(() => (copied = null), 1500); }
+    });
+  }
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   async function connect() {
@@ -198,11 +207,21 @@
       </div>
       <div class="rounded-lg bg-gray-800/60 p-3">
         <div class="text-xs text-gray-500">MAC</div>
-        <div class="text-sm font-medium text-gray-200">{macAddress}</div>
+        <div class="flex items-center justify-between gap-1">
+          <div class="text-sm font-medium text-gray-200 truncate">{macAddress}</div>
+          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(macAddress, 'MAC')} title="MAC kopieren">
+            <Copy class="h-3 w-3" />
+          </button>
+        </div>
       </div>
       <div class="rounded-lg bg-gray-800/60 p-3">
         <div class="text-xs text-gray-500">Firmware</div>
-        <div class="text-sm font-medium text-gray-200">{fwVersion}</div>
+        <div class="flex items-center justify-between gap-1">
+          <div class="text-sm font-medium text-gray-200 truncate">{fwVersion}</div>
+          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(fwVersion, 'FW')} title="Firmware kopieren">
+            <Copy class="h-3 w-3" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -288,8 +307,18 @@
 
     <!-- Log -->
     <div class="rounded-xl bg-gray-900/60 p-3">
-      <div class="mb-2 text-xs font-medium text-gray-500">Protokoll</div>
-      <div class="max-h-40 space-y-1 overflow-y-auto text-xs font-mono">
+      <div class="mb-2 flex items-center justify-between">
+        <span class="text-xs font-medium text-gray-500">Protokoll</span>
+        <div class="flex items-center gap-1">
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => (wrapLog = !wrapLog)} title={wrapLog ? 'Zeilenumbruch aus' : 'Zeilenumbruch an'}>
+            <WrapText class="h-3 w-3 {wrapLog ? 'text-teal-400' : ''}" />
+          </button>
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => controllerLog.set([])} title="Protokoll löschen">
+            <RefreshCw class="h-3 w-3" />
+          </button>
+        </div>
+      </div>
+      <div class="max-h-40 space-y-1 overflow-y-auto text-xs font-mono {wrapLog ? 'break-words' : 'whitespace-nowrap'}">
         {#each $controllerLog as entry (entry.id)}
           <div class="{entry.level === 'error' ? 'text-red-400' : entry.level === 'warn' ? 'text-amber-400' : 'text-gray-400'}">
             <span class="text-gray-600">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span> {entry.message}
@@ -297,6 +326,11 @@
         {/each}
       </div>
     </div>
+    {#if copied}
+      <div class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-teal-600 px-4 py-2 text-xs text-white shadow-lg z-50 transition-opacity">
+        {copied} kopiert
+      </div>
+    {/if}
   {/if}
 </div>
 

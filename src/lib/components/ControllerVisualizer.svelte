@@ -17,6 +17,8 @@
     stickState,
     touchPoints,
     lightbarColor,
+    batteryStatus,
+    headphoneConnected,
   } from '$lib/stores/controller';
 
   let { size = 460 }: { size?: number } = $props();
@@ -217,6 +219,22 @@
     fill={pressed('mute') ? '#fbbf24' : '#1f2937'} stroke={pressed('mute') ? '#fde68a' : '#374151'} stroke-width="0.8"
     style={pressed('mute') ? 'filter:url(#viz-glow)' : ''} />
   <text x="210" y="148" text-anchor="middle" class="lbl-sm" fill="#6b7280">Mute</text>
+
+  <!-- Battery indicator (bottom center) -->
+  <g transform="translate(210 170)">
+    <rect x="-10" y="-4" width="20" height="8" rx="1.5" fill="none" stroke="#374151" stroke-width="0.8" />
+    <rect x="10" y="-2" width="2.5" height="4" rx="0.5" fill="#374151" />
+    <rect x="-9" y="-3" width={18 * ($batteryStatus.charge_level / 100)} height="6" rx="1"
+      fill={$batteryStatus.charge_level > 20 ? '#22c55e' : $batteryStatus.charge_level > 10 ? '#f59e0b' : '#ef4444'} opacity="0.8" />
+    <text x="0" y="14" text-anchor="middle" class="lbl-sm" fill="#6b7280">{$batteryStatus.charge_level}%</text>
+  </g>
+
+  <!-- Headphone indicator -->
+  {#if $headphoneConnected}
+    <g transform="translate(210 185)">
+      <text x="0" y="0" text-anchor="middle" class="lbl-sm" fill="#5eecd9">🎧</text>
+    </g>
+  {/if}
 </svg>
 
 <style>

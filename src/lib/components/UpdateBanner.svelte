@@ -39,6 +39,11 @@
         class="px-2.5 py-1 rounded-md bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 transition-colors shrink-0"
       >Releases</a>
     {:else}
+      <a
+        href="https://github.com/fabioudev/fixplay-diagnoseTool/releases/tag/v{$updateAvailable.version}"
+        target="_blank" rel="noopener"
+        class="text-emerald-300/80 hover:text-emerald-200 underline shrink-0 hidden sm:inline"
+      >What's new</a>
       <button
         onclick={() => installUpdate()}
         disabled={$updateBusy}
@@ -49,9 +54,18 @@
     {/if}
 
     <button
+      onclick={() => {
+        const expiry = Date.now() + 24 * 60 * 60 * 1000;
+        try { localStorage.setItem('fixplay-update-remind', String(expiry)); } catch {}
+        updateDismissed.set(true);
+      }}
+      class="text-emerald-300/70 hover:text-emerald-100 px-2 py-1 rounded shrink-0 text-xs"
+      title="In 24 Stunden erneut erinnern"
+    >Später</button>
+    <button
       onclick={() => updateDismissed.set(true)}
       class="text-emerald-300/70 hover:text-emerald-100 p-1 rounded shrink-0"
-      title="Später"
+      title="Dauerhaft schließen"
       aria-label="Update-Hinweis schließen"
     >
       <X class="w-4 h-4" />

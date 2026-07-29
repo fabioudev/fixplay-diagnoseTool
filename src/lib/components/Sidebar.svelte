@@ -1,7 +1,7 @@
 
 <script lang="ts">
 
-  import { Cpu, Usb, Archive, Settings, Gamepad2, CircuitBoard, Home } from 'lucide-svelte';
+  import { Cpu, Usb, Archive, Settings, Gamepad2, CircuitBoard, Home, Info } from 'lucide-svelte';
   import FixplayIcon from '$lib/components/FixplayIcon.svelte';
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
@@ -13,11 +13,13 @@
     collapsed,
     onnavigate,
     onsettings,
+    onabout,
   }: {
     active: View;
     collapsed: boolean;
     onnavigate: (v: View) => void;
     onsettings: () => void;
+    onabout?: () => void;
   } = $props();
 
   const items: { id: View; label: string; icon: typeof Cpu }[] = [
@@ -103,5 +105,21 @@
         <span>Einstellungen</span>
       {/if}
     </button>
+    {#if onabout}
+      <button
+        onclick={onabout}
+        class="w-full flex items-center rounded-lg font-medium transition-colors text-left
+               {collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-2.5 text-sm'}
+               {tabletMode ? 'py-3.5' : ''}
+               text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
+        aria-label="Über"
+        title={collapsed ? 'Über' : undefined}
+      >
+        <Info class="w-5 h-5 shrink-0" />
+        {#if !collapsed}
+          <span>Über</span>
+        {/if}
+      </button>
+    {/if}
   </div>
 </aside>

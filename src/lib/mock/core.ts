@@ -231,6 +231,7 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
     return <HidPollResult>{
       connected: s.hid.connected,
       reports: s.hid.connected ? [{ report_id: 1, data: buildDs5InputReport(s.hid.input) }] : [],
+      dropped_reports: 0,
     };
   },
 

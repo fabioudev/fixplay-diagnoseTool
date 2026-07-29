@@ -26,8 +26,9 @@ pub struct HidReport {
 
 #[derive(Serialize)]
 pub struct HidPollResult {
-    pub connected: bool,
-    pub reports:   Vec<HidReport>,
+    pub connected:        bool,
+    pub reports:          Vec<HidReport>,
+    pub dropped_reports:  u64,
 }
 
 pub enum HidCmd {
@@ -56,6 +57,7 @@ fn run_hid_thread(
     device:  hidapi::HidDevice,
     cmd_rx:  mpsc::Receiver<HidCmd>,
     reports: Arc<Mutex<VecDeque<HidReport>>>,
+    dropped: Arc<AtomicU64>,
     stop:    Arc<AtomicBool>,
     alive:   Arc<AtomicBool>,
 ) {
@@ -111,6 +113,8 @@ fn run_hid_thread(
                         report_id: buf[0],
                         data:      buf[1..n].to_vec(), // strip report-id byte (mirrors WebHID)
                     });
+                } else {
+                    dropped.fetch_add(1, Ordering::Relaxed);
                 }
             }
         }
@@ -182,8 +186,10 @@ pub fn hid_connect(vendor_id: u16, product_id: u16, state: State<'_, AppState>) 
     *state.hid_stop.lock().unwrap()   = Some(stop);
     *state.hid_alive.lock().unwrap()  = Some(alive);
     state.hid_reports.lock().unwrap().clear();
+    state.hid_dropped_reports.store(0, Ordering::Relaxed);
 
-    std::thread::spawn(move || run_hid_thread(device, cmd_rx, reports, stop_clone, alive_clone));
+    let dropped = Arc::clone(&state.hid_dropped_reports);
+    std::thread::spawn(move || run_hid_thread(device, cmd_rx, reports, dropped, stop_clone, alive_clone));
 
     info!("HID connected: vendor={:#06x} product={:#06x}", vendor_id, product_id);
     Ok(())
@@ -210,6 +216,9 @@ pub fn hid_send_feature_report(report_id: u8, data: Vec<u8>, state: State<'_, Ap
 
 #[tauri::command]
 pub fn hid_receive_feature_report(report_id: u8, length: usize, state: State<'_, AppState>) -> Result<Vec<u8>, String> {
+    if length > 512 {
+        return Err(format!("Feature-Report-Länge {} überschreitet Maximum 512", length));
+    }
     send_cmd!(state, |reply| HidCmd::GetFeatureReport(report_id, length, reply))
 }
 
@@ -240,5 +249,6 @@ pub fn hid_poll(state: State<'_, AppState>) -> HidPollResult {
     drop(cmd);
 
     let reports: Vec<HidReport> = state.hid_reports.lock().unwrap().drain(..).collect();
-    HidPollResult { connected, reports }
+    let dropped_reports = state.hid_dropped_reports.swap(0, Ordering::Relaxed);
+    HidPollResult { connected, reports, dropped_reports }
 }

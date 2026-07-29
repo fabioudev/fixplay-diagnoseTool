@@ -45,8 +45,14 @@ export async function checkUpdates(): Promise<void> {
     const update = await check();
     updateAvailable.set(update);
     if (update) {
-      // a new version is available — re-show even if a previous one was dismissed
-      updateDismissed.set(false);
+      // Check if user clicked "Später" (24h snooze) — if still within the
+      // snooze window, keep the banner dismissed.
+      let snoozed = false;
+      try {
+        const remind = localStorage.getItem('fixplay-update-remind');
+        if (remind) snoozed = Date.now() < parseInt(remind, 10);
+      } catch {}
+      if (!snoozed) updateDismissed.set(false);
     }
   } catch (e) {
     updateError.set(e instanceof Error ? e.message : String(e));

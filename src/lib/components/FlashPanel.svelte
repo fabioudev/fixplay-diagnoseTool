@@ -268,7 +268,13 @@
           style="width: {$flashProgress.percent}%"
         ></div>
       </div>
-      <p class="text-xs text-gray-600">Vorgang nicht unterbrechen — Abbruch beim Schreiben kann den Chip unbrauchbar machen.</p>
+      <div class="flex items-center justify-between">
+        <p class="text-xs text-gray-600">Vorgang läuft — nicht unterbrechen.</p>
+        <button
+          class="text-xs text-red-400 hover:text-red-300 underline"
+          onclick={() => { flashBusy.set(false); flashProgress.set(null); flashLog.update((l) => [{ id: nextFlashLogId(), timestamp_ms: Date.now(), message: 'Vorgang vom Benutzer abgebrochen (UI-Reset). Der flashrom-Prozess läuft möglicherweise weiter.', level: 'warn' }, ...l]); }}
+        >Force Stop</button>
+      </div>
     </div>
   {/if}
 

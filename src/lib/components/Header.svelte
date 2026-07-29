@@ -1,7 +1,17 @@
 
 
 <script lang="ts">
-  import { PanelLeftClose, PanelLeftOpen, RefreshCw } from 'lucide-svelte';
+  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff } from 'lucide-svelte';
+
+  let pinned = $state(false);
+
+  async function togglePin() {
+    pinned = !pinned;
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      await getCurrentWindow().setAlwaysOnTop(pinned);
+    } catch { /* not available in mock */ }
+  }
   import { checkUpdates, updateAvailable, updateBusy } from '$lib/stores/updater';
 
   type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
@@ -61,6 +71,19 @@
     {#if $updateAvailable}
       <span class="hidden sm:inline">Update</span>
       <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400"></span>
+    {/if}
+  </button>
+
+  <button
+    onclick={togglePin}
+    class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
+    aria-label={pinned ? 'Immer im Vordergrund deaktivieren' : 'Immer im Vordergrund'}
+    title={pinned ? 'Immer im Vordergrund: AN' : 'Immer im Vordergrund: AUS'}
+  >
+    {#if pinned}
+      <Pin class="w-4 h-4 text-teal-400" />
+    {:else}
+      <PinOff class="w-4 h-4" />
     {/if}
   </button>
 </header>

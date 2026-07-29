@@ -23,8 +23,8 @@ export interface FlashInfo {
 }
 
 export interface FlashProgress {
-  bytes_done: number;
-  bytes_total: number;
+  percent_done: number;
+  percent_total: number;
 }
 
 export interface UartMessage {

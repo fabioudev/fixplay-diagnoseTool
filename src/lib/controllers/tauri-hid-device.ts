@@ -17,8 +17,9 @@ export interface HidReport {
 }
 
 export interface HidPollResult {
-  connected: boolean;
-  reports:   HidReport[];
+  connected:       boolean;
+  reports:         HidReport[];
+  dropped_reports: number;
 }
 
 /**

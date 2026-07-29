@@ -5,6 +5,8 @@
   import I2cPanel from '$lib/components/I2cPanel.svelte';
   import ControllerPanel from '$lib/components/ControllerPanel.svelte';
   import HomePanel from '$lib/components/HomePanel.svelte';
+  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+  import AboutDialog from '$lib/components/AboutDialog.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import StatusBar from '$lib/components/StatusBar.svelte';
@@ -12,6 +14,7 @@
   import UpdateBanner from '$lib/components/UpdateBanner.svelte';
   import { sidebarCollapsed } from '$lib/stores/ui';
   import { appSettings } from '$lib/stores/settings';
+  import { flashBusy } from '$lib/stores/flash';
   import { refreshUpdateContext, checkUpdates } from '$lib/stores/updater';
   import { onMount } from 'svelte';
 
@@ -19,13 +22,26 @@
 
   let activeView   = $state<View>('home');
   let settingsOpen = $state(false);
+  let aboutOpen    = $state(false);
 
-  // On startup: load install channel + current version, then quietly check for
-  // an update. Errors are swallowed inside the store so this can never crash
-  // the app. Skip in mock/browser mode (no Tauri backend).
   onMount(() => {
     if (!__MOCK_MODE__) {
       refreshUpdateContext().then(() => checkUpdates());
+
+      // Prevent accidental window close during flash operations — closing the
+      // app mid-write can brick the target chip.
+      import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
+        getCurrentWindow().onCloseRequested(async (e) => {
+          if ($flashBusy) {
+            // Tauri v2: prevent close by not calling e.preventDefault()? Actually
+            // we need to use the confirm dialog approach since onCloseRequested
+            // in Tauri v2 uses async prevention via the event.
+            if (!confirm('Ein Flash-Vorgang läuft! Beim Schließen kann der Chip beschädigt werden. Wirklich schließen?')) {
+              e.preventDefault();
+            }
+          }
+        });
+      }).catch(() => {}); // not available in mock mode
     }
   });
 </script>
@@ -40,6 +56,7 @@
     collapsed={$sidebarCollapsed}
     onnavigate={(v) => (activeView = v)}
     onsettings={() => (settingsOpen = true)}
+    onabout={() => (aboutOpen = true)}
   />
 
   <div class="flex flex-col flex-1 min-w-0">
@@ -53,33 +70,46 @@
 
     <main class="flex-1 min-h-0 overflow-hidden">
       {#if activeView === 'home'}
-        <HomePanel onnavigate={(v) => (activeView = v)} />
+        <ErrorBoundary panel="Start">
+          <HomePanel onnavigate={(v) => (activeView = v)} />
+        </ErrorBoundary>
       {:else if activeView === 'flash'}
-        <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
-          <FlashPanel />
-        </div>
+        <ErrorBoundary panel="NOR Flash">
+          <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
+            <FlashPanel />
+          </div>
+        </ErrorBoundary>
       {:else if activeView === 'uart'}
-        <div class="flex h-full p-4">
-          <UartPanel />
-        </div>
+        <ErrorBoundary panel="UART">
+          <div class="flex h-full p-4">
+            <UartPanel />
+          </div>
+        </ErrorBoundary>
       {:else if activeView === 'i2c'}
-        <div class="flex h-full p-4">
-          <I2cPanel />
-        </div>
+        <ErrorBoundary panel="I2C / Pico">
+          <div class="flex h-full p-4">
+            <I2cPanel />
+          </div>
+        </ErrorBoundary>
       {:else if activeView === 'archive'}
-        <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
-          <ArchiveSection standalone />
-        </div>
+        <ErrorBoundary panel="Archiv">
+          <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
+            <ArchiveSection standalone />
+          </div>
+        </ErrorBoundary>
       {:else if activeView === 'controller'}
-        <ControllerPanel />
+        <ErrorBoundary panel="Controller">
+          <ControllerPanel />
+        </ErrorBoundary>
       {/if}
     </main>
 
-    <StatusBar />
+    <StatusBar onnavigate={(v) => (activeView = v)} />
   </div>
 </div>
 
 <SettingsPanel open={settingsOpen} onclose={() => (settingsOpen = false)} />
+<AboutDialog bind:open={aboutOpen} />
 
 {#if __MOCK_MODE__}
   {#await import('$lib/components/MockPanel.svelte')}

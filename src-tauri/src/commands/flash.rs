@@ -9,6 +9,21 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
 use tracing::info;
 
+/// Validate a programmer name against the known flashrom programmer list.
+/// The frontend dropdown constrains this, but a user with devtools could pass
+/// arbitrary values — this is defense-in-depth against flag injection.
+fn validate_programmer(p: &str) -> Result<(), String> {
+    let allowed = [
+        "ch341a_spi", "ft2232_spi", "serprog", "dummy",
+        "dediprog", "buspirate_spi", "pony_spi", "rt809h_spi",
+    ];
+    if allowed.contains(&p) {
+        Ok(())
+    } else {
+        Err(format!("Unbekannter Programmer: '{}'. Erlaubt: {}", p, allowed.join(", ")))
+    }
+}
+
 #[derive(Serialize, Clone)]
 struct FlashProgressEvent {
     phase:   String,
@@ -58,6 +73,7 @@ pub async fn flash_read_id(
     programmer: String,
     app:        AppHandle,
 ) -> Result<ChipId, String> {
+    validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
     let settings     = crate::settings::load_settings(&app);
     let device = FlashromDevice {
@@ -87,6 +103,7 @@ pub async fn flash_read(
     programmer: String,
     app: AppHandle,
 ) -> Result<FlashReadResult, String> {
+    validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
     let settings     = crate::settings::load_settings(&app);
     let device = FlashromDevice {
@@ -163,6 +180,7 @@ pub async fn flash_write(
     verify:     bool,
     app:        AppHandle,
 ) -> Result<(), String> {
+    validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
     let settings     = crate::settings::load_settings(&app);
     let device = FlashromDevice {
@@ -254,8 +272,14 @@ fn archive_dump(
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| format!("unknown_{}", timestamp));
 
+    // Prevent path traversal: a crafted NOR dump could contain "../" in its
+    // serial number field, which would escape the archive directory via join().
+    if serial_dir.contains('/') || serial_dir.contains('\\') || serial_dir.contains("..") {
+        return Err(format!("Ungültige Seriennummer im Dump: '{}' enthält Pfad-Separatoren", serial_dir));
+    }
+
     let data_dir  = app.path().app_data_dir().map_err(|e| e.to_string())?;
-    let settings  = crate::settings::load_settings(app);
+    let settings  = crate::settings::load_settings(app)?;
     let base = crate::settings::resolve_archive_base(&settings, &data_dir)
         .join("dumps")
         .join(&serial_dir);

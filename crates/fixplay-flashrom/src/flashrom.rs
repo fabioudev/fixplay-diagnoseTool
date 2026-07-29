@@ -62,12 +62,27 @@ impl FlashDevice for FlashromDevice {
         if let Some(stderr) = child.stderr.take() {
             for line in BufReader::new(stderr).lines().map_while(Result::ok) {
                 if let Some(pct) = parse_progress(&line) {
-                    on_progress(FlashProgress { bytes_done: pct as usize, bytes_total: 100 });
+                    on_progress(FlashProgress { percent_done: pct as usize, percent_total: 100 });
                 }
             }
         }
 
-        let status = child.wait().map_err(|e| FlashError::Subprocess(e.to_string()))?;
+        // Wait with a 5-minute timeout — flashrom should never take longer for a
+        // single read/write. If it hangs (bad hardware, locked chip), kill it
+        // instead of hanging the app forever.
+        let status = {
+            let mut child = child;
+            let (tx, rx) = std::sync::mpsc::channel();
+            std::thread::spawn(move || {
+                let _ = tx.send(child.wait());
+            });
+            rx.recv_timeout(std::time::Duration::from_secs(300))
+                .map_err(|_| {
+                    let _ = child.kill();
+                    FlashError::Subprocess("flashrom timed out after 5 minutes — Vorgang abgebrochen".into())
+                })?
+                .map_err(|e| FlashError::Subprocess(e.to_string()))?
+        };
         if !status.success() {
             let _ = std::fs::remove_file(&tmp);
             return Err(FlashError::Subprocess(
@@ -97,12 +112,24 @@ impl FlashDevice for FlashromDevice {
         if let Some(stderr) = child.stderr.take() {
             for line in BufReader::new(stderr).lines().map_while(Result::ok) {
                 if let Some(pct) = parse_progress(&line) {
-                    on_progress(FlashProgress { bytes_done: pct as usize, bytes_total: 100 });
+                    on_progress(FlashProgress { percent_done: pct as usize, percent_total: 100 });
                 }
             }
         }
 
-        let status = child.wait().map_err(|e| FlashError::Subprocess(e.to_string()))?;
+        let status = {
+            let mut child = child;
+            let (tx, rx) = std::sync::mpsc::channel();
+            std::thread::spawn(move || {
+                let _ = tx.send(child.wait());
+            });
+            rx.recv_timeout(std::time::Duration::from_secs(300))
+                .map_err(|_| {
+                    let _ = child.kill();
+                    FlashError::Subprocess("flashrom timed out after 5 minutes — Vorgang abgebrochen".into())
+                })?
+                .map_err(|e| FlashError::Subprocess(e.to_string()))?
+        };
         let _ = std::fs::remove_file(&tmp);
         if !status.success() {
             return Err(FlashError::Subprocess(

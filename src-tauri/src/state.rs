@@ -55,6 +55,8 @@ pub struct AppState {
     pub hid_alive:          Mutex<Option<Arc<AtomicBool>>>,
     /// Input reports buffered by the HID reader thread — drained by hid_poll.
     pub hid_reports:        Arc<Mutex<VecDeque<HidReport>>>,
+    /// HID input reports dropped because the buffer was full (512 cap).
+    pub hid_dropped_reports: Arc<AtomicU64>,
     /// I2C-over-USB-CDC bridge (Raspberry Pi Pico running fixplay-pico-i2c).
     /// Sync request/response — no reader thread, no shared buffers.
     pub i2c:                Mutex<Option<I2cBridge>>,
@@ -85,7 +87,8 @@ impl Default for AppState {
             hid_cmd_tx:         Mutex::new(None),
             hid_stop:           Mutex::new(None),
             hid_alive:          Mutex::new(None),
-            hid_reports:        Arc::new(Mutex::new(VecDeque::with_capacity(512))),
+            hid_reports:         Arc::new(Mutex::new(VecDeque::with_capacity(512))),
+            hid_dropped_reports: Arc::new(AtomicU64::new(0)),
             i2c:                Mutex::new(None),
             xbox_error_db:      Arc::new(Mutex::new(None)),
         }

@@ -1,0 +1,7 @@
+build/
+.svelte-kit/
+target/
+node_modules/
+static/
+src-tauri/icons/
+src-tauri/binaries/

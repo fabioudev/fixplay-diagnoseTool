@@ -28,16 +28,19 @@ pub struct FlashInfo {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlashProgress {
-    pub bytes_done:  usize,
-    pub bytes_total: usize,
+    /// Progress percentage (0–100). Named `percent_done` for clarity — flashrom
+    /// reports percentages, not byte counts.
+    pub percent_done:  usize,
+    /// Always 100 (the total percentage). Kept for API compatibility.
+    pub percent_total: usize,
 }
 
 impl FlashProgress {
     pub fn percent(&self) -> usize {
-        if self.bytes_total == 0 {
+        if self.percent_total == 0 {
             return 0;
         }
-        self.bytes_done * 100 / self.bytes_total
+        self.percent_done * 100 / self.percent_total
     }
 }
 
@@ -114,13 +117,13 @@ mod tests {
 
     #[test]
     fn flash_progress_percentage() {
-        let p = FlashProgress { bytes_done: 512, bytes_total: 1024 };
+        let p = FlashProgress { percent_done: 512, bytes_total: 1024 };
         assert_eq!(p.percent(), 50);
     }
 
     #[test]
     fn flash_progress_zero_total() {
-        let p = FlashProgress { bytes_done: 0, bytes_total: 0 };
+        let p = FlashProgress { percent_done: 0, bytes_total: 0 };
         assert_eq!(p.percent(), 0);
     }
 }

@@ -633,7 +633,8 @@ fn reader_loop(
                     if line.is_empty() {
                         continue;
                     }
-                    handle_line(line, &app.state::<AppState>());
+                    let Some(state) = app.try_state::<AppState>() else { return; };
+                    handle_line(line, &state);
                 } else {
                     buf.push(byte[0]);
                 }
@@ -642,7 +643,7 @@ fn reader_loop(
             Err(e) if e.kind() == std::io::ErrorKind::TimedOut => {}
             Err(e) => {
                 error!("reader_loop error: {}", e);
-                let state = app.state::<AppState>();
+                let Some(state) = app.try_state::<AppState>() else { return; };
                 if let Some(uart) = state.uart.lock().unwrap().as_mut() {
                     let _ = uart.disconnect();
                 }
@@ -667,7 +668,7 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
 
         // Scope block so uart lock is released before spawn_reconnect_if_enabled
         let had_write_error = {
-            let state = app.state::<AppState>();
+            let Some(state) = app.try_state::<AppState>() else { return; };
             let is_connected = state.uart.lock().unwrap()
                 .as_ref()
                 .map(|u| u.is_connected())
@@ -685,7 +686,7 @@ fn poll_loop(app: AppHandle, stop: Arc<AtomicBool>) {
         }; // uart lock released here
 
         if had_write_error {
-            let state = app.state::<AppState>();
+            let Some(state) = app.try_state::<AppState>() else { return; };
             if let Some(uart) = state.uart.lock().unwrap().as_mut() {
                 let _ = uart.disconnect();
             }

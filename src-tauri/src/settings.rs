@@ -36,12 +36,15 @@ pub fn settings_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, Strin
     Ok(app.path().app_data_dir().map_err(|e| e.to_string())?.join("settings.json"))
 }
 
-pub fn load_settings(app: &tauri::AppHandle) -> AppSettings {
-    settings_path(app)
-        .ok()
-        .and_then(|p| std::fs::read_to_string(p).ok())
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+pub fn load_settings(app: &tauri::AppHandle) -> Result<AppSettings, String> {
+    let path = settings_path(app)?;
+    match std::fs::read_to_string(&path) {
+        Ok(contents) => serde_json::from_str(&contents).map_err(|e| {
+            format!("Settings-Datei ist beschädigt: {}. Bitte lösche {} oder korrigiere die JSON-Syntax.", e, path.display())
+        }),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(AppSettings::default()),
+        Err(e) => Err(format!("Settings-Datei kann nicht gelesen werden ({}): {}", path.display(), e)),
+    }
 }
 
 pub fn save_settings(app: &tauri::AppHandle, settings: &AppSettings) -> Result<(), String> {

@@ -130,6 +130,13 @@ impl XboxErrorDb {
         if !response.status().is_success() {
             return Err(I2cError::DbFetch(format!("HTTP {}", response.status())));
         }
+        if let Some(len) = response.content_length() {
+            if len > 5_000_000 {
+                return Err(I2cError::DbFetch(format!(
+                    "Response too large: Content-Length {} exceeds 5 MB limit", len
+                )));
+            }
+        }
         let text = response.text()
             .map_err(|e| I2cError::DbFetch(e.to_string()))?;
         if let Some(parent) = path.parent() {
