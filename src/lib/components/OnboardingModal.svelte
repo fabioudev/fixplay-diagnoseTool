@@ -5,6 +5,7 @@
   import { Cpu, Usb, CircuitBoard, Gamepad2, ArrowRight } from 'lucide-svelte';
   import { trapFocus } from '$lib/utils/focusTrap';
   import { fade, scale } from 'svelte/transition';
+  import { completeOnboarding } from '$lib/stores/app';
 
   let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -19,11 +20,13 @@
 
   function dismiss() {
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch {}
+    completeOnboarding();
     open = false;
   }
 
   function skip() {
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch {}
+    completeOnboarding();
     open = false;
   }
 </script>

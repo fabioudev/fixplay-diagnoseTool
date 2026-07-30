@@ -14,16 +14,14 @@
   import StatusBar from '$lib/components/StatusBar.svelte';
   import Header from '$lib/components/Header.svelte';
   import UpdateBanner from '$lib/components/UpdateBanner.svelte';
+  import Toaster from '$lib/components/Toaster.svelte';
   import { sidebarCollapsed } from '$lib/stores/ui';
-  import { pushRecent } from '$lib/stores/recents';
   import { appSettings } from '$lib/stores/settings';
   import { flashBusy } from '$lib/stores/flash';
   import { refreshUpdateContext, checkUpdates, currentVersion } from '$lib/stores/updater';
+  import { activeView, navigate, SHORTCUT_VIEWS } from '$lib/stores/app';
   import { onMount } from 'svelte';
 
-  type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
-
-  let activeView   = $state<View>('home');
   let settingsOpen = $state(false);
   let aboutOpen    = $state(false);
   let onboardingOpen = $state(false);
@@ -32,7 +30,6 @@
   // Global keyboard shortcuts: Ctrl/Cmd+1..6 jump between panels, Ctrl/Cmd+, opens
   // settings. Skipped when focus is in a text/input/textarea field so we don't
   // swallow typing (e.g. user pressing Cmd+1 inside the flashrom path field).
-  const SHORTCUT_VIEWS: View[] = ['home', 'flash', 'uart', 'i2c', 'controller', 'archive'];
   function isTypingTarget(t: EventTarget | null): boolean {
     const el = t as HTMLElement | null;
     if (!el) return false;
@@ -47,13 +44,6 @@
       e.preventDefault();
       navigate(SHORTCUT_VIEWS[n - 1]);
     }
-  }
-
-  // Centralize navigation so we can record recently-visited panels for the
-  // sidebar quick-row. Every panel switch goes through this helper.
-  function navigate(v: View) {
-    activeView = v;
-    pushRecent(v);
   }
 
   onMount(() => {
@@ -105,7 +95,7 @@
 
 <div class="flex h-screen bg-gray-950 text-gray-100 overflow-hidden" data-tablet={$appSettings.tablet_mode}>
   <Sidebar
-    active={activeView}
+    active={$activeView}
     collapsed={$sidebarCollapsed}
     onnavigate={navigate}
     onsettings={() => (settingsOpen = true)}
@@ -114,7 +104,7 @@
 
   <div class="flex flex-col flex-1 min-w-0">
     <Header
-      view={activeView}
+      view={$activeView}
       collapsed={$sidebarCollapsed}
       onToggleSidebar={() => sidebarCollapsed.update(v => !v)}
     />
@@ -122,35 +112,35 @@
     <UpdateBanner onCheck={() => checkUpdates()} />
 
     <main class="flex-1 min-h-0 overflow-hidden">
-      {#if activeView === 'home'}
+      {#if $activeView === 'home'}
         <ErrorBoundary panel="Start">
           <HomePanel onnavigate={navigate} />
         </ErrorBoundary>
-      {:else if activeView === 'flash'}
+      {:else if $activeView === 'flash'}
         <ErrorBoundary panel="NOR Flash">
           <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
             <FlashPanel />
           </div>
         </ErrorBoundary>
-      {:else if activeView === 'uart'}
+      {:else if $activeView === 'uart'}
         <ErrorBoundary panel="UART">
           <div class="flex h-full p-4">
             <UartPanel />
           </div>
         </ErrorBoundary>
-      {:else if activeView === 'i2c'}
+      {:else if $activeView === 'i2c'}
         <ErrorBoundary panel="I2C / Pico">
           <div class="flex h-full p-4">
             <I2cPanel />
           </div>
         </ErrorBoundary>
-      {:else if activeView === 'archive'}
+      {:else if $activeView === 'archive'}
         <ErrorBoundary panel="Archiv">
           <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
             <ArchiveSection standalone />
           </div>
         </ErrorBoundary>
-      {:else if activeView === 'controller'}
+      {:else if $activeView === 'controller'}
         <ErrorBoundary panel="Controller">
           <ControllerPanel />
         </ErrorBoundary>
@@ -165,6 +155,8 @@
 <AboutDialog bind:open={aboutOpen} />
 <OnboardingModal bind:open={onboardingOpen} />
 <WhatsNewDialog bind:open={whatsNewOpen} />
+
+<Toaster />
 
 {#if __MOCK_MODE__}
   {#await import('$lib/components/MockPanel.svelte')}

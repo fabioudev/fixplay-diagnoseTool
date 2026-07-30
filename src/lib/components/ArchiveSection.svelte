@@ -1,27 +1,29 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { flashResult, flashWritePath } from '$lib/stores/flash';
-  import { archiveListDumps, archiveDeleteDump, openPath } from '$lib/api/tauri';
-  import type { SerialArchive, DumpEntry } from '$lib/api/types';
+  import { flashResult, requestFlashWrite } from '$lib/stores/flash';
+  import { archiveDeleteDump, openPath } from '$lib/api/tauri';
+  import {
+    archives,
+    archiveLoading,
+    archiveQuery,
+    archiveSortMode,
+    archiveDumpCount,
+    refreshArchives,
+  } from '$lib/stores/archive';
+  import type { DumpEntry } from '$lib/api/types';
   import { Search, ArrowUpDown } from 'lucide-svelte';
 
   let open          = $state(false);
-  let archives      = $state<SerialArchive[]>([]);
-  let loading       = $state(false);
   let confirmDelete = $state<string | null>(null);
   let loadedPath    = $state<string | null>(null);
-  let query         = $state('');
-  let sortMode      = $state<'newest' | 'oldest' | 'serial'>('newest');
 
   let { standalone = false }: { standalone?: boolean } = $props();
-
-  const totalDumps = $derived(archives.reduce((n, a) => n + a.dumps.length, 0));
 
   // Filter by serial / firmware substring, then sort. Sorting by newest/oldest
   // uses the most recent dump in each serial group so groups stay intact.
   const filteredArchives = $derived.by(() => {
-    const q = query.trim().toLowerCase();
-    let list = archives;
+    const q = $archiveQuery.trim().toLowerCase();
+    let list = $archives;
     if (q) {
       list = list
         .map((a) => ({
@@ -34,10 +36,10 @@
         .filter((a) => a.dumps.length > 0);
     }
     const sorted = [...list];
-    if (sortMode === 'serial') {
+    if ($archiveSortMode === 'serial') {
       sorted.sort((a, b) => a.serial.localeCompare(b.serial));
     } else {
-      const dir = sortMode === 'newest' ? -1 : 1;
+      const dir = $archiveSortMode === 'newest' ? -1 : 1;
       sorted.sort((a, b) => {
         const ta = Math.max(...a.dumps.map((d) => d.timestamp));
         const tb = Math.max(...b.dumps.map((d) => d.timestamp));
@@ -47,17 +49,6 @@
     return sorted;
   });
 
-  async function load() {
-    loading = true;
-    try {
-      archives = await archiveListDumps();
-    } catch {
-      archives = [];
-    } finally {
-      loading = false;
-    }
-  }
-
   async function handleDelete(binPath: string) {
     if (confirmDelete !== binPath) {
       confirmDelete = binPath;
@@ -65,11 +56,11 @@
     }
     confirmDelete = null;
     await archiveDeleteDump(binPath).catch(console.error);
-    await load();
+    await refreshArchives();
   }
 
   function handleLoad(entry: DumpEntry) {
-    flashWritePath.set(entry.bin_path);
+    requestFlashWrite(entry.bin_path);
     loadedPath = entry.bin_path;
     setTimeout(() => { if (loadedPath === entry.bin_path) loadedPath = null; }, 2000);
   }
@@ -78,10 +69,10 @@
     return binPath.replace(/[/\\][^/\\]+$/, '');
   }
 
-  onMount(load);
+  onMount(refreshArchives);
 
   $effect(() => {
-    if ($flashResult !== null) load();
+    if ($flashResult !== null) refreshArchives();
   });
 </script>
 
@@ -94,7 +85,7 @@
       </p>
     </div>
 
-    {#if loading}
+    {#if $archiveLoading}
       <div class="flex flex-col gap-3">
         {#each Array(3) as _}
           <div class="p-3 rounded-lg bg-gray-800 border border-gray-700 animate-pulse">
@@ -103,7 +94,7 @@
           </div>
         {/each}
       </div>
-    {:else if archives.length === 0}
+    {:else if $archives.length === 0}
       <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
         <p class="text-gray-400 text-sm">Keine Dumps archiviert</p>
         <p class="text-gray-600 text-xs">Starte einen Lesevorgang im NOR-Flash-Tab um Dumps zu erstellen.</p>
@@ -116,8 +107,8 @@
           <input
             type="text"
             placeholder="Seriennummer oder Firmware suchen…"
-            value={query}
-            oninput={(e) => (query = (e.target as HTMLInputElement).value)}
+            value={$archiveQuery}
+            oninput={(e) => archiveQuery.set((e.target as HTMLInputElement).value)}
             class="w-full bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
                    focus:outline-none focus:border-gray-500"
@@ -126,8 +117,8 @@
         <div class="relative">
           <ArrowUpDown class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
           <select
-            value={sortMode}
-            onchange={(e) => (sortMode = (e.target as HTMLSelectElement).value as typeof sortMode)}
+            value={$archiveSortMode}
+            onchange={(e) => archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
             title="Sortierung der Seriennummern-Gruppen"
             class="appearance-none bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-6 py-1.5
                    border border-gray-700 focus:outline-none focus:border-gray-500"
@@ -237,7 +228,7 @@
              text-gray-300 hover:text-gray-100 transition-colors"
     >
       <span>
-        Archiv {loading ? '…' : `(${totalDumps} Dump${totalDumps !== 1 ? 's' : ''})`}
+        Archiv {$archiveLoading ? '…' : `(${$archiveDumpCount} Dump${$archiveDumpCount !== 1 ? 's' : ''})`}
       </span>
       <span class="text-gray-500 text-xs">{open ? '▲' : '▼'}</span>
     </button>
@@ -250,16 +241,16 @@
             <input
               type="text"
               placeholder="Suchen…"
-              value={query}
-              oninput={(e) => (query = (e.target as HTMLInputElement).value)}
+              value={$archiveQuery}
+              oninput={(e) => archiveQuery.set((e.target as HTMLInputElement).value)}
               class="w-full bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-2 py-1.5
                      border border-gray-700 placeholder:text-gray-600
                      focus:outline-none focus:border-gray-500"
             />
           </div>
           <select
-            value={sortMode}
-            onchange={(e) => (sortMode = (e.target as HTMLSelectElement).value as typeof sortMode)}
+            value={$archiveSortMode}
+            onchange={(e) => archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
             title="Sortierung"
             class="appearance-none bg-gray-800 text-gray-200 text-xs rounded px-2 py-1.5
                    border border-gray-700 focus:outline-none focus:border-gray-500"
@@ -350,7 +341,7 @@
           </div>
         {:else}
           <p class="text-gray-600 text-xs p-4">
-            {archives.length === 0
+            {$archives.length === 0
               ? 'Keine Dumps archiviert — starte einen Lesevorgang im Flash-Panel.'
               : 'Keine Dumps passen auf die Suche.'}
           </p>

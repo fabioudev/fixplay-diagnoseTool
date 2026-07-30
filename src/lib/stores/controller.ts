@@ -4,8 +4,16 @@
 import { writable } from 'svelte/store';
 import type { SticksState, TouchPoint, ProcessedInput } from '$lib/controllers/controller-manager';
 import type { ControllerInfo, NvStatus } from '$lib/controllers/base-controller';
+import type { TextLogEntry } from '$lib/api/types';
+import { createLogStore } from './log';
+import { createConnectionStore } from './connection';
 
-export const controllerConnected = writable<boolean>(false);
+// Controller connection state backed by the shared createConnectionStore,
+// matching the UART/I2C pattern.
+const _controllerConnection = createConnectionStore();
+export const controllerConnected = _controllerConnection.connected;
+/** Unified controller connection status (coarse lifecycle + booleans). */
+export const controllerConnection = _controllerConnection.status;
 export const controllerModel = writable<string | null>(null);
 export const controllerInfo = writable<ControllerInfo | null>(null);
 export const controllerNvStatus = writable<NvStatus | null>(null);
@@ -59,16 +67,14 @@ export const batteryStatus = writable<{
   bat_txt: string;
 }>({ charge_level: 0, cable_connected: false, is_charging: false, is_error: false, bat_txt: '' });
 
-export const controllerLog = writable<{ id: number; timestamp_ms: number; message: string; level: 'info' | 'warn' | 'error' }[]>([]);
-
-let _nextLogId = 0;
-export function nextControllerLogId(): number {
-  return _nextLogId++;
-}
+// Controller log: shares the message+level (TextLogEntry) style with the flash
+// log, backed by the common createLogStore (monotonic id + capped prepend).
+const _controllerLog = createLogStore<TextLogEntry>();
+export const controllerLog = _controllerLog.entries;
+export const nextControllerLogId = _controllerLog.nextId;
 
 export function pushControllerLog(message: string, level: 'info' | 'warn' | 'error' = 'info'): void {
-  const entry = { id: nextControllerLogId(), timestamp_ms: Date.now(), message, level };
-  controllerLog.update((log) => [entry, ...log].slice(0, 200));
+  _controllerLog.push({ id: nextControllerLogId(), timestamp_ms: Date.now(), message, level });
 }
 
 export function applyProcessedInput(input: ProcessedInput): void {

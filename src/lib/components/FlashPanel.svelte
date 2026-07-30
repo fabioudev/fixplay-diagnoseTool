@@ -4,7 +4,7 @@
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
     flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, flashProgrammers, flashWritePath, flashWritePreview, nextFlashLogId,
+    flashProgrammer, flashProgrammers, flashWriteRequest, flashWritePreview, nextFlashLogId,
   } from '$lib/stores/flash';
   import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
   import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult, ChipId } from '$lib/api/types';
@@ -149,12 +149,12 @@
   }
 
   async function handleWrite() {
-    const storedPath = $flashWritePath;
+    const storedPath = $flashWriteRequest;
     let selected: string;
 
     if (storedPath) {
       selected = storedPath;
-      flashWritePath.set(null);
+      flashWriteRequest.set(null);
     } else {
       const result = await openDialog({
         title:   'NOR-Datei wählen',

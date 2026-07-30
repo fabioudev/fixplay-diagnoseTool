@@ -52,12 +52,35 @@ export interface UartPortInfo {
   description: string;
 }
 
-export interface UartLogEntry {
-  id: number;
+/** Severity shared by the message-style logs (flash, controller). */
+export type LogLevel = 'info' | 'warn' | 'error';
+
+/** Common fields every subsystem log entry shares, regardless of style. */
+export interface LogEntry {
+  id:           number;
   timestamp_ms: number;
-  raw: string;
-  parsed?: UartEntryEvent;
+}
+
+/**
+ * A log entry that carries a free-form `message` plus a severity `level`.
+ * Used by the flash and controller logs (the "human-readable status" style).
+ */
+export interface TextLogEntry extends LogEntry {
+  message: string;
+  level:   LogLevel;
+}
+
+/**
+ * A log entry that carries the `raw` line text plus an optional `kind` tag.
+ * Used by the UART and I2C logs (the "wire output" style).
+ */
+export interface RawLogEntry extends LogEntry {
+  raw:   string;
   kind?: 'status' | 'error';
+}
+
+export interface UartLogEntry extends RawLogEntry {
+  parsed?: UartEntryEvent;
 }
 
 export interface UartPollResult {
@@ -98,6 +121,9 @@ export interface I2cPollResult {
   connected: boolean;
   db_count:  number | null;
 }
+
+/** I2C action-log entries use the shared raw-line style. */
+export interface I2cLogEntry extends RawLogEntry {}
 
 export interface I2cErrorSearchResult {
   code:        string;
@@ -142,12 +168,8 @@ export interface FlashStatusEvent {
   level:   'info' | 'warn' | 'error';
 }
 
-export interface FlashLogEntry {
-  id:           number;
-  timestamp_ms: number;
-  message:      string;
-  level:        'info' | 'warn' | 'error';
-}
+/** Flash log entries use the shared message+level style. */
+export interface FlashLogEntry extends TextLogEntry {}
 
 export interface DumpEntry {
   bin_path:      string;

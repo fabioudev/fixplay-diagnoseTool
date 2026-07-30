@@ -98,10 +98,10 @@
 - [x] **#82** No `[workspace.package]` in root `Cargo.toml` — added (version/edition/license/repository)
 - [x] **#83** Duplicate `reqwest` (0.12 + 0.13) in `Cargo.lock` — uart + i2c crates bumped to `reqwest = "0.13"` (matching tauri-plugin-updater); lock now resolves a single reqwest 0.13.4
 - [x] **#84** `#[allow(dead_code)]` on entire `AppState` struct masks unused fields — blanket allow removed; clippy -D warnings confirms every field is used (per-field allows added if any go unused)
-- [ ] **#85** Inconsistent log entry types across stores
-- [ ] **#86** Inconsistent connection state models across subsystems
-- [ ] **#87** `flashWritePath` used as ad-hoc cross-component event bus
-- [ ] **#88** Missing shared stores: archive, notifications, app state
+- [x] **#85** Inconsistent log entry types across stores — shared `LogLevel`/`LogEntry`/`TextLogEntry`/`RawLogEntry` types in `api/types.ts`; a `createLogStore<T>()` factory in `stores/log.ts` (monotonic id + capped newest-first prepend) now backs the UART, I2C, flash, and controller logs; `I2cLogEntry` is re-exported instead of redefined
+- [x] **#86** Inconsistent connection state models across subsystems — `stores/connection.ts` defines a `ConnectionState` lifecycle + `createConnectionStore()` (one source of truth for `connected`+`reconnecting`); UART/I2C/controller connection stores migrated to it while keeping the existing `.set(boolean)` API (panels unchanged) and also exposing a unified `uartConnection`/`i2cConnection`/`controllerConnection` status store
+- [x] **#87** `flashWritePath` used as ad-hoc cross-component event bus — replaced with an explicit `flashWriteRequest` writable + `requestFlashWrite(path)` action consumed one-shot by FlashPanel (cleared on consume); ArchiveSection calls the action instead of writing the path store directly
+- [x] **#88** Missing shared stores: archive, notifications, app state — added `stores/app.ts` (active view + `navigate()` + onboarding flag, consumed by `+page.svelte` and `OnboardingModal`), `stores/archive.ts` (list/loading/query/sort + `refreshArchives()` + derived dump count, consumed by `ArchiveSection`), and `stores/notifications.ts` + a `Toaster.svelte` renderer (severity-tagged, auto-dismissing toast queue) wired into `+page.svelte`; archive load failures now surface as a sticky toast
 - [x] **#89** `I2cDevice` and `UartDevice` traits are identical (4 same method signatures) — `I2cDevice` is now `pub use UartDevice as I2cDevice` (a trait alias); single definition, existing call sites unchanged
 - [ ] **#90** `ErrorDb` (PS5) and `XboxErrorDb` (Xbox) are ~90% duplicated code
 - [x] **#91** `UartPort::read_line()` is dead code (stub, never called) — removed from the `UartDevice` trait and both impls (UartPort stub + I2cBridge's unused trait method); the i2c free-function `read_line` used by `request()` is unaffected
