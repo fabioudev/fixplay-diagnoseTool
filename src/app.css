@@ -18,6 +18,29 @@
   border-color: hsl(var(--border));
 }
 
+/* Light theme (#52). The app is dark-first and uses Tailwind gray utilities
+   throughout (bg-gray-*, text-gray-*, border-gray-*). Tailwind v4 compiles
+   those to `var(--color-gray-*)`, so overriding the ramp here inverts every
+   surface and text color app-wide when `<html data-theme="light">` is set —
+   no per-component changes needed. The mapping is a clean inversion to the
+   bluish slate scale (matching the bluish dark grays): the darkest backgrounds
+   become the lightest, and the lightest text becomes the darkest. Colored
+   accents (blue/red/teal/purple buttons with text-white) keep working in both
+   themes. Unlayered so it wins over Tailwind's `@layer theme` :root defs. */
+[data-theme="light"] {
+  --color-gray-50:  #020617; /* was near-white text → near-black */
+  --color-gray-100: #0f172a;
+  --color-gray-200: #1e293b;
+  --color-gray-300: #334155;
+  --color-gray-400: #475569;
+  --color-gray-500: #64748b; /* muted text, readable on light */
+  --color-gray-600: #94a3b8;
+  --color-gray-700: #cbd5e1; /* borders */
+  --color-gray-800: #e2e8f0; /* panel backgrounds */
+  --color-gray-900: #f1f5f9; /* main background */
+  --color-gray-950: #f8fafc; /* darkest bg → lightest */
+}
+
 /* Tablet / Touch Mode — larger touch targets */
 [data-tablet="true"] button {
   min-height: 2.5rem;

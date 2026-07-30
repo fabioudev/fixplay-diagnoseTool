@@ -62,7 +62,7 @@
 - [x] **#49** No "undo" or "restore defaults" for controller operations — "Verwerfen" button restores the in-memory finetune snapshot (taken on connect + after each successful flash) via writeFinetuneData, discarding calibration changes without touching persisted NVS
 - [x] **#50** No speaker-to-mic loopback test — `SpeakerMicLoopback.svelte` plays a DualSense speaker tone while capturing the DualSense USB mic (raw stream, no echo-cancellation/noise-suppression), compares the mic peak during the tone against a 500 ms silent baseline, and reports OK/FEHLER (absolute floor ≥25% AND rise >15% over baseline so ambient noise alone can't pass it); wired into TesterPanel's audio section with baseline/peak readout
 - [x] **#51** No I2C mock tab in MockPanel — added I2C tab (ports, db, scan, errlog, info)
-- [ ] **#52** No dark/light theme support
+- [x] **#52** No dark/light theme support — `stores/theme.ts` (persisted `dark`/`light`, applied to `<html data-theme>` from the root layout) + a Sun/Moon toggle in the Header; light mode inverts the Tailwind gray ramp via `[data-theme="light"]` CSS-variable overrides in app.css, so every `bg-gray-*`/`text-gray-*`/`border-gray-*` utility re-themes app-wide without per-component changes (colored accent buttons keep working in both). 5 store tests
 - [ ] **#53** No i18n infrastructure; all strings hardcoded in German
 - [x] **#54** No battery level on controller visualizer — battery bar + % below PS button
 - [x] **#55** No headphone connection indicator on visualizer — 🎧 icon when connected

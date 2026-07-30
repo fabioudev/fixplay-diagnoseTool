@@ -1,7 +1,8 @@
 
 
 <script lang="ts">
-  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff } from 'lucide-svelte';
+  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff, Sun, Moon } from 'lucide-svelte';
+  import { theme, toggleTheme } from '$lib/stores/theme';
 
   let pinned = $state(false);
 
@@ -84,6 +85,19 @@
       <Pin class="w-4 h-4 text-teal-400" />
     {:else}
       <PinOff class="w-4 h-4" />
+    {/if}
+  </button>
+
+  <button
+    onclick={toggleTheme}
+    class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
+    aria-label={$theme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'}
+    title={$theme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'}
+  >
+    {#if $theme === 'dark'}
+      <Sun class="w-4 h-4" />
+    {:else}
+      <Moon class="w-4 h-4" />
     {/if}
   </button>
 </header>
