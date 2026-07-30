@@ -113,8 +113,8 @@
 - [x] **#97** No file-based logging for release builds on Windows — `init_logging()` now installs a second `tracing` layer in release builds that writes a rolling daily `fixplay.log.YYYY-MM-DD` (no ANSI codes) under `<local-data>/fixplay-diagnoseTool/logs` via `tracing-appender`, alongside the console layer; debug builds stay console-only. If the log dir can't be created it falls back to console-only so a logging failure never blocks startup. Validated in both debug and release (`cargo clippy --release` exercises the `#[cfg(not(debug_assertions))]` code that CI's debug run skips)
 - [x] **#98** Single-byte UART read loop is inefficient — `reader_loop` now reads into a 256-byte buffer per syscall (consuming a full line in one read) and accumulates across reads; plus a 64 KB runaway-line guard
 - [x] **#99** `FlashromDevice` cloned unnecessarily in `flash_read`/`flash_write` — the device is now shared via `Arc<FlashromDevice>` and `Arc::clone`d into each `spawn_blocking` thread instead of cloning the `String`+`PathBuf`
-- [ ] **#100** No macOS build target in CI
-- [ ] **#101** No ARM64 Linux or Windows ARM64 builds
+- [x] **#100** No macOS build target in CI — `build-extra` job in `release.yml` adds a `macos-latest` matrix entry (`--bundles dmg`) producing an unsigned `.dmg` (+ `.sig`); the job is `continue-on-error: true` and the `release` job does NOT depend on it, so a macOS failure/runner issue never blocks a release — the dmg is shipped only when it builds. (Unvalidated until the next tag release; the release workflow only runs on `v*.*.*` tags.)
+- [x] **#101** No ARM64 Linux or Windows ARM64 builds — `build-extra` job adds `ubuntu-24.04-arm` (native ARM64 runner, `--bundles deb,rpm`, no AppImage — linuxdeploy/AppImageKit are x86_64-only) and `windows-11-arm` (native ARM64 runner, msi/nsis). Both `continue-on-error: true`, non-blocking for `release`; artifacts (`linux-arm64-bundles`, `windows-arm64-bundles`) ship when they succeed. Native ARM64 flashrom binaries are not yet built, so flashrom features are runtime-unavailable on ARM64 until a native flashrom is added. (Unvalidated until the next tag release.)
 
 ## 🟣 Security
 
