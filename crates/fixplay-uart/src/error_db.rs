@@ -1,4 +1,5 @@
 use fixplay_core::error::UartError;
+use fixplay_core::error_db;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -66,44 +67,17 @@ impl ErrorDb {
     /// Load the database from a cached JSON file. A poisoned (non-JSON) cache
     /// surfaces as a clean error so the caller can fall back to a fresh fetch.
     pub fn from_cache(path: &Path) -> Result<Self, UartError> {
-        let json = std::fs::read_to_string(path)
-            .map_err(|e| UartError::DbFetch(e.to_string()))?;
-        // Poisoned-cache guard: a stale cache file (e.g. written by an older
-        // `fetch_and_cache` without an HTTP status check) may hold a 404 error
-        // body instead of JSON, which serde would surface as a confusing
-        // "invalid type: integer `404`, expected struct RawDb". Treat anything
-        // that isn't a JSON object as a clean cache miss.
-        if !json.trim_start().starts_with('{') {
-            return Err(UartError::DbFetch("cached DB is not valid JSON (poisoned)".into()));
-        }
+        // Cache I/O + the poisoned-cache guard live once in
+        // `fixplay_core::error_db` (shared with the Xbox DB); only the error
+        // enum is subsystem-specific.
+        let json = error_db::read_cache_json(path).map_err(UartError::DbFetch)?;
         Self::from_json(&json)
     }
 
     /// Fetch the database from the upstream URL and write it to `path` for
     /// future cache hits, with a size guard against a compromised upstream.
     pub fn fetch_and_cache(path: &Path) -> Result<Self, UartError> {
-        let response = reqwest::blocking::get(DB_URL)
-            .map_err(|e| UartError::DbFetch(e.to_string()))?;
-        if !response.status().is_success() {
-            return Err(UartError::DbFetch(format!("HTTP {}", response.status())));
-        }
-        // Guard against unexpectedly large responses (compromised upstream,
-        // misconfiguration). The error DB is ~200 KB; 5 MB is generous headroom.
-        if let Some(len) = response.content_length() {
-            if len > 5_000_000 {
-                return Err(UartError::DbFetch(format!(
-                    "Response too large: Content-Length {} exceeds 5 MB limit", len
-                )));
-            }
-        }
-        let text = response.text()
-            .map_err(|e| UartError::DbFetch(e.to_string()))?;
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| UartError::DbFetch(e.to_string()))?;
-        }
-        std::fs::write(path, &text)
-            .map_err(|e| UartError::DbFetch(e.to_string()))?;
+        let text = error_db::fetch_and_cache_json(DB_URL, path).map_err(UartError::DbFetch)?;
         Self::from_json(&text)
     }
 

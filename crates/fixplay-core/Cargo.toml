@@ -7,6 +7,9 @@ edition = "2021"
 serde     = { workspace = true }
 thiserror = { workspace = true }
 tracing   = { workspace = true }
+# reqwest is shared by the error-code DB cache/fetch plumbing in `error_db`;
+# the per-subsystem crates (uart, i2c) reuse it for their own blocking fetches.
+reqwest   = { version = "0.13", features = ["blocking"] }
 
 [dev-dependencies]
 serde_json = { workspace = true }

@@ -873,6 +873,7 @@ checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 name = "fixplay-core"
 version = "0.1.0"
 dependencies = [
+ "reqwest",
  "serde",
  "serde_json",
  "thiserror 1.0.69",
@@ -894,7 +895,6 @@ name = "fixplay-i2c"
 version = "0.1.0"
 dependencies = [
  "fixplay-core",
- "reqwest",
  "serde",
  "serde_json",
  "serialport",
@@ -931,7 +931,6 @@ name = "fixplay-uart"
 version = "0.1.0"
 dependencies = [
  "fixplay-core",
- "reqwest",
  "serde",
  "serde_json",
  "serialport",

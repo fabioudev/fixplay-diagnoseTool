@@ -11,6 +11,7 @@
 //! operation is guaranteed by the bundled resource.
 
 use fixplay_core::error::I2cError;
+use fixplay_core::error_db;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -113,49 +114,17 @@ impl XboxErrorDb {
     /// surfaces as a clean error so the caller can fall back to the bundled
     /// resource or a fresh fetch.
     pub fn from_cache(path: &Path) -> Result<Self, I2cError> {
-        let json = std::fs::read_to_string(path)
-            .map_err(|e| I2cError::DbFetch(e.to_string()))?;
-        // Poisoned-cache guard: an older `fetch_and_cache` had no HTTP status
-        // check, so a stale cache file may hold a 404 error body ("404: Not
-        // Found") rather than JSON. serde would then surface a confusing
-        // "invalid type: integer `404`, expected struct RawDb" instead of a
-        // clean miss. Treat anything that isn't a JSON object as a cache miss
-        // so the caller falls back to the bundled resource.
-        if !json.trim_start().starts_with('{') {
-            return Err(I2cError::DbFetch("cached DB is not valid JSON (poisoned)".into()));
-        }
+        // Cache I/O + the poisoned-cache guard live once in
+        // `fixplay_core::error_db` (shared with the PS5 DB); only the error
+        // enum is subsystem-specific.
+        let json = error_db::read_cache_json(path).map_err(I2cError::DbFetch)?;
         Self::from_json(&json)
     }
 
     /// Fetch the database from the upstream URL and write it to `path` for
     /// future cache hits, with HTTP-status and size guards.
     pub fn fetch_and_cache(path: &Path) -> Result<Self, I2cError> {
-        let response = reqwest::blocking::get(DB_URL)
-            .map_err(|e| I2cError::DbFetch(e.to_string()))?;
-        // Check HTTP status BEFORE reading/parsing/caching. raw.githubusercontent
-        // answers a missing file with HTTP 404 and a body of "404: Not Found"; if
-        // we let that through, serde reads `404` as an integer ("invalid type:
-        // integer `404`, expected struct RawDb") AND we'd overwrite a good cache
-        // file with the error page. A non-2xx is a clean "no remote DB" → caller
-        // falls back to the bundled resource.
-        if !response.status().is_success() {
-            return Err(I2cError::DbFetch(format!("HTTP {}", response.status())));
-        }
-        if let Some(len) = response.content_length() {
-            if len > 5_000_000 {
-                return Err(I2cError::DbFetch(format!(
-                    "Response too large: Content-Length {} exceeds 5 MB limit", len
-                )));
-            }
-        }
-        let text = response.text()
-            .map_err(|e| I2cError::DbFetch(e.to_string()))?;
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| I2cError::DbFetch(e.to_string()))?;
-        }
-        std::fs::write(path, &text)
-            .map_err(|e| I2cError::DbFetch(e.to_string()))?;
+        let text = error_db::fetch_and_cache_json(DB_URL, path).map_err(I2cError::DbFetch)?;
         Self::from_json(&text)
     }
 

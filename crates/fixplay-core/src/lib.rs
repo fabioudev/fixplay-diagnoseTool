@@ -9,6 +9,8 @@
 
 /// Error enums for each subsystem plus the unified [`error::AppError`].
 pub mod error;
+/// Shared cache + fetch plumbing for the subsystem error-code databases.
+pub mod error_db;
 /// NOR flash dump validation and non-volatile-storage parsing.
 pub mod nor;
 /// Hardware-agnostic device traits (`FlashDevice`, `UartDevice`).
