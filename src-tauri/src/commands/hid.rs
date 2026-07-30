@@ -38,6 +38,54 @@ pub enum HidCmd {
     Stop,
 }
 
+/// Maximum input reports buffered for `hid_poll` before the oldest are dropped
+/// (counted in `dropped_reports`). Bounded so a flood can't grow the queue
+/// without limit.
+const MAX_REPORT_QUEUE: usize = 512;
+
+/// Build a feature-report *send* packet: the report-id byte prepended to the
+/// payload (hidapi expects the id in byte 0). Extracted from `run_hid_thread`
+/// so the framing is unit-testable without a real device.
+fn feature_report_packet(report_id: u8, data: &[u8]) -> Vec<u8> {
+    let mut packet = Vec::with_capacity(data.len() + 1);
+    packet.push(report_id);
+    packet.extend_from_slice(data);
+    packet
+}
+
+/// Allocate a feature-report *read* buffer of `(len + 1).max(128)` bytes with
+/// the report-id byte set at offset 0 (hidapi writes the id there and returns
+/// the full buffer). Extracted for unit testing.
+fn make_get_feature_buf(report_id: u8, len: usize) -> Vec<u8> {
+    let cap = (len + 1).max(128);
+    let mut buf = vec![0u8; cap];
+    buf[0] = report_id;
+    buf
+}
+
+/// Parse a `read_timeout` result into an input report, stripping the leading
+/// report-id byte (mirrors WebHID, where the id is reported separately). Returns
+/// `None` for empty / single-byte reads (no payload).
+fn parse_input_report(buf: &[u8], n: usize) -> Option<HidReport> {
+    if n <= 1 {
+        return None;
+    }
+    Some(HidReport {
+        report_id: buf[0],
+        data:      buf[1..n].to_vec(),
+    })
+}
+
+/// Push a report onto the bounded queue, or bump the drop counter when the
+/// queue is full. Extracted so the bound + drop invariant is unit-testable.
+fn push_report(q: &mut VecDeque<HidReport>, dropped: &AtomicU64, report: HidReport) {
+    if q.len() < MAX_REPORT_QUEUE {
+        q.push_back(report);
+    } else {
+        dropped.fetch_add(1, Ordering::Relaxed);
+    }
+}
+
 /// RAII guard that flips the `hid_alive` flag to false when the reader thread
 /// exits — on *any* path (Stop command, channel disconnect, panic unwind, or
 /// loop end). This is what lets `hid_poll` report a dead connection instead of
@@ -73,9 +121,7 @@ fn run_hid_thread(
             match cmd_rx.try_recv() {
                 Ok(HidCmd::Stop) => return,
                 Ok(HidCmd::SendFeatureReport(report_id, data, reply)) => {
-                    let mut packet = Vec::with_capacity(data.len() + 1);
-                    packet.push(report_id);
-                    packet.extend_from_slice(&data);
+                    let packet = feature_report_packet(report_id, &data);
                     let r = device
                         .send_feature_report(&packet)
                         .map(|_| ())
@@ -83,9 +129,7 @@ fn run_hid_thread(
                     reply.send(r).ok();
                 }
                 Ok(HidCmd::GetFeatureReport(report_id, len, reply)) => {
-                    let cap = (len + 1).max(128);
-                    let mut rbuf = vec![0u8; cap];
-                    rbuf[0] = report_id;
+                    let mut rbuf = make_get_feature_buf(report_id, len);
                     let r = device
                         .get_feature_report(&mut rbuf)
                         .map(|n| rbuf[..n].to_vec())
@@ -106,16 +150,9 @@ fn run_hid_thread(
 
         // Read one input report — 5 ms timeout keeps the command loop responsive
         if let Ok(n) = device.read_timeout(&mut buf, 5) {
-            if n > 1 {
+            if let Some(report) = parse_input_report(&buf, n) {
                 let mut q = reports.lock().unwrap();
-                if q.len() < 512 {
-                    q.push_back(HidReport {
-                        report_id: buf[0],
-                        data:      buf[1..n].to_vec(), // strip report-id byte (mirrors WebHID)
-                    });
-                } else {
-                    dropped.fetch_add(1, Ordering::Relaxed);
-                }
+                push_report(&mut q, &dropped, report);
             }
         }
     }
@@ -251,4 +288,85 @@ pub fn hid_poll(state: State<'_, AppState>) -> HidPollResult {
     let reports: Vec<HidReport> = state.hid_reports.lock().unwrap().drain(..).collect();
     let dropped_reports = state.hid_dropped_reports.swap(0, Ordering::Relaxed);
     HidPollResult { connected, reports, dropped_reports }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn feature_report_packet_prepends_report_id() {
+        let pkt = feature_report_packet(0x05, &[0xaa, 0xbb, 0xcc]);
+        assert_eq!(pkt, vec![0x05, 0xaa, 0xbb, 0xcc]);
+    }
+
+    #[test]
+    fn feature_report_packet_empty_payload_is_just_the_id() {
+        assert_eq!(feature_report_packet(0x80, &[]), vec![0x80]);
+    }
+
+    #[test]
+    fn make_get_feature_buf_floors_to_128_and_sets_id_byte() {
+        let buf = make_get_feature_buf(0x20, 10);
+        assert_eq!(buf.len(), 128); // (10 + 1).max(128) = 128
+        assert_eq!(buf[0], 0x20);
+        // zeros after the id byte
+        assert!(buf[1..].iter().all(|&b| b == 0));
+    }
+
+    #[test]
+    fn make_get_feature_buf_grows_past_128_for_large_len() {
+        let buf = make_get_feature_buf(0x83, 200);
+        assert_eq!(buf.len(), 201); // 200 + 1
+        assert_eq!(buf[0], 0x83);
+    }
+
+    #[test]
+    fn parse_input_report_strips_leading_report_id_byte() {
+        let buf = [0x01u8, 0xde, 0xad, 0xbe, 0xef];
+        let r = parse_input_report(&buf, 5).unwrap();
+        assert_eq!(r.report_id, 0x01);
+        assert_eq!(r.data, vec![0xde, 0xad, 0xbe, 0xef]);
+    }
+
+    #[test]
+    fn parse_input_report_returns_none_for_empty_or_id_only_read() {
+        let buf = [0x01u8, 0x02, 0x03];
+        assert!(parse_input_report(&buf, 0).is_none());
+        assert!(parse_input_report(&buf, 1).is_none()); // only the report-id byte
+    }
+
+    #[test]
+    fn push_report_appends_under_cap() {
+        let mut q = VecDeque::new();
+        let dropped = AtomicU64::new(0);
+        push_report(&mut q, &dropped, HidReport { report_id: 1, data: vec![1] });
+        push_report(&mut q, &dropped, HidReport { report_id: 2, data: vec![2] });
+        assert_eq!(q.len(), 2);
+        assert_eq!(dropped.load(Ordering::Relaxed), 0);
+    }
+
+    #[test]
+    fn push_report_drops_and_counts_when_queue_is_full() {
+        let mut q = VecDeque::new();
+        for _ in 0..MAX_REPORT_QUEUE {
+            q.push_back(HidReport { report_id: 0, data: vec![] });
+        }
+        let dropped = AtomicU64::new(0);
+        // Queue is full: each further report is dropped + counted.
+        push_report(&mut q, &dropped, HidReport { report_id: 9, data: vec![9] });
+        push_report(&mut q, &dropped, HidReport { report_id: 9, data: vec![9] });
+        assert_eq!(q.len(), MAX_REPORT_QUEUE); // cap held
+        assert_eq!(dropped.load(Ordering::Relaxed), 2);
+    }
+
+    #[test]
+    fn alive_guard_flips_alive_false_on_drop() {
+        let alive = Arc::new(AtomicBool::new(true));
+        {
+            let _guard = AliveGuard { alive: Arc::clone(&alive) };
+            assert!(alive.load(Ordering::Relaxed)); // still alive while held
+        }
+        assert!(!alive.load(Ordering::Relaxed)); // false after drop
+    }
 }
