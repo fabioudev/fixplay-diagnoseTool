@@ -16,6 +16,7 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 ### NOR Flash
 - Read NOR flash chips via **flashrom** (CH341A, FT2232, serprog, and 180+ other programmers)
 - Automatic two-pass read with progress events
+- **Hardware guide:** see [`docs/CH341A_GUIDE.md`](docs/CH341A_GUIDE.md) — pinout, jumpers, and the critical 5 V vs 3.3 V issue (default CH341A boards output 5 V on data lines and can damage 3.3 V NOR flash like the PS5 NOR)
 - Validate dump integrity (header, MBR, EMC IPL, USB PDC checks)
 - Parse NVS data: serial number, MAC address, SKU, board ID, firmware version
 - Archive dumps per serial number with metadata (timestamp, validation status, firmware)
@@ -105,6 +106,8 @@ npm run tauri build
 ```
 
 The bundled `flashrom` binary is included in `src-tauri/binaries/`. On Windows, the release workflow builds `flashrom.exe` from source (v1.4.0, CH341A + serprog enabled).
+
+> **Before flashing with a CH341A:** read [`docs/CH341A_GUIDE.md`](docs/CH341A_GUIDE.md). The classic black CH341A board drives SPI lines at ~5 V and can destroy 3.3 V NOR flash (e.g. PS5 NOR). The guide covers the 3.3 V fix, pinout, jumpers, and in-circuit reading risks.
 
 ---
 
