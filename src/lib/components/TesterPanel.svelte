@@ -10,6 +10,7 @@
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
   import MicLevelMeter from './MicLevelMeter.svelte';
+  import MicSpectrumView from './MicSpectrumView.svelte';
   import SpeakerMicLoopback from './SpeakerMicLoopback.svelte';
   import ImuVisualizer from './ImuVisualizer.svelte';
   import TouchpadGestureVisualizer from './TouchpadGestureVisualizer.svelte';
@@ -309,6 +310,7 @@
   // ── Speaker / Microphone ──────────────────────────────────────────────────
   let speakerPlaying = $state(false);
   let micActive = $state(false);
+  let spectrumActive = $state(false);
 
   async function playSpeakerTone(durationMs: number): Promise<void> {
     if (!manager || speakerPlaying) return;
@@ -586,6 +588,19 @@
             <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (micActive = false)}><Square class="h-3.5 w-3.5" /> Pegel aus</button>
           {:else}
             <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (micActive = true)}><Mic class="h-3.5 w-3.5" /> Pegel an</button>
+          {/if}
+        </div>
+      </div>
+
+      <!-- Frequency spectrum view (#59) -->
+      <div class="border-t border-gray-700 pt-2">
+        <div class="text-xs text-gray-400 mb-1.5">Frequenz-Spektrum (live FFT)</div>
+        <MicSpectrumView active={spectrumActive} />
+        <div class="flex gap-2 mt-2">
+          {#if spectrumActive}
+            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (spectrumActive = false)}><Square class="h-3.5 w-3.5" /> Spektrum aus</button>
+          {:else}
+            <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (spectrumActive = true)}><Mic class="h-3.5 w-3.5" /> Spektrum an</button>
           {/if}
         </div>
       </div>
