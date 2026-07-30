@@ -8,6 +8,8 @@
   import { X, Loader2 } from 'lucide-svelte';
   import { trapFocus } from '$lib/utils/focusTrap';
   import { fade, scale } from 'svelte/transition';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let {
     open = $bindable(false),
@@ -90,38 +92,38 @@
     error = null;
     success = false;
     try {
-      statusText = 'Initialisiere Kalibrierung...';
+      statusText = get(LL).calibration.init();
       step = 1;
       await sleep(100);
       await manager.calibrateSticksBegin();
       step = 2;
-      statusText = 'Messe Stick-Mittelpunkt (1/4)...';
+      statusText = get(LL).calibration.measureCenter({ n: 1 });
       await sleep(150);
       await manager.calibrateSticksSample();
       step = 3;
-      statusText = 'Messe Stick-Mittelpunkt (2/4)...';
+      statusText = get(LL).calibration.measureCenter({ n: 2 });
       await sleep(150);
       await manager.calibrateSticksSample();
       step = 4;
-      statusText = 'Messe Stick-Mittelpunkt (3/4)...';
+      statusText = get(LL).calibration.measureCenter({ n: 3 });
       await sleep(150);
       await manager.calibrateSticksSample();
       step = 5;
-      statusText = 'Speichere Kalibrierung...';
+      statusText = get(LL).calibration.save();
       await sleep(200);
       await manager.calibrateSticksSample();
       await sleep(500);
       await manager.calibrateSticksEnd();
       step = 6;
       success = true;
-      statusText = 'Stick-Mittelkalibrierung abgeschlossen!';
-      pushControllerLog('Stick center calibration completed', 'info');
+      statusText = get(LL).calibration.centerDone();
+      pushControllerLog(get(LL).calibration.centerCompletedLog(), 'info');
       if (manager) { afterData = await manager.getInMemoryModuleData().catch(() => null); }
-      onDone?.(true, 'Stick-Mittelkalibrierung abgeschlossen');
+      onDone?.(true, get(LL).calibration.centerDoneShort());
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
-      statusText = 'Fehler: ' + error;
-      pushControllerLog('Center calibration failed: ' + error, 'error');
+      statusText = get(LL).calibration.errorPrefix({ error });
+      pushControllerLog(get(LL).calibration.centerFailedLog({ error }), 'error');
       onDone?.(false, error);
     } finally {
       busy = false;
@@ -135,11 +137,11 @@
     success = false;
     resetRangeSampling();
     try {
-      statusText = 'Starte Range-Kalibrierung...';
+      statusText = get(LL).calibration.startRange();
       step = 1;
       await manager.calibrateRangeBegin();
       step = 2;
-      statusText = 'Bewege beide Sticks mehrfach im vollen Kreis.';
+      statusText = get(LL).calibration.moveSticks();
       // Sample stick motion live while the user sweeps. The subscription stays
       // active until finishRangeCalibration() (or close/reset) tears it down.
       rangeUnsub = stickState.subscribe((s) => {
@@ -149,8 +151,8 @@
       });
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
-      statusText = 'Fehler: ' + error;
-      pushControllerLog('Range calibration begin failed: ' + error, 'error');
+      statusText = get(LL).calibration.errorPrefix({ error });
+      pushControllerLog(get(LL).calibration.rangeBeginFailedLog({ error }), 'error');
       resetRangeSampling();
       busy = false;
     }
@@ -162,7 +164,7 @@
     try {
       // Stop sampling before sending the end feature report.
       if (rangeUnsub) { rangeUnsub(); rangeUnsub = null; }
-      statusText = 'Speichere Range-Kalibrierung...';
+      statusText = get(LL).calibration.saveRange();
       step = 3;
       await manager.calibrateRangeEnd();
       step = 4;
@@ -172,14 +174,14 @@
       stickCircularity.set({ left: [...rangeLeft], right: [...rangeRight] });
       const leftErr = calculateCircularityError(rangeLeft);
       const rightErr = calculateCircularityError(rangeRight);
-      statusText = `Range-Kalibrierung abgeschlossen! (Kreisförmigkeit L: ${leftErr.toFixed(1)}%, R: ${rightErr.toFixed(1)}%)`;
-      pushControllerLog('Range calibration completed', 'info');
+      statusText = get(LL).calibration.rangeDone({ left: leftErr.toFixed(1), right: rightErr.toFixed(1) });
+      pushControllerLog(get(LL).calibration.rangeCompletedLog(), 'info');
       if (manager) { afterData = await manager.getInMemoryModuleData().catch(() => null); }
-      onDone?.(true, 'Range-Kalibrierung abgeschlossen');
+      onDone?.(true, get(LL).calibration.rangeDoneShort());
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
-      statusText = 'Fehler: ' + error;
-      pushControllerLog('Range calibration end failed: ' + error, 'error');
+      statusText = get(LL).calibration.errorPrefix({ error });
+      pushControllerLog(get(LL).calibration.rangeEndFailedLog({ error }), 'error');
       onDone?.(false, error);
     } finally {
       busy = false;
@@ -225,9 +227,9 @@
     <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800" use:trapFocus transition:scale={{ duration: 150, start: 0.96 }}>
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
-          {mode === 'center' ? 'Stick-Mittelkalibrierung' : 'Range-Kalibrierung'}
+          {mode === 'center' ? $LL.calibration.titleCenter() : $LL.calibration.titleRange()}
         </h2>
-        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick={close} aria-label="Schließen">
+        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick={close} aria-label={$LL.calibration.closeAria()}>
           <X class="h-5 w-5" />
         </button>
       </div>
@@ -239,21 +241,21 @@
           onclick={() => (mode = 'center')}
           disabled={busy}
         >
-          Mittelpunkt
+          {$LL.calibration.tabCenter()}
         </button>
         <button
           class="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition {mode === 'range' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}"
           onclick={() => (mode = 'range')}
           disabled={busy}
         >
-          Range
+          {$LL.calibration.tabRange()}
         </button>
       </div>
 
       <!-- Progress bar -->
       <div class="mb-4">
         <div class="mb-1 flex justify-between text-xs text-slate-500 dark:text-slate-400">
-          <span>Schritt {step} / {totalSteps}</span>
+          <span>{$LL.calibration.step({ step, total: totalSteps })}</span>
           <span>{Math.round((step / totalSteps) * 100)}%</span>
         </div>
         <div class="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-600">
@@ -286,8 +288,8 @@
         {@const changed = calibDiff.filter((d) => d.delta !== 0).length}
         <div class="mb-4 rounded-lg border border-slate-200 p-3 dark:border-slate-600">
           <div class="mb-2 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Vorher → Nachher</h3>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{changed} von 12 Werten geändert</span>
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{$LL.calibration.beforeAfter()}</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{$LL.calibration.valuesChanged({ changed })}</span>
           </div>
           <div class="grid grid-cols-12 gap-1 text-center text-[10px] font-mono">
             {#each calibDiff as d, i}
@@ -295,7 +297,7 @@
                 class="rounded px-0.5 py-1 {d.delta === 0
                   ? 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
                   : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200'}"
-                title={`Wert ${i + 1}\nvorher: ${d.before}\nnachher: ${d.after}\nΔ: ${d.delta > 0 ? '+' : ''}${d.delta}`}
+                title={$LL.calibration.valueTitle({ index: i + 1, before: d.before, after: d.after, delta: `${d.delta > 0 ? '+' : ''}${d.delta}` })}
               >
                 <div class="text-slate-400 dark:text-slate-500">{i + 1}</div>
                 <div>{d.after}</div>
@@ -306,7 +308,7 @@
             {/each}
           </div>
           <p class="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
-            12 rohe Finetune-Module-Werte (u16) — blau markierte wurden durch die Kalibrierung verändert.
+            {$LL.calibration.finetuneHint()}
           </p>
         </div>
       {/if}
@@ -321,7 +323,7 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.left}
           />
-          <span class="text-xs text-slate-500">Links</span>
+          <span class="text-xs text-slate-500">{$LL.calibration.left()}</span>
         </div>
         <div class="flex flex-col items-center gap-1">
           <StickVisualizer
@@ -331,16 +333,16 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.right}
           />
-          <span class="text-xs text-slate-500">Rechts</span>
+          <span class="text-xs text-slate-500">{$LL.calibration.right()}</span>
         </div>
       </div>
 
       {#if mode === 'range' && step === 2 && !success}
         <div class="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-          Bewege beide Sticks mehrfach vollständig im Kreis. Klicke "Fertig" wenn du bereit bist.
+          {$LL.calibration.rangeHint()}
           <div class="mt-1 text-xs">
-            Überdeckung: {Math.round(rangeCoverage * 100)}%
-            {#if rangeCoverage < 1}— weiter kreisen{/if}
+            {$LL.calibration.coverage({ percent: Math.round(rangeCoverage * 100) })}
+            {#if rangeCoverage < 1}{$LL.calibration.keepGoing()}{/if}
           </div>
         </div>
       {/if}
@@ -349,11 +351,11 @@
       <div class="flex justify-end gap-2">
         {#if mode === 'range' && step === 2 && !busy}
           <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" onclick={finishRangeCalibration}>
-            Fertig
+            {$LL.calibration.done()}
           </button>
         {/if}
         <button class="rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500" onclick={close}>
-          {success ? 'Schließen' : 'Abbrechen'}
+          {success ? $LL.calibration.closeAria() : $LL.calibration.cancel()}
         </button>
       </div>
     </div>

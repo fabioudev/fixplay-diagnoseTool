@@ -2,6 +2,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import CalibrationModal from './CalibrationModal.svelte';
+import { initI18n } from '$lib/i18n/init';
 
 /**
  * Tests for the before/after finetune comparison (#48). The modal auto-starts
@@ -11,6 +12,9 @@ import CalibrationModal from './CalibrationModal.svelte';
  */
 beforeEach(() => {
   document.body.innerHTML = '';
+  // CalibrationModal renders all labels via the reactive i18n store (`$LL`),
+  // so the locales must be loaded before render. Idempotent.
+  initI18n();
   // StickVisualizer renders to a <canvas>; jsdom has no 2D context, so its
   // $effect logs a harmless "Not implemented: getContext" warning. Stub a
   // minimal 2D context (with the methods StickVisualizer actually calls) so

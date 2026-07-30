@@ -7,6 +7,7 @@
   // mic diagnostics.
   import { Mic, MicOff } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let { active = false }: { active?: boolean } = $props();
 
@@ -142,11 +143,11 @@
     </div>
   {:else if active && !deviceFound}
     <div class="flex items-center gap-2 text-xs text-gray-500">
-      <MicOff class="h-4 w-4" /> Suche DualSense-Mikrofon…
+      <MicOff class="h-4 w-4" /> {$LL.tester.micSearching()}
     </div>
   {:else}
     <div class="flex items-center gap-2 text-xs text-gray-600">
-      <MicOff class="h-4 w-4" /> Frequenz-Spektrum inaktiv
+      <MicOff class="h-4 w-4" /> {$LL.tester.spectrumInactive()}
     </div>
   {/if}
 </div>

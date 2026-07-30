@@ -1,6 +1,8 @@
 
 <script lang="ts">
   import { onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
   import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download, Clock, Undo2 } from 'lucide-svelte';
   import { copyToClipboard } from '$lib/utils/clipboard';
   import { save as saveDialog } from '@tauri-apps/plugin-dialog';
@@ -73,19 +75,19 @@
 
   async function copyLog() {
     await copyToClipboard(logToText(), (ok) => {
-      if (ok) { copied = 'Protokoll'; setTimeout(() => (copied = null), 1500); }
+      if (ok) { copied = get(LL).controller.copyLog(); setTimeout(() => (copied = null), 1500); }
     });
   }
 
   async function exportLog() {
     const path = await saveDialog({
-      title: 'Protokoll speichern',
+      title: get(LL).controller.saveLogDialogTitle(),
       defaultPath: `controller-log-${Date.now()}.txt`,
       filters: [{ name: 'Text', extensions: ['txt'] }],
     }).catch(() => null);
     if (path && typeof path === 'string') {
       await saveTextFile(path, logToText()).catch(console.error);
-      copied = 'Protokoll gespeichert'; setTimeout(() => (copied = null), 1500);
+      copied = get(LL).controller.copyLogSaved(); setTimeout(() => (copied = null), 1500);
     }
   }
   let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -105,11 +107,11 @@
         }
       }
       if (!device) {
-        throw new Error('Kein DualSense per USB gefunden. Controller einstecken und erneut versuchen.');
+        throw new Error(get(LL).controller.noDualSenseError());
       }
 
       const ctrl = createControllerForDevice(device);
-      if (!ctrl) throw new Error('Nicht unterstützter Controller.');
+      if (!ctrl) throw new Error(get(LL).controller.unsupportedError());
 
       manager = createControllerManager();
       manager.setControllerInstance(ctrl);
@@ -146,13 +148,13 @@
       controllerInfo.set(info);
       fwVersion  = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
       macAddress = info.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
-      pushControllerLog(`Controller verbunden: ${ctrl.getModel()}`, 'info');
+      pushControllerLog(get(LL).controller.connectedLog({ model: ctrl.getModel() }), 'info');
       // Snapshot the in-memory finetune data so "Verwerfen" can undo calibration
       // changes made this session back to the connected state.
       await snapshotCalibration();
     } catch (e) {
       connectError = e instanceof Error ? e.message : String(e);
-      pushControllerLog('Verbindung fehlgeschlagen: ' + connectError, 'error');
+      pushControllerLog(get(LL).controller.connectFailedLog({ error: connectError }), 'error');
     } finally {
       connecting = false;
     }
@@ -174,7 +176,7 @@
     buttonState.set({});
     triggerState.set({ l2: 0, r2: 0 });
     stickState.set({ left: { x: 0, y: 0 }, right: { x: 0, y: 0 } });
-    pushControllerLog('Controller getrennt', 'info');
+    pushControllerLog(get(LL).controller.disconnectedLog(), 'info');
   }
 
   async function flashController() {
@@ -185,7 +187,7 @@
       // Persisting the in-memory changes makes them the new undo baseline.
       if (res.success) await snapshotCalibration();
     } catch (e) {
-      pushControllerLog('Flash fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).controller.flashFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -193,9 +195,9 @@
     if (!manager || !calibSnapshot) return;
     try {
       await manager.writeFinetuneData(calibSnapshot);
-      pushControllerLog('Kalibrierungsänderungen verworfen (in-memory zurückgesetzt)', 'info');
+      pushControllerLog(get(LL).controller.undoLog(), 'info');
     } catch (e) {
-      pushControllerLog('Verwerfen fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).controller.undoFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -203,9 +205,9 @@
     if (!manager) return;
     try {
       await manager.reset();
-      pushControllerLog('Controller zurückgesetzt', 'info');
+      pushControllerLog(get(LL).controller.resetLog(), 'info');
     } catch (e) {
-      pushControllerLog('Reset fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).controller.resetFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -220,18 +222,18 @@
     <div class="flex items-center gap-3">
       <Gamepad2 class="h-6 w-6 text-blue-500" />
       <div>
-        <h1 class="text-lg font-semibold text-gray-100">Controller-Diagnose</h1>
-        <p class="text-xs text-gray-500">PS5 DualSense Kalibrierung & Test</p>
+        <h1 class="text-lg font-semibold text-gray-100">{$LL.header.controller()}</h1>
+        <p class="text-xs text-gray-500">{$LL.controller.subtitle()}</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
       {#if $controllerConnected}
         <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={disconnect}>
-          <Power class="h-4 w-4" /> Trennen
+          <Power class="h-4 w-4" /> {$LL.controller.disconnectBtn()}
         </button>
       {:else}
         <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50" onclick={connect} disabled={connecting}>
-          <Usb class="h-4 w-4" /> {connecting ? 'Verbinde…' : 'Verbinden'}
+          <Usb class="h-4 w-4" /> {connecting ? $LL.controller.connecting() : $LL.controller.connectBtn()}
         </button>
       {/if}
     </div>
@@ -245,37 +247,37 @@
     <div class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
       <Gamepad2 class="h-16 w-16 text-gray-600" />
       <div>
-        <p class="text-gray-400">Kein Controller verbunden</p>
-        <p class="text-sm text-gray-600">Klicke auf "Verbinden" und wähle deinen DualSense Controller.</p>
+        <p class="text-gray-400">{$LL.controller.notConnected()}</p>
+        <p class="text-sm text-gray-600">{$LL.controller.notConnectedHint()}</p>
       </div>
     </div>
   {:else}
     <!-- Info bar -->
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="rounded-lg bg-gray-800/60 p-3" title="DualSense-Modell (DS5 = Standard, DS5 Edge = Pro-Controller)">
-        <div class="text-xs text-gray-500">Modell</div>
+      <div class="rounded-lg bg-gray-800/60 p-3" title={$LL.controller.modelTitle()}>
+        <div class="text-xs text-gray-500">{$LL.controller.model()}</div>
         <div class="text-sm font-medium text-gray-200">{$controllerModel ?? '—'}</div>
       </div>
-      <div class="rounded-lg bg-gray-800/60 p-3" title="Akkustand des Controllers">
-        <div class="text-xs text-gray-500">Batterie</div>
+      <div class="rounded-lg bg-gray-800/60 p-3" title={$LL.controller.batteryTitle()}>
+        <div class="text-xs text-gray-500">{$LL.controller.battery()}</div>
         <div class="flex items-center gap-1.5 text-sm font-medium text-gray-200">
           <Battery class="h-4 w-4" /> {$batteryStatus.bat_txt || '—'}
         </div>
       </div>
-      <div class="rounded-lg bg-gray-800/60 p-3" title="Bluetooth-MAC-Adresse des Controllers">
-        <div class="text-xs text-gray-500">MAC</div>
+      <div class="rounded-lg bg-gray-800/60 p-3" title={$LL.controller.macTitle()}>
+        <div class="text-xs text-gray-500">{$LL.controller.mac()}</div>
         <div class="flex items-center justify-between gap-1">
           <div class="text-sm font-medium text-gray-200 truncate">{macAddress}</div>
-          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(macAddress, 'MAC')} title="MAC kopieren">
+          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(macAddress, $LL.controller.copyMac())} title={$LL.controller.copyMacTitle()}>
             <Copy class="h-3 w-3" />
           </button>
         </div>
       </div>
-      <div class="rounded-lg bg-gray-800/60 p-3" title="Firmware-Version des Controllers">
-        <div class="text-xs text-gray-500">Firmware</div>
+      <div class="rounded-lg bg-gray-800/60 p-3" title={$LL.controller.fwTitle()}>
+        <div class="text-xs text-gray-500">{$LL.controller.firmware()}</div>
         <div class="flex items-center justify-between gap-1">
           <div class="text-sm font-medium text-gray-200 truncate">{fwVersion}</div>
-          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(fwVersion, 'FW')} title="Firmware kopieren">
+          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(fwVersion, $LL.controller.copyFw())} title={$LL.controller.copyFwTitle()}>
             <Copy class="h-3 w-3" />
           </button>
         </div>
@@ -285,29 +287,29 @@
     <!-- Quick actions — calibration, circularity test, quick test (most important, at top) -->
     <div class="flex flex-wrap gap-2">
       <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700" onclick={() => (calibOpen = true)}>
-        <Wrench class="h-4 w-4" /> Kalibrierung
+        <Wrench class="h-4 w-4" /> {$LL.controller.calibration()}
       </button>
       <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={() => (circOpen = true)}>
-        <Crosshair class="h-4 w-4" /> Rundheit
+        <Crosshair class="h-4 w-4" /> {$LL.controller.circularity()}
       </button>
       <button class="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700" onclick={() => (quickTestOpen = true)}>
-        <Zap class="h-4 w-4" /> Schnelltest
+        <Zap class="h-4 w-4" /> {$LL.controller.quickTest()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title="Änderungen dauerhaft im Controller speichern">
-        <Lightbulb class="h-4 w-4" /> Speichern
+      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title={$LL.controller.saveTitle()}>
+        <Lightbulb class="h-4 w-4" /> {$LL.controller.save()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed" onclick={undoCalibration} disabled={!calibSnapshot} title={calibSnapshot ? 'Kalibrierungsänderungen seit Verbinden/Speichern verwerfen' : 'Noch keine Änderungen zum Verwerfen'}>
-        <Undo2 class="h-4 w-4" /> Verwerfen
+      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed" onclick={undoCalibration} disabled={!calibSnapshot} title={calibSnapshot ? $LL.controller.discardTitleAvail() : $LL.controller.discardTitleNone()}>
+        <Undo2 class="h-4 w-4" /> {$LL.controller.discard()}
       </button>
       <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetController}>
-        <RefreshCw class="h-4 w-4" /> Reset
+        <RefreshCw class="h-4 w-4" /> {$LL.controller.reset()}
       </button>
     </div>
 
     <!-- Live controller graphic — buttons/sticks/triggers highlight as pressed -->
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-2 flex items-center gap-2 text-sm font-medium text-gray-300">
-        <Gamepad2 class="h-4 w-4" /> Live-Controller
+        <Gamepad2 class="h-4 w-4" /> {$LL.controller.liveController()}
       </div>
       <div class="flex justify-center">
         <ControllerVisualizer size={460} />
@@ -320,7 +322,7 @@
     <!-- Sticks -->
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-3 flex items-center gap-2 text-sm font-medium text-gray-300">
-        <Activity class="h-4 w-4" /> Sticks
+        <Activity class="h-4 w-4" /> {$LL.controller.sticks()}
       </div>
       <div class="flex justify-center gap-6">
         <div class="flex flex-col items-center gap-2">
@@ -331,9 +333,9 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.left}
           />
-          <span class="text-xs text-gray-500">Links (L3)</span>
+          <span class="text-xs text-gray-500">{$LL.controller.stickLeft()}</span>
           <span class="text-[10px] {driftLeft < 0.05 ? 'text-green-500' : driftLeft < 0.15 ? 'text-amber-400' : 'text-red-400'}">
-            Drift: {(driftLeft * 100).toFixed(1)}%
+            {$LL.controller.drift({ value: (driftLeft * 100).toFixed(1) })}
           </span>
           <DriftSparkline side="left" />
         </div>
@@ -345,9 +347,9 @@
             deadzone={$stickDeadzone}
             circularityData={$stickCircularity.right}
           />
-          <span class="text-xs text-gray-500">Rechts (R3)</span>
+          <span class="text-xs text-gray-500">{$LL.controller.stickRight()}</span>
           <span class="text-[10px] {driftRight < 0.05 ? 'text-green-500' : driftRight < 0.15 ? 'text-amber-400' : 'text-red-400'}">
-            Drift: {(driftRight * 100).toFixed(1)}%
+            {$LL.controller.drift({ value: (driftRight * 100).toFixed(1) })}
           </span>
           <DriftSparkline side="right" />
         </div>
@@ -356,7 +358,7 @@
 
     <!-- Triggers -->
     <div class="rounded-xl bg-gray-800/40 p-4">
-      <div class="mb-3 text-sm font-medium text-gray-300">Trigger</div>
+      <div class="mb-3 text-sm font-medium text-gray-300">{$LL.controller.triggers()}</div>
       <div class="grid grid-cols-2 gap-4">
         <div>
           <div class="mb-1 flex justify-between text-xs text-gray-500"><span>L2</span><span>{$triggerState.l2}</span></div>
@@ -376,25 +378,25 @@
     <!-- Log -->
     <div class="rounded-xl bg-gray-900/60 p-3">
       <div class="mb-2 flex items-center justify-between">
-        <span class="text-xs font-medium text-gray-500">Protokoll</span>
+        <span class="text-xs font-medium text-gray-500">{$LL.controller.log()}</span>
         <div class="flex items-center gap-1">
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={copyLog} title="Protokoll kopieren">
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={copyLog} title={$LL.controller.copyLogTitle()}>
             <Copy class="h-3 w-3" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={exportLog} title="Protokoll als Datei speichern">
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={exportLog} title={$LL.controller.saveLogTitle()}>
             <Download class="h-3 w-3" />
           </button>
           <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => {
             const order: LogTimestampFormat[] = ['local', 'iso', 'seconds'];
             const cur = $logTimestampFormat;
             setLogTimestampFormat(order[(order.indexOf(cur) + 1) % order.length]);
-          }} title={`Zeitstempel-Format: ${$logTimestampFormat} (klicken zum Wechseln)`}>
+          }} title={$LL.controller.timestampTitle({ format: $logTimestampFormat })}>
             <Clock class="h-3 w-3" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => (wrapLog = !wrapLog)} title={wrapLog ? 'Zeilenumbruch aus' : 'Zeilenumbruch an'}>
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => (wrapLog = !wrapLog)} title={wrapLog ? $LL.controller.wrapOff() : $LL.controller.wrapOn()}>
             <WrapText class="h-3 w-3 {wrapLog ? 'text-teal-400' : ''}" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => controllerLog.set([])} title="Protokoll löschen">
+          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => controllerLog.set([])} title={$LL.controller.clearLogTitle()}>
             <RefreshCw class="h-3 w-3" />
           </button>
         </div>
@@ -409,7 +411,7 @@
     </div>
     {#if copied}
       <div class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-teal-600 px-4 py-2 text-xs text-white shadow-lg z-50 transition-opacity">
-        {copied} kopiert
+        {$LL.controller.copiedToast({ label: copied })}
       </div>
     {/if}
   {/if}

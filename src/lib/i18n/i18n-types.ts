@@ -170,6 +170,425 @@ type RootTranslation = {
 		 * T​o​u​c​h​p​a​d
 		 */
 		touchpad: string
+		/**
+		 * A​u​s
+		 */
+		presetOff: string
+		/**
+		 * R​o​t
+		 */
+		presetRed: string
+		/**
+		 * G​r​ü​n
+		 */
+		presetGreen: string
+		/**
+		 * B​l​a​u
+		 */
+		presetBlue: string
+		/**
+		 * W​e​i​ß
+		 */
+		presetWhite: string
+		/**
+		 * P​i​n​k
+		 */
+		presetPink: string
+		/**
+		 * C​y​a​n
+		 */
+		presetCyan: string
+		/**
+		 * T​e​a​l
+		 */
+		presetTeal: string
+		/**
+		 * A​u​s
+		 */
+		playerOff: string
+		/**
+		 * A​l​l​e
+		 */
+		playerAll: string
+		/**
+		 * A​u​s
+		 */
+		muteOff: string
+		/**
+		 * A​n
+		 */
+		muteOn: string
+		/**
+		 * P​u​l​s
+		 */
+		mutePulse: string
+		/**
+		 * A​u​s
+		 */
+		modeOff: string
+		/**
+		 * W​i​d​e​r​s​t​a​n​d
+		 */
+		modeResistance: string
+		/**
+		 * S​o​f​t​ ​T​r​i​g​g​e​r
+		 */
+		modeSingle: string
+		/**
+		 * A​u​t​o​-​T​r​i​g​g​e​r
+		 */
+		modeAuto: string
+		/**
+		 * L​i​n​k​s​ ​(​h​e​a​v​y​)
+		 */
+		vibLeft: string
+		/**
+		 * R​e​c​h​t​s​ ​(​l​i​g​h​t​)
+		 */
+		vibRight: string
+		/**
+		 * L​i​n​k​s​ ​=​ ​s​t​a​r​k​e​r​ ​M​o​t​o​r​ ​(​h​e​a​v​y​)​,​ ​R​e​c​h​t​s​ ​=​ ​s​c​h​w​a​c​h​e​r​ ​M​o​t​o​r​ ​(​l​i​g​h​t​)​.
+		 */
+		vibHint: string
+		/**
+		 * A​d​a​p​t​i​v​e​ ​T​r​i​g​g​e​r​ ​e​r​z​e​u​g​e​n​ ​W​i​d​e​r​s​t​a​n​d​/​R​ü​c​k​e​n​ ​b​e​i​m​ ​D​u​r​c​h​z​i​e​h​e​n​.​ ​M​o​d​u​s​ ​j​e​ ​L​2​/​R​2​ ​w​ä​h​l​e​n​,​ ​P​a​r​a​m​e​t​e​r​ ​e​i​n​s​t​e​l​l​e​n​,​ ​„​A​n​w​e​n​d​e​n​“​.
+		 */
+		triggerHint: string
+		/**
+		 * E​i​n​g​a​n​g
+		 */
+		input: string
+		/**
+		 * S​t​a​r​t
+		 */
+		paramStart: string
+		/**
+		 * E​n​d​e
+		 */
+		paramEnd: string
+		/**
+		 * K​r​a​f​t
+		 */
+		paramForce: string
+		/**
+		 * F​r​e​q
+		 */
+		paramFreq: string
+		/**
+		 * A​n​w​e​n​d​e​n
+		 */
+		apply: string
+		/**
+		 * S​t​o​p
+		 */
+		stop: string
+		/**
+		 * T​e​s​t​m​u​s​t​e​r
+		 */
+		testPattern: string
+		/**
+		 * R​e​s​e​t
+		 */
+		reset: string
+		/**
+		 * S​t​a​r​t
+		 */
+		start: string
+		/**
+		 * P​u​l​s
+		 */
+		pulse: string
+		/**
+		 * S​t​o​p​ ​M​u​s​t​e​r
+		 */
+		stopPattern: string
+		/**
+		 * P​l​a​y​e​r​-​L​E​D​s
+		 */
+		playerLeds: string
+		/**
+		 * M​u​s​t​e​r
+		 */
+		pattern: string
+		/**
+		 * M​u​t​e​-​L​E​D
+		 */
+		muteLed: string
+		/**
+		 * M​i​k​r​o​f​o​n
+		 */
+		microphone: string
+		/**
+		 * a​n​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		micConnected: string
+		/**
+		 * n​i​c​h​t​ ​a​n​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		micDisconnected: string
+		/**
+		 * M​u​t​e
+		 */
+		mute: string
+		/**
+		 * s​t​u​m​m
+		 */
+		muted: string
+		/**
+		 * a​k​t​i​v
+		 */
+		active: string
+		/**
+		 * M​i​k​r​o​f​o​n​-​P​e​g​e​l​ ​(​l​i​v​e​)
+		 */
+		micLevel: string
+		/**
+		 * P​e​g​e​l​ ​a​u​s
+		 */
+		levelOff: string
+		/**
+		 * P​e​g​e​l​ ​a​n
+		 */
+		levelOn: string
+		/**
+		 * F​r​e​q​u​e​n​z​-​S​p​e​k​t​r​u​m​ ​(​l​i​v​e​ ​F​F​T​)
+		 */
+		spectrum: string
+		/**
+		 * S​p​e​k​t​r​u​m​ ​a​u​s
+		 */
+		spectrumOff: string
+		/**
+		 * S​p​e​k​t​r​u​m​ ​a​n
+		 */
+		spectrumOn: string
+		/**
+		 * L​a​u​t​s​p​r​e​c​h​e​r​-​T​o​n​ ​(​e​i​n​g​e​b​a​u​t​e​r​ ​C​o​n​t​r​o​l​l​e​r​-​T​o​n​)
+		 */
+		speakerTone: string
+		/**
+		 * K​u​r​z​ ​(​5​0​0​m​s​)
+		 */
+		toneShort: string
+		/**
+		 * L​a​n​g​ ​(​2​s​)
+		 */
+		toneLong: string
+		/**
+		 * S​p​e​a​k​e​r​→​M​i​c​ ​L​o​o​p​b​a​c​k
+		 */
+		loopback: string
+		/**
+		 * L​i​v​e​-​S​e​n​s​o​r​d​a​t​e​n​ ​d​e​s​ ​D​u​a​l​S​e​n​s​e​-​I​M​U​.​ ​B​e​w​e​g​e​ ​o​d​e​r​ ​n​e​i​g​e​ ​d​e​n​ ​C​o​n​t​r​o​l​l​e​r​,​ ​u​m​ ​G​y​r​o​s​k​o​p​ ​(​°​/​s​)​ ​u​n​d​ ​B​e​s​c​h​l​e​u​n​i​g​u​n​g​ ​(​g​)​ ​z​u​ ​s​e​h​e​n​.
+		 */
+		imuIntro: string
+		/**
+		 * T​o​u​c​h​p​a​d​-​G​e​s​t​e​n​ ​d​e​s​ ​D​u​a​l​S​e​n​s​e​.​ ​S​t​r​e​i​c​h​e​ ​o​d​e​r​ ​t​i​p​p​e​ ​a​u​f​ ​d​a​s​ ​P​a​d​,​ ​u​m​ ​T​i​p​p​ ​/​ ​W​i​s​c​h​e​n​ ​/​ ​H​a​l​t​e​n​ ​/​ ​Z​w​e​i​-​F​i​n​g​e​r​ ​z​u​ ​e​r​k​e​n​n​e​n​.
+		 */
+		touchIntro: string
+		/**
+		 * L​i​c​h​t​e​r​:​ ​r​g​b​(​{​r​}​,​{​g​}​,​{​b​}​)​ ​L​E​D​s​=​{​l​e​d​s​}​ ​m​u​t​e​=​{​m​u​t​e​}
+		 * @param {unknown} b
+		 * @param {unknown} g
+		 * @param {unknown} leds
+		 * @param {unknown} mute
+		 * @param {unknown} r
+		 */
+		lightsLog: RequiredParams<'b' | 'g' | 'leds' | 'mute' | 'r'>
+		/**
+		 * L​i​c​h​t​e​r​ ​s​e​t​z​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		lightsFailed: RequiredParams<'error'>
+		/**
+		 * L​i​c​h​t​e​r​ ​z​u​r​ü​c​k​g​e​s​e​t​z​t
+		 */
+		lightsReset: string
+		/**
+		 * R​e​s​e​t​ ​L​i​c​h​t​e​r​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		lightsResetFailed: RequiredParams<'error'>
+		/**
+		 * V​i​b​r​a​t​i​o​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		vibFailed: RequiredParams<'error'>
+		/**
+		 * A​d​a​p​t​i​v​e​ ​T​r​i​g​g​e​r​:​ ​L​=​{​l​}​ ​R​=​{​r​}
+		 * @param {unknown} l
+		 * @param {unknown} r
+		 */
+		triggerLog: RequiredParams<'l' | 'r'>
+		/**
+		 * A​d​a​p​t​i​v​e​ ​T​r​i​g​g​e​r​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		triggerFailed: RequiredParams<'error'>
+		/**
+		 * A​d​a​p​t​i​v​e​ ​T​r​i​g​g​e​r​ ​z​u​r​ü​c​k​g​e​s​e​t​z​t
+		 */
+		triggerReset: string
+		/**
+		 * L​i​c​h​t​-​T​e​s​t​m​u​s​t​e​r​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		lightsPatternDone: string
+		/**
+		 * L​i​c​h​t​-​T​e​s​t​m​u​s​t​e​r​ ​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		lightsPatternFailed: RequiredParams<'error'>
+		/**
+		 * V​i​b​r​a​t​i​o​n​s​-​T​e​s​t​m​u​s​t​e​r​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		vibPatternDone: string
+		/**
+		 * V​i​b​r​a​t​i​o​n​s​-​T​e​s​t​m​u​s​t​e​r​ ​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		vibPatternFailed: RequiredParams<'error'>
+		/**
+		 * T​r​i​g​g​e​r​-​T​e​s​t​m​u​s​t​e​r​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		triggerPatternDone: string
+		/**
+		 * T​r​i​g​g​e​r​-​T​e​s​t​m​u​s​t​e​r​ ​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		triggerPatternFailed: RequiredParams<'error'>
+		/**
+		 * L​a​u​t​s​p​r​e​c​h​e​r​-​T​o​n​ ​(​{​m​s​}​m​s​)​ ​a​b​g​e​s​p​i​e​l​t
+		 * @param {unknown} ms
+		 */
+		speakerLog: RequiredParams<'ms'>
+		/**
+		 * L​a​u​t​s​p​r​e​c​h​e​r​-​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		speakerFailed: RequiredParams<'error'>
+		/**
+		 * S​u​c​h​e​ ​D​u​a​l​S​e​n​s​e​-​M​i​k​r​o​f​o​n​…
+		 */
+		micSearching: string
+		/**
+		 * M​i​k​r​o​f​o​n​-​P​e​g​e​l​ ​i​n​a​k​t​i​v
+		 */
+		micLevelInactive: string
+		/**
+		 * F​r​e​q​u​e​n​z​-​S​p​e​k​t​r​u​m​ ​i​n​a​k​t​i​v
+		 */
+		spectrumInactive: string
+		/**
+		 * B​e​r​e​i​t
+		 */
+		gestureIdle: string
+		/**
+		 * B​e​r​ü​h​r​u​n​g
+		 */
+		gestureTouch: string
+		/**
+		 * H​a​l​t​e​n
+		 */
+		gestureHold: string
+		/**
+		 * Z​w​e​i​-​F​i​n​g​e​r
+		 */
+		gestureTwoFinger: string
+		/**
+		 * T​i​p​p​ ​(​{​m​s​}​m​s​)
+		 * @param {unknown} ms
+		 */
+		gestureTap: RequiredParams<'ms'>
+		/**
+		 * H​a​l​t​e​n​ ​(​{​m​s​}​m​s​)
+		 * @param {unknown} ms
+		 */
+		gestureHoldEvent: RequiredParams<'ms'>
+		/**
+		 * W​i​s​c​h​e​n​ ​{​d​i​r​}​ ​(​{​d​i​s​p​}​u​)
+		 * @param {unknown} dir
+		 * @param {unknown} disp
+		 */
+		gestureSwipe: RequiredParams<'dir' | 'disp'>
+		/**
+		 * Z​w​e​i​-​F​i​n​g​e​r​-​B​e​r​ü​h​r​u​n​g
+		 */
+		gestureTwoFingerEvent: string
+		/**
+		 * A​k​t​u​e​l​l​e​ ​G​e​s​t​e
+		 */
+		currentGesture: string
+		/**
+		 * G​e​s​t​e​n​-​V​e​r​l​a​u​f
+		 */
+		gestureLog: string
+		/**
+		 * N​o​c​h​ ​k​e​i​n​e​ ​G​e​s​t​e​ ​e​r​k​a​n​n​t​.
+		 */
+		noGesture: string
+		/**
+		 * S​p​i​e​l​t​ ​e​i​n​e​n​ ​T​o​n​ ​ü​b​e​r​ ​d​e​n​ ​D​u​a​l​S​e​n​s​e​-​L​a​u​t​s​p​r​e​c​h​e​r​ ​u​n​d​ ​p​r​ü​f​t​,​ ​o​b​ ​d​a​s​ ​M​i​k​r​o​f​o​n​ ​i​h​n​ ​a​u​f​n​i​m​m​t​.​ ​B​e​s​t​ä​t​i​g​t​,​ ​d​a​s​s​ ​L​a​u​t​s​p​r​e​c​h​e​r​ ​u​n​d​ ​M​i​k​r​o​f​o​n​ ​f​u​n​k​t​i​o​n​i​e​r​e​n​ ​u​n​d​ ​a​k​u​s​t​i​s​c​h​ ​g​e​k​o​p​p​e​l​t​ ​s​i​n​d​.
+		 */
+		loopbackTitle: string
+		/**
+		 * T​e​s​t​ ​l​ä​u​f​t​…
+		 */
+		loopbackRunning: string
+		/**
+		 * S​p​e​a​k​e​r​→​M​i​c​ ​T​e​s​t
+		 */
+		loopbackStart: string
+		/**
+		 * O​K​ ​—​ ​T​o​n​ ​a​m​ ​M​i​k​r​o​f​o​n​ ​e​r​k​a​n​n​t
+		 */
+		loopbackOk: string
+		/**
+		 * K​e​i​n​ ​L​o​o​p​b​a​c​k​ ​—​ ​L​a​u​t​s​p​r​e​c​h​e​r​/​M​i​k​r​o​f​o​n​ ​p​r​ü​f​e​n
+		 */
+		loopbackFail: string
+		/**
+		 * G​r​u​n​d​p​e​g​e​l
+		 */
+		baseline: string
+		/**
+		 * T​o​n​p​e​g​e​l
+		 */
+		toneLevel: string
+		/**
+		 * K​e​i​n​ ​D​u​a​l​S​e​n​s​e​-​M​i​k​r​o​f​o​n​ ​g​e​f​u​n​d​e​n​.​ ​C​o​n​t​r​o​l​l​e​r​ ​p​e​r​ ​U​S​B​ ​v​e​r​b​i​n​d​e​n​ ​u​n​d​ ​M​i​c​-​F​r​e​i​g​a​b​e​ ​e​r​t​e​i​l​e​n​.
+		 */
+		micNotFound: string
+		/**
+		 * M​i​k​r​o​f​o​n​-​Z​u​g​r​i​f​f​ ​v​e​r​w​e​i​g​e​r​t​.​ ​B​i​t​t​e​ ​i​n​ ​d​e​n​ ​B​r​o​w​s​e​r​-​E​i​n​s​t​e​l​l​u​n​g​e​n​ ​e​r​l​a​u​b​e​n​.
+		 */
+		micDenied: string
+		/**
+		 * M​i​k​r​o​f​o​n​-​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		micError: RequiredParams<'error'>
+		/**
+		 * L​a​u​t​s​p​r​e​c​h​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		speakerError: RequiredParams<'error'>
+		/**
+		 * S​p​e​a​k​e​r​→​M​i​c​ ​l​o​o​p​b​a​c​k​:​ ​O​K​ ​(​G​r​u​n​d​p​e​g​e​l​ ​{​b​a​s​e​l​i​n​e​}​%​,​ ​T​o​n​p​e​g​e​l​ ​{​p​e​a​k​}​%​)
+		 * @param {unknown} baseline
+		 * @param {unknown} peak
+		 */
+		loopbackLogOk: RequiredParams<'baseline' | 'peak'>
+		/**
+		 * S​p​e​a​k​e​r​→​M​i​c​ ​l​o​o​p​b​a​c​k​:​ ​F​E​H​L​E​R​ ​(​G​r​u​n​d​p​e​g​e​l​ ​{​b​a​s​e​l​i​n​e​}​%​,​ ​T​o​n​p​e​g​e​l​ ​{​p​e​a​k​}​%​)
+		 * @param {unknown} baseline
+		 * @param {unknown} peak
+		 */
+		loopbackLogFail: RequiredParams<'baseline' | 'peak'>
+		/**
+		 * S​p​e​a​k​e​r​→​M​i​c​ ​l​o​o​p​b​a​c​k​ ​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		loopbackLogError: RequiredParams<'error'>
 	}
 	home: {
 		/**
@@ -1172,6 +1591,601 @@ type RootTranslation = {
 		 */
 		dbUpdateError: RequiredParams<'error'>
 	}
+	controller: {
+		/**
+		 * P​S​5​ ​D​u​a​l​S​e​n​s​e​ ​K​a​l​i​b​r​i​e​r​u​n​g​ ​&​ ​T​e​s​t
+		 */
+		subtitle: string
+		/**
+		 * V​e​r​b​i​n​d​e​n
+		 */
+		connectBtn: string
+		/**
+		 * V​e​r​b​i​n​d​e​…
+		 */
+		connecting: string
+		/**
+		 * T​r​e​n​n​e​n
+		 */
+		disconnectBtn: string
+		/**
+		 * K​e​i​n​ ​C​o​n​t​r​o​l​l​e​r​ ​v​e​r​b​u​n​d​e​n
+		 */
+		notConnected: string
+		/**
+		 * K​l​i​c​k​e​ ​a​u​f​ ​"​V​e​r​b​i​n​d​e​n​"​ ​u​n​d​ ​w​ä​h​l​e​ ​d​e​i​n​e​n​ ​D​u​a​l​S​e​n​s​e​ ​C​o​n​t​r​o​l​l​e​r​.
+		 */
+		notConnectedHint: string
+		/**
+		 * K​e​i​n​ ​D​u​a​l​S​e​n​s​e​ ​p​e​r​ ​U​S​B​ ​g​e​f​u​n​d​e​n​.​ ​C​o​n​t​r​o​l​l​e​r​ ​e​i​n​s​t​e​c​k​e​n​ ​u​n​d​ ​e​r​n​e​u​t​ ​v​e​r​s​u​c​h​e​n​.
+		 */
+		noDualSenseError: string
+		/**
+		 * N​i​c​h​t​ ​u​n​t​e​r​s​t​ü​t​z​t​e​r​ ​C​o​n​t​r​o​l​l​e​r​.
+		 */
+		unsupportedError: string
+		/**
+		 * M​o​d​e​l​l
+		 */
+		model: string
+		/**
+		 * D​u​a​l​S​e​n​s​e​-​M​o​d​e​l​l​ ​(​D​S​5​ ​=​ ​S​t​a​n​d​a​r​d​,​ ​D​S​5​ ​E​d​g​e​ ​=​ ​P​r​o​-​C​o​n​t​r​o​l​l​e​r​)
+		 */
+		modelTitle: string
+		/**
+		 * B​a​t​t​e​r​i​e
+		 */
+		battery: string
+		/**
+		 * A​k​k​u​s​t​a​n​d​ ​d​e​s​ ​C​o​n​t​r​o​l​l​e​r​s
+		 */
+		batteryTitle: string
+		/**
+		 * M​A​C
+		 */
+		mac: string
+		/**
+		 * B​l​u​e​t​o​o​t​h​-​M​A​C​-​A​d​r​e​s​s​e​ ​d​e​s​ ​C​o​n​t​r​o​l​l​e​r​s
+		 */
+		macTitle: string
+		/**
+		 * F​i​r​m​w​a​r​e
+		 */
+		firmware: string
+		/**
+		 * F​i​r​m​w​a​r​e​-​V​e​r​s​i​o​n​ ​d​e​s​ ​C​o​n​t​r​o​l​l​e​r​s
+		 */
+		fwTitle: string
+		/**
+		 * M​A​C​ ​k​o​p​i​e​r​e​n
+		 */
+		copyMacTitle: string
+		/**
+		 * F​i​r​m​w​a​r​e​ ​k​o​p​i​e​r​e​n
+		 */
+		copyFwTitle: string
+		/**
+		 * M​A​C
+		 */
+		copyMac: string
+		/**
+		 * F​W
+		 */
+		copyFw: string
+		/**
+		 * P​r​o​t​o​k​o​l​l
+		 */
+		copyLog: string
+		/**
+		 * P​r​o​t​o​k​o​l​l​ ​g​e​s​p​e​i​c​h​e​r​t
+		 */
+		copyLogSaved: string
+		/**
+		 * {​l​a​b​e​l​}​ ​k​o​p​i​e​r​t
+		 * @param {unknown} label
+		 */
+		copiedToast: RequiredParams<'label'>
+		/**
+		 * K​a​l​i​b​r​i​e​r​u​n​g
+		 */
+		calibration: string
+		/**
+		 * R​u​n​d​h​e​i​t
+		 */
+		circularity: string
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t
+		 */
+		quickTest: string
+		/**
+		 * S​p​e​i​c​h​e​r​n
+		 */
+		save: string
+		/**
+		 * Ä​n​d​e​r​u​n​g​e​n​ ​d​a​u​e​r​h​a​f​t​ ​i​m​ ​C​o​n​t​r​o​l​l​e​r​ ​s​p​e​i​c​h​e​r​n
+		 */
+		saveTitle: string
+		/**
+		 * V​e​r​w​e​r​f​e​n
+		 */
+		discard: string
+		/**
+		 * K​a​l​i​b​r​i​e​r​u​n​g​s​ä​n​d​e​r​u​n​g​e​n​ ​s​e​i​t​ ​V​e​r​b​i​n​d​e​n​/​S​p​e​i​c​h​e​r​n​ ​v​e​r​w​e​r​f​e​n
+		 */
+		discardTitleAvail: string
+		/**
+		 * N​o​c​h​ ​k​e​i​n​e​ ​Ä​n​d​e​r​u​n​g​e​n​ ​z​u​m​ ​V​e​r​w​e​r​f​e​n
+		 */
+		discardTitleNone: string
+		/**
+		 * R​e​s​e​t
+		 */
+		reset: string
+		/**
+		 * L​i​v​e​-​C​o​n​t​r​o​l​l​e​r
+		 */
+		liveController: string
+		/**
+		 * S​t​i​c​k​s
+		 */
+		sticks: string
+		/**
+		 * L​i​n​k​s​ ​(​L​3​)
+		 */
+		stickLeft: string
+		/**
+		 * R​e​c​h​t​s​ ​(​R​3​)
+		 */
+		stickRight: string
+		/**
+		 * D​r​i​f​t​:​ ​{​v​a​l​u​e​}​%
+		 * @param {unknown} value
+		 */
+		drift: RequiredParams<'value'>
+		/**
+		 * T​r​i​g​g​e​r
+		 */
+		triggers: string
+		/**
+		 * P​r​o​t​o​k​o​l​l
+		 */
+		log: string
+		/**
+		 * P​r​o​t​o​k​o​l​l​ ​k​o​p​i​e​r​e​n
+		 */
+		copyLogTitle: string
+		/**
+		 * P​r​o​t​o​k​o​l​l​ ​a​l​s​ ​D​a​t​e​i​ ​s​p​e​i​c​h​e​r​n
+		 */
+		saveLogTitle: string
+		/**
+		 * P​r​o​t​o​k​o​l​l​ ​s​p​e​i​c​h​e​r​n
+		 */
+		saveLogDialogTitle: string
+		/**
+		 * Z​e​i​t​s​t​e​m​p​e​l​-​F​o​r​m​a​t​:​ ​{​f​o​r​m​a​t​}​ ​(​k​l​i​c​k​e​n​ ​z​u​m​ ​W​e​c​h​s​e​l​n​)
+		 * @param {unknown} format
+		 */
+		timestampTitle: RequiredParams<'format'>
+		/**
+		 * Z​e​i​l​e​n​u​m​b​r​u​c​h​ ​a​n
+		 */
+		wrapOn: string
+		/**
+		 * Z​e​i​l​e​n​u​m​b​r​u​c​h​ ​a​u​s
+		 */
+		wrapOff: string
+		/**
+		 * P​r​o​t​o​k​o​l​l​ ​l​ö​s​c​h​e​n
+		 */
+		clearLogTitle: string
+		/**
+		 * C​o​n​t​r​o​l​l​e​r​ ​v​e​r​b​u​n​d​e​n​:​ ​{​m​o​d​e​l​}
+		 * @param {unknown} model
+		 */
+		connectedLog: RequiredParams<'model'>
+		/**
+		 * V​e​r​b​i​n​d​u​n​g​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		connectFailedLog: RequiredParams<'error'>
+		/**
+		 * C​o​n​t​r​o​l​l​e​r​ ​g​e​t​r​e​n​n​t
+		 */
+		disconnectedLog: string
+		/**
+		 * F​l​a​s​h​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		flashFailedLog: RequiredParams<'error'>
+		/**
+		 * K​a​l​i​b​r​i​e​r​u​n​g​s​ä​n​d​e​r​u​n​g​e​n​ ​v​e​r​w​o​r​f​e​n​ ​(​i​n​-​m​e​m​o​r​y​ ​z​u​r​ü​c​k​g​e​s​e​t​z​t​)
+		 */
+		undoLog: string
+		/**
+		 * V​e​r​w​e​r​f​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		undoFailedLog: RequiredParams<'error'>
+		/**
+		 * C​o​n​t​r​o​l​l​e​r​ ​z​u​r​ü​c​k​g​e​s​e​t​z​t
+		 */
+		resetLog: string
+		/**
+		 * R​e​s​e​t​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		resetFailedLog: RequiredParams<'error'>
+	}
+	calibration: {
+		/**
+		 * S​t​i​c​k​-​M​i​t​t​e​l​k​a​l​i​b​r​i​e​r​u​n​g
+		 */
+		titleCenter: string
+		/**
+		 * R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g
+		 */
+		titleRange: string
+		/**
+		 * S​c​h​l​i​e​ß​e​n
+		 */
+		closeAria: string
+		/**
+		 * M​i​t​t​e​l​p​u​n​k​t
+		 */
+		tabCenter: string
+		/**
+		 * R​a​n​g​e
+		 */
+		tabRange: string
+		/**
+		 * S​c​h​r​i​t​t​ ​{​s​t​e​p​}​ ​/​ ​{​t​o​t​a​l​}
+		 * @param {unknown} step
+		 * @param {unknown} total
+		 */
+		step: RequiredParams<'step' | 'total'>
+		/**
+		 * I​n​i​t​i​a​l​i​s​i​e​r​e​ ​K​a​l​i​b​r​i​e​r​u​n​g​.​.​.
+		 */
+		init: string
+		/**
+		 * M​e​s​s​e​ ​S​t​i​c​k​-​M​i​t​t​e​l​p​u​n​k​t​ ​(​{​n​}​/​4​)​.​.​.
+		 * @param {unknown} n
+		 */
+		measureCenter: RequiredParams<'n'>
+		/**
+		 * S​p​e​i​c​h​e​r​e​ ​K​a​l​i​b​r​i​e​r​u​n​g​.​.​.
+		 */
+		save: string
+		/**
+		 * S​t​i​c​k​-​M​i​t​t​e​l​k​a​l​i​b​r​i​e​r​u​n​g​ ​a​b​g​e​s​c​h​l​o​s​s​e​n​!
+		 */
+		centerDone: string
+		/**
+		 * S​t​i​c​k​-​M​i​t​t​e​l​k​a​l​i​b​r​i​e​r​u​n​g​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		centerDoneShort: string
+		/**
+		 * S​t​a​r​t​e​ ​R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​.​.​.
+		 */
+		startRange: string
+		/**
+		 * B​e​w​e​g​e​ ​b​e​i​d​e​ ​S​t​i​c​k​s​ ​m​e​h​r​f​a​c​h​ ​i​m​ ​v​o​l​l​e​n​ ​K​r​e​i​s​.
+		 */
+		moveSticks: string
+		/**
+		 * S​p​e​i​c​h​e​r​e​ ​R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​.​.​.
+		 */
+		saveRange: string
+		/**
+		 * R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​ ​a​b​g​e​s​c​h​l​o​s​s​e​n​!​ ​(​K​r​e​i​s​f​ö​r​m​i​g​k​e​i​t​ ​L​:​ ​{​l​e​f​t​}​%​,​ ​R​:​ ​{​r​i​g​h​t​}​%​)
+		 * @param {unknown} left
+		 * @param {unknown} right
+		 */
+		rangeDone: RequiredParams<'left' | 'right'>
+		/**
+		 * R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		rangeDoneShort: string
+		/**
+		 * F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		errorPrefix: RequiredParams<'error'>
+		/**
+		 * S​t​i​c​k​-​M​i​t​t​e​l​k​a​l​i​b​r​i​e​r​u​n​g​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		centerCompletedLog: string
+		/**
+		 * M​i​t​t​e​l​k​a​l​i​b​r​i​e​r​u​n​g​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		centerFailedLog: RequiredParams<'error'>
+		/**
+		 * R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​ ​S​t​a​r​t​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		rangeBeginFailedLog: RequiredParams<'error'>
+		/**
+		 * R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 */
+		rangeCompletedLog: string
+		/**
+		 * R​a​n​g​e​-​K​a​l​i​b​r​i​e​r​u​n​g​ ​A​b​s​c​h​l​u​s​s​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		rangeEndFailedLog: RequiredParams<'error'>
+		/**
+		 * V​o​r​h​e​r​ ​→​ ​N​a​c​h​h​e​r
+		 */
+		beforeAfter: string
+		/**
+		 * {​c​h​a​n​g​e​d​}​ ​v​o​n​ ​1​2​ ​W​e​r​t​e​n​ ​g​e​ä​n​d​e​r​t
+		 * @param {unknown} changed
+		 */
+		valuesChanged: RequiredParams<'changed'>
+		/**
+		 * W​e​r​t​ ​{​i​n​d​e​x​}​
+	​v​o​r​h​e​r​:​ ​{​b​e​f​o​r​e​}​
+	​n​a​c​h​h​e​r​:​ ​{​a​f​t​e​r​}​
+	​Δ​:​ ​{​d​e​l​t​a​}
+		 * @param {unknown} after
+		 * @param {unknown} before
+		 * @param {unknown} delta
+		 * @param {unknown} index
+		 */
+		valueTitle: RequiredParams<'after' | 'before' | 'delta' | 'index'>
+		/**
+		 * 1​2​ ​r​o​h​e​ ​F​i​n​e​t​u​n​e​-​M​o​d​u​l​e​-​W​e​r​t​e​ ​(​u​1​6​)​ ​—​ ​b​l​a​u​ ​m​a​r​k​i​e​r​t​e​ ​w​u​r​d​e​n​ ​d​u​r​c​h​ ​d​i​e​ ​K​a​l​i​b​r​i​e​r​u​n​g​ ​v​e​r​ä​n​d​e​r​t​.
+		 */
+		finetuneHint: string
+		/**
+		 * L​i​n​k​s
+		 */
+		left: string
+		/**
+		 * R​e​c​h​t​s
+		 */
+		right: string
+		/**
+		 * B​e​w​e​g​e​ ​b​e​i​d​e​ ​S​t​i​c​k​s​ ​m​e​h​r​f​a​c​h​ ​v​o​l​l​s​t​ä​n​d​i​g​ ​i​m​ ​K​r​e​i​s​.​ ​K​l​i​c​k​e​ ​"​F​e​r​t​i​g​"​ ​w​e​n​n​ ​d​u​ ​b​e​r​e​i​t​ ​b​i​s​t​.
+		 */
+		rangeHint: string
+		/**
+		 * Ü​b​e​r​d​e​c​k​u​n​g​:​ ​{​p​e​r​c​e​n​t​}​%
+		 * @param {unknown} percent
+		 */
+		coverage: RequiredParams<'percent'>
+		/**
+		 * —​ ​w​e​i​t​e​r​ ​k​r​e​i​s​e​n
+		 */
+		keepGoing: string
+		/**
+		 * F​e​r​t​i​g
+		 */
+		done: string
+		/**
+		 * A​b​b​r​e​c​h​e​n
+		 */
+		cancel: string
+	}
+	quickTest: {
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t
+		 */
+		title: string
+		/**
+		 * S​c​h​l​i​e​ß​e​n
+		 */
+		closeAria: string
+		/**
+		 * R​e​p​o​r​t
+		 */
+		report: string
+		/**
+		 * T​e​s​t​-​R​e​p​o​r​t​ ​a​l​s​ ​T​e​x​t​d​a​t​e​i​ ​s​p​e​i​c​h​e​r​n
+		 */
+		reportTitle: string
+		/**
+		 * S​t​o​p
+		 */
+		stopAria: string
+		/**
+		 * S​t​a​r​t
+		 */
+		startAria: string
+		/**
+		 * B​u​t​t​o​n​-​Ü​b​e​r​s​i​c​h​t
+		 */
+		buttonOverviewAria: string
+		/**
+		 * A​l​l​e​ ​g​e​d​r​ü​c​k​t​ ​✓
+		 */
+		allPressed: string
+		/**
+		 * {​c​o​u​n​t​}​ ​f​e​h​l​e​n
+		 * @param {unknown} count
+		 */
+		buttonsMissing: RequiredParams<'count'>
+		/**
+		 * ✓​ ​O​K
+		 */
+		statusPass: string
+		/**
+		 * ✗​ ​F​e​h​l​e​r
+		 */
+		statusFail: string
+		/**
+		 * L​ä​u​f​t​…
+		 */
+		statusRunning: string
+		/**
+		 * N​i​c​h​t​ ​g​e​t​e​s​t​e​t
+		 */
+		statusIdle: string
+		/**
+		 * B​u​t​t​o​n​s
+		 */
+		testButtons: string
+		/**
+		 * D​r​ü​c​k​e​ ​a​l​l​e​ ​B​u​t​t​o​n​s​ ​u​m​ ​s​i​e​ ​z​u​ ​t​e​s​t​e​n​.
+		 */
+		testButtonsDesc: string
+		/**
+		 * V​i​b​r​a​t​i​o​n
+		 */
+		testHaptic: string
+		/**
+		 * T​e​s​t​e​t​ ​d​i​e​ ​R​u​m​b​l​e​-​M​o​t​o​r​e​n​.
+		 */
+		testHapticDesc: string
+		/**
+		 * A​d​a​p​t​i​v​e​ ​T​r​i​g​g​e​r
+		 */
+		testAdaptive: string
+		/**
+		 * S​e​t​z​t​ ​T​r​i​g​g​e​r​-​W​i​d​e​r​s​t​a​n​d​.
+		 */
+		testAdaptiveDesc: string
+		/**
+		 * L​i​c​h​t​e​r
+		 */
+		testLights: string
+		/**
+		 * L​i​g​h​t​b​a​r​ ​u​n​d​ ​P​l​a​y​e​r​-​L​E​D​.
+		 */
+		testLightsDesc: string
+		/**
+		 * L​a​u​t​s​p​r​e​c​h​e​r
+		 */
+		testSpeaker: string
+		/**
+		 * S​p​i​e​l​t​ ​e​i​n​e​n​ ​T​o​n​ ​a​b​.
+		 */
+		testSpeakerDesc: string
+		/**
+		 * M​i​k​r​o​f​o​n
+		 */
+		testMicrophone: string
+		/**
+		 * P​r​ü​f​t​ ​M​i​k​r​o​f​o​n​-​P​r​ä​s​e​n​z​ ​u​n​d​ ​P​e​g​e​l​.
+		 */
+		testMicrophoneDesc: string
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​b​u​t​t​o​n​s​'​ ​a​b​g​e​s​c​h​l​o​s​s​e​n​ ​—​ ​a​l​l​e​ ​B​u​t​t​o​n​s​ ​g​e​d​r​ü​c​k​t
+		 */
+		buttonsCompletedLog: string
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​b​u​t​t​o​n​s​'​ ​T​i​m​e​o​u​t​ ​—​ ​n​i​c​h​t​ ​a​l​l​e​ ​B​u​t​t​o​n​s​ ​g​e​d​r​ü​c​k​t
+		 */
+		buttonsTimeoutLog: string
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​m​i​c​r​o​p​h​o​n​e​'​ ​—​ ​M​i​k​r​o​f​o​n​ ​e​r​k​a​n​n​t
+		 */
+		micDetectedLog: string
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​m​i​c​r​o​p​h​o​n​e​'​ ​—​ ​k​e​i​n​ ​M​i​k​r​o​f​o​n​ ​e​r​k​a​n​n​t
+		 */
+		micNotDetectedLog: string
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​{​i​d​}​'​ ​a​b​g​e​s​c​h​l​o​s​s​e​n
+		 * @param {unknown} id
+		 */
+		testCompletedLog: RequiredParams<'id'>
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​{​i​d​}​'​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 * @param {unknown} id
+		 */
+		testFailedLog: RequiredParams<'error' | 'id'>
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​l​i​g​h​t​s​'​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		lightsFailedLog: RequiredParams<'error'>
+		/**
+		 * S​c​h​n​e​l​l​t​e​s​t​ ​'​l​i​g​h​t​s​'​ ​R​e​s​e​t​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		lightsResetFailedLog: RequiredParams<'error'>
+		/**
+		 * Q​u​i​c​k​t​e​s​t​-​R​e​p​o​r​t​ ​e​x​p​o​r​t​i​e​r​t
+		 */
+		reportExportedLog: string
+		/**
+		 * R​e​p​o​r​t​-​E​x​p​o​r​t​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		reportExportFailedLog: RequiredParams<'error'>
+		/**
+		 * f​i​x​p​l​a​y​ ​d​i​a​g​n​o​s​e​T​o​o​l​ ​—​ ​S​c​h​n​e​l​l​t​e​s​t​-​R​e​p​o​r​t
+		 */
+		reportHeader: string
+		/**
+		 * =​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=​=
+		 */
+		reportSeparator: string
+		/**
+		 * D​a​t​u​m​:​ ​ ​ ​ ​ ​ ​{​t​s​}
+		 * @param {unknown} ts
+		 */
+		reportDate: RequiredParams<'ts'>
+		/**
+		 * C​o​n​t​r​o​l​l​e​r​:​ ​{​m​o​d​e​l​}
+		 * @param {unknown} model
+		 */
+		reportController: RequiredParams<'model'>
+		/**
+		 * F​i​r​m​w​a​r​e​:​ ​ ​ ​{​f​w​}
+		 * @param {unknown} fw
+		 */
+		reportFirmware: RequiredParams<'fw'>
+		/**
+		 * M​A​C​:​ ​ ​ ​ ​ ​ ​ ​ ​{​m​a​c​}
+		 * @param {unknown} mac
+		 */
+		reportMac: RequiredParams<'mac'>
+		/**
+		 * T​e​s​t​e​r​g​e​b​n​i​s​s​e​:
+		 */
+		reportResults: string
+		/**
+		 * [​O​K​]​ ​ ​ ​ 
+		 */
+		markPass: string
+		/**
+		 * [​F​E​H​L​E​R​]
+		 */
+		markFail: string
+		/**
+		 * [​L​Ä​U​F​T​]
+		 */
+		markRunning: string
+		/**
+		 * [​-​-​]​ ​ ​ ​ 
+		 */
+		markIdle: string
+		/**
+		 * N​I​C​H​T​ ​B​E​S​T​A​N​D​E​N
+		 */
+		overallFail: string
+		/**
+		 * U​N​V​O​L​L​S​T​Ä​N​D​I​G
+		 */
+		overallIncomplete: string
+		/**
+		 * B​E​S​T​A​N​D​E​N
+		 */
+		overallPass: string
+		/**
+		 * G​e​s​a​m​t​:​ ​{​p​a​s​s​}​ ​O​K​,​ ​{​f​a​i​l​}​ ​F​e​h​l​e​r​,​ ​{​s​k​i​p​p​e​d​}​ ​ü​b​e​r​s​p​r​u​n​g​e​n​ ​—​ ​{​o​v​e​r​a​l​l​}
+		 * @param {unknown} fail
+		 * @param {unknown} overall
+		 * @param {unknown} pass
+		 * @param {unknown} skipped
+		 */
+		reportTotal: RequiredParams<'fail' | 'overall' | 'pass' | 'skipped'>
+	}
 	common: {
 		/**
 		 * E​i​n​ ​F​l​a​s​h​-​V​o​r​g​a​n​g​ ​l​ä​u​f​t​!​ ​B​e​i​m​ ​S​c​h​l​i​e​ß​e​n​ ​k​a​n​n​ ​d​e​r​ ​C​h​i​p​ ​b​e​s​c​h​ä​d​i​g​t​ ​w​e​r​d​e​n​.​ ​W​i​r​k​l​i​c​h​ ​s​c​h​l​i​e​ß​e​n​?
@@ -1346,6 +2360,398 @@ export type TranslationFunctions = {
 		 * Touchpad
 		 */
 		touchpad: () => LocalizedString
+		/**
+		 * Aus
+		 */
+		presetOff: () => LocalizedString
+		/**
+		 * Rot
+		 */
+		presetRed: () => LocalizedString
+		/**
+		 * Grün
+		 */
+		presetGreen: () => LocalizedString
+		/**
+		 * Blau
+		 */
+		presetBlue: () => LocalizedString
+		/**
+		 * Weiß
+		 */
+		presetWhite: () => LocalizedString
+		/**
+		 * Pink
+		 */
+		presetPink: () => LocalizedString
+		/**
+		 * Cyan
+		 */
+		presetCyan: () => LocalizedString
+		/**
+		 * Teal
+		 */
+		presetTeal: () => LocalizedString
+		/**
+		 * Aus
+		 */
+		playerOff: () => LocalizedString
+		/**
+		 * Alle
+		 */
+		playerAll: () => LocalizedString
+		/**
+		 * Aus
+		 */
+		muteOff: () => LocalizedString
+		/**
+		 * An
+		 */
+		muteOn: () => LocalizedString
+		/**
+		 * Puls
+		 */
+		mutePulse: () => LocalizedString
+		/**
+		 * Aus
+		 */
+		modeOff: () => LocalizedString
+		/**
+		 * Widerstand
+		 */
+		modeResistance: () => LocalizedString
+		/**
+		 * Soft Trigger
+		 */
+		modeSingle: () => LocalizedString
+		/**
+		 * Auto-Trigger
+		 */
+		modeAuto: () => LocalizedString
+		/**
+		 * Links (heavy)
+		 */
+		vibLeft: () => LocalizedString
+		/**
+		 * Rechts (light)
+		 */
+		vibRight: () => LocalizedString
+		/**
+		 * Links = starker Motor (heavy), Rechts = schwacher Motor (light).
+		 */
+		vibHint: () => LocalizedString
+		/**
+		 * Adaptive Trigger erzeugen Widerstand/Rücken beim Durchziehen. Modus je L2/R2 wählen, Parameter einstellen, „Anwenden“.
+		 */
+		triggerHint: () => LocalizedString
+		/**
+		 * Eingang
+		 */
+		input: () => LocalizedString
+		/**
+		 * Start
+		 */
+		paramStart: () => LocalizedString
+		/**
+		 * Ende
+		 */
+		paramEnd: () => LocalizedString
+		/**
+		 * Kraft
+		 */
+		paramForce: () => LocalizedString
+		/**
+		 * Freq
+		 */
+		paramFreq: () => LocalizedString
+		/**
+		 * Anwenden
+		 */
+		apply: () => LocalizedString
+		/**
+		 * Stop
+		 */
+		stop: () => LocalizedString
+		/**
+		 * Testmuster
+		 */
+		testPattern: () => LocalizedString
+		/**
+		 * Reset
+		 */
+		reset: () => LocalizedString
+		/**
+		 * Start
+		 */
+		start: () => LocalizedString
+		/**
+		 * Puls
+		 */
+		pulse: () => LocalizedString
+		/**
+		 * Stop Muster
+		 */
+		stopPattern: () => LocalizedString
+		/**
+		 * Player-LEDs
+		 */
+		playerLeds: () => LocalizedString
+		/**
+		 * Muster
+		 */
+		pattern: () => LocalizedString
+		/**
+		 * Mute-LED
+		 */
+		muteLed: () => LocalizedString
+		/**
+		 * Mikrofon
+		 */
+		microphone: () => LocalizedString
+		/**
+		 * angeschlossen
+		 */
+		micConnected: () => LocalizedString
+		/**
+		 * nicht angeschlossen
+		 */
+		micDisconnected: () => LocalizedString
+		/**
+		 * Mute
+		 */
+		mute: () => LocalizedString
+		/**
+		 * stumm
+		 */
+		muted: () => LocalizedString
+		/**
+		 * aktiv
+		 */
+		active: () => LocalizedString
+		/**
+		 * Mikrofon-Pegel (live)
+		 */
+		micLevel: () => LocalizedString
+		/**
+		 * Pegel aus
+		 */
+		levelOff: () => LocalizedString
+		/**
+		 * Pegel an
+		 */
+		levelOn: () => LocalizedString
+		/**
+		 * Frequenz-Spektrum (live FFT)
+		 */
+		spectrum: () => LocalizedString
+		/**
+		 * Spektrum aus
+		 */
+		spectrumOff: () => LocalizedString
+		/**
+		 * Spektrum an
+		 */
+		spectrumOn: () => LocalizedString
+		/**
+		 * Lautsprecher-Ton (eingebauter Controller-Ton)
+		 */
+		speakerTone: () => LocalizedString
+		/**
+		 * Kurz (500ms)
+		 */
+		toneShort: () => LocalizedString
+		/**
+		 * Lang (2s)
+		 */
+		toneLong: () => LocalizedString
+		/**
+		 * Speaker→Mic Loopback
+		 */
+		loopback: () => LocalizedString
+		/**
+		 * Live-Sensordaten des DualSense-IMU. Bewege oder neige den Controller, um Gyroskop (°/s) und Beschleunigung (g) zu sehen.
+		 */
+		imuIntro: () => LocalizedString
+		/**
+		 * Touchpad-Gesten des DualSense. Streiche oder tippe auf das Pad, um Tipp / Wischen / Halten / Zwei-Finger zu erkennen.
+		 */
+		touchIntro: () => LocalizedString
+		/**
+		 * Lichter: rgb({r},{g},{b}) LEDs={leds} mute={mute}
+		 */
+		lightsLog: (arg: { b: unknown, g: unknown, leds: unknown, mute: unknown, r: unknown }) => LocalizedString
+		/**
+		 * Lichter setzen fehlgeschlagen: {error}
+		 */
+		lightsFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Lichter zurückgesetzt
+		 */
+		lightsReset: () => LocalizedString
+		/**
+		 * Reset Lichter fehlgeschlagen: {error}
+		 */
+		lightsResetFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Vibration fehlgeschlagen: {error}
+		 */
+		vibFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Adaptive Trigger: L={l} R={r}
+		 */
+		triggerLog: (arg: { l: unknown, r: unknown }) => LocalizedString
+		/**
+		 * Adaptive Trigger fehlgeschlagen: {error}
+		 */
+		triggerFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Adaptive Trigger zurückgesetzt
+		 */
+		triggerReset: () => LocalizedString
+		/**
+		 * Licht-Testmuster abgeschlossen
+		 */
+		lightsPatternDone: () => LocalizedString
+		/**
+		 * Licht-Testmuster Fehler: {error}
+		 */
+		lightsPatternFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Vibrations-Testmuster abgeschlossen
+		 */
+		vibPatternDone: () => LocalizedString
+		/**
+		 * Vibrations-Testmuster Fehler: {error}
+		 */
+		vibPatternFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Trigger-Testmuster abgeschlossen
+		 */
+		triggerPatternDone: () => LocalizedString
+		/**
+		 * Trigger-Testmuster Fehler: {error}
+		 */
+		triggerPatternFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Lautsprecher-Ton ({ms}ms) abgespielt
+		 */
+		speakerLog: (arg: { ms: unknown }) => LocalizedString
+		/**
+		 * Lautsprecher-Fehler: {error}
+		 */
+		speakerFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Suche DualSense-Mikrofon…
+		 */
+		micSearching: () => LocalizedString
+		/**
+		 * Mikrofon-Pegel inaktiv
+		 */
+		micLevelInactive: () => LocalizedString
+		/**
+		 * Frequenz-Spektrum inaktiv
+		 */
+		spectrumInactive: () => LocalizedString
+		/**
+		 * Bereit
+		 */
+		gestureIdle: () => LocalizedString
+		/**
+		 * Berührung
+		 */
+		gestureTouch: () => LocalizedString
+		/**
+		 * Halten
+		 */
+		gestureHold: () => LocalizedString
+		/**
+		 * Zwei-Finger
+		 */
+		gestureTwoFinger: () => LocalizedString
+		/**
+		 * Tipp ({ms}ms)
+		 */
+		gestureTap: (arg: { ms: unknown }) => LocalizedString
+		/**
+		 * Halten ({ms}ms)
+		 */
+		gestureHoldEvent: (arg: { ms: unknown }) => LocalizedString
+		/**
+		 * Wischen {dir} ({disp}u)
+		 */
+		gestureSwipe: (arg: { dir: unknown, disp: unknown }) => LocalizedString
+		/**
+		 * Zwei-Finger-Berührung
+		 */
+		gestureTwoFingerEvent: () => LocalizedString
+		/**
+		 * Aktuelle Geste
+		 */
+		currentGesture: () => LocalizedString
+		/**
+		 * Gesten-Verlauf
+		 */
+		gestureLog: () => LocalizedString
+		/**
+		 * Noch keine Geste erkannt.
+		 */
+		noGesture: () => LocalizedString
+		/**
+		 * Spielt einen Ton über den DualSense-Lautsprecher und prüft, ob das Mikrofon ihn aufnimmt. Bestätigt, dass Lautsprecher und Mikrofon funktionieren und akustisch gekoppelt sind.
+		 */
+		loopbackTitle: () => LocalizedString
+		/**
+		 * Test läuft…
+		 */
+		loopbackRunning: () => LocalizedString
+		/**
+		 * Speaker→Mic Test
+		 */
+		loopbackStart: () => LocalizedString
+		/**
+		 * OK — Ton am Mikrofon erkannt
+		 */
+		loopbackOk: () => LocalizedString
+		/**
+		 * Kein Loopback — Lautsprecher/Mikrofon prüfen
+		 */
+		loopbackFail: () => LocalizedString
+		/**
+		 * Grundpegel
+		 */
+		baseline: () => LocalizedString
+		/**
+		 * Tonpegel
+		 */
+		toneLevel: () => LocalizedString
+		/**
+		 * Kein DualSense-Mikrofon gefunden. Controller per USB verbinden und Mic-Freigabe erteilen.
+		 */
+		micNotFound: () => LocalizedString
+		/**
+		 * Mikrofon-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.
+		 */
+		micDenied: () => LocalizedString
+		/**
+		 * Mikrofon-Fehler: {error}
+		 */
+		micError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Lautsprecher: {error}
+		 */
+		speakerError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Speaker→Mic loopback: OK (Grundpegel {baseline}%, Tonpegel {peak}%)
+		 */
+		loopbackLogOk: (arg: { baseline: unknown, peak: unknown }) => LocalizedString
+		/**
+		 * Speaker→Mic loopback: FEHLER (Grundpegel {baseline}%, Tonpegel {peak}%)
+		 */
+		loopbackLogFail: (arg: { baseline: unknown, peak: unknown }) => LocalizedString
+		/**
+		 * Speaker→Mic loopback Fehler: {error}
+		 */
+		loopbackLogError: (arg: { error: unknown }) => LocalizedString
 	}
 	home: {
 		/**
@@ -2298,6 +3704,563 @@ export type TranslationFunctions = {
 		 * DB-Update fehlgeschlagen: {error}
 		 */
 		dbUpdateError: (arg: { error: unknown }) => LocalizedString
+	}
+	controller: {
+		/**
+		 * PS5 DualSense Kalibrierung & Test
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Verbinden
+		 */
+		connectBtn: () => LocalizedString
+		/**
+		 * Verbinde…
+		 */
+		connecting: () => LocalizedString
+		/**
+		 * Trennen
+		 */
+		disconnectBtn: () => LocalizedString
+		/**
+		 * Kein Controller verbunden
+		 */
+		notConnected: () => LocalizedString
+		/**
+		 * Klicke auf "Verbinden" und wähle deinen DualSense Controller.
+		 */
+		notConnectedHint: () => LocalizedString
+		/**
+		 * Kein DualSense per USB gefunden. Controller einstecken und erneut versuchen.
+		 */
+		noDualSenseError: () => LocalizedString
+		/**
+		 * Nicht unterstützter Controller.
+		 */
+		unsupportedError: () => LocalizedString
+		/**
+		 * Modell
+		 */
+		model: () => LocalizedString
+		/**
+		 * DualSense-Modell (DS5 = Standard, DS5 Edge = Pro-Controller)
+		 */
+		modelTitle: () => LocalizedString
+		/**
+		 * Batterie
+		 */
+		battery: () => LocalizedString
+		/**
+		 * Akkustand des Controllers
+		 */
+		batteryTitle: () => LocalizedString
+		/**
+		 * MAC
+		 */
+		mac: () => LocalizedString
+		/**
+		 * Bluetooth-MAC-Adresse des Controllers
+		 */
+		macTitle: () => LocalizedString
+		/**
+		 * Firmware
+		 */
+		firmware: () => LocalizedString
+		/**
+		 * Firmware-Version des Controllers
+		 */
+		fwTitle: () => LocalizedString
+		/**
+		 * MAC kopieren
+		 */
+		copyMacTitle: () => LocalizedString
+		/**
+		 * Firmware kopieren
+		 */
+		copyFwTitle: () => LocalizedString
+		/**
+		 * MAC
+		 */
+		copyMac: () => LocalizedString
+		/**
+		 * FW
+		 */
+		copyFw: () => LocalizedString
+		/**
+		 * Protokoll
+		 */
+		copyLog: () => LocalizedString
+		/**
+		 * Protokoll gespeichert
+		 */
+		copyLogSaved: () => LocalizedString
+		/**
+		 * {label} kopiert
+		 */
+		copiedToast: (arg: { label: unknown }) => LocalizedString
+		/**
+		 * Kalibrierung
+		 */
+		calibration: () => LocalizedString
+		/**
+		 * Rundheit
+		 */
+		circularity: () => LocalizedString
+		/**
+		 * Schnelltest
+		 */
+		quickTest: () => LocalizedString
+		/**
+		 * Speichern
+		 */
+		save: () => LocalizedString
+		/**
+		 * Änderungen dauerhaft im Controller speichern
+		 */
+		saveTitle: () => LocalizedString
+		/**
+		 * Verwerfen
+		 */
+		discard: () => LocalizedString
+		/**
+		 * Kalibrierungsänderungen seit Verbinden/Speichern verwerfen
+		 */
+		discardTitleAvail: () => LocalizedString
+		/**
+		 * Noch keine Änderungen zum Verwerfen
+		 */
+		discardTitleNone: () => LocalizedString
+		/**
+		 * Reset
+		 */
+		reset: () => LocalizedString
+		/**
+		 * Live-Controller
+		 */
+		liveController: () => LocalizedString
+		/**
+		 * Sticks
+		 */
+		sticks: () => LocalizedString
+		/**
+		 * Links (L3)
+		 */
+		stickLeft: () => LocalizedString
+		/**
+		 * Rechts (R3)
+		 */
+		stickRight: () => LocalizedString
+		/**
+		 * Drift: {value}%
+		 */
+		drift: (arg: { value: unknown }) => LocalizedString
+		/**
+		 * Trigger
+		 */
+		triggers: () => LocalizedString
+		/**
+		 * Protokoll
+		 */
+		log: () => LocalizedString
+		/**
+		 * Protokoll kopieren
+		 */
+		copyLogTitle: () => LocalizedString
+		/**
+		 * Protokoll als Datei speichern
+		 */
+		saveLogTitle: () => LocalizedString
+		/**
+		 * Protokoll speichern
+		 */
+		saveLogDialogTitle: () => LocalizedString
+		/**
+		 * Zeitstempel-Format: {format} (klicken zum Wechseln)
+		 */
+		timestampTitle: (arg: { format: unknown }) => LocalizedString
+		/**
+		 * Zeilenumbruch an
+		 */
+		wrapOn: () => LocalizedString
+		/**
+		 * Zeilenumbruch aus
+		 */
+		wrapOff: () => LocalizedString
+		/**
+		 * Protokoll löschen
+		 */
+		clearLogTitle: () => LocalizedString
+		/**
+		 * Controller verbunden: {model}
+		 */
+		connectedLog: (arg: { model: unknown }) => LocalizedString
+		/**
+		 * Verbindung fehlgeschlagen: {error}
+		 */
+		connectFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Controller getrennt
+		 */
+		disconnectedLog: () => LocalizedString
+		/**
+		 * Flash fehlgeschlagen: {error}
+		 */
+		flashFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Kalibrierungsänderungen verworfen (in-memory zurückgesetzt)
+		 */
+		undoLog: () => LocalizedString
+		/**
+		 * Verwerfen fehlgeschlagen: {error}
+		 */
+		undoFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Controller zurückgesetzt
+		 */
+		resetLog: () => LocalizedString
+		/**
+		 * Reset fehlgeschlagen: {error}
+		 */
+		resetFailedLog: (arg: { error: unknown }) => LocalizedString
+	}
+	calibration: {
+		/**
+		 * Stick-Mittelkalibrierung
+		 */
+		titleCenter: () => LocalizedString
+		/**
+		 * Range-Kalibrierung
+		 */
+		titleRange: () => LocalizedString
+		/**
+		 * Schließen
+		 */
+		closeAria: () => LocalizedString
+		/**
+		 * Mittelpunkt
+		 */
+		tabCenter: () => LocalizedString
+		/**
+		 * Range
+		 */
+		tabRange: () => LocalizedString
+		/**
+		 * Schritt {step} / {total}
+		 */
+		step: (arg: { step: unknown, total: unknown }) => LocalizedString
+		/**
+		 * Initialisiere Kalibrierung...
+		 */
+		init: () => LocalizedString
+		/**
+		 * Messe Stick-Mittelpunkt ({n}/4)...
+		 */
+		measureCenter: (arg: { n: unknown }) => LocalizedString
+		/**
+		 * Speichere Kalibrierung...
+		 */
+		save: () => LocalizedString
+		/**
+		 * Stick-Mittelkalibrierung abgeschlossen!
+		 */
+		centerDone: () => LocalizedString
+		/**
+		 * Stick-Mittelkalibrierung abgeschlossen
+		 */
+		centerDoneShort: () => LocalizedString
+		/**
+		 * Starte Range-Kalibrierung...
+		 */
+		startRange: () => LocalizedString
+		/**
+		 * Bewege beide Sticks mehrfach im vollen Kreis.
+		 */
+		moveSticks: () => LocalizedString
+		/**
+		 * Speichere Range-Kalibrierung...
+		 */
+		saveRange: () => LocalizedString
+		/**
+		 * Range-Kalibrierung abgeschlossen! (Kreisförmigkeit L: {left}%, R: {right}%)
+		 */
+		rangeDone: (arg: { left: unknown, right: unknown }) => LocalizedString
+		/**
+		 * Range-Kalibrierung abgeschlossen
+		 */
+		rangeDoneShort: () => LocalizedString
+		/**
+		 * Fehler: {error}
+		 */
+		errorPrefix: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Stick-Mittelkalibrierung abgeschlossen
+		 */
+		centerCompletedLog: () => LocalizedString
+		/**
+		 * Mittelkalibrierung fehlgeschlagen: {error}
+		 */
+		centerFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Range-Kalibrierung Start fehlgeschlagen: {error}
+		 */
+		rangeBeginFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Range-Kalibrierung abgeschlossen
+		 */
+		rangeCompletedLog: () => LocalizedString
+		/**
+		 * Range-Kalibrierung Abschluss fehlgeschlagen: {error}
+		 */
+		rangeEndFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Vorher → Nachher
+		 */
+		beforeAfter: () => LocalizedString
+		/**
+		 * {changed} von 12 Werten geändert
+		 */
+		valuesChanged: (arg: { changed: unknown }) => LocalizedString
+		/**
+		 * Wert {index}
+	vorher: {before}
+	nachher: {after}
+	Δ: {delta}
+		 */
+		valueTitle: (arg: { after: unknown, before: unknown, delta: unknown, index: unknown }) => LocalizedString
+		/**
+		 * 12 rohe Finetune-Module-Werte (u16) — blau markierte wurden durch die Kalibrierung verändert.
+		 */
+		finetuneHint: () => LocalizedString
+		/**
+		 * Links
+		 */
+		left: () => LocalizedString
+		/**
+		 * Rechts
+		 */
+		right: () => LocalizedString
+		/**
+		 * Bewege beide Sticks mehrfach vollständig im Kreis. Klicke "Fertig" wenn du bereit bist.
+		 */
+		rangeHint: () => LocalizedString
+		/**
+		 * Überdeckung: {percent}%
+		 */
+		coverage: (arg: { percent: unknown }) => LocalizedString
+		/**
+		 * — weiter kreisen
+		 */
+		keepGoing: () => LocalizedString
+		/**
+		 * Fertig
+		 */
+		done: () => LocalizedString
+		/**
+		 * Abbrechen
+		 */
+		cancel: () => LocalizedString
+	}
+	quickTest: {
+		/**
+		 * Schnelltest
+		 */
+		title: () => LocalizedString
+		/**
+		 * Schließen
+		 */
+		closeAria: () => LocalizedString
+		/**
+		 * Report
+		 */
+		report: () => LocalizedString
+		/**
+		 * Test-Report als Textdatei speichern
+		 */
+		reportTitle: () => LocalizedString
+		/**
+		 * Stop
+		 */
+		stopAria: () => LocalizedString
+		/**
+		 * Start
+		 */
+		startAria: () => LocalizedString
+		/**
+		 * Button-Übersicht
+		 */
+		buttonOverviewAria: () => LocalizedString
+		/**
+		 * Alle gedrückt ✓
+		 */
+		allPressed: () => LocalizedString
+		/**
+		 * {count} fehlen
+		 */
+		buttonsMissing: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * ✓ OK
+		 */
+		statusPass: () => LocalizedString
+		/**
+		 * ✗ Fehler
+		 */
+		statusFail: () => LocalizedString
+		/**
+		 * Läuft…
+		 */
+		statusRunning: () => LocalizedString
+		/**
+		 * Nicht getestet
+		 */
+		statusIdle: () => LocalizedString
+		/**
+		 * Buttons
+		 */
+		testButtons: () => LocalizedString
+		/**
+		 * Drücke alle Buttons um sie zu testen.
+		 */
+		testButtonsDesc: () => LocalizedString
+		/**
+		 * Vibration
+		 */
+		testHaptic: () => LocalizedString
+		/**
+		 * Testet die Rumble-Motoren.
+		 */
+		testHapticDesc: () => LocalizedString
+		/**
+		 * Adaptive Trigger
+		 */
+		testAdaptive: () => LocalizedString
+		/**
+		 * Setzt Trigger-Widerstand.
+		 */
+		testAdaptiveDesc: () => LocalizedString
+		/**
+		 * Lichter
+		 */
+		testLights: () => LocalizedString
+		/**
+		 * Lightbar und Player-LED.
+		 */
+		testLightsDesc: () => LocalizedString
+		/**
+		 * Lautsprecher
+		 */
+		testSpeaker: () => LocalizedString
+		/**
+		 * Spielt einen Ton ab.
+		 */
+		testSpeakerDesc: () => LocalizedString
+		/**
+		 * Mikrofon
+		 */
+		testMicrophone: () => LocalizedString
+		/**
+		 * Prüft Mikrofon-Präsenz und Pegel.
+		 */
+		testMicrophoneDesc: () => LocalizedString
+		/**
+		 * Schnelltest 'buttons' abgeschlossen — alle Buttons gedrückt
+		 */
+		buttonsCompletedLog: () => LocalizedString
+		/**
+		 * Schnelltest 'buttons' Timeout — nicht alle Buttons gedrückt
+		 */
+		buttonsTimeoutLog: () => LocalizedString
+		/**
+		 * Schnelltest 'microphone' — Mikrofon erkannt
+		 */
+		micDetectedLog: () => LocalizedString
+		/**
+		 * Schnelltest 'microphone' — kein Mikrofon erkannt
+		 */
+		micNotDetectedLog: () => LocalizedString
+		/**
+		 * Schnelltest '{id}' abgeschlossen
+		 */
+		testCompletedLog: (arg: { id: unknown }) => LocalizedString
+		/**
+		 * Schnelltest '{id}' fehlgeschlagen: {error}
+		 */
+		testFailedLog: (arg: { error: unknown, id: unknown }) => LocalizedString
+		/**
+		 * Schnelltest 'lights' fehlgeschlagen: {error}
+		 */
+		lightsFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Schnelltest 'lights' Reset fehlgeschlagen: {error}
+		 */
+		lightsResetFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Quicktest-Report exportiert
+		 */
+		reportExportedLog: () => LocalizedString
+		/**
+		 * Report-Export fehlgeschlagen: {error}
+		 */
+		reportExportFailedLog: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * fixplay diagnoseTool — Schnelltest-Report
+		 */
+		reportHeader: () => LocalizedString
+		/**
+		 * ==========================================
+		 */
+		reportSeparator: () => LocalizedString
+		/**
+		 * Datum:      {ts}
+		 */
+		reportDate: (arg: { ts: unknown }) => LocalizedString
+		/**
+		 * Controller: {model}
+		 */
+		reportController: (arg: { model: unknown }) => LocalizedString
+		/**
+		 * Firmware:   {fw}
+		 */
+		reportFirmware: (arg: { fw: unknown }) => LocalizedString
+		/**
+		 * MAC:        {mac}
+		 */
+		reportMac: (arg: { mac: unknown }) => LocalizedString
+		/**
+		 * Testergebnisse:
+		 */
+		reportResults: () => LocalizedString
+		/**
+		 * [OK]    
+		 */
+		markPass: () => LocalizedString
+		/**
+		 * [FEHLER]
+		 */
+		markFail: () => LocalizedString
+		/**
+		 * [LÄUFT]
+		 */
+		markRunning: () => LocalizedString
+		/**
+		 * [--]    
+		 */
+		markIdle: () => LocalizedString
+		/**
+		 * NICHT BESTANDEN
+		 */
+		overallFail: () => LocalizedString
+		/**
+		 * UNVOLLSTÄNDIG
+		 */
+		overallIncomplete: () => LocalizedString
+		/**
+		 * BESTANDEN
+		 */
+		overallPass: () => LocalizedString
+		/**
+		 * Gesamt: {pass} OK, {fail} Fehler, {skipped} übersprungen — {overall}
+		 */
+		reportTotal: (arg: { fail: unknown, overall: unknown, pass: unknown, skipped: unknown }) => LocalizedString
 	}
 	common: {
 		/**

@@ -10,6 +10,10 @@
   import { saveTextFile } from '$lib/api/tauri';
   import MicLevelMeter from './MicLevelMeter.svelte';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
+  import type { TranslationFunctions } from '$lib/i18n/i18n-types';
+  import type { LocalizedString } from 'typesafe-i18n';
 
   type TestId = 'buttons' | 'haptic' | 'adaptive' | 'lights' | 'speaker' | 'microphone';
   type TestStatus = 'idle' | 'running' | 'pass' | 'fail';
@@ -31,13 +35,13 @@
     } | null;
   } = $props();
 
-  const tests: { id: TestId; label: string; desc: string }[] = [
-    { id: 'buttons', label: 'Buttons', desc: 'Drücke alle Buttons um sie zu testen.' },
-    { id: 'haptic', label: 'Vibration', desc: 'Testet die Rumble-Motoren.' },
-    { id: 'adaptive', label: 'Adaptive Trigger', desc: 'Setzt Trigger-Widerstand.' },
-    { id: 'lights', label: 'Lichter', desc: 'Lightbar und Player-LED.' },
-    { id: 'speaker', label: 'Lautsprecher', desc: 'Spielt einen Ton ab.' },
-    { id: 'microphone', label: 'Mikrofon', desc: 'Prüft Mikrofon-Präsenz und Pegel.' },
+  const tests: { id: TestId; label: (ll: TranslationFunctions) => LocalizedString; desc: (ll: TranslationFunctions) => LocalizedString }[] = [
+    { id: 'buttons', label: (ll) => ll.quickTest.testButtons(), desc: (ll) => ll.quickTest.testButtonsDesc() },
+    { id: 'haptic', label: (ll) => ll.quickTest.testHaptic(), desc: (ll) => ll.quickTest.testHapticDesc() },
+    { id: 'adaptive', label: (ll) => ll.quickTest.testAdaptive(), desc: (ll) => ll.quickTest.testAdaptiveDesc() },
+    { id: 'lights', label: (ll) => ll.quickTest.testLights(), desc: (ll) => ll.quickTest.testLightsDesc() },
+    { id: 'speaker', label: (ll) => ll.quickTest.testSpeaker(), desc: (ll) => ll.quickTest.testSpeakerDesc() },
+    { id: 'microphone', label: (ll) => ll.quickTest.testMicrophone(), desc: (ll) => ll.quickTest.testMicrophoneDesc() },
   ];
 
   let statuses = $state<Record<TestId, TestStatus>>({
@@ -91,12 +95,12 @@
         }
         missingButtons = EXPECTED_BUTTONS.filter((n) => !pressed.has(n));
         if (missingButtons.length === 0) {
-          finish('pass', "Quick test 'buttons' completed — all buttons pressed");
+          finish('pass', get(LL).quickTest.buttonsCompletedLog());
         }
       });
 
       buttonsTimer = setTimeout(() => {
-        finish('fail', "Quick test 'buttons' timed out — not all buttons pressed");
+        finish('fail', get(LL).quickTest.buttonsTimeoutLog());
       }, BUTTONS_TIMEOUT_MS);
     });
   }
@@ -156,17 +160,17 @@
           await new Promise((r) => setTimeout(r, 500));
           if ($micConnected) {
             statuses[id] = 'pass';
-            pushControllerLog("Quick test 'microphone' — Mikrofon erkannt", 'info');
+            pushControllerLog(get(LL).quickTest.micDetectedLog(), 'info');
           } else {
             statuses[id] = 'fail';
-            pushControllerLog("Quick test 'microphone' — kein Mikrofon erkannt", 'error');
+            pushControllerLog(get(LL).quickTest.micNotDetectedLog(), 'error');
           }
           break;
       }
-      pushControllerLog(`Quick test '${id}' completed`, 'info');
+      pushControllerLog(get(LL).quickTest.testCompletedLog({ id }), 'info');
     } catch (e) {
       statuses[id] = 'fail';
-      pushControllerLog(`Quick test '${id}' failed: ${e}`, 'error');
+      pushControllerLog(get(LL).quickTest.testFailedLog({ id, error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -203,7 +207,7 @@
           lightsInterval = null;
         }
         statuses.lights = 'fail';
-        pushControllerLog(`Quick test 'lights' failed: ${e}`, 'error');
+        pushControllerLog(get(LL).quickTest.lightsFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
       }
     }, 200);
   }
@@ -219,7 +223,7 @@
       } catch (e) {
         // A reset failure is also a real failure, not a silent "pass".
         lightsTestFailed = true;
-        pushControllerLog(`Quick test 'lights' reset failed: ${e}`, 'error');
+        pushControllerLog(get(LL).quickTest.lightsResetFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
       }
     }
     statuses.lights = lightsTestFailed ? 'fail' : 'pass';
@@ -263,38 +267,40 @@
           : 'text-slate-400';
   }
 
-  function statusLabel(s: TestStatus): string {
-    return s === 'pass' ? '✓ OK' : s === 'fail' ? '✗ Fehler' : s === 'running' ? 'Läuft…' : 'Nicht getestet';
+  function statusLabel(s: TestStatus): LocalizedString {
+    const ll = get(LL);
+    return s === 'pass' ? ll.quickTest.statusPass() : s === 'fail' ? ll.quickTest.statusFail() : s === 'running' ? ll.quickTest.statusRunning() : ll.quickTest.statusIdle();
   }
 
   // Build a human-readable test report summarizing every quick-test result,
   // plus the controller identity and a pass/fail totals line, and save it as
   // a timestamped .txt the technician can archive alongside the repair.
   function buildReport(): string {
+    const ll = get(LL);
     const info = $controllerInfo;
     const fw = info?.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
     const mac = info?.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
     const ts = new Date().toLocaleString();
     const lines: string[] = [
-      'fixplay diagnoseTool — Schnelltest-Report',
-      '==========================================',
-      `Datum:      ${ts}`,
-      `Controller: ${$controllerModel ?? '—'}`,
-      `Firmware:   ${fw}`,
-      `MAC:        ${mac}`,
+      ll.quickTest.reportHeader(),
+      ll.quickTest.reportSeparator(),
+      ll.quickTest.reportDate({ ts }),
+      ll.quickTest.reportController({ model: $controllerModel ?? '—' }),
+      ll.quickTest.reportFirmware({ fw }),
+      ll.quickTest.reportMac({ mac }),
       '',
-      'Testergebnisse:',
+      ll.quickTest.reportResults(),
     ];
     let pass = 0, fail = 0, skipped = 0;
     for (const t of tests) {
       const s = statuses[t.id];
-      const mark = s === 'pass' ? '[OK]    ' : s === 'fail' ? '[FEHLER]' : s === 'running' ? '[LÄUFT]' : '[--]    ';
-      lines.push(`  ${mark}  ${t.label}`);
+      const mark = s === 'pass' ? ll.quickTest.markPass() : s === 'fail' ? ll.quickTest.markFail() : s === 'running' ? ll.quickTest.markRunning() : ll.quickTest.markIdle();
+      lines.push(`  ${mark}  ${t.label(ll)}`);
       if (s === 'pass') pass++; else if (s === 'fail') fail++; else skipped++;
     }
     lines.push('');
-    const overall = fail > 0 ? 'NICHT BESTANDEN' : (skipped > 0 || pass === 0) ? 'UNVOLLSTÄNDIG' : 'BESTANDEN';
-    lines.push(`Gesamt: ${pass} OK, ${fail} Fehler, ${skipped} übersprungen — ${overall}`);
+    const overall = fail > 0 ? ll.quickTest.overallFail() : (skipped > 0 || pass === 0) ? ll.quickTest.overallIncomplete() : ll.quickTest.overallPass();
+    lines.push(ll.quickTest.reportTotal({ pass, fail, skipped, overall }));
     return lines.join('\n');
   }
 
@@ -307,9 +313,9 @@
         filters: [{ name: 'Text', extensions: ['txt'] }],
       });
       if (path) await saveTextFile(path, report);
-      pushControllerLog('Quicktest-Report exportiert', 'info');
+      pushControllerLog(get(LL).quickTest.reportExportedLog(), 'info');
     } catch (e) {
-      pushControllerLog('Report-Export fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).quickTest.reportExportFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 </script>
@@ -320,8 +326,8 @@
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" transition:fade={{ duration: 150 }}>
     <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800" use:trapFocus transition:scale={{ duration: 150, start: 0.96 }}>
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Schnelltest</h2>
-        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick={close} aria-label="Schließen">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">{$LL.quickTest.title()}</h2>
+        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick={close} aria-label={$LL.quickTest.closeAria()}>
           <X class="h-5 w-5" />
         </button>
       </div>
@@ -330,11 +336,11 @@
         {#each tests as test (test.id)}
           <div class="flex items-center justify-between rounded-lg border border-slate-200 p-3 dark:border-slate-600">
             <div>
-              <div class="text-sm font-medium text-slate-800 dark:text-slate-100">{test.label}</div>
-              <div class="text-xs text-slate-500 dark:text-slate-400">{test.desc}</div>
+              <div class="text-sm font-medium text-slate-800 dark:text-slate-100">{test.label($LL)}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">{test.desc($LL)}</div>
               {#if test.id === 'buttons' && statuses.buttons === 'running'}
                 <div class="mt-2">
-                  <svg viewBox="0 0 200 120" class="w-full max-w-[200px]" role="img" aria-label="Button-Übersicht">
+                  <svg viewBox="0 0 200 120" class="w-full max-w-[200px]" role="img" aria-label={$LL.quickTest.buttonOverviewAria()}>
                     <!-- Body -->
                     <rect x="8" y="10" width="184" height="100" rx="28" fill="#1e293b" stroke="#334155" stroke-width="1" />
                     <!-- D-pad -->
@@ -366,7 +372,7 @@
                     <circle cx="100" cy="58" r="2" fill={missingButtons.includes('mute') ? '#7f1d1d' : '#fbbf24'} stroke={missingButtons.includes('mute') ? '#ef4444' : '#22c55e'} stroke-width="0.6" />
                   </svg>
                   <div class="text-xs text-gray-500 mt-1 text-center">
-                    {missingButtons.length === 0 ? 'Alle gedrückt ✓' : `${missingButtons.length} fehlen`}
+                    {missingButtons.length === 0 ? $LL.quickTest.allPressed() : $LL.quickTest.buttonsMissing({ count: missingButtons.length })}
                   </div>
                 </div>
               {/if}
@@ -381,7 +387,7 @@
                 {statusLabel(statuses[test.id])}
               </span>
               {#if test.id === 'lights' && statuses.lights === 'running'}
-                <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200" onclick={stopLightsTest} aria-label="Stop">
+                <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200" onclick={stopLightsTest} aria-label={$LL.quickTest.stopAria()}>
                   <Square class="h-4 w-4" />
                 </button>
               {:else}
@@ -389,7 +395,7 @@
                   class="rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700 disabled:opacity-50"
                   onclick={() => runTest(test.id)}
                   disabled={statuses[test.id] === 'running'}
-                  aria-label="Start"
+                  aria-label={$LL.quickTest.startAria()}
                 >
                   {#if statuses[test.id] === 'running'}
                     <Loader2 class="h-4 w-4 animate-spin" />
@@ -404,11 +410,11 @@
       </div>
 
       <div class="mt-4 flex justify-end gap-2">
-        <button class="flex items-center gap-1.5 rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500" onclick={exportReport} title="Test-Report als Textdatei speichern">
-          <FileDown class="h-4 w-4" /> Report
+        <button class="flex items-center gap-1.5 rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500" onclick={exportReport} title={$LL.quickTest.reportTitle()}>
+          <FileDown class="h-4 w-4" /> {$LL.quickTest.report()}
         </button>
         <button class="rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500" onclick={close}>
-          Schließen
+          {$LL.quickTest.closeAria()}
         </button>
       </div>
     </div>

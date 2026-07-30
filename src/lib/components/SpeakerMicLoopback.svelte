@@ -10,8 +10,10 @@
   // (no echo-cancellation / noise-suppression so the tone comes through), and
   // read RMS from an AnalyserNode.
   import { onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import { pushControllerLog } from '$lib/stores/controller';
   import { Volume2, CheckCircle2, XCircle, Loader2 } from 'lucide-svelte';
+  import LL from '$lib/i18n/i18n-svelte';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
 
   let {
@@ -59,7 +61,7 @@
             d.label.includes('Wireless Controller') ||
             d.label.includes('PS5')),
       );
-      if (!mic) return 'Kein DualSense-Mikrofon gefunden. Controller per USB verbinden und Mic-Freigabe erteilen.';
+      if (!mic) return get(LL).tester.micNotFound();
       stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           deviceId: { exact: mic.deviceId },
@@ -77,9 +79,9 @@
       return null;
     } catch (e) {
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
-        return 'Mikrofon-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
+        return get(LL).tester.micDenied();
       }
-      return 'Mikrofon-Fehler: ' + (e instanceof Error ? e.message : String(e));
+      return get(LL).tester.micError({ error: e instanceof Error ? e.message : String(e) });
     }
   }
 
@@ -117,7 +119,7 @@
 
       // 2) Play the speaker tone and measure the mic peak while it plays.
       await manager.setSpeakerTone('speaker').catch((e: unknown) => {
-        throw new Error('Lautsprecher: ' + (e instanceof Error ? e.message : String(e)));
+        throw new Error(get(LL).tester.speakerError({ error: e instanceof Error ? e.message : String(e) }));
       });
       peakTone = await maxLevelOver(1200);
 
@@ -131,13 +133,15 @@
       const ok = peakTone >= 25 && peakTone > baseline + 15;
       result = ok ? 'ok' : 'fail';
       pushControllerLog(
-        `Speaker→Mic loopback: ${ok ? 'OK' : 'FEHLER'} (Grundpegel ${baseline}%, Tonpegel ${peakTone}%)`,
+        ok
+          ? get(LL).tester.loopbackLogOk({ baseline, peak: peakTone })
+          : get(LL).tester.loopbackLogFail({ baseline, peak: peakTone }),
         ok ? 'info' : 'warn',
       );
     } catch (e) {
       result = 'error';
       errorMsg = e instanceof Error ? e.message : String(e);
-      pushControllerLog('Speaker→Mic loopback Fehler: ' + errorMsg, 'error');
+      pushControllerLog(get(LL).tester.loopbackLogError({ error: errorMsg }), 'error');
     } finally {
       teardownMic();
       running = false;
@@ -152,23 +156,23 @@
     <button
       onclick={run}
       disabled={!manager || running}
-      title="Spielt einen Ton über den DualSense-Lautsprecher und prüft, ob das Mikrofon ihn aufnimmt. Bestätigt, dass Lautsprecher und Mikrofon funktionieren und akustisch gekoppelt sind."
+      title={$LL.tester.loopbackTitle()}
       class="px-3 py-1 text-sm rounded bg-purple-700 hover:bg-purple-600 text-white disabled:opacity-40 flex items-center gap-1.5"
     >
       {#if running}
-        <Loader2 class="h-4 w-4 animate-spin" /> Test läuft…
+        <Loader2 class="h-4 w-4 animate-spin" /> {$LL.tester.loopbackRunning()}
       {:else}
-        <Volume2 class="h-4 w-4" /> Speaker→Mic Test
+        <Volume2 class="h-4 w-4" /> {$LL.tester.loopbackStart()}
       {/if}
     </button>
 
     {#if result === 'ok'}
       <span class="flex items-center gap-1 text-xs text-green-400">
-        <CheckCircle2 class="h-4 w-4" /> OK — Ton am Mikrofon erkannt
+        <CheckCircle2 class="h-4 w-4" /> {$LL.tester.loopbackOk()}
       </span>
     {:else if result === 'fail'}
       <span class="flex items-center gap-1 text-xs text-red-400">
-        <XCircle class="h-4 w-4" /> Kein Loopback — Lautsprecher/Mikrofon prüfen
+        <XCircle class="h-4 w-4" /> {$LL.tester.loopbackFail()}
       </span>
     {:else if result === 'error'}
       <span class="text-xs text-red-400">{errorMsg}</span>
@@ -177,8 +181,8 @@
 
   {#if result === 'ok' || result === 'fail'}
     <div class="text-[11px] text-gray-500 flex gap-4">
-      <span>Grundpegel: <span class="font-mono text-gray-300">{baseline}%</span></span>
-      <span>Tonpegel: <span class="font-mono text-gray-300">{peakTone}%</span></span>
+      <span>{$LL.tester.baseline()}: <span class="font-mono text-gray-300">{baseline}%</span></span>
+      <span>{$LL.tester.toneLevel()}: <span class="font-mono text-gray-300">{peakTone}%</span></span>
     </div>
   {/if}
 </div>

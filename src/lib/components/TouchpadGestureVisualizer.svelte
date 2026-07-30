@@ -8,6 +8,10 @@
   import { touchPoints } from '$lib/stores/controller';
   import { TouchGestureTracker } from '$lib/controllers/touch-gesture';
   import type { TouchGestureEvent, TouchContactLabel } from '$lib/controllers/touch-gesture';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
+  import type { TranslationFunctions } from '$lib/i18n/i18n-types';
+  import type { LocalizedString } from 'typesafe-i18n';
 
   const tracker = new TouchGestureTracker();
 
@@ -21,20 +25,21 @@
   let trails = $state<{ x: number; y: number }[][]>([[], []]);
   let points = $state<{ x: number; y: number; active: boolean; id: number }[]>([]);
 
-  const LABEL_DE: Record<TouchContactLabel, string> = {
-    idle: 'Bereit',
-    touch: 'Berührung',
-    hold: 'Halten',
-    'two-finger': 'Zwei-Finger',
+  const LABEL: Record<TouchContactLabel, (ll: TranslationFunctions) => LocalizedString> = {
+    idle: (ll) => ll.tester.gestureIdle(),
+    touch: (ll) => ll.tester.gestureTouch(),
+    hold: (ll) => ll.tester.gestureHold(),
+    'two-finger': (ll) => ll.tester.gestureTwoFinger(),
   };
 
-  function eventText(ev: TouchGestureEvent): string {
+  function eventText(ev: TouchGestureEvent): LocalizedString {
+    const ll = get(LL);
     switch (ev.type) {
-      case 'tap': return `Tipp (${ev.durationMs}ms)`;
-      case 'hold': return `Halten (${ev.durationMs}ms)`;
-      case 'swipe': return `Wischen ${ev.direction} (${Math.round(ev.displacement)}u)`;
-      case 'two-finger': return 'Zwei-Finger-Berührung';
-      default: return ev.type;
+      case 'tap': return ll.tester.gestureTap({ ms: ev.durationMs });
+      case 'hold': return ll.tester.gestureHoldEvent({ ms: ev.durationMs });
+      case 'swipe': return ll.tester.gestureSwipe({ dir: ev.direction, disp: Math.round(ev.displacement) });
+      case 'two-finger': return ll.tester.gestureTwoFingerEvent();
+      default: return ev.type as LocalizedString;
     }
   }
 
@@ -53,8 +58,8 @@
 
 <div class="flex flex-col gap-3">
   <div class="flex items-center justify-between">
-    <span class="text-xs text-gray-400">Aktuelle Geste</span>
-    <span class="text-xs font-semibold text-teal-300">{LABEL_DE[label]}</span>
+    <span class="text-xs text-gray-400">{$LL.tester.currentGesture()}</span>
+    <span class="text-xs font-semibold text-teal-300">{LABEL[label]($LL)}</span>
   </div>
 
   <!-- Touchpad surface with finger dots + fading trails. -->
@@ -88,9 +93,9 @@
 
   <!-- Gesture event log (newest first). -->
   <div>
-    <div class="text-xs text-gray-400 mb-1">Gesten-Verlauf</div>
+    <div class="text-xs text-gray-400 mb-1">{$LL.tester.gestureLog()}</div>
     {#if events.length === 0}
-      <div class="text-xs text-gray-600 italic">Noch keine Geste erkannt.</div>
+      <div class="text-xs text-gray-600 italic">{$LL.tester.noGesture()}</div>
     {:else}
       <ul class="flex flex-col gap-0.5 max-h-32 overflow-y-auto">
         {#each events as ev, i (i)}

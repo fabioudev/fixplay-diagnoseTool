@@ -6,6 +6,7 @@
   // respond — the "tester für lichter / vibratoren / adaptive trigger" the
   // panel was missing.
   import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass, Hand } from 'lucide-svelte';
+  import { get } from 'svelte/store';
   import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
   import LL from '$lib/i18n/i18n-svelte';
   import type { TranslationFunctions } from '$lib/i18n/i18n-types';
@@ -36,23 +37,23 @@
   let leds = $state<boolean[]>([false, false, false, false, false]);
   let muteMode = $state<0 | 1 | 2>(0); // 0 off, 1 on, 2 pulse
 
-  const LIGHT_PRESETS: { name: string; r: number; g: number; b: number }[] = [
-    { name: 'Aus', r: 0, g: 0, b: 0 },
-    { name: 'Rot', r: 255, g: 0, b: 0 },
-    { name: 'Grün', r: 0, g: 255, b: 0 },
-    { name: 'Blau', r: 0, g: 0, b: 255 },
-    { name: 'Weiß', r: 255, g: 255, b: 255 },
-    { name: 'Pink', r: 255, g: 0, b: 255 },
-    { name: 'Cyan', r: 0, g: 255, b: 255 },
-    { name: 'Teal', r: 0, g: 150, b: 136 },
+  const LIGHT_PRESETS: { id: string; label: (ll: TranslationFunctions) => LocalizedString; r: number; g: number; b: number }[] = [
+    { id: 'off', label: (ll) => ll.tester.presetOff(), r: 0, g: 0, b: 0 },
+    { id: 'red', label: (ll) => ll.tester.presetRed(), r: 255, g: 0, b: 0 },
+    { id: 'green', label: (ll) => ll.tester.presetGreen(), r: 0, g: 255, b: 0 },
+    { id: 'blue', label: (ll) => ll.tester.presetBlue(), r: 0, g: 0, b: 255 },
+    { id: 'white', label: (ll) => ll.tester.presetWhite(), r: 255, g: 255, b: 255 },
+    { id: 'pink', label: (ll) => ll.tester.presetPink(), r: 255, g: 0, b: 255 },
+    { id: 'cyan', label: (ll) => ll.tester.presetCyan(), r: 0, g: 255, b: 255 },
+    { id: 'teal', label: (ll) => ll.tester.presetTeal(), r: 0, g: 150, b: 136 },
   ];
-  const PLAYER_PRESETS: { name: string; pattern: number }[] = [
-    { name: 'Aus', pattern: 0 },
-    { name: 'P1', pattern: 0b10001 },
-    { name: 'P2', pattern: 0b10010 },
-    { name: 'P3', pattern: 0b10101 },
-    { name: 'P4', pattern: 0b10110 },
-    { name: 'Alle', pattern: 0b11111 },
+  const PLAYER_PRESETS: { id: string; label: (ll: TranslationFunctions) => LocalizedString; pattern: number }[] = [
+    { id: 'off', label: (ll) => ll.tester.playerOff(), pattern: 0 },
+    { id: 'p1', label: () => 'P1' as LocalizedString, pattern: 0b10001 },
+    { id: 'p2', label: () => 'P2' as LocalizedString, pattern: 0b10010 },
+    { id: 'p3', label: () => 'P3' as LocalizedString, pattern: 0b10101 },
+    { id: 'p4', label: () => 'P4' as LocalizedString, pattern: 0b10110 },
+    { id: 'all', label: (ll) => ll.tester.playerAll(), pattern: 0b11111 },
   ];
 
   function ledPattern(): number {
@@ -73,9 +74,9 @@
       lightbarColor.set({ r: rr, g: gg, b: bb });
       await manager.setPlayerIndicator(ledPattern());
       await manager.setMuteLed(muteMode);
-      pushControllerLog(`Lichter: rgb(${rr},${gg},${bb}) LEDs=${ledPattern()} mute=${muteMode}`, 'info');
+      pushControllerLog(get(LL).tester.lightsLog({ r: rr, g: gg, b: bb, leds: ledPattern(), mute: muteMode }), 'info');
     } catch (e) {
-      pushControllerLog('Lichter setzen fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.lightsFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -85,9 +86,9 @@
       await manager.resetLights();
       r = 0; g = 0; b = 0; brightness = 80; leds = [false, false, false, false, false]; muteMode = 0;
       lightbarColor.set({ r: 0, g: 0, b: 0 });
-      pushControllerLog('Lichter zurückgesetzt', 'info');
+      pushControllerLog(get(LL).tester.lightsReset(), 'info');
     } catch (e) {
-      pushControllerLog('Reset Lichter fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.lightsResetFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -101,7 +102,7 @@
     try {
       await manager.setVibration(heavy, light);
     } catch (e) {
-      pushControllerLog('Vibration fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.vibFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -135,11 +136,11 @@
 
   // ── Adaptive triggers ──────────────────────────────────────────────────────
   type TriggerMode = 'off' | 'resistance' | 'single' | 'auto';
-  const TRIGGER_MODES: { id: TriggerMode; label: string }[] = [
-    { id: 'off', label: 'Aus' },
-    { id: 'resistance', label: 'Widerstand' },
-    { id: 'single', label: 'Soft Trigger' },
-    { id: 'auto', label: 'Auto-Trigger' },
+  const TRIGGER_MODES: { id: TriggerMode; label: (ll: TranslationFunctions) => LocalizedString }[] = [
+    { id: 'off', label: (ll) => ll.tester.modeOff() },
+    { id: 'resistance', label: (ll) => ll.tester.modeResistance() },
+    { id: 'single', label: (ll) => ll.tester.modeSingle() },
+    { id: 'auto', label: (ll) => ll.tester.modeAuto() },
   ];
   let lMode = $state<TriggerMode>('off');
   let lStart = $state(0);
@@ -161,9 +162,9 @@
       if (lMode === 'auto') (left as { frequency?: number }).frequency = lFreq;
       if (rMode === 'auto') (right as { frequency?: number }).frequency = rFreq;
       await manager.setAdaptiveTrigger(left, right);
-      pushControllerLog(`Adaptive Trigger: L=${lMode} R=${rMode}`, 'info');
+      pushControllerLog(get(LL).tester.triggerLog({ l: lMode, r: rMode }), 'info');
     } catch (e) {
-      pushControllerLog('Adaptive Trigger fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.triggerFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     }
   }
 
@@ -174,7 +175,7 @@
       { mode: 'off', start: 0, end: 0, force: 0 },
       { mode: 'off', start: 0, end: 0, force: 0 },
     ).catch(() => {});
-    pushControllerLog('Adaptive Trigger zurückgesetzt', 'info');
+    pushControllerLog(get(LL).tester.triggerReset(), 'info');
   }
 
   // ── Test-pattern auto-sequences (one-click per category) ──────────────────
@@ -225,9 +226,9 @@
       if (!aborted) { muteMode = 0; await manager.setMuteLed(0); await sleep(200); }
       // Reset
       if (!aborted) await resetLights();
-      pushControllerLog('Licht-Testmuster abgeschlossen', 'info');
+      pushControllerLog(get(LL).tester.lightsPatternDone(), 'info');
     } catch (e) {
-      pushControllerLog('Licht-Testmuster Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.lightsPatternFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     } finally {
       lightsRunning = false;
       if (patternAbort) patternAbort = null;
@@ -263,9 +264,9 @@
         heavy = 0; light = 0;
         await manager.setVibration(0, 0);
       }
-      pushControllerLog('Vibrations-Testmuster abgeschlossen', 'info');
+      pushControllerLog(get(LL).tester.vibPatternDone(), 'info');
     } catch (e) {
-      pushControllerLog('Vibrations-Testmuster Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.vibPatternFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     } finally {
       vibRunning = false;
       if (patternAbort) patternAbort = null;
@@ -297,9 +298,9 @@
         await sleep(1200);
       }
       if (!aborted) await resetTriggers();
-      pushControllerLog('Trigger-Testmuster abgeschlossen', 'info');
+      pushControllerLog(get(LL).tester.triggerPatternDone(), 'info');
     } catch (e) {
-      pushControllerLog('Trigger-Testmuster Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.triggerPatternFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     } finally {
       triggerRunning = false;
       if (patternAbort) patternAbort = null;
@@ -322,9 +323,9 @@
       await new Promise<void>((resolve) => {
         manager!.setSpeakerTone('speaker', durationMs, () => resolve());
       });
-      pushControllerLog(`Lautsprecher-Ton (${durationMs}ms) abgespielt`, 'info');
+      pushControllerLog(get(LL).tester.speakerLog({ ms: durationMs }), 'info');
     } catch (e) {
-      pushControllerLog('Lautsprecher-Fehler: ' + (e instanceof Error ? e.message : String(e)), 'error');
+      pushControllerLog(get(LL).tester.speakerFailed({ error: e instanceof Error ? e.message : String(e) }), 'error');
     } finally {
       speakerPlaying = false;
     }
@@ -348,10 +349,10 @@
     ['B', () => b, (v: number) => (b = v), '#3b82f6'],
   ];
 
-  type VibSlider = [label: string, get: () => number, set: (v: number) => void];
+  type VibSlider = { label: (ll: TranslationFunctions) => LocalizedString; get: () => number; set: (v: number) => void };
   const VIB_SLIDERS: VibSlider[] = [
-    ['Links (heavy)', () => heavy, (v: number) => (heavy = v)],
-    ['Rechts (light)', () => light, (v: number) => (light = v)],
+    { label: (ll) => ll.tester.vibLeft(), get: () => heavy, set: (v: number) => (heavy = v) },
+    { label: (ll) => ll.tester.vibRight(), get: () => light, set: (v: number) => (light = v) },
   ];
 
   interface TriggerRow {
@@ -419,14 +420,14 @@
       </div>
 
       <div class="flex flex-wrap gap-1.5">
-        {#each LIGHT_PRESETS as p (p.name)}
-          <button class="rounded px-2 py-1 text-xs bg-gray-700/60 hover:bg-gray-600 text-gray-300" onclick={() => { r = p.r; g = p.g; b = p.b; }}>{p.name}</button>
+        {#each LIGHT_PRESETS as p (p.id)}
+          <button class="rounded px-2 py-1 text-xs bg-gray-700/60 hover:bg-gray-600 text-gray-300" onclick={() => { r = p.r; g = p.g; b = p.b; }}>{p.label($LL)}</button>
         {/each}
       </div>
 
       <!-- Player LEDs -->
       <div class="border-t border-gray-700 pt-3">
-        <div class="text-xs text-gray-400 mb-1.5">Player-LEDs</div>
+        <div class="text-xs text-gray-400 mb-1.5">{$LL.tester.playerLeds()}</div>
         <div class="flex items-center gap-2 flex-wrap">
           {#each leds as on, i (i)}
             <button
@@ -434,57 +435,57 @@
               class="w-7 h-7 rounded-full border text-xs font-medium {on ? 'bg-teal-500/30 border-teal-400 text-teal-200' : 'bg-gray-700/60 border-gray-600 text-gray-500'}"
             >{i + 1}</button>
           {/each}
-          <span class="text-xs text-gray-600 ml-1">Muster: 0b{ledPattern().toString(2).padStart(5, '0')}</span>
+          <span class="text-xs text-gray-600 ml-1">{$LL.tester.pattern()}: 0b{ledPattern().toString(2).padStart(5, '0')}</span>
         </div>
         <div class="flex flex-wrap gap-1.5 mt-2">
-          {#each PLAYER_PRESETS as p (p.name)}
-            <button class="rounded px-2 py-0.5 text-xs bg-gray-700/60 hover:bg-gray-600 text-gray-300" onclick={() => { leds = [0, 1, 2, 3, 4].map((i) => ((p.pattern >> i) & 1) === 1); }}>{p.name}</button>
+          {#each PLAYER_PRESETS as p (p.id)}
+            <button class="rounded px-2 py-0.5 text-xs bg-gray-700/60 hover:bg-gray-600 text-gray-300" onclick={() => { leds = [0, 1, 2, 3, 4].map((i) => ((p.pattern >> i) & 1) === 1); }}>{p.label($LL)}</button>
           {/each}
         </div>
       </div>
 
       <!-- Mute LED -->
       <div class="border-t border-gray-700 pt-3 flex items-center gap-2">
-        <span class="text-xs text-gray-400">Mute-LED</span>
-        {#each [{ id: 0, label: 'Aus' }, { id: 1, label: 'An' }, { id: 2, label: 'Puls' }] as m (m.id)}
-          <button class="rounded px-2 py-0.5 text-xs {muteMode === m.id ? 'bg-amber-500/30 text-amber-200 border border-amber-400/50' : 'bg-gray-700/60 text-gray-400 hover:bg-gray-600'}" onclick={() => (muteMode = m.id as 0 | 1 | 2)}>{m.label}</button>
+        <span class="text-xs text-gray-400">{$LL.tester.muteLed()}</span>
+        {#each [{ id: 0, label: (ll: TranslationFunctions) => ll.tester.muteOff() }, { id: 1, label: (ll: TranslationFunctions) => ll.tester.muteOn() }, { id: 2, label: (ll: TranslationFunctions) => ll.tester.mutePulse() }] as m (m.id)}
+          <button class="rounded px-2 py-0.5 text-xs {muteMode === m.id ? 'bg-amber-500/30 text-amber-200 border border-amber-400/50' : 'bg-gray-700/60 text-gray-400 hover:bg-gray-600'}" onclick={() => (muteMode = m.id as 0 | 1 | 2)}>{m.label($LL)}</button>
         {/each}
       </div>
 
       <div class="flex gap-2 pt-2">
-        <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyLights}><Play class="h-4 w-4" /> Anwenden</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyLights}><Play class="h-4 w-4" /> {$LL.tester.apply()}</button>
         {#if lightsRunning}
-          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> Stop</button>
+          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> {$LL.tester.stop()}</button>
         {:else}
-          <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runLightsPattern}><Play class="h-4 w-4" /> Testmuster</button>
+          <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runLightsPattern}><Play class="h-4 w-4" /> {$LL.tester.testPattern()}</button>
         {/if}
-        <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetLights}><RotateCcw class="h-4 w-4" /> Reset</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetLights}><RotateCcw class="h-4 w-4" /> {$LL.tester.reset()}</button>
       </div>
     </div>
   {:else if tab === 'vibration'}
     <div class="flex flex-col gap-3">
-      <div class="text-xs text-gray-500">Links = starker Motor (heavy), Rechts = schwacher Motor (light).</div>
-      {#each VIB_SLIDERS as [label, get, set]}
+      <div class="text-xs text-gray-500">{$LL.tester.vibHint()}</div>
+      {#each VIB_SLIDERS as vib (vib.label)}
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-400 w-28 shrink-0">{label}</span>
-          <input type="range" min="0" max="255" value={get()} oninput={(e) => set(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
-          <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{get()}</span>
+          <span class="text-xs text-gray-400 w-28 shrink-0">{vib.label($LL)}</span>
+          <input type="range" min="0" max="255" value={vib.get()} oninput={(e) => vib.set(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
+          <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{vib.get()}</span>
         </div>
       {/each}
       <div class="flex flex-wrap gap-2 pt-1">
-        <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyVibration}><Play class="h-4 w-4" /> Start</button>
-        <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runPulse}><Vibrate class="h-4 w-4" /> Puls</button>
-        <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopVibration}><Square class="h-4 w-4" /> Stop</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyVibration}><Play class="h-4 w-4" /> {$LL.tester.start()}</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runPulse}><Vibrate class="h-4 w-4" /> {$LL.tester.pulse()}</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopVibration}><Square class="h-4 w-4" /> {$LL.tester.stop()}</button>
         {#if vibRunning}
-          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> Stop Muster</button>
+          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> {$LL.tester.stopPattern()}</button>
         {:else}
-          <button class="flex items-center gap-1.5 rounded-lg bg-purple-600/20 px-4 py-2 text-sm text-purple-400 hover:bg-purple-600/30" onclick={runVibPattern}><Play class="h-4 w-4" /> Testmuster</button>
+          <button class="flex items-center gap-1.5 rounded-lg bg-purple-600/20 px-4 py-2 text-sm text-purple-400 hover:bg-purple-600/30" onclick={runVibPattern}><Play class="h-4 w-4" /> {$LL.tester.testPattern()}</button>
         {/if}
       </div>
     </div>
   {:else if tab === 'trigger'}
     <div class="flex flex-col gap-3">
-      <div class="text-xs text-gray-500">Adaptive Trigger erzeugen Widerstand/Rücken beim Durchziehen. Modus je L2/R2 wählen, Parameter einstellen, „Anwenden“.</div>
+      <div class="text-xs text-gray-500">{$LL.tester.triggerHint()}</div>
       {#each TRIGGER_ROWS as row (row.name)}
         {@const name = row.name}
         {@const getMode = row.getMode}
@@ -501,54 +502,54 @@
         <div class="rounded-lg bg-gray-900/40 p-3 border border-gray-700">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold text-gray-300">{name}</span>
-            <span class="text-xs text-gray-500">Eingang: <span class="text-teal-300 tabular-nums">{getLevel()}</span>/255</span>
+            <span class="text-xs text-gray-500">{$LL.tester.input()}: <span class="text-teal-300 tabular-nums">{getLevel()}</span>/255</span>
           </div>
           <div class="flex items-center gap-1.5 mb-2">
             {#each TRIGGER_MODES as m (m.id)}
-              <button class="rounded px-2 py-0.5 text-xs {getMode() === m.id ? 'bg-teal-500/30 text-teal-200 border border-teal-400/50' : 'bg-gray-700/60 text-gray-400 hover:bg-gray-600 border border-transparent'}" onclick={() => setMode(m.id)}>{m.label}</button>
+              <button class="rounded px-2 py-0.5 text-xs {getMode() === m.id ? 'bg-teal-500/30 text-teal-200 border border-teal-400/50' : 'bg-gray-700/60 text-gray-400 hover:bg-gray-600 border border-transparent'}" onclick={() => setMode(m.id)}>{m.label($LL)}</button>
             {/each}
           </div>
           {#if getMode() !== 'off'}
             {#if getMode() === 'resistance'}
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-gray-400 w-16">Start</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramStart()}</span>
                 <input type="range" min="0" max="255" value={getStart()} oninput={(e) => setStart(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getStart()}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-400 w-16">Kraft</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramForce()}</span>
                 <input type="range" min="0" max="255" value={getForce()} oninput={(e) => setForce(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getForce()}</span>
               </div>
             {:else if getMode() === 'single'}
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-gray-400 w-16">Start</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramStart()}</span>
                 <input type="range" min="0" max="255" value={getStart()} oninput={(e) => setStart(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getStart()}</span>
               </div>
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-gray-400 w-16">Ende</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramEnd()}</span>
                 <input type="range" min="0" max="255" value={getEnd()} oninput={(e) => setEnd(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getEnd()}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-400 w-16">Kraft</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramForce()}</span>
                 <input type="range" min="0" max="255" value={getForce()} oninput={(e) => setForce(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getForce()}</span>
               </div>
             {:else if getMode() === 'auto'}
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-gray-400 w-16">Freq</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramFreq()}</span>
                 <input type="range" min="0" max="15" value={getFreq()} oninput={(e) => setFreq(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getFreq()}</span>
               </div>
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-gray-400 w-16">Start</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramStart()}</span>
                 <input type="range" min="0" max="255" value={getStart()} oninput={(e) => setStart(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getStart()}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-400 w-16">Kraft</span>
+                <span class="text-xs text-gray-400 w-16">{$LL.tester.paramForce()}</span>
                 <input type="range" min="0" max="255" value={getForce()} oninput={(e) => setForce(parseFloat((e.target as HTMLInputElement).value))} class="flex-1 accent-teal-500" />
                 <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{getForce()}</span>
               </div>
@@ -557,96 +558,94 @@
         </div>
       {/each}
       <div class="flex gap-2 pt-1">
-        <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyTriggers}><Play class="h-4 w-4" /> Anwenden</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={applyTriggers}><Play class="h-4 w-4" /> {$LL.tester.apply()}</button>
         {#if triggerRunning}
-          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> Stop</button>
+          <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={stopPattern}><Square class="h-4 w-4" /> {$LL.tester.stop()}</button>
         {:else}
-          <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runTriggerPattern}><Play class="h-4 w-4" /> Testmuster</button>
+          <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={runTriggerPattern}><Play class="h-4 w-4" /> {$LL.tester.testPattern()}</button>
         {/if}
-        <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetTriggers}><RotateCcw class="h-4 w-4" /> Reset</button>
+        <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetTriggers}><RotateCcw class="h-4 w-4" /> {$LL.tester.reset()}</button>
       </div>
     </div>
   {:else if tab === 'speaker'}
     <div class="flex flex-col gap-3">
       <!-- Mic presence + mute -->
       <div class="flex items-center gap-3 text-xs">
-        <span class="text-gray-400">Mikrofon:</span>
+        <span class="text-gray-400">{$LL.tester.microphone()}:</span>
         <span class="flex items-center gap-1 { $micConnected ? 'text-teal-400' : 'text-gray-600' }">
           <Mic class="h-3.5 w-3.5" />
-          {$micConnected ? 'angeschlossen' : 'nicht angeschlossen'}
+          {$micConnected ? $LL.tester.micConnected() : $LL.tester.micDisconnected()}
         </span>
         <span class="text-gray-600">|</span>
-        <span class="text-gray-400">Mute:</span>
+        <span class="text-gray-400">{$LL.tester.mute()}:</span>
         <span class={$buttonState['mute'] ? 'text-amber-400' : 'text-gray-600'}>
-          {$buttonState['mute'] ? 'stumm' : 'aktiv'}
+          {$buttonState['mute'] ? $LL.tester.muted() : $LL.tester.active()}
         </span>
       </div>
 
       <!-- Live mic level meter -->
       <div class="border-t border-gray-700 pt-2">
-        <div class="text-xs text-gray-400 mb-1.5">Mikrofon-Pegel (live)</div>
+        <div class="text-xs text-gray-400 mb-1.5">{$LL.tester.micLevel()}</div>
         <MicLevelMeter active={micActive} />
         <div class="flex gap-2 mt-2">
           {#if micActive}
-            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (micActive = false)}><Square class="h-3.5 w-3.5" /> Pegel aus</button>
+            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (micActive = false)}><Square class="h-3.5 w-3.5" /> {$LL.tester.levelOff()}</button>
           {:else}
-            <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (micActive = true)}><Mic class="h-3.5 w-3.5" /> Pegel an</button>
+            <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (micActive = true)}><Mic class="h-3.5 w-3.5" /> {$LL.tester.levelOn()}</button>
           {/if}
         </div>
       </div>
 
       <!-- Frequency spectrum view (#59) -->
       <div class="border-t border-gray-700 pt-2">
-        <div class="text-xs text-gray-400 mb-1.5">Frequenz-Spektrum (live FFT)</div>
+        <div class="text-xs text-gray-400 mb-1.5">{$LL.tester.spectrum()}</div>
         <MicSpectrumView active={spectrumActive} />
         <div class="flex gap-2 mt-2">
           {#if spectrumActive}
-            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (spectrumActive = false)}><Square class="h-3.5 w-3.5" /> Spektrum aus</button>
+            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={() => (spectrumActive = false)}><Square class="h-3.5 w-3.5" /> {$LL.tester.spectrumOff()}</button>
           {:else}
-            <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (spectrumActive = true)}><Mic class="h-3.5 w-3.5" /> Spektrum an</button>
+            <button class="flex items-center gap-1.5 rounded-lg bg-teal-600/20 px-3 py-1.5 text-xs text-teal-400 hover:bg-teal-600/30" onclick={() => (spectrumActive = true)}><Mic class="h-3.5 w-3.5" /> {$LL.tester.spectrumOn()}</button>
           {/if}
         </div>
       </div>
 
       <!-- Speaker tone test -->
       <div class="border-t border-gray-700 pt-2">
-        <div class="text-xs text-gray-400 mb-1.5">Lautsprecher-Ton (eingebauter Controller-Ton)</div>
+        <div class="text-xs text-gray-400 mb-1.5">{$LL.tester.speakerTone()}</div>
         <div class="flex flex-wrap gap-2">
           <button
             class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs text-white hover:bg-teal-700 disabled:opacity-50"
             onclick={() => playSpeakerTone(500)}
             disabled={speakerPlaying}
-          ><Volume2 class="h-3.5 w-3.5" /> Kurz (500ms)</button>
+          ><Volume2 class="h-3.5 w-3.5" /> {$LL.tester.toneShort()}</button>
           <button
             class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs text-white hover:bg-teal-700 disabled:opacity-50"
             onclick={() => playSpeakerTone(2000)}
             disabled={speakerPlaying}
-          ><Volume2 class="h-3.5 w-3.5" /> Lang (2s)</button>
+          ><Volume2 class="h-3.5 w-3.5" /> {$LL.tester.toneLong()}</button>
           {#if speakerPlaying}
-            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={stopSpeaker}><Square class="h-3.5 w-3.5" /> Stop</button>
+            <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={stopSpeaker}><Square class="h-3.5 w-3.5" /> {$LL.tester.stop()}</button>
           {/if}
         </div>
       </div>
 
       <!-- Speaker→Mic loopback test (#50) -->
       <div class="border-t border-gray-700 pt-2">
-        <div class="text-xs text-gray-400 mb-1.5">Speaker→Mic Loopback</div>
+        <div class="text-xs text-gray-400 mb-1.5">{$LL.tester.loopback()}</div>
         <SpeakerMicLoopback {manager} />
       </div>
     </div>
   {:else if tab === 'imu'}
     <div class="flex flex-col gap-3">
       <p class="text-xs text-gray-500">
-        Live-Sensordaten des DualSense-IMU. Bewege oder neige den Controller, um
-        Gyroskop (°/s) und Beschleunigung (g) zu sehen.
+        {$LL.tester.imuIntro()}
       </p>
       <ImuVisualizer />
     </div>
   {:else if tab === 'touch'}
     <div class="flex flex-col gap-3">
       <p class="text-xs text-gray-500">
-        Touchpad-Gesten des DualSense. Streiche oder tippe auf das Pad, um
-        Tipp / Wischen / Halten / Zwei-Finger zu erkennen.
+        {$LL.tester.touchIntro()}
       </p>
       <TouchpadGestureVisualizer />
     </div>
