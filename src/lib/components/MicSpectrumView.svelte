@@ -5,13 +5,13 @@
   // falling peak-hold marker, a dB scale, and a frequency axis. Useful for
   // spotting a dead/quiet channel, hum (50 Hz), or a clipped high end during
   // mic diagnostics.
-  import { Mic, MicOff } from 'lucide-svelte';
+  import { MicOff } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
   import LL from '$lib/i18n/i18n-svelte';
 
   let { active = false }: { active?: boolean } = $props();
 
-  let canvas: HTMLCanvasElement | null = null;
+  let canvas = $state<HTMLCanvasElement | null>(null);
   let deviceFound = $state(false);
   let permissionDenied = $state(false);
   let errorMsg = $state<string | null>(null);

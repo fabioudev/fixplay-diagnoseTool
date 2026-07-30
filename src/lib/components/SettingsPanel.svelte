@@ -249,9 +249,9 @@
 
       <!-- Tablet Mode -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-gray-400">
+        <span class="text-xs font-medium text-gray-400">
           {$LL.settings.tabletLabel()}
-        </label>
+        </span>
         <label
           class="flex items-center gap-2.5 cursor-pointer select-none"
           title={$LL.settings.tabletTitle()}

@@ -5,9 +5,10 @@
   // the child content via a fresh key.
   import { AlertTriangle, RefreshCw } from 'lucide-svelte';
   import { get } from 'svelte/store';
+  import type { Snippet } from 'svelte';
   import LL from '$lib/i18n/i18n-svelte';
 
-  let { panel = 'Panel' }: { panel?: string } = $props();
+  let { panel = 'Panel', children }: { panel?: string; children?: Snippet } = $props();
 
   let error = $state<string | null>(null);
   let key = $state(0);
@@ -36,5 +37,7 @@
     ><RefreshCw class="h-4 w-4" /> {$LL.common.reload()}</button>
   </div>
 {:else}
-  <slot />
+  {#key key}
+    {@render children?.()}
+  {/key}
 {/if}

@@ -6,7 +6,7 @@
   // state change (the same rate the live dial updates).
 
   import { stickState } from '$lib/stores/controller';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
 
   let {
     side = 'left' as 'left' | 'right',
@@ -21,7 +21,9 @@
   } = $props();
 
   let canvas: HTMLCanvasElement;
-  const buf = new Array<number>(samples).fill(0);
+  // `samples` is a static config prop; capture it once (untracked) so the
+  // rolling buffer keeps a fixed size for the component's lifetime.
+  const buf = untrack(() => new Array<number>(samples).fill(0));
 
   function sample(): number {
     const s = $stickState[side];

@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, untrack } from 'svelte';
   import { sleep } from '$lib/controllers/utils';
   import { pushControllerLog, stickState, stickCircularity, stickDeadzone } from '$lib/stores/controller';
   import { CIRCULARITY_DATA_SIZE, calculateCircularityError } from '$lib/utils/stick-renderer';
@@ -24,7 +24,9 @@
   } = $props();
 
   type Mode = 'center' | 'range';
-  let mode = $state<Mode>(initialMode);
+  // Seed from the prop once (untracked) — `mode` is user-mutable afterwards and
+  // must not follow a later prop change.
+  let mode = $state<Mode>(untrack(() => initialMode));
   let step = $state(0);
   let totalSteps = $state(6);
   let busy = $state(false);
