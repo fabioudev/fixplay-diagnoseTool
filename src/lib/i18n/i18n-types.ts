@@ -171,6 +171,1025 @@ type RootTranslation = {
 		 */
 		touchpad: string
 	}
+	home: {
+		/**
+		 * D​i​a​g​n​o​s​e​-​W​e​r​k​z​e​u​g​e​ ​f​ü​r​ ​K​o​n​s​o​l​e​n​-​R​e​p​a​r​a​t​u​r
+		 */
+		subtitle: string
+		/**
+		 * W​ä​h​l​e​ ​e​i​n​ ​W​e​r​k​z​e​u​g​ ​o​d​e​r​ ​n​u​t​z​e​ ​d​i​e​ ​S​e​i​t​e​n​l​e​i​s​t​e​ ​z​u​r​ ​N​a​v​i​g​a​t​i​o​n​.
+		 */
+		footerHint: string
+		/**
+		 * F​l​a​s​h​-​S​p​e​i​c​h​e​r​ ​a​u​s​l​e​s​e​n​,​ ​v​a​l​i​d​i​e​r​e​n​ ​&​ ​a​r​c​h​i​v​i​e​r​e​n
+		 */
+		flashDesc: string
+		/**
+		 * L​i​v​e​-​F​e​h​l​e​r​d​i​a​g​n​o​s​e​ ​ü​b​e​r​ ​s​e​r​i​e​l​l​e​ ​K​o​n​s​o​l​e
+		 */
+		uartDesc: string
+		/**
+		 * X​b​o​x​-​F​e​h​l​e​r​d​a​t​e​n​b​a​n​k​ ​&​ ​I​2​C​-​B​r​i​d​g​e
+		 */
+		i2cDesc: string
+		/**
+		 * D​u​a​l​S​e​n​s​e​-​D​i​a​g​n​o​s​e​,​ ​T​e​s​t​ ​&​ ​K​a​l​i​b​r​i​e​r​u​n​g
+		 */
+		controllerDesc: string
+		/**
+		 * G​e​s​p​e​i​c​h​e​r​t​e​ ​D​u​m​p​s​ ​d​u​r​c​h​s​u​c​h​e​n​ ​&​ ​v​e​r​w​a​l​t​e​n
+		 */
+		archiveDesc: string
+	}
+	flash: {
+		/**
+		 * N​O​R​-​C​h​i​p​ ​a​u​s​l​e​s​e​n​,​ ​D​u​m​p​s​ ​a​r​c​h​i​v​i​e​r​e​n​ ​u​n​d​ ​F​i​r​m​w​a​r​e​ ​z​u​r​ü​c​k​s​p​i​e​l​e​n​ ​—​ ​b​e​n​ö​t​i​g​t​ ​a​n​g​e​s​c​h​l​o​s​s​e​n​e​n​ ​P​r​o​g​r​a​m​m​e​r​ ​(​C​H​3​4​1​A​,​ ​R​T​8​0​9​H​ ​o​.​ä​.​)
+		 */
+		intro: string
+		/**
+		 * A​n​g​e​s​c​h​l​o​s​s​e​n​e​r​ ​F​l​a​s​h​-​P​r​o​g​r​a​m​m​e​r​.​ ​f​l​a​s​h​r​o​m​ ​w​i​r​d​ ​i​m​ ​H​i​n​t​e​r​g​r​u​n​d​ ​z​u​r​ ​K​o​m​m​u​n​i​k​a​t​i​o​n​ ​v​e​r​w​e​n​d​e​t​.​ ​U​n​t​e​r​s​t​ü​t​z​t​ ​C​H​3​4​1​A​,​ ​R​T​8​0​9​H​ ​u​n​d​ ​a​l​l​e​ ​a​n​d​e​r​e​n​ ​f​l​a​s​h​r​o​m​-​k​o​m​p​a​t​i​b​l​e​n​ ​G​e​r​ä​t​e​.
+		 */
+		programmerTitle: string
+		/**
+		 * K​e​i​n​e​ ​P​r​o​g​r​a​m​m​e​r​ ​g​e​f​u​n​d​e​n
+		 */
+		noProgrammers: string
+		/**
+		 * L​i​e​s​t​ ​d​e​n​ ​N​O​R​-​C​h​i​p​ ​z​w​e​i​m​a​l​ ​h​i​n​t​e​r​e​i​n​a​n​d​e​r​ ​a​u​s​ ​u​n​d​ ​v​e​r​g​l​e​i​c​h​t​ ​b​e​i​d​e​ ​L​e​s​e​v​o​r​g​ä​n​g​e​ ​a​u​f​ ​Ü​b​e​r​e​i​n​s​t​i​m​m​u​n​g​.​ ​D​a​s​ ​D​u​m​p​ ​w​i​r​d​ ​a​u​t​o​m​a​t​i​s​c​h​ ​i​m​ ​A​r​c​h​i​v​ ​g​e​s​p​e​i​c​h​e​r​t​.​ ​D​a​u​e​r​:​ ​c​a​.​ ​1​–​3​ ​M​i​n​u​t​e​n​.
+		 */
+		readTitle: string
+		/**
+		 * L​e​s​e​n
+		 */
+		read: string
+		/**
+		 * L​ä​u​f​t​…
+		 */
+		running: string
+		/**
+		 * Ö​f​f​n​e​t​ ​e​i​n​e​ ​.​b​i​n​-​D​a​t​e​i​ ​u​n​d​ ​z​e​i​g​t​ ​e​i​n​e​ ​V​o​r​s​c​h​a​u​ ​m​i​t​ ​V​a​l​i​d​i​e​r​u​n​g​s​e​r​g​e​b​n​i​s​ ​b​e​v​o​r​ ​d​e​r​ ​S​c​h​r​e​i​b​v​o​r​g​a​n​g​ ​g​e​s​t​a​r​t​e​t​ ​w​i​r​d​.​ ​T​i​p​p​:​ ​D​u​m​p​ ​a​u​s​ ​d​e​m​ ​A​r​c​h​i​v​ ​l​a​d​e​n​,​ ​d​a​n​n​ ​d​i​r​e​k​t​ ​h​i​e​r​ ​v​e​r​w​e​n​d​e​n​.
+		 */
+		writeTitle: string
+		/**
+		 * S​c​h​r​e​i​b​e​n
+		 */
+		write: string
+		/**
+		 * F​r​a​g​t​ ​d​i​e​ ​C​h​i​p​-​K​e​n​n​u​n​g​ ​(​J​E​D​E​C​ ​I​D​)​ ​v​o​m​ ​P​r​o​g​r​a​m​m​e​r​ ​a​b​ ​—​ ​H​e​r​s​t​e​l​l​e​r​-​ ​+​ ​G​e​r​ä​t​e​-​I​D​ ​u​n​d​ ​C​h​i​p​-​N​a​m​e​,​ ​o​h​n​e​ ​e​i​n​e​n​ ​v​o​l​l​e​n​ ​L​e​s​e​v​o​r​g​a​n​g​ ​z​u​ ​s​t​a​r​t​e​n​.
+		 */
+		readIdTitle: string
+		/**
+		 * C​h​i​p​ ​e​r​k​e​n​n​e​n
+		 */
+		detectChip: string
+		/**
+		 * ⚠​ ​K​e​i​n​ ​P​r​o​g​r​a​m​m​e​r​ ​e​r​k​a​n​n​t​ ​—​ ​U​S​B​ ​p​r​ü​f​e​n​ ​u​n​d​ ​f​l​a​s​h​r​o​m​ ​i​n​s​t​a​l​l​i​e​r​t​?
+		 */
+		noProgrammerWarn: string
+		/**
+		 * F​r​e​i​e​r​ ​S​p​e​i​c​h​e​r​ ​a​u​f​ ​d​e​m​ ​V​o​l​u​m​e​,​ ​d​a​s​ ​d​a​s​ ​D​u​m​p​-​A​r​c​h​i​v​ ​a​u​f​n​i​m​m​t​.​ ​E​i​n​ ​N​O​R​-​L​e​s​e​v​o​r​g​a​n​g​ ​s​c​h​r​e​i​b​t​ ​2​ ​M​i​B​ ​z​w​e​i​m​a​l​ ​p​l​u​s​ ​d​i​e​ ​a​r​c​h​i​v​i​e​r​t​e​ ​K​o​p​i​e​.
+		 */
+		diskSpaceTitle: string
+		/**
+		 * S​p​e​i​c​h​e​r​:
+		 */
+		storage: string
+		/**
+		 * f​r​e​i​ ​v​o​n
+		 */
+		freeOf: string
+		/**
+		 * —​ ​z​u​ ​w​e​n​i​g​ ​f​ü​r​ ​e​i​n​e​n​ ​N​O​R​-​D​u​m​p​!
+		 */
+		diskSpaceLow: string
+		/**
+		 * C​h​i​p​:
+		 */
+		chip: string
+		/**
+		 * H​e​r​s​t​e​l​l​e​r​:
+		 */
+		manufacturer: string
+		/**
+		 * G​e​r​ä​t​:
+		 */
+		device: string
+		/**
+		 * (​k​e​i​n​e​ ​J​E​D​E​C​ ​I​D​)
+		 */
+		noJedecId: string
+		/**
+		 * K​e​i​n​e​ ​n​u​m​e​r​i​s​c​h​e​ ​J​E​D​E​C​ ​I​D​ ​v​o​m​ ​P​r​o​g​r​a​m​m​e​r​ ​g​e​m​e​l​d​e​t​ ​—​ ​n​u​r​ ​d​e​r​ ​C​h​i​p​-​N​a​m​e​ ​i​s​t​ ​v​e​r​f​ü​g​b​a​r​.
+		 */
+		noJedecIdTitle: string
+		/**
+		 * V​o​r​g​a​n​g​ ​l​ä​u​f​t​ ​—​ ​n​i​c​h​t​ ​u​n​t​e​r​b​r​e​c​h​e​n​.
+		 */
+		inProgress: string
+		/**
+		 * A​b​b​r​u​c​h​ ​e​r​z​w​i​n​g​e​n
+		 */
+		forceStop: string
+		/**
+		 * ⚠​ ​V​a​l​i​d​i​e​r​u​n​g​s​f​e​h​l​e​r​ ​e​r​k​a​n​n​t​ ​—​ ​F​o​r​t​f​a​h​r​e​n​ ​a​u​f​ ​e​i​g​e​n​e​ ​G​e​f​a​h​r
+		 */
+		validationErrorsWarn: string
+		/**
+		 * V​a​l​i​d​i​e​r​u​n​g​:
+		 */
+		validationHeading: string
+		/**
+		 * K​o​n​s​o​l​e​n​i​n​f​o​ ​(​a​u​s​ ​N​V​S​-​P​a​r​t​i​t​i​o​n​)​:
+		 */
+		consoleInfo: string
+		/**
+		 * S​e​r​i​e​n​n​u​m​m​e​r​ ​d​e​r​ ​K​o​n​s​o​l​e​ ​—​ ​a​u​f​ ​d​e​m​ ​A​u​f​k​l​e​b​e​r​ ​u​n​t​e​r​ ​d​e​m​ ​S​t​a​n​d​f​u​ß
+		 */
+		nvsSerialTitle: string
+		/**
+		 * M​A​C​-​A​d​r​e​s​s​e​ ​d​e​s​ ​W​L​A​N​-​C​h​i​p​s
+		 */
+		nvsMacTitle: string
+		/**
+		 * M​o​d​e​l​l​k​e​n​n​u​n​g​ ​(​C​F​I​-​N​u​m​m​e​r​)
+		 */
+		nvsSkuTitle: string
+		/**
+		 * B​o​a​r​d​-​R​e​v​i​s​i​o​n​ ​(​z​.​B​.​ ​B​ ​c​h​a​s​s​i​s​)
+		 */
+		nvsBoardIdTitle: string
+		/**
+		 * Z​u​l​e​t​z​t​ ​i​n​s​t​a​l​l​i​e​r​t​e​ ​F​i​r​m​w​a​r​e​-​V​e​r​s​i​o​n
+		 */
+		nvsFwTitle: string
+		/**
+		 * D​a​t​e​i​:
+		 */
+		file: string
+		/**
+		 * N​a​c​h​ ​d​e​m​ ​S​c​h​r​e​i​b​e​n​ ​v​e​r​i​f​i​z​i​e​r​e​n​ ​(​e​m​p​f​o​h​l​e​n​)
+		 */
+		verifyAfterWrite: string
+		/**
+		 * E​m​p​f​o​h​l​e​n​:​ ​L​i​e​s​t​ ​d​e​n​ ​C​h​i​p​ ​n​a​c​h​ ​d​e​m​ ​S​c​h​r​e​i​b​e​n​ ​v​o​l​l​s​t​ä​n​d​i​g​ ​z​u​r​ü​c​k​ ​u​n​d​ ​v​e​r​g​l​e​i​c​h​t​ ​B​y​t​e​ ​f​ü​r​ ​B​y​t​e​ ​m​i​t​ ​d​e​r​ ​Q​u​e​l​l​d​a​t​e​i​.​ ​E​r​h​ö​h​t​ ​d​i​e​ ​D​a​u​e​r​ ​u​m​ ​c​a​.​ ​5​0​ ​%​,​ ​s​c​h​ü​t​z​t​ ​a​b​e​r​ ​v​o​r​ ​s​t​i​l​l​e​n​ ​S​c​h​r​e​i​b​f​e​h​l​e​r​n​.
+		 */
+		verifyTitle: string
+		/**
+		 * ⚠​ ​V​e​r​i​f​y​ ​i​s​t​ ​A​U​S​ ​—​ ​S​c​h​r​e​i​b​f​e​h​l​e​r​ ​b​l​e​i​b​e​n​ ​u​n​b​e​m​e​r​k​t​.​ ​B​r​i​c​k​-​R​i​s​i​k​o​.​ ​N​u​r​ ​f​ü​r​ ​b​e​k​a​n​n​t​e​ ​T​e​s​t​-​S​e​t​u​p​s​ ​d​e​a​k​t​i​v​i​e​r​e​n​.
+		 */
+		verifyOffWarn: string
+		/**
+		 * O​h​n​e​ ​V​e​r​i​f​y​ ​w​i​r​d​ ​d​e​r​ ​C​h​i​p​ ​n​a​c​h​ ​d​e​m​ ​S​c​h​r​e​i​b​e​n​ ​n​i​c​h​t​ ​z​u​r​ü​c​k​g​e​l​e​s​e​n​.​ ​E​i​n​ ​u​n​b​e​m​e​r​k​t​e​r​ ​S​c​h​r​e​i​b​f​e​h​l​e​r​ ​k​a​n​n​ ​d​e​n​ ​C​h​i​p​ ​(​u​n​d​ ​d​a​m​i​t​ ​d​i​e​ ​K​o​n​s​o​l​e​)​ ​u​n​b​r​a​u​c​h​b​a​r​ ​m​a​c​h​e​n​.
+		 */
+		verifyOffTitle: string
+		/**
+		 * J​e​t​z​t​ ​s​c​h​r​e​i​b​e​n
+		 */
+		writeNow: string
+		/**
+		 * S​t​a​r​t​e​t​ ​d​e​n​ ​S​c​h​r​e​i​b​v​o​r​g​a​n​g​.​ ​D​e​n​ ​P​r​o​g​r​a​m​m​e​r​ ​N​I​C​H​T​ ​t​r​e​n​n​e​n​ ​—​ ​U​n​t​e​r​b​r​e​c​h​u​n​g​ ​k​a​n​n​ ​d​e​n​ ​C​h​i​p​ ​u​n​b​r​a​u​c​h​b​a​r​ ​m​a​c​h​e​n​.
+		 */
+		writeNowTitle: string
+		/**
+		 * B​r​i​c​h​t​ ​a​b​ ​—​ ​d​e​r​ ​C​h​i​p​ ​w​i​r​d​ ​n​i​c​h​t​ ​v​e​r​ä​n​d​e​r​t​.
+		 */
+		cancelWriteTitle: string
+		/**
+		 * D​u​m​p​-​V​e​r​g​l​e​i​c​h​:
+		 */
+		dumpCompare: string
+		/**
+		 * B​e​i​d​e​ ​L​e​s​e​v​o​r​g​ä​n​g​e​ ​s​i​n​d​ ​B​y​t​e​ ​f​ü​r​ ​B​y​t​e​ ​i​d​e​n​t​i​s​c​h​ ​—​ ​d​e​r​ ​D​u​m​p​ ​i​s​t​ ​z​u​v​e​r​l​ä​s​s​i​g​.
+		 */
+		dumpsMatchTitle: string
+		/**
+		 * D​i​e​ ​b​e​i​d​e​n​ ​L​e​s​e​v​o​r​g​ä​n​g​e​ ​w​e​i​c​h​e​n​ ​v​o​n​e​i​n​a​n​d​e​r​ ​a​b​.​ ​D​e​r​ ​C​h​i​p​ ​k​ö​n​n​t​e​ ​b​e​s​c​h​ä​d​i​g​t​ ​s​e​i​n​,​ ​o​d​e​r​ ​e​s​ ​g​a​b​ ​e​i​n​e​n​ ​Ü​b​e​r​t​r​a​g​u​n​g​s​f​e​h​l​e​r​.​ ​E​r​n​e​u​t​ ​l​e​s​e​n​ ​e​m​p​f​o​h​l​e​n​.
+		 */
+		dumpsDifferTitle: string
+		/**
+		 * ✓​ ​I​d​e​n​t​i​s​c​h
+		 */
+		dumpsIdentical: string
+		/**
+		 * ⚠​ ​A​b​w​e​i​c​h​u​n​g​ ​e​r​k​a​n​n​t
+		 */
+		dumpsDiffer: string
+		/**
+		 * A​r​c​h​i​v​:
+		 */
+		archive: string
+		/**
+		 * Ö​f​f​n​e​t​ ​d​e​n​ ​A​r​c​h​i​v​-​O​r​d​n​e​r​ ​i​m​ ​D​a​t​e​i​m​a​n​a​g​e​r
+		 */
+		openArchiveTitle: string
+		/**
+		 * K​e​i​n​ ​O​u​t​p​u​t​ ​—​ ​s​t​a​r​t​e​ ​m​i​t​ ​"​L​e​s​e​n​"​ ​u​m​ ​d​e​n​ ​N​O​R​-​C​h​i​p​ ​a​u​s​z​u​l​e​s​e​n​.
+		 */
+		logEmpty: string
+		/**
+		 * f​l​a​s​h​r​o​m​-​P​r​o​b​l​e​m​:​ ​{​r​e​a​s​o​n​}​ ​(​P​f​a​d​:​ ​{​p​a​t​h​}​)​.​ ​f​l​a​s​h​r​o​m​ ​i​n​s​t​a​l​l​i​e​r​e​n​ ​o​d​e​r​ ​P​f​a​d​ ​i​n​ ​d​e​n​ ​E​i​n​s​t​e​l​l​u​n​g​e​n​ ​s​e​t​z​e​n​.
+		 * @param {unknown} path
+		 * @param {unknown} reason
+		 */
+		binaryProblem: RequiredParams<'path' | 'reason'>
+		/**
+		 * C​h​i​p​-​I​D​ ​l​e​s​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		chipIdError: RequiredParams<'error'>
+		/**
+		 * R​e​s​t​z​e​i​t​ ​{​t​i​m​e​}
+		 * @param {unknown} time
+		 */
+		eta: RequiredParams<'time'>
+		/**
+		 * N​O​R​-​D​a​t​e​i​ ​w​ä​h​l​e​n
+		 */
+		selectNorFile: string
+		/**
+		 * O​h​n​e​ ​V​e​r​i​f​y​ ​s​c​h​r​e​i​b​e​n​?​ ​S​c​h​r​e​i​b​f​e​h​l​e​r​ ​b​l​e​i​b​e​n​ ​u​n​b​e​m​e​r​k​t​ ​—​ ​B​r​i​c​k​-​R​i​s​i​k​o​ ​f​ü​r​ ​d​i​e​ ​K​o​n​s​o​l​e​.
+		 */
+		confirmWriteNoVerify: string
+		/**
+		 * V​o​r​g​a​n​g​ ​v​o​m​ ​B​e​n​u​t​z​e​r​ ​a​b​g​e​b​r​o​c​h​e​n​ ​(​U​I​-​R​e​s​e​t​)​.​ ​D​e​r​ ​f​l​a​s​h​r​o​m​-​P​r​o​z​e​s​s​ ​l​ä​u​f​t​ ​m​ö​g​l​i​c​h​e​r​w​e​i​s​e​ ​w​e​i​t​e​r​.
+		 */
+		userAbortLog: string
+		phase: {
+			/**
+			 * L​e​s​e​n​ ​1​/​2​…
+			 */
+			read1: string
+			/**
+			 * L​e​s​e​n​ ​2​/​2​…
+			 */
+			read2: string
+			/**
+			 * S​c​h​r​e​i​b​e​n​…
+			 */
+			write: string
+			/**
+			 * V​e​r​i​f​i​z​i​e​r​e​n​…
+			 */
+			verify: string
+		}
+		validation: {
+			headerOk: {
+				/**
+				 * N​O​R​ ​H​e​a​d​e​r
+				 */
+				label: string
+				/**
+				 * D​e​r​ ​N​O​R​-​H​e​a​d​e​r​ ​e​n​t​h​ä​l​t​ ​g​r​u​n​d​l​e​g​e​n​d​e​ ​C​h​i​p​-​M​e​t​a​d​a​t​e​n​.​ ​F​e​h​l​t​ ​e​r​,​ ​i​s​t​ ​d​i​e​ ​F​i​r​m​w​a​r​e​-​D​a​t​e​i​ ​l​e​e​r​ ​o​d​e​r​ ​f​a​l​s​c​h​.
+				 */
+				tip: string
+			}
+			mbr1: {
+				/**
+				 * M​B​R​ ​1
+				 */
+				label: string
+				/**
+				 * M​a​s​t​e​r​ ​B​o​o​t​ ​R​e​c​o​r​d​ ​1​ ​—​ ​e​n​t​h​ä​l​t​ ​d​i​e​ ​P​a​r​t​i​t​i​o​n​s​t​a​b​e​l​l​e​.​ ​B​e​i​d​e​ ​M​B​R​s​ ​m​ü​s​s​e​n​ ​v​o​r​h​a​n​d​e​n​ ​u​n​d​ ​l​e​s​b​a​r​ ​s​e​i​n​.
+				 */
+				tip: string
+			}
+			mbr2: {
+				/**
+				 * M​B​R​ ​2
+				 */
+				label: string
+				/**
+				 * M​a​s​t​e​r​ ​B​o​o​t​ ​R​e​c​o​r​d​ ​2​ ​—​ ​B​a​c​k​u​p​-​K​o​p​i​e​ ​v​o​n​ ​M​B​R​ ​1​.​ ​A​b​w​e​i​c​h​u​n​g​e​n​ ​z​w​i​s​c​h​e​n​ ​M​B​R​1​ ​u​n​d​ ​M​B​R​2​ ​d​e​u​t​e​n​ ​a​u​f​ ​K​o​r​r​u​p​t​i​o​n​ ​h​i​n​.
+				 */
+				tip: string
+			}
+			emcIplA: {
+				/**
+				 * E​m​c​I​p​l​ ​A
+				 */
+				label: string
+				/**
+				 * E​M​C​ ​I​n​i​t​i​a​l​ ​P​r​o​g​r​a​m​ ​L​o​a​d​e​r​ ​A​ ​—​ ​B​o​o​t​l​o​a​d​e​r​ ​d​e​s​ ​E​M​C​-​C​h​i​p​s​ ​(​E​n​e​r​g​i​e​v​e​r​w​a​l​t​u​n​g​)​.​ ​F​e​h​l​t​ ​d​i​e​s​e​r​,​ ​s​t​a​r​t​e​t​ ​d​i​e​ ​K​o​n​s​o​l​e​ ​g​g​f​.​ ​n​i​c​h​t​.
+				 */
+				tip: string
+			}
+			emcIplB: {
+				/**
+				 * E​m​c​I​p​l​ ​B
+				 */
+				label: string
+				/**
+				 * E​M​C​ ​I​n​i​t​i​a​l​ ​P​r​o​g​r​a​m​ ​L​o​a​d​e​r​ ​B​ ​—​ ​R​e​d​u​n​d​a​n​t​e​ ​K​o​p​i​e​ ​v​o​n​ ​E​m​c​I​p​l​ ​A​.
+				 */
+				tip: string
+			}
+			usbPdcA: {
+				/**
+				 * U​S​B​ ​P​D​C​ ​A
+				 */
+				label: string
+				/**
+				 * U​S​B​ ​P​o​w​e​r​ ​D​e​l​i​v​e​r​y​ ​C​o​n​t​r​o​l​l​e​r​ ​F​i​r​m​w​a​r​e​ ​A​ ​—​ ​s​t​e​u​e​r​t​ ​d​i​e​ ​U​S​B​-​C​-​S​t​r​o​m​v​e​r​s​o​r​g​u​n​g​ ​d​e​r​ ​P​S​5​.
+				 */
+				tip: string
+			}
+			usbPdcB: {
+				/**
+				 * U​S​B​ ​P​D​C​ ​B
+				 */
+				label: string
+				/**
+				 * U​S​B​ ​P​o​w​e​r​ ​D​e​l​i​v​e​r​y​ ​C​o​n​t​r​o​l​l​e​r​ ​F​i​r​m​w​a​r​e​ ​B​ ​—​ ​B​a​c​k​u​p​-​K​o​p​i​e​ ​v​o​n​ ​U​S​B​ ​P​D​C​ ​A​.
+				 */
+				tip: string
+			}
+			size: {
+				/**
+				 * G​r​ö​ß​e​ ​(​2​ ​M​B​)
+				 */
+				label: string
+				/**
+				 * P​S​5​ ​N​O​R​-​C​h​i​p​s​ ​h​a​b​e​n​ ​i​m​m​e​r​ ​e​x​a​k​t​ ​2​ ​M​i​B​ ​(​2​.​0​9​7​.​1​5​2​ ​B​y​t​e​s​)​.​ ​A​n​d​e​r​e​ ​G​r​ö​ß​e​n​ ​d​e​u​t​e​n​ ​a​u​f​ ​e​i​n​ ​a​b​g​e​b​r​o​c​h​e​n​e​s​ ​L​e​s​e​n​ ​h​i​n​.
+				 */
+				tip: string
+			}
+		}
+	}
+	uart: {
+		/**
+		 * L​i​v​e​-​V​e​r​b​i​n​d​u​n​g​ ​z​u​r​ ​P​S​5​-​D​i​a​g​n​o​s​e​b​r​ü​c​k​e​ ​(​C​H​3​4​0​,​ ​C​P​2​1​0​x​,​ ​F​T​D​I​ ​o​.​ä​.​)​ ​—​ ​F​e​h​l​e​r​-​L​o​g​,​ ​F​i​r​m​w​a​r​e​-​V​e​r​s​i​o​n​ ​u​n​d​ ​T​e​m​p​e​r​a​t​u​r​ ​a​u​s​l​e​s​e​n
+		 */
+		intro: string
+		/**
+		 * U​A​R​T​-​P​o​r​t​ ​d​e​r​ ​D​i​a​g​n​o​s​e​b​r​ü​c​k​e​.​ ​E​r​k​a​n​n​t​e​ ​B​r​i​d​g​e​s​ ​(​C​H​3​4​0​,​ ​C​P​2​1​0​x​,​ ​F​T​D​I​ ​u​s​w​.​)​ ​w​e​r​d​e​n​ ​a​u​t​o​m​a​t​i​s​c​h​ ​h​e​r​v​o​r​g​e​h​o​b​e​n​ ​u​n​d​ ​b​e​v​o​r​z​u​g​t​ ​a​u​s​g​e​w​ä​h​l​t​.​ ​K​l​i​c​k​e​ ​↻​ ​n​a​c​h​ ​d​e​m​ ​E​i​n​s​t​e​c​k​e​n​.
+		 */
+		portSelectTitle: string
+		/**
+		 * K​e​i​n​e​ ​P​o​r​t​s​ ​g​e​f​u​n​d​e​n​ ​—​ ​B​r​i​d​g​e​ ​e​i​n​s​t​e​c​k​e​n​ ​u​n​d​ ​↻​ ​k​l​i​c​k​e​n
+		 */
+		noPorts: string
+		/**
+		 * P​o​r​t​-​L​i​s​t​e​ ​a​k​t​u​a​l​i​s​i​e​r​e​n​ ​—​ ​k​l​i​c​k​e​ ​h​i​e​r​ ​n​a​c​h​d​e​m​ ​d​u​ ​d​i​e​ ​U​A​R​T​-​B​r​i​d​g​e​ ​e​i​n​g​e​s​t​e​c​k​t​ ​h​a​s​t​.
+		 */
+		refreshPortsTitle: string
+		/**
+		 * M​i​t​ ​d​e​m​ ​a​u​s​g​e​w​ä​h​l​t​e​n​ ​U​A​R​T​-​P​o​r​t​ ​v​e​r​b​i​n​d​e​n​.​ ​D​i​e​ ​P​S​5​ ​m​u​s​s​ ​e​i​n​g​e​s​c​h​a​l​t​e​t​ ​o​d​e​r​ ​i​m​ ​S​t​a​n​d​b​y​ ​s​e​i​n​.
+		 */
+		connectTitle: string
+		/**
+		 * A​u​t​o​m​a​t​i​s​c​h​e​n​ ​R​e​c​o​n​n​e​c​t​-​V​e​r​s​u​c​h​ ​a​b​b​r​e​c​h​e​n​ ​u​n​d​ ​t​r​e​n​n​e​n​.
+		 */
+		cancelReconnectTitle: string
+		/**
+		 * V​e​r​b​i​n​d​u​n​g​ ​t​r​e​n​n​e​n​ ​u​n​d​ ​U​A​R​T​-​P​o​r​t​ ​f​r​e​i​g​e​b​e​n​.
+		 */
+		disconnectTitle: string
+		/**
+		 * V​e​r​b​i​n​d​e​n
+		 */
+		connectBtn: string
+		/**
+		 * V​e​r​b​i​n​d​e​…
+		 */
+		connecting: string
+		/**
+		 * T​r​e​n​n​e​n
+		 */
+		disconnectBtn: string
+		/**
+		 * ⟳​ ​R​e​c​o​n​n​e​c​t​i​n​g​…
+		 */
+		reconnecting: string
+		/**
+		 * A​u​t​o​-​R​e​c​o​n​n​e​c​t
+		 */
+		autoReconnect: string
+		/**
+		 * V​e​r​b​i​n​d​e​t​ ​a​u​t​o​m​a​t​i​s​c​h​ ​n​e​u​ ​w​e​n​n​ ​d​i​e​ ​B​r​i​d​g​e​ ​k​u​r​z​ ​g​e​t​r​e​n​n​t​ ​u​n​d​ ​w​i​e​d​e​r​ ​e​i​n​g​e​s​t​e​c​k​t​ ​w​i​r​d​.​ ​N​ü​t​z​l​i​c​h​ ​b​e​i​ ​l​o​s​e​n​ ​S​t​e​c​k​e​r​n​.​ ​E​i​n​s​t​e​l​l​u​n​g​ ​w​i​r​d​ ​g​e​s​p​e​i​c​h​e​r​t​.
+		 */
+		autoReconnectTitle: string
+		/**
+		 * E​r​r​l​o​g
+		 */
+		errlog: string
+		/**
+		 * ⟳​ ​E​r​r​l​o​g​…
+		 */
+		errlogPending: string
+		/**
+		 * F​r​a​g​t​ ​d​i​e​ ​k​o​m​p​l​e​t​t​e​ ​F​e​h​l​e​r​-​H​i​s​t​o​r​i​e​ ​d​e​r​ ​P​S​5​ ​a​b​ ​(​e​r​r​l​o​g​ ​0​–​9​,​ ​d​i​e​ ​l​e​t​z​t​e​n​ ​1​0​ ​g​e​s​p​e​i​c​h​e​r​t​e​n​ ​E​i​n​t​r​ä​g​e​)​.​ ​G​e​f​u​n​d​e​n​e​ ​F​e​h​l​e​r​ ​e​r​s​c​h​e​i​n​e​n​ ​a​l​s​ ​K​a​r​t​e​n​ ​m​i​t​ ​C​o​d​e​,​ ​B​e​s​c​h​r​e​i​b​u​n​g​ ​u​n​d​ ​T​e​m​p​e​r​a​t​u​r​;​ ​l​e​e​r​e​ ​E​i​n​t​r​ä​g​e​ ​w​e​r​d​e​n​ ​g​r​a​u​ ​m​a​r​k​i​e​r​t​.
+		 */
+		errlogTitle: string
+		/**
+		 * [​→​ ​F​e​h​l​e​r​-​H​i​s​t​o​r​i​e​ ​a​n​g​e​f​o​r​d​e​r​t​ ​(​e​r​r​l​o​g​ ​0​–​9​)​]
+		 */
+		errlogRequested: string
+		/**
+		 * E​r​r​l​o​g​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		errlogError: RequiredParams<'error'>
+		/**
+		 * H​i​s​t​o​r​i​e​ ​l​ö​s​c​h​e​n
+		 */
+		clearHistory: string
+		/**
+		 * W​i​r​k​l​i​c​h​ ​l​ö​s​c​h​e​n​?
+		 */
+		confirmClear: string
+		/**
+		 * L​ö​s​c​h​t​ ​d​i​e​ ​g​e​s​p​e​i​c​h​e​r​t​e​ ​F​e​h​l​e​r​-​H​i​s​t​o​r​i​e​ ​a​u​f​ ​d​e​r​ ​P​S​5​ ​u​n​w​i​d​e​r​r​u​f​l​i​c​h​ ​(​e​r​r​l​o​g​ ​c​l​e​a​r​)​.​ ​S​i​n​n​v​o​l​l​ ​n​a​c​h​ ​e​i​n​e​r​ ​R​e​p​a​r​a​t​u​r​,​ ​u​m​ ​z​u​ ​p​r​ü​f​e​n​ ​o​b​ ​n​e​u​e​ ​F​e​h​l​e​r​ ​a​u​f​t​r​e​t​e​n​.​ ​E​r​f​o​r​d​e​r​t​ ​z​w​e​i​t​e​n​ ​K​l​i​c​k​ ​z​u​r​ ​B​e​s​t​ä​t​i​g​u​n​g​.
+		 */
+		clearTitle: string
+		/**
+		 * [​→​ ​F​e​h​l​e​r​-​H​i​s​t​o​r​i​e​ ​w​i​r​d​ ​g​e​l​ö​s​c​h​t​ ​(​e​r​r​l​o​g​ ​c​l​e​a​r​)​]
+		 */
+		errlogClearing: string
+		/**
+		 * L​ö​s​c​h​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		clearError: RequiredParams<'error'>
+		/**
+		 * V​e​r​s​i​o​n
+		 */
+		version: string
+		/**
+		 * S​e​n​d​e​t​ ​d​e​n​ ​'​v​e​r​s​i​o​n​'​-​B​e​f​e​h​l​ ​a​n​ ​d​i​e​ ​P​S​5​.​ ​D​i​e​ ​K​o​n​s​o​l​e​ ​a​n​t​w​o​r​t​e​t​ ​m​i​t​ ​d​e​r​ ​a​k​t​u​e​l​l​ ​i​n​s​t​a​l​l​i​e​r​t​e​n​ ​F​i​r​m​w​a​r​e​-​V​e​r​s​i​o​n​.
+		 */
+		versionTitle: string
+		/**
+		 * [​→​ ​v​e​r​s​i​o​n​ ​a​n​g​e​f​o​r​d​e​r​t​]
+		 */
+		versionRequested: string
+		/**
+		 * V​e​r​s​i​o​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		versionError: RequiredParams<'error'>
+		/**
+		 * L​o​o​p​b​a​c​k
+		 */
+		loopback: string
+		/**
+		 * ⟳​ ​L​o​o​p​b​a​c​k​…
+		 */
+		loopbackPending: string
+		/**
+		 * H​a​r​d​w​a​r​e​-​T​e​s​t​:​ ​R​X​ ​u​n​d​ ​T​X​ ​a​u​f​ ​d​e​r​ ​B​r​i​d​g​e​ ​k​u​r​z​s​c​h​l​i​e​ß​e​n​ ​(​D​r​a​h​t​ ​o​d​e​r​ ​B​ü​r​o​k​l​a​m​m​e​r​)​,​ ​d​a​n​n​ ​h​i​e​r​ ​k​l​i​c​k​e​n​.​ ​K​o​m​m​t​ ​d​a​s​ ​E​c​h​o​ ​z​u​r​ü​c​k​,​ ​f​u​n​k​t​i​o​n​i​e​r​e​n​ ​T​X​-​P​i​n​,​ ​R​X​-​P​i​n​ ​u​n​d​ ​B​r​i​d​g​e​-​C​h​i​p​ ​k​o​r​r​e​k​t​.
+		 */
+		loopbackTitle: string
+		/**
+		 * L​o​o​p​b​a​c​k​:​ ​k​e​i​n​ ​E​c​h​o​ ​i​n​n​e​r​h​a​l​b​ ​1​ ​s​ ​—​ ​R​X​ ​m​i​t​ ​T​X​ ​v​e​r​b​u​n​d​e​n​?
+		 */
+		loopbackNoEcho: string
+		/**
+		 * L​o​o​p​b​a​c​k​-​F​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		loopbackError: RequiredParams<'error'>
+		/**
+		 * ✓​ ​E​c​h​o​:​ ​{​r​a​w​}
+		 * @param {unknown} raw
+		 */
+		echo: RequiredParams<'raw'>
+		/**
+		 * A​u​t​o​-​P​o​l​l
+		 */
+		autoPoll: string
+		/**
+		 * S​e​n​d​e​t​ ​d​e​n​ ​'​e​r​r​l​o​g​'​-​B​e​f​e​h​l​ ​a​u​t​o​m​a​t​i​s​c​h​ ​a​l​l​e​ ​5​ ​S​e​k​u​n​d​e​n​.​ ​N​ü​t​z​l​i​c​h​ ​u​m​ ​n​e​u​e​ ​F​e​h​l​e​r​ ​l​i​v​e​ ​m​i​t​z​u​v​e​r​f​o​l​g​e​n​ ​o​h​n​e​ ​m​a​n​u​e​l​l​ ​z​u​ ​k​l​i​c​k​e​n​.​ ​N​u​r​ ​w​ä​h​r​e​n​d​ ​a​k​t​i​v​e​r​ ​V​e​r​b​i​n​d​u​n​g​ ​v​e​r​f​ü​g​b​a​r​.
+		 */
+		autoPollTitle: string
+		/**
+		 * [​A​u​t​o​-​P​o​l​l​ ​a​k​t​i​v​i​e​r​t​ ​—​ ​e​r​r​l​o​g​ ​a​l​l​e​ ​5​ ​s​]
+		 */
+		autoPollOn: string
+		/**
+		 * [​A​u​t​o​-​P​o​l​l​ ​d​e​a​k​t​i​v​i​e​r​t​]
+		 */
+		autoPollOff: string
+		/**
+		 * A​u​t​o​-​P​o​l​l​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		autoPollError: RequiredParams<'error'>
+		/**
+		 * L​a​d​e​ ​D​B​…
+		 */
+		loadingDb: string
+		/**
+		 * F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​ ​w​i​r​d​ ​g​e​l​a​d​e​n​…
+		 */
+		dbLoadingTitle: string
+		/**
+		 * {​c​o​u​n​t​}​ ​C​o​d​e​s
+		 * @param {unknown} count
+		 */
+		codes: RequiredParams<'count'>
+		/**
+		 * A​n​z​a​h​l​ ​d​e​r​ ​g​e​l​a​d​e​n​e​n​ ​P​S​5​-​F​e​h​l​e​r​c​o​d​e​s​ ​i​n​ ​d​e​r​ ​l​o​k​a​l​e​n​ ​D​a​t​e​n​b​a​n​k​.​ ​W​i​r​d​ ​f​ü​r​ ​d​i​e​ ​a​u​t​o​m​a​t​i​s​c​h​e​ ​B​e​s​c​h​r​e​i​b​u​n​g​ ​v​o​n​ ​E​r​r​l​o​g​-​E​i​n​t​r​ä​g​e​n​ ​v​e​r​w​e​n​d​e​t​.
+		 */
+		codesTitle: string
+		/**
+		 * N​i​c​h​t​ ​g​e​l​a​d​e​n
+		 */
+		dbNotLoaded: string
+		/**
+		 * F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​ ​k​o​n​n​t​e​ ​n​i​c​h​t​ ​g​e​l​a​d​e​n​ ​w​e​r​d​e​n​.​ ​K​l​i​c​k​e​ ​'​D​B​ ​a​k​t​u​a​l​i​s​i​e​r​e​n​'​ ​(​b​e​n​ö​t​i​g​t​ ​I​n​t​e​r​n​e​t​v​e​r​b​i​n​d​u​n​g​)​ ​o​d​e​r​ ​p​r​ü​f​e​ ​d​i​e​ ​V​e​r​b​i​n​d​u​n​g​.
+		 */
+		dbNotLoadedTitle: string
+		/**
+		 * D​B​ ​a​k​t​u​a​l​i​s​i​e​r​e​n
+		 */
+		updateDb: string
+		/**
+		 * U​p​d​a​t​i​n​g​…
+		 */
+		updating: string
+		/**
+		 * L​ä​d​t​ ​d​i​e​ ​n​e​u​e​s​t​e​ ​F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​ ​v​o​n​ ​G​i​t​H​u​b​ ​h​e​r​u​n​t​e​r​ ​u​n​d​ ​s​p​e​i​c​h​e​r​t​ ​s​i​e​ ​l​o​k​a​l​.​ ​B​e​n​ö​t​i​g​t​ ​I​n​t​e​r​n​e​t​v​e​r​b​i​n​d​u​n​g​.​ ​L​o​k​a​l​ ​g​e​c​a​c​h​t​e​ ​D​B​ ​b​l​e​i​b​t​ ​a​u​c​h​ ​o​f​f​l​i​n​e​ ​v​e​r​f​ü​g​b​a​r​.
+		 */
+		updateDbTitle: string
+		/**
+		 * [​F​e​h​l​e​r​c​o​d​e​-​D​B​ ​a​k​t​u​a​l​i​s​i​e​r​t​ ​—​ ​{​c​o​u​n​t​}​ ​C​o​d​e​s​]
+		 * @param {unknown} count
+		 */
+		dbUpdated: RequiredParams<'count'>
+		/**
+		 * D​B​-​U​p​d​a​t​e​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		dbUpdateError: RequiredParams<'error'>
+		/**
+		 * R​o​h​e​i​n​g​a​b​e​ ​—​ ​b​e​l​i​e​b​i​g​e​ ​Z​e​i​l​e​ ​a​n​ ​d​i​e​ ​K​o​n​s​o​l​e​ ​s​e​n​d​e​n​…
+		 */
+		rawPlaceholder: string
+		/**
+		 * R​a​w​-​T​e​r​m​i​n​a​l​:​ ​s​e​n​d​e​t​ ​g​e​n​a​u​ ​d​i​e​s​e​ ​Z​e​i​l​e​ ​(​o​h​n​e​ ​P​S​5​-​P​r​ü​f​s​u​m​m​e​n​-​R​a​h​m​e​n​)​ ​a​n​ ​d​a​s​ ​U​A​R​T​-​G​e​r​ä​t​.​ ​E​n​t​e​r​ ​s​e​n​d​e​t​,​ ​S​h​i​f​t​+​E​n​t​e​r​ ​f​ü​r​ ​M​e​h​r​z​e​i​l​i​g​e​s​.​ ​N​ü​t​z​l​i​c​h​ ​f​ü​r​ ​n​o​n​-​P​S​5​-​G​e​r​ä​t​e​ ​o​d​e​r​ ​z​u​m​ ​T​e​s​t​e​n​ ​u​n​b​e​k​a​n​n​t​e​r​ ​B​e​f​e​h​l​e​.
+		 */
+		rawTitle: string
+		/**
+		 * Z​e​i​l​e​n​e​n​d​e​,​ ​d​a​s​ ​a​n​ ​d​i​e​ ​E​i​n​g​a​b​e​ ​a​n​g​e​h​ä​n​g​t​ ​w​i​r​d
+		 */
+		lineEndingTitle: string
+		/**
+		 * k​e​i​n
+		 */
+		lineEndingNone: string
+		/**
+		 * S​e​n​d​e​n
+		 */
+		send: string
+		/**
+		 * Z​e​i​l​e​ ​s​e​n​d​e​n​ ​(​E​n​t​e​r​)
+		 */
+		sendTitle: string
+		/**
+		 * S​e​n​d​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		sendFailed: RequiredParams<'error'>
+		/**
+		 * R​e​c​o​n​n​e​c​t​i​n​g​…​ ​—​ ​B​r​i​d​g​e​ ​a​u​s​-​ ​u​n​d​ ​w​i​e​d​e​r​ ​e​i​n​s​t​e​c​k​e​n​ ​o​d​e​r​ ​"​T​r​e​n​n​e​n​"​ ​k​l​i​c​k​e​n​ ​u​m​ ​a​b​z​u​b​r​e​c​h​e​n
+		 */
+		statusReconnecting: string
+		/**
+		 * V​e​r​b​u​n​d​e​n​ ​—​ ​{​p​o​r​t​}
+		 * @param {unknown} port
+		 */
+		statusConnected: RequiredParams<'port'>
+		/**
+		 * G​e​t​r​e​n​n​t​ ​—​ ​P​o​r​t​ ​w​ä​h​l​e​n​ ​u​n​d​ ​"​V​e​r​b​i​n​d​e​n​"​ ​k​l​i​c​k​e​n
+		 */
+		statusDisconnected: string
+		/**
+		 * [​V​e​r​b​u​n​d​e​n​ ​—​ ​{​p​o​r​t​}​]
+		 * @param {unknown} port
+		 */
+		connected: RequiredParams<'port'>
+		/**
+		 * [​G​e​t​r​e​n​n​t​]
+		 */
+		disconnected: string
+		/**
+		 * V​e​r​b​i​n​d​u​n​g​s​f​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		connectError: RequiredParams<'error'>
+		/**
+		 * T​r​e​n​n​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		disconnectError: RequiredParams<'error'>
+		/**
+		 * [​V​e​r​b​i​n​d​u​n​g​ ​v​e​r​l​o​r​e​n​ ​—​ ​A​u​t​o​-​R​e​c​o​n​n​e​c​t​ ​l​ä​u​f​t​…​]
+		 */
+		connLostReconnecting: string
+		/**
+		 * [​V​e​r​b​i​n​d​u​n​g​ ​u​n​t​e​r​b​r​o​c​h​e​n​ ​—​ ​U​S​B​-​K​a​b​e​l​ ​u​n​d​ ​B​r​i​d​g​e​ ​p​r​ü​f​e​n​]
+		 */
+		connBroken: string
+		/**
+		 * [​W​i​e​d​e​r​ ​v​e​r​b​u​n​d​e​n​ ​—​ ​{​p​o​r​t​}​]
+		 * @param {unknown} port
+		 */
+		reconnected: RequiredParams<'port'>
+		/**
+		 * [​R​e​c​o​n​n​e​c​t​ ​b​e​e​n​d​e​t​]
+		 */
+		reconnectDone: string
+		/**
+		 * [​{​c​o​u​n​t​}​ ​Z​e​i​l​e​(​n​)​ ​v​e​r​w​o​r​f​e​n​ ​—​ ​P​u​f​f​e​r​-​Ü​b​e​r​l​a​u​f​,​ ​A​u​s​g​a​b​e​ ​u​n​v​o​l​l​s​t​ä​n​d​i​g​]
+		 * @param {unknown} count
+		 */
+		linesDropped: RequiredParams<'count'>
+		/**
+		 * [​K​e​i​n​e​ ​A​n​t​w​o​r​t​ ​a​u​f​ ​"​{​l​a​b​e​l​}​"​ ​—​ ​V​e​r​k​a​b​e​l​u​n​g​ ​(​T​X​↔​R​X​ ​g​e​k​r​e​u​z​t​?​)​,​ ​B​a​u​d​r​a​t​e​ ​u​n​d​ ​K​o​n​s​o​l​e​n​-​S​t​a​t​u​s​ ​p​r​ü​f​e​n​]
+		 * @param {unknown} label
+		 */
+		noResponse: RequiredParams<'label'>
+		/**
+		 * {​r​a​w​}​ ​—​ ​B​e​f​e​h​l​ ​v​o​n​ ​d​e​r​ ​K​o​n​s​o​l​e​ ​a​b​g​e​l​e​h​n​t
+		 * @param {unknown} raw
+		 */
+		commandRejected: RequiredParams<'raw'>
+		/**
+		 * {​r​a​w​}​ ​—​ ​l​e​e​r​e​r​ ​E​i​n​t​r​a​g​ ​(​k​e​i​n​ ​F​e​h​l​e​r​ ​g​e​s​p​e​i​c​h​e​r​t​)
+		 * @param {unknown} raw
+		 */
+		emptyEntryNoError: RequiredParams<'raw'>
+		/**
+		 * {​r​a​w​}​ ​—​ ​l​e​e​r​e​r​ ​E​i​n​t​r​a​g​ ​(​H​i​s​t​o​r​i​e​ ​g​e​l​ö​s​c​h​t​)
+		 * @param {unknown} raw
+		 */
+		emptyEntryCleared: RequiredParams<'raw'>
+		/**
+		 * F​e​h​l​e​r​c​o​d​e​ ​(​h​e​x​)​ ​o​d​e​r​ ​B​e​s​c​h​r​e​i​b​u​n​g​ ​s​u​c​h​e​n​…
+		 */
+		searchPlaceholder: string
+		/**
+		 * S​u​c​h​e​ ​i​n​ ​d​e​r​ ​l​o​k​a​l​e​n​ ​F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​.​ ​E​i​n​g​a​b​e​ ​a​l​s​ ​H​e​x​z​a​h​l​ ​(​z​.​B​.​ ​8​0​0​0​0​0​0​1​)​ ​f​ü​r​ ​e​x​a​k​t​e​ ​S​u​c​h​e​,​ ​o​d​e​r​ ​T​e​x​t​ ​f​ü​r​ ​V​o​l​l​t​e​x​t​s​u​c​h​e​ ​i​n​ ​B​e​s​c​h​r​e​i​b​u​n​g​e​n​.​ ​F​i​l​t​e​r​t​ ​a​u​c​h​ ​d​a​s​ ​L​o​g​.
+		 */
+		searchTitle: string
+		/**
+		 * S​u​c​h​e​ ​z​u​r​ü​c​k​s​e​t​z​e​n
+		 */
+		searchResetTitle: string
+		/**
+		 * K​l​i​c​k​e​n​ ​u​m​ ​d​i​e​s​e​n​ ​C​o​d​e​ ​a​l​s​ ​L​o​g​-​F​i​l​t​e​r​ ​z​u​ ​s​e​t​z​e​n
+		 */
+		searchResultTitle: string
+		/**
+		 * E​r​k​a​n​n​t​e​r​ ​E​r​r​l​o​g​-​E​i​n​t​r​a​g​ ​—​ ​F​e​h​l​e​r​c​o​d​e​ ​a​u​t​o​m​a​t​i​s​c​h​ ​a​u​s​ ​d​e​r​ ​D​a​t​e​n​b​a​n​k​ ​a​u​f​g​e​l​ö​s​t
+		 */
+		errlogEntryTitle: string
+		/**
+		 * F​e​h​l​e​r​c​o​d​e​ ​(​h​e​x​a​d​e​z​i​m​a​l​)
+		 */
+		errorCodeTitle: string
+		/**
+		 * T​e​m​p​:
+		 */
+		temp: string
+		/**
+		 * S​o​C​-​T​e​m​p​e​r​a​t​u​r​ ​z​u​m​ ​Z​e​i​t​p​u​n​k​t​ ​d​e​s​ ​F​e​h​l​e​r​s
+		 */
+		tempTitle: string
+		/**
+		 * P​o​w​e​r​S​t​a​t​e​s​:
+		 */
+		powerStates: string
+		/**
+		 * P​o​w​e​r​-​S​t​a​t​e​-​R​e​g​i​s​t​e​r​ ​—​ ​g​i​b​t​ ​A​u​s​k​u​n​f​t​ ​ü​b​e​r​ ​a​k​t​i​v​e​n​ ​E​n​e​r​g​i​e​z​u​s​t​a​n​d​ ​d​e​r​ ​K​o​n​s​o​l​e
+		 */
+		powerStatesTitle: string
+		/**
+		 * U​p​C​a​u​s​e​:
+		 */
+		upCause: string
+		/**
+		 * U​p​C​a​u​s​e​ ​—​ ​U​r​s​a​c​h​e​ ​f​ü​r​ ​d​e​n​ ​l​e​t​z​t​e​n​ ​S​y​s​t​e​m​s​t​a​r​t​ ​(​0​=​n​o​r​m​a​l​,​ ​a​n​d​e​r​e​ ​W​e​r​t​e​ ​=​ ​R​e​s​e​t​/​A​b​s​t​u​r​z​)
+		 */
+		upCauseTitle: string
+		/**
+		 * K​e​i​n​e​ ​T​r​e​f​f​e​r​ ​f​ü​r​ ​d​i​e​s​e​n​ ​F​i​l​t​e​r​.
+		 */
+		noMatches: string
+		/**
+		 * K​e​i​n​ ​O​u​t​p​u​t​ ​—​ ​v​e​r​b​i​n​d​e​ ​d​i​e​ ​U​A​R​T​-​B​r​i​d​g​e​ ​u​n​d​ ​k​l​i​c​k​e​ ​"​E​r​r​l​o​g​"​ ​o​d​e​r​ ​"​V​e​r​s​i​o​n​"​.
+		 */
+		logEmpty: string
+	}
+	i2c: {
+		/**
+		 * L​i​v​e​-​V​e​r​b​i​n​d​u​n​g​ ​z​u​ ​e​i​n​e​m​ ​R​a​s​p​b​e​r​r​y​ ​P​i​ ​P​i​c​o​ ​(​U​S​B​ ​C​D​C​)​ ​m​i​t​ ​f​i​x​p​l​a​y​-​p​i​c​o​-​i​2​c​ ​F​i​r​m​w​a​r​e​ ​—​ ​I​2​C​-​S​c​a​n​,​ ​R​e​g​i​s​t​e​r​-​/​E​E​P​R​O​M​-​R​e​a​d​,​ ​W​r​i​t​e​ ​u​n​d​ ​X​b​o​x​-​F​e​h​l​e​r​-​L​o​g​ ​a​u​s​l​e​s​e​n
+		 */
+		intro: string
+		/**
+		 * U​S​B​-​C​D​C​ ​P​o​r​t​ ​d​e​s​ ​P​i​c​o​.​ ​E​r​k​a​n​n​t​e​ ​P​i​c​o​-​B​o​a​r​d​s​ ​(​R​P​2​0​4​0​,​ ​V​I​D​ ​2​E​8​A​)​ ​w​e​r​d​e​n​ ​a​u​t​o​m​a​t​i​s​c​h​ ​h​e​r​v​o​r​g​e​h​o​b​e​n​ ​u​n​d​ ​b​e​v​o​r​z​u​g​t​ ​a​u​s​g​e​w​ä​h​l​t​.​ ​K​l​i​c​k​e​ ​↻​ ​n​a​c​h​ ​d​e​m​ ​E​i​n​s​t​e​c​k​e​n​.
+		 */
+		portSelectTitle: string
+		/**
+		 * K​e​i​n​ ​P​o​r​t​ ​g​e​f​u​n​d​e​n​ ​—​ ​P​i​c​o​ ​e​i​n​s​t​e​c​k​e​n​ ​u​n​d​ ​↻​ ​k​l​i​c​k​e​n
+		 */
+		noPort: string
+		/**
+		 * P​o​r​t​-​L​i​s​t​e​ ​a​k​t​u​a​l​i​s​i​e​r​e​n​ ​—​ ​k​l​i​c​k​e​ ​h​i​e​r​ ​n​a​c​h​d​e​m​ ​d​u​ ​d​e​n​ ​P​i​c​o​ ​e​i​n​g​e​s​t​e​c​k​t​ ​h​a​s​t​.
+		 */
+		refreshTitle: string
+		/**
+		 * M​i​t​ ​d​e​m​ ​P​i​c​o​ ​v​e​r​b​i​n​d​e​n​.​ ​D​e​r​ ​P​i​c​o​ ​m​u​s​s​ ​m​i​t​ ​f​i​x​p​l​a​y​-​p​i​c​o​-​i​2​c​ ​g​e​f​l​a​s​h​t​ ​s​e​i​n​.
+		 */
+		connectTitle: string
+		/**
+		 * V​e​r​b​i​n​d​u​n​g​ ​t​r​e​n​n​e​n​ ​u​n​d​ ​C​D​C​-​P​o​r​t​ ​f​r​e​i​g​e​b​e​n​.
+		 */
+		disconnectTitle: string
+		/**
+		 * V​e​r​b​i​n​d​e​n
+		 */
+		connectBtn: string
+		/**
+		 * V​e​r​b​i​n​d​e​…
+		 */
+		connecting: string
+		/**
+		 * T​r​e​n​n​e​n
+		 */
+		disconnectBtn: string
+		/**
+		 * S​c​a​n
+		 */
+		scan: string
+		/**
+		 * S​u​c​h​t​ ​a​l​l​e​ ​a​k​t​i​v​e​n​ ​G​e​r​ä​t​e​ ​a​u​f​ ​d​e​m​ ​I​2​C​-​B​u​s​ ​(​A​d​r​e​s​s​e​n​ ​0​x​0​3​–​0​x​7​7​)​.
+		 */
+		scanTitle: string
+		/**
+		 * k​e​i​n​e
+		 */
+		scanNone: string
+		/**
+		 * I​n​f​o
+		 */
+		info: string
+		/**
+		 * F​r​a​g​t​ ​F​i​r​m​w​a​r​e​-​V​e​r​s​i​o​n​ ​u​n​d​ ​I​2​C​-​B​u​s​-​K​o​n​f​i​g​u​r​a​t​i​o​n​ ​d​e​s​ ​P​i​c​o​ ​a​b​.
+		 */
+		infoTitle: string
+		/**
+		 * E​r​r​l​o​g
+		 */
+		errlog: string
+		/**
+		 * L​i​e​s​t​ ​d​i​e​ ​X​b​o​x​-​F​e​h​l​e​r​-​H​i​s​t​o​r​i​e​ ​ü​b​e​r​ ​I​2​C​/​S​M​B​u​s​ ​a​u​s​.​ ​C​o​d​e​s​ ​w​e​r​d​e​n​ ​a​u​t​o​m​a​t​i​s​c​h​ ​g​e​g​e​n​ ​d​i​e​ ​X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​-​D​B​ ​a​u​f​g​e​l​ö​s​t​.
+		 */
+		errlogTitle: string
+		/**
+		 * L​a​d​e​ ​D​B​…
+		 */
+		loadingDb: string
+		/**
+		 * X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​ ​w​i​r​d​ ​g​e​l​a​d​e​n​…
+		 */
+		dbLoadingTitle: string
+		/**
+		 * {​c​o​u​n​t​}​ ​C​o​d​e​s
+		 * @param {unknown} count
+		 */
+		codes: RequiredParams<'count'>
+		/**
+		 * A​n​z​a​h​l​ ​d​e​r​ ​g​e​l​a​d​e​n​e​n​ ​X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​s
+		 */
+		codesTitle: string
+		/**
+		 * N​i​c​h​t​ ​g​e​l​a​d​e​n
+		 */
+		dbNotLoaded: string
+		/**
+		 * D​B​ ​k​o​n​n​t​e​ ​n​i​c​h​t​ ​g​e​l​a​d​e​n​ ​w​e​r​d​e​n​ ​—​ ​'​D​B​ ​a​k​t​u​a​l​i​s​i​e​r​e​n​'​ ​k​l​i​c​k​e​n​ ​(​b​e​n​ö​t​i​g​t​ ​I​n​t​e​r​n​e​t​)​.
+		 */
+		dbNotLoadedTitle: string
+		/**
+		 * D​B​ ​a​k​t​u​a​l​i​s​i​e​r​e​n
+		 */
+		updateDb: string
+		/**
+		 * U​p​d​a​t​i​n​g​…
+		 */
+		updating: string
+		/**
+		 * L​ä​d​t​ ​d​i​e​ ​n​e​u​e​s​t​e​ ​X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​ ​h​e​r​u​n​t​e​r​ ​u​n​d​ ​s​p​e​i​c​h​e​r​t​ ​s​i​e​ ​l​o​k​a​l​.​ ​B​e​n​ö​t​i​g​t​ ​I​n​t​e​r​n​e​t​v​e​r​b​i​n​d​u​n​g​.
+		 */
+		updateDbTitle: string
+		/**
+		 * V​e​r​b​u​n​d​e​n​ ​—​ ​{​p​o​r​t​}
+		 * @param {unknown} port
+		 */
+		statusConnected: RequiredParams<'port'>
+		/**
+		 * G​e​t​r​e​n​n​t​ ​—​ ​P​o​r​t​ ​w​ä​h​l​e​n​ ​u​n​d​ ​"​V​e​r​b​i​n​d​e​n​"​ ​k​l​i​c​k​e​n
+		 */
+		statusDisconnected: string
+		/**
+		 * G​e​f​u​n​d​e​n​:
+		 */
+		found: string
+		/**
+		 * R​e​g​i​s​t​e​r​ ​l​e​s​e​n
+		 */
+		readRegister: string
+		/**
+		 * E​E​P​R​O​M​ ​l​e​s​e​n
+		 */
+		readEeprom: string
+		/**
+		 * S​c​h​r​e​i​b​e​n
+		 */
+		write: string
+		/**
+		 * 7​-​b​i​t​ ​I​2​C​-​A​d​r​e​s​s​e​ ​(​H​e​x​)
+		 */
+		addrTitle: string
+		/**
+		 * R​e​g​i​s​t​e​r​ ​(​H​e​x​)​ ​—​ ​l​e​e​r​ ​=​ ​c​u​r​r​e​n​t​-​p​o​i​n​t​e​r​ ​r​e​a​d
+		 */
+		regTitle: string
+		/**
+		 * A​n​z​a​h​l​ ​B​y​t​e​s​ ​(​≤​ ​4​0​9​6​)
+		 */
+		lenTitle: string
+		/**
+		 * O​f​f​s​e​t​ ​(​0​–​6​5​5​3​5​)
+		 */
+		offsetTitle: string
+		/**
+		 * A​n​z​a​h​l​ ​B​y​t​e​s​ ​(​1​–​6​5​5​3​5​)
+		 */
+		eepromLenTitle: string
+		/**
+		 * H​e​x​-​B​y​t​e​s​,​ ​d​u​r​c​h​ ​L​e​e​r​z​e​i​c​h​e​n​ ​g​e​t​r​e​n​n​t
+		 */
+		dataTitle: string
+		/**
+		 * L​e​s​e​n
+		 */
+		read: string
+		/**
+		 * E​E​P​R​O​M​ ​l​e​s​e​n
+		 */
+		readEepromBtn: string
+		/**
+		 * S​c​h​r​e​i​b​e​n
+		 */
+		writeBtn: string
+		/**
+		 * X​b​o​x​-​F​e​h​l​e​r​c​o​d​e
+		 */
+		xboxCodeTitle: string
+		/**
+		 * U​n​b​e​k​a​n​n​t​e​r​ ​C​o​d​e​ ​—​ ​n​i​c​h​t​ ​i​n​ ​d​e​r​ ​X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​-​D​B
+		 */
+		unknownCode: string
+		/**
+		 * Q​u​e​l​l​e​:​ ​{​s​o​u​r​c​e​}
+		 * @param {unknown} source
+		 */
+		source: RequiredParams<'source'>
+		/**
+		 * K​e​i​n​e​ ​D​a​t​e​n​ ​—​ ​"​S​c​a​n​"​,​ ​"​L​e​s​e​n​"​ ​o​d​e​r​ ​"​E​r​r​l​o​g​"​ ​k​l​i​c​k​e​n​.
+		 */
+		noData: string
+		/**
+		 * X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​ ​(​z​.​B​.​ ​E​7​4​ ​o​d​e​r​ ​0​1​0​2​)​ ​o​d​e​r​ ​B​e​s​c​h​r​e​i​b​u​n​g​ ​s​u​c​h​e​n​…
+		 */
+		searchPlaceholder: string
+		/**
+		 * S​u​c​h​e​ ​i​n​ ​d​e​r​ ​l​o​k​a​l​e​n​ ​X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​s​-​D​a​t​e​n​b​a​n​k​.​ ​C​o​d​e​ ​(​z​.​B​.​ ​E​7​4​)​ ​f​ü​r​ ​e​x​a​k​t​e​ ​S​u​c​h​e​,​ ​o​d​e​r​ ​T​e​x​t​ ​f​ü​r​ ​V​o​l​l​t​e​x​t​s​u​c​h​e​.
+		 */
+		searchTitle: string
+		/**
+		 * S​u​c​h​e​ ​z​u​r​ü​c​k​s​e​t​z​e​n
+		 */
+		searchResetTitle: string
+		/**
+		 * [​V​e​r​b​u​n​d​e​n​ ​—​ ​{​p​o​r​t​}​]
+		 * @param {unknown} port
+		 */
+		connected: RequiredParams<'port'>
+		/**
+		 * [​G​e​t​r​e​n​n​t​]
+		 */
+		disconnected: string
+		/**
+		 * V​e​r​b​i​n​d​u​n​g​s​f​e​h​l​e​r​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		connectError: RequiredParams<'error'>
+		/**
+		 * T​r​e​n​n​e​n​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		disconnectError: RequiredParams<'error'>
+		/**
+		 * N​i​c​h​t​ ​v​e​r​b​u​n​d​e​n​ ​—​ ​z​u​e​r​s​t​ ​"​V​e​r​b​i​n​d​e​n​"​ ​k​l​i​c​k​e​n
+		 */
+		notConnected: string
+		/**
+		 * {​l​a​b​e​l​}​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 * @param {unknown} label
+		 */
+		actionFailed: RequiredParams<'error' | 'label'>
+		/**
+		 * [​S​c​a​n​ ​—​ ​{​c​o​u​n​t​}​ ​G​e​r​ä​t​e​ ​g​e​f​u​n​d​e​n​:​ ​{​a​d​d​r​s​}​]
+		 * @param {unknown} addrs
+		 * @param {unknown} count
+		 */
+		scanResult: RequiredParams<'addrs' | 'count'>
+		/**
+		 * [​I​n​f​o​ ​—​ ​F​W​ ​{​f​w​}​,​ ​{​b​u​s​}​ ​(​S​C​L​=​{​s​c​l​}​ ​S​D​A​=​{​s​d​a​}​{​v​o​l​t​a​g​e​}​)​]
+		 * @param {unknown} bus
+		 * @param {unknown} fw
+		 * @param {unknown} scl
+		 * @param {unknown} sda
+		 * @param {unknown} voltage
+		 */
+		infoResult: RequiredParams<'bus' | 'fw' | 'scl' | 'sda' | 'voltage'>
+		/**
+		 * [​E​r​r​l​o​g​ ​—​ ​{​c​o​u​n​t​}​ ​X​b​o​x​-​F​e​h​l​e​r​ ​a​u​s​g​e​l​e​s​e​n​]
+		 * @param {unknown} count
+		 */
+		errlogResult: RequiredParams<'count'>
+		/**
+		 * U​n​g​ü​l​t​i​g​e​ ​L​e​s​e​-​P​a​r​a​m​e​t​e​r​ ​(​A​d​d​r​ ​0​x​0​0​–​0​x​F​F​,​ ​L​e​n​ ​≤​ ​4​0​9​6​)
+		 */
+		invalidReadParams: string
+		/**
+		 * U​n​g​ü​l​t​i​g​e​s​ ​R​e​g​i​s​t​e​r​ ​(​H​e​x​ ​0​x​0​0​–​0​x​F​F​ ​o​d​e​r​ ​l​e​e​r​)
+		 */
+		invalidRegister: string
+		/**
+		 * [​R​e​a​d​ ​0​x​{​a​d​d​r​}​ ​—​ ​{​c​o​u​n​t​}​ ​B​y​t​e​s​]
+		 * @param {unknown} addr
+		 * @param {unknown} count
+		 */
+		readResult: RequiredParams<'addr' | 'count'>
+		/**
+		 * [​E​E​P​R​O​M​-​R​e​a​d​ ​0​x​{​a​d​d​r​}​ ​—​ ​{​c​o​u​n​t​}​ ​B​y​t​e​s​]
+		 * @param {unknown} addr
+		 * @param {unknown} count
+		 */
+		eepromReadResult: RequiredParams<'addr' | 'count'>
+		/**
+		 * U​n​g​ü​l​t​i​g​e​ ​E​E​P​R​O​M​-​P​a​r​a​m​e​t​e​r​ ​(​L​e​n​ ​≤​ ​6​5​5​3​5​,​ ​O​f​f​s​e​t​ ​≤​ ​6​5​5​3​5​)
+		 */
+		invalidEepromParams: string
+		/**
+		 * U​n​g​ü​l​t​i​g​e​ ​S​c​h​r​e​i​b​-​A​d​r​e​s​s​e
+		 */
+		invalidWriteAddr: string
+		/**
+		 * U​n​g​ü​l​t​i​g​e​ ​D​a​t​e​n​ ​(​H​e​x​-​B​y​t​e​s​,​ ​z​.​B​.​ ​"​0​1​ ​0​2​ ​0​3​"​)
+		 */
+		invalidData: string
+		/**
+		 * [​W​r​i​t​e​ ​0​x​{​a​d​d​r​}​{​r​e​g​}​ ​—​ ​{​c​o​u​n​t​}​ ​B​y​t​e​s​]
+		 * @param {unknown} addr
+		 * @param {unknown} count
+		 * @param {unknown} reg
+		 */
+		writeResult: RequiredParams<'addr' | 'count' | 'reg'>
+		/**
+		 * [​X​b​o​x​-​F​e​h​l​e​r​c​o​d​e​-​D​B​ ​a​k​t​u​a​l​i​s​i​e​r​t​ ​—​ ​{​c​o​u​n​t​}​ ​C​o​d​e​s​]
+		 * @param {unknown} count
+		 */
+		dbUpdated: RequiredParams<'count'>
+		/**
+		 * D​B​-​U​p​d​a​t​e​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		dbUpdateError: RequiredParams<'error'>
+	}
+	common: {
+		/**
+		 * E​i​n​ ​F​l​a​s​h​-​V​o​r​g​a​n​g​ ​l​ä​u​f​t​!​ ​B​e​i​m​ ​S​c​h​l​i​e​ß​e​n​ ​k​a​n​n​ ​d​e​r​ ​C​h​i​p​ ​b​e​s​c​h​ä​d​i​g​t​ ​w​e​r​d​e​n​.​ ​W​i​r​k​l​i​c​h​ ​s​c​h​l​i​e​ß​e​n​?
+		 */
+		confirmCloseFlash: string
+		/**
+		 * A​b​b​r​e​c​h​e​n
+		 */
+		cancel: string
+		/**
+		 * Ö​f​f​n​e​n
+		 */
+		open: string
+		/**
+		 * u​n​b​e​k​a​n​n​t
+		 */
+		unknown: string
+	}
 }
 
 export type TranslationFunctions = {
@@ -327,6 +1346,976 @@ export type TranslationFunctions = {
 		 * Touchpad
 		 */
 		touchpad: () => LocalizedString
+	}
+	home: {
+		/**
+		 * Diagnose-Werkzeuge für Konsolen-Reparatur
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Wähle ein Werkzeug oder nutze die Seitenleiste zur Navigation.
+		 */
+		footerHint: () => LocalizedString
+		/**
+		 * Flash-Speicher auslesen, validieren & archivieren
+		 */
+		flashDesc: () => LocalizedString
+		/**
+		 * Live-Fehlerdiagnose über serielle Konsole
+		 */
+		uartDesc: () => LocalizedString
+		/**
+		 * Xbox-Fehlerdatenbank & I2C-Bridge
+		 */
+		i2cDesc: () => LocalizedString
+		/**
+		 * DualSense-Diagnose, Test & Kalibrierung
+		 */
+		controllerDesc: () => LocalizedString
+		/**
+		 * Gespeicherte Dumps durchsuchen & verwalten
+		 */
+		archiveDesc: () => LocalizedString
+	}
+	flash: {
+		/**
+		 * NOR-Chip auslesen, Dumps archivieren und Firmware zurückspielen — benötigt angeschlossenen Programmer (CH341A, RT809H o.ä.)
+		 */
+		intro: () => LocalizedString
+		/**
+		 * Angeschlossener Flash-Programmer. flashrom wird im Hintergrund zur Kommunikation verwendet. Unterstützt CH341A, RT809H und alle anderen flashrom-kompatiblen Geräte.
+		 */
+		programmerTitle: () => LocalizedString
+		/**
+		 * Keine Programmer gefunden
+		 */
+		noProgrammers: () => LocalizedString
+		/**
+		 * Liest den NOR-Chip zweimal hintereinander aus und vergleicht beide Lesevorgänge auf Übereinstimmung. Das Dump wird automatisch im Archiv gespeichert. Dauer: ca. 1–3 Minuten.
+		 */
+		readTitle: () => LocalizedString
+		/**
+		 * Lesen
+		 */
+		read: () => LocalizedString
+		/**
+		 * Läuft…
+		 */
+		running: () => LocalizedString
+		/**
+		 * Öffnet eine .bin-Datei und zeigt eine Vorschau mit Validierungsergebnis bevor der Schreibvorgang gestartet wird. Tipp: Dump aus dem Archiv laden, dann direkt hier verwenden.
+		 */
+		writeTitle: () => LocalizedString
+		/**
+		 * Schreiben
+		 */
+		write: () => LocalizedString
+		/**
+		 * Fragt die Chip-Kennung (JEDEC ID) vom Programmer ab — Hersteller- + Geräte-ID und Chip-Name, ohne einen vollen Lesevorgang zu starten.
+		 */
+		readIdTitle: () => LocalizedString
+		/**
+		 * Chip erkennen
+		 */
+		detectChip: () => LocalizedString
+		/**
+		 * ⚠ Kein Programmer erkannt — USB prüfen und flashrom installiert?
+		 */
+		noProgrammerWarn: () => LocalizedString
+		/**
+		 * Freier Speicher auf dem Volume, das das Dump-Archiv aufnimmt. Ein NOR-Lesevorgang schreibt 2 MiB zweimal plus die archivierte Kopie.
+		 */
+		diskSpaceTitle: () => LocalizedString
+		/**
+		 * Speicher:
+		 */
+		storage: () => LocalizedString
+		/**
+		 * frei von
+		 */
+		freeOf: () => LocalizedString
+		/**
+		 * — zu wenig für einen NOR-Dump!
+		 */
+		diskSpaceLow: () => LocalizedString
+		/**
+		 * Chip:
+		 */
+		chip: () => LocalizedString
+		/**
+		 * Hersteller:
+		 */
+		manufacturer: () => LocalizedString
+		/**
+		 * Gerät:
+		 */
+		device: () => LocalizedString
+		/**
+		 * (keine JEDEC ID)
+		 */
+		noJedecId: () => LocalizedString
+		/**
+		 * Keine numerische JEDEC ID vom Programmer gemeldet — nur der Chip-Name ist verfügbar.
+		 */
+		noJedecIdTitle: () => LocalizedString
+		/**
+		 * Vorgang läuft — nicht unterbrechen.
+		 */
+		inProgress: () => LocalizedString
+		/**
+		 * Abbruch erzwingen
+		 */
+		forceStop: () => LocalizedString
+		/**
+		 * ⚠ Validierungsfehler erkannt — Fortfahren auf eigene Gefahr
+		 */
+		validationErrorsWarn: () => LocalizedString
+		/**
+		 * Validierung:
+		 */
+		validationHeading: () => LocalizedString
+		/**
+		 * Konsoleninfo (aus NVS-Partition):
+		 */
+		consoleInfo: () => LocalizedString
+		/**
+		 * Seriennummer der Konsole — auf dem Aufkleber unter dem Standfuß
+		 */
+		nvsSerialTitle: () => LocalizedString
+		/**
+		 * MAC-Adresse des WLAN-Chips
+		 */
+		nvsMacTitle: () => LocalizedString
+		/**
+		 * Modellkennung (CFI-Nummer)
+		 */
+		nvsSkuTitle: () => LocalizedString
+		/**
+		 * Board-Revision (z.B. B chassis)
+		 */
+		nvsBoardIdTitle: () => LocalizedString
+		/**
+		 * Zuletzt installierte Firmware-Version
+		 */
+		nvsFwTitle: () => LocalizedString
+		/**
+		 * Datei:
+		 */
+		file: () => LocalizedString
+		/**
+		 * Nach dem Schreiben verifizieren (empfohlen)
+		 */
+		verifyAfterWrite: () => LocalizedString
+		/**
+		 * Empfohlen: Liest den Chip nach dem Schreiben vollständig zurück und vergleicht Byte für Byte mit der Quelldatei. Erhöht die Dauer um ca. 50 %, schützt aber vor stillen Schreibfehlern.
+		 */
+		verifyTitle: () => LocalizedString
+		/**
+		 * ⚠ Verify ist AUS — Schreibfehler bleiben unbemerkt. Brick-Risiko. Nur für bekannte Test-Setups deaktivieren.
+		 */
+		verifyOffWarn: () => LocalizedString
+		/**
+		 * Ohne Verify wird der Chip nach dem Schreiben nicht zurückgelesen. Ein unbemerkter Schreibfehler kann den Chip (und damit die Konsole) unbrauchbar machen.
+		 */
+		verifyOffTitle: () => LocalizedString
+		/**
+		 * Jetzt schreiben
+		 */
+		writeNow: () => LocalizedString
+		/**
+		 * Startet den Schreibvorgang. Den Programmer NICHT trennen — Unterbrechung kann den Chip unbrauchbar machen.
+		 */
+		writeNowTitle: () => LocalizedString
+		/**
+		 * Bricht ab — der Chip wird nicht verändert.
+		 */
+		cancelWriteTitle: () => LocalizedString
+		/**
+		 * Dump-Vergleich:
+		 */
+		dumpCompare: () => LocalizedString
+		/**
+		 * Beide Lesevorgänge sind Byte für Byte identisch — der Dump ist zuverlässig.
+		 */
+		dumpsMatchTitle: () => LocalizedString
+		/**
+		 * Die beiden Lesevorgänge weichen voneinander ab. Der Chip könnte beschädigt sein, oder es gab einen Übertragungsfehler. Erneut lesen empfohlen.
+		 */
+		dumpsDifferTitle: () => LocalizedString
+		/**
+		 * ✓ Identisch
+		 */
+		dumpsIdentical: () => LocalizedString
+		/**
+		 * ⚠ Abweichung erkannt
+		 */
+		dumpsDiffer: () => LocalizedString
+		/**
+		 * Archiv:
+		 */
+		archive: () => LocalizedString
+		/**
+		 * Öffnet den Archiv-Ordner im Dateimanager
+		 */
+		openArchiveTitle: () => LocalizedString
+		/**
+		 * Kein Output — starte mit "Lesen" um den NOR-Chip auszulesen.
+		 */
+		logEmpty: () => LocalizedString
+		/**
+		 * flashrom-Problem: {reason} (Pfad: {path}). flashrom installieren oder Pfad in den Einstellungen setzen.
+		 */
+		binaryProblem: (arg: { path: unknown, reason: unknown }) => LocalizedString
+		/**
+		 * Chip-ID lesen fehlgeschlagen: {error}
+		 */
+		chipIdError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Restzeit {time}
+		 */
+		eta: (arg: { time: unknown }) => LocalizedString
+		/**
+		 * NOR-Datei wählen
+		 */
+		selectNorFile: () => LocalizedString
+		/**
+		 * Ohne Verify schreiben? Schreibfehler bleiben unbemerkt — Brick-Risiko für die Konsole.
+		 */
+		confirmWriteNoVerify: () => LocalizedString
+		/**
+		 * Vorgang vom Benutzer abgebrochen (UI-Reset). Der flashrom-Prozess läuft möglicherweise weiter.
+		 */
+		userAbortLog: () => LocalizedString
+		phase: {
+			/**
+			 * Lesen 1/2…
+			 */
+			read1: () => LocalizedString
+			/**
+			 * Lesen 2/2…
+			 */
+			read2: () => LocalizedString
+			/**
+			 * Schreiben…
+			 */
+			write: () => LocalizedString
+			/**
+			 * Verifizieren…
+			 */
+			verify: () => LocalizedString
+		}
+		validation: {
+			headerOk: {
+				/**
+				 * NOR Header
+				 */
+				label: () => LocalizedString
+				/**
+				 * Der NOR-Header enthält grundlegende Chip-Metadaten. Fehlt er, ist die Firmware-Datei leer oder falsch.
+				 */
+				tip: () => LocalizedString
+			}
+			mbr1: {
+				/**
+				 * MBR 1
+				 */
+				label: () => LocalizedString
+				/**
+				 * Master Boot Record 1 — enthält die Partitionstabelle. Beide MBRs müssen vorhanden und lesbar sein.
+				 */
+				tip: () => LocalizedString
+			}
+			mbr2: {
+				/**
+				 * MBR 2
+				 */
+				label: () => LocalizedString
+				/**
+				 * Master Boot Record 2 — Backup-Kopie von MBR 1. Abweichungen zwischen MBR1 und MBR2 deuten auf Korruption hin.
+				 */
+				tip: () => LocalizedString
+			}
+			emcIplA: {
+				/**
+				 * EmcIpl A
+				 */
+				label: () => LocalizedString
+				/**
+				 * EMC Initial Program Loader A — Bootloader des EMC-Chips (Energieverwaltung). Fehlt dieser, startet die Konsole ggf. nicht.
+				 */
+				tip: () => LocalizedString
+			}
+			emcIplB: {
+				/**
+				 * EmcIpl B
+				 */
+				label: () => LocalizedString
+				/**
+				 * EMC Initial Program Loader B — Redundante Kopie von EmcIpl A.
+				 */
+				tip: () => LocalizedString
+			}
+			usbPdcA: {
+				/**
+				 * USB PDC A
+				 */
+				label: () => LocalizedString
+				/**
+				 * USB Power Delivery Controller Firmware A — steuert die USB-C-Stromversorgung der PS5.
+				 */
+				tip: () => LocalizedString
+			}
+			usbPdcB: {
+				/**
+				 * USB PDC B
+				 */
+				label: () => LocalizedString
+				/**
+				 * USB Power Delivery Controller Firmware B — Backup-Kopie von USB PDC A.
+				 */
+				tip: () => LocalizedString
+			}
+			size: {
+				/**
+				 * Größe (2 MB)
+				 */
+				label: () => LocalizedString
+				/**
+				 * PS5 NOR-Chips haben immer exakt 2 MiB (2.097.152 Bytes). Andere Größen deuten auf ein abgebrochenes Lesen hin.
+				 */
+				tip: () => LocalizedString
+			}
+		}
+	}
+	uart: {
+		/**
+		 * Live-Verbindung zur PS5-Diagnosebrücke (CH340, CP210x, FTDI o.ä.) — Fehler-Log, Firmware-Version und Temperatur auslesen
+		 */
+		intro: () => LocalizedString
+		/**
+		 * UART-Port der Diagnosebrücke. Erkannte Bridges (CH340, CP210x, FTDI usw.) werden automatisch hervorgehoben und bevorzugt ausgewählt. Klicke ↻ nach dem Einstecken.
+		 */
+		portSelectTitle: () => LocalizedString
+		/**
+		 * Keine Ports gefunden — Bridge einstecken und ↻ klicken
+		 */
+		noPorts: () => LocalizedString
+		/**
+		 * Port-Liste aktualisieren — klicke hier nachdem du die UART-Bridge eingesteckt hast.
+		 */
+		refreshPortsTitle: () => LocalizedString
+		/**
+		 * Mit dem ausgewählten UART-Port verbinden. Die PS5 muss eingeschaltet oder im Standby sein.
+		 */
+		connectTitle: () => LocalizedString
+		/**
+		 * Automatischen Reconnect-Versuch abbrechen und trennen.
+		 */
+		cancelReconnectTitle: () => LocalizedString
+		/**
+		 * Verbindung trennen und UART-Port freigeben.
+		 */
+		disconnectTitle: () => LocalizedString
+		/**
+		 * Verbinden
+		 */
+		connectBtn: () => LocalizedString
+		/**
+		 * Verbinde…
+		 */
+		connecting: () => LocalizedString
+		/**
+		 * Trennen
+		 */
+		disconnectBtn: () => LocalizedString
+		/**
+		 * ⟳ Reconnecting…
+		 */
+		reconnecting: () => LocalizedString
+		/**
+		 * Auto-Reconnect
+		 */
+		autoReconnect: () => LocalizedString
+		/**
+		 * Verbindet automatisch neu wenn die Bridge kurz getrennt und wieder eingesteckt wird. Nützlich bei losen Steckern. Einstellung wird gespeichert.
+		 */
+		autoReconnectTitle: () => LocalizedString
+		/**
+		 * Errlog
+		 */
+		errlog: () => LocalizedString
+		/**
+		 * ⟳ Errlog…
+		 */
+		errlogPending: () => LocalizedString
+		/**
+		 * Fragt die komplette Fehler-Historie der PS5 ab (errlog 0–9, die letzten 10 gespeicherten Einträge). Gefundene Fehler erscheinen als Karten mit Code, Beschreibung und Temperatur; leere Einträge werden grau markiert.
+		 */
+		errlogTitle: () => LocalizedString
+		/**
+		 * [→ Fehler-Historie angefordert (errlog 0–9)]
+		 */
+		errlogRequested: () => LocalizedString
+		/**
+		 * Errlog fehlgeschlagen: {error}
+		 */
+		errlogError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Historie löschen
+		 */
+		clearHistory: () => LocalizedString
+		/**
+		 * Wirklich löschen?
+		 */
+		confirmClear: () => LocalizedString
+		/**
+		 * Löscht die gespeicherte Fehler-Historie auf der PS5 unwiderruflich (errlog clear). Sinnvoll nach einer Reparatur, um zu prüfen ob neue Fehler auftreten. Erfordert zweiten Klick zur Bestätigung.
+		 */
+		clearTitle: () => LocalizedString
+		/**
+		 * [→ Fehler-Historie wird gelöscht (errlog clear)]
+		 */
+		errlogClearing: () => LocalizedString
+		/**
+		 * Löschen fehlgeschlagen: {error}
+		 */
+		clearError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Version
+		 */
+		version: () => LocalizedString
+		/**
+		 * Sendet den 'version'-Befehl an die PS5. Die Konsole antwortet mit der aktuell installierten Firmware-Version.
+		 */
+		versionTitle: () => LocalizedString
+		/**
+		 * [→ version angefordert]
+		 */
+		versionRequested: () => LocalizedString
+		/**
+		 * Version fehlgeschlagen: {error}
+		 */
+		versionError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Loopback
+		 */
+		loopback: () => LocalizedString
+		/**
+		 * ⟳ Loopback…
+		 */
+		loopbackPending: () => LocalizedString
+		/**
+		 * Hardware-Test: RX und TX auf der Bridge kurzschließen (Draht oder Büroklammer), dann hier klicken. Kommt das Echo zurück, funktionieren TX-Pin, RX-Pin und Bridge-Chip korrekt.
+		 */
+		loopbackTitle: () => LocalizedString
+		/**
+		 * Loopback: kein Echo innerhalb 1 s — RX mit TX verbunden?
+		 */
+		loopbackNoEcho: () => LocalizedString
+		/**
+		 * Loopback-Fehler: {error}
+		 */
+		loopbackError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * ✓ Echo: {raw}
+		 */
+		echo: (arg: { raw: unknown }) => LocalizedString
+		/**
+		 * Auto-Poll
+		 */
+		autoPoll: () => LocalizedString
+		/**
+		 * Sendet den 'errlog'-Befehl automatisch alle 5 Sekunden. Nützlich um neue Fehler live mitzuverfolgen ohne manuell zu klicken. Nur während aktiver Verbindung verfügbar.
+		 */
+		autoPollTitle: () => LocalizedString
+		/**
+		 * [Auto-Poll aktiviert — errlog alle 5 s]
+		 */
+		autoPollOn: () => LocalizedString
+		/**
+		 * [Auto-Poll deaktiviert]
+		 */
+		autoPollOff: () => LocalizedString
+		/**
+		 * Auto-Poll fehlgeschlagen: {error}
+		 */
+		autoPollError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Lade DB…
+		 */
+		loadingDb: () => LocalizedString
+		/**
+		 * Fehlercodes-Datenbank wird geladen…
+		 */
+		dbLoadingTitle: () => LocalizedString
+		/**
+		 * {count} Codes
+		 */
+		codes: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * Anzahl der geladenen PS5-Fehlercodes in der lokalen Datenbank. Wird für die automatische Beschreibung von Errlog-Einträgen verwendet.
+		 */
+		codesTitle: () => LocalizedString
+		/**
+		 * Nicht geladen
+		 */
+		dbNotLoaded: () => LocalizedString
+		/**
+		 * Fehlercodes-Datenbank konnte nicht geladen werden. Klicke 'DB aktualisieren' (benötigt Internetverbindung) oder prüfe die Verbindung.
+		 */
+		dbNotLoadedTitle: () => LocalizedString
+		/**
+		 * DB aktualisieren
+		 */
+		updateDb: () => LocalizedString
+		/**
+		 * Updating…
+		 */
+		updating: () => LocalizedString
+		/**
+		 * Lädt die neueste Fehlercodes-Datenbank von GitHub herunter und speichert sie lokal. Benötigt Internetverbindung. Lokal gecachte DB bleibt auch offline verfügbar.
+		 */
+		updateDbTitle: () => LocalizedString
+		/**
+		 * [Fehlercode-DB aktualisiert — {count} Codes]
+		 */
+		dbUpdated: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * DB-Update fehlgeschlagen: {error}
+		 */
+		dbUpdateError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Roheingabe — beliebige Zeile an die Konsole senden…
+		 */
+		rawPlaceholder: () => LocalizedString
+		/**
+		 * Raw-Terminal: sendet genau diese Zeile (ohne PS5-Prüfsummen-Rahmen) an das UART-Gerät. Enter sendet, Shift+Enter für Mehrzeiliges. Nützlich für non-PS5-Geräte oder zum Testen unbekannter Befehle.
+		 */
+		rawTitle: () => LocalizedString
+		/**
+		 * Zeilenende, das an die Eingabe angehängt wird
+		 */
+		lineEndingTitle: () => LocalizedString
+		/**
+		 * kein
+		 */
+		lineEndingNone: () => LocalizedString
+		/**
+		 * Senden
+		 */
+		send: () => LocalizedString
+		/**
+		 * Zeile senden (Enter)
+		 */
+		sendTitle: () => LocalizedString
+		/**
+		 * Senden fehlgeschlagen: {error}
+		 */
+		sendFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Reconnecting… — Bridge aus- und wieder einstecken oder "Trennen" klicken um abzubrechen
+		 */
+		statusReconnecting: () => LocalizedString
+		/**
+		 * Verbunden — {port}
+		 */
+		statusConnected: (arg: { port: unknown }) => LocalizedString
+		/**
+		 * Getrennt — Port wählen und "Verbinden" klicken
+		 */
+		statusDisconnected: () => LocalizedString
+		/**
+		 * [Verbunden — {port}]
+		 */
+		connected: (arg: { port: unknown }) => LocalizedString
+		/**
+		 * [Getrennt]
+		 */
+		disconnected: () => LocalizedString
+		/**
+		 * Verbindungsfehler: {error}
+		 */
+		connectError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Trennen fehlgeschlagen: {error}
+		 */
+		disconnectError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * [Verbindung verloren — Auto-Reconnect läuft…]
+		 */
+		connLostReconnecting: () => LocalizedString
+		/**
+		 * [Verbindung unterbrochen — USB-Kabel und Bridge prüfen]
+		 */
+		connBroken: () => LocalizedString
+		/**
+		 * [Wieder verbunden — {port}]
+		 */
+		reconnected: (arg: { port: unknown }) => LocalizedString
+		/**
+		 * [Reconnect beendet]
+		 */
+		reconnectDone: () => LocalizedString
+		/**
+		 * [{count} Zeile(n) verworfen — Puffer-Überlauf, Ausgabe unvollständig]
+		 */
+		linesDropped: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * [Keine Antwort auf "{label}" — Verkabelung (TX↔RX gekreuzt?), Baudrate und Konsolen-Status prüfen]
+		 */
+		noResponse: (arg: { label: unknown }) => LocalizedString
+		/**
+		 * {raw} — Befehl von der Konsole abgelehnt
+		 */
+		commandRejected: (arg: { raw: unknown }) => LocalizedString
+		/**
+		 * {raw} — leerer Eintrag (kein Fehler gespeichert)
+		 */
+		emptyEntryNoError: (arg: { raw: unknown }) => LocalizedString
+		/**
+		 * {raw} — leerer Eintrag (Historie gelöscht)
+		 */
+		emptyEntryCleared: (arg: { raw: unknown }) => LocalizedString
+		/**
+		 * Fehlercode (hex) oder Beschreibung suchen…
+		 */
+		searchPlaceholder: () => LocalizedString
+		/**
+		 * Suche in der lokalen Fehlercodes-Datenbank. Eingabe als Hexzahl (z.B. 80000001) für exakte Suche, oder Text für Volltextsuche in Beschreibungen. Filtert auch das Log.
+		 */
+		searchTitle: () => LocalizedString
+		/**
+		 * Suche zurücksetzen
+		 */
+		searchResetTitle: () => LocalizedString
+		/**
+		 * Klicken um diesen Code als Log-Filter zu setzen
+		 */
+		searchResultTitle: () => LocalizedString
+		/**
+		 * Erkannter Errlog-Eintrag — Fehlercode automatisch aus der Datenbank aufgelöst
+		 */
+		errlogEntryTitle: () => LocalizedString
+		/**
+		 * Fehlercode (hexadezimal)
+		 */
+		errorCodeTitle: () => LocalizedString
+		/**
+		 * Temp:
+		 */
+		temp: () => LocalizedString
+		/**
+		 * SoC-Temperatur zum Zeitpunkt des Fehlers
+		 */
+		tempTitle: () => LocalizedString
+		/**
+		 * PowerStates:
+		 */
+		powerStates: () => LocalizedString
+		/**
+		 * Power-State-Register — gibt Auskunft über aktiven Energiezustand der Konsole
+		 */
+		powerStatesTitle: () => LocalizedString
+		/**
+		 * UpCause:
+		 */
+		upCause: () => LocalizedString
+		/**
+		 * UpCause — Ursache für den letzten Systemstart (0=normal, andere Werte = Reset/Absturz)
+		 */
+		upCauseTitle: () => LocalizedString
+		/**
+		 * Keine Treffer für diesen Filter.
+		 */
+		noMatches: () => LocalizedString
+		/**
+		 * Kein Output — verbinde die UART-Bridge und klicke "Errlog" oder "Version".
+		 */
+		logEmpty: () => LocalizedString
+	}
+	i2c: {
+		/**
+		 * Live-Verbindung zu einem Raspberry Pi Pico (USB CDC) mit fixplay-pico-i2c Firmware — I2C-Scan, Register-/EEPROM-Read, Write und Xbox-Fehler-Log auslesen
+		 */
+		intro: () => LocalizedString
+		/**
+		 * USB-CDC Port des Pico. Erkannte Pico-Boards (RP2040, VID 2E8A) werden automatisch hervorgehoben und bevorzugt ausgewählt. Klicke ↻ nach dem Einstecken.
+		 */
+		portSelectTitle: () => LocalizedString
+		/**
+		 * Kein Port gefunden — Pico einstecken und ↻ klicken
+		 */
+		noPort: () => LocalizedString
+		/**
+		 * Port-Liste aktualisieren — klicke hier nachdem du den Pico eingesteckt hast.
+		 */
+		refreshTitle: () => LocalizedString
+		/**
+		 * Mit dem Pico verbinden. Der Pico muss mit fixplay-pico-i2c geflasht sein.
+		 */
+		connectTitle: () => LocalizedString
+		/**
+		 * Verbindung trennen und CDC-Port freigeben.
+		 */
+		disconnectTitle: () => LocalizedString
+		/**
+		 * Verbinden
+		 */
+		connectBtn: () => LocalizedString
+		/**
+		 * Verbinde…
+		 */
+		connecting: () => LocalizedString
+		/**
+		 * Trennen
+		 */
+		disconnectBtn: () => LocalizedString
+		/**
+		 * Scan
+		 */
+		scan: () => LocalizedString
+		/**
+		 * Sucht alle aktiven Geräte auf dem I2C-Bus (Adressen 0x03–0x77).
+		 */
+		scanTitle: () => LocalizedString
+		/**
+		 * keine
+		 */
+		scanNone: () => LocalizedString
+		/**
+		 * Info
+		 */
+		info: () => LocalizedString
+		/**
+		 * Fragt Firmware-Version und I2C-Bus-Konfiguration des Pico ab.
+		 */
+		infoTitle: () => LocalizedString
+		/**
+		 * Errlog
+		 */
+		errlog: () => LocalizedString
+		/**
+		 * Liest die Xbox-Fehler-Historie über I2C/SMBus aus. Codes werden automatisch gegen die Xbox-Fehlercode-DB aufgelöst.
+		 */
+		errlogTitle: () => LocalizedString
+		/**
+		 * Lade DB…
+		 */
+		loadingDb: () => LocalizedString
+		/**
+		 * Xbox-Fehlercodes-Datenbank wird geladen…
+		 */
+		dbLoadingTitle: () => LocalizedString
+		/**
+		 * {count} Codes
+		 */
+		codes: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * Anzahl der geladenen Xbox-Fehlercodes
+		 */
+		codesTitle: () => LocalizedString
+		/**
+		 * Nicht geladen
+		 */
+		dbNotLoaded: () => LocalizedString
+		/**
+		 * DB konnte nicht geladen werden — 'DB aktualisieren' klicken (benötigt Internet).
+		 */
+		dbNotLoadedTitle: () => LocalizedString
+		/**
+		 * DB aktualisieren
+		 */
+		updateDb: () => LocalizedString
+		/**
+		 * Updating…
+		 */
+		updating: () => LocalizedString
+		/**
+		 * Lädt die neueste Xbox-Fehlercodes-Datenbank herunter und speichert sie lokal. Benötigt Internetverbindung.
+		 */
+		updateDbTitle: () => LocalizedString
+		/**
+		 * Verbunden — {port}
+		 */
+		statusConnected: (arg: { port: unknown }) => LocalizedString
+		/**
+		 * Getrennt — Port wählen und "Verbinden" klicken
+		 */
+		statusDisconnected: () => LocalizedString
+		/**
+		 * Gefunden:
+		 */
+		found: () => LocalizedString
+		/**
+		 * Register lesen
+		 */
+		readRegister: () => LocalizedString
+		/**
+		 * EEPROM lesen
+		 */
+		readEeprom: () => LocalizedString
+		/**
+		 * Schreiben
+		 */
+		write: () => LocalizedString
+		/**
+		 * 7-bit I2C-Adresse (Hex)
+		 */
+		addrTitle: () => LocalizedString
+		/**
+		 * Register (Hex) — leer = current-pointer read
+		 */
+		regTitle: () => LocalizedString
+		/**
+		 * Anzahl Bytes (≤ 4096)
+		 */
+		lenTitle: () => LocalizedString
+		/**
+		 * Offset (0–65535)
+		 */
+		offsetTitle: () => LocalizedString
+		/**
+		 * Anzahl Bytes (1–65535)
+		 */
+		eepromLenTitle: () => LocalizedString
+		/**
+		 * Hex-Bytes, durch Leerzeichen getrennt
+		 */
+		dataTitle: () => LocalizedString
+		/**
+		 * Lesen
+		 */
+		read: () => LocalizedString
+		/**
+		 * EEPROM lesen
+		 */
+		readEepromBtn: () => LocalizedString
+		/**
+		 * Schreiben
+		 */
+		writeBtn: () => LocalizedString
+		/**
+		 * Xbox-Fehlercode
+		 */
+		xboxCodeTitle: () => LocalizedString
+		/**
+		 * Unbekannter Code — nicht in der Xbox-Fehlercode-DB
+		 */
+		unknownCode: () => LocalizedString
+		/**
+		 * Quelle: {source}
+		 */
+		source: (arg: { source: unknown }) => LocalizedString
+		/**
+		 * Keine Daten — "Scan", "Lesen" oder "Errlog" klicken.
+		 */
+		noData: () => LocalizedString
+		/**
+		 * Xbox-Fehlercode (z.B. E74 oder 0102) oder Beschreibung suchen…
+		 */
+		searchPlaceholder: () => LocalizedString
+		/**
+		 * Suche in der lokalen Xbox-Fehlercodes-Datenbank. Code (z.B. E74) für exakte Suche, oder Text für Volltextsuche.
+		 */
+		searchTitle: () => LocalizedString
+		/**
+		 * Suche zurücksetzen
+		 */
+		searchResetTitle: () => LocalizedString
+		/**
+		 * [Verbunden — {port}]
+		 */
+		connected: (arg: { port: unknown }) => LocalizedString
+		/**
+		 * [Getrennt]
+		 */
+		disconnected: () => LocalizedString
+		/**
+		 * Verbindungsfehler: {error}
+		 */
+		connectError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Trennen fehlgeschlagen: {error}
+		 */
+		disconnectError: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Nicht verbunden — zuerst "Verbinden" klicken
+		 */
+		notConnected: () => LocalizedString
+		/**
+		 * {label} fehlgeschlagen: {error}
+		 */
+		actionFailed: (arg: { error: unknown, label: unknown }) => LocalizedString
+		/**
+		 * [Scan — {count} Geräte gefunden: {addrs}]
+		 */
+		scanResult: (arg: { addrs: unknown, count: unknown }) => LocalizedString
+		/**
+		 * [Info — FW {fw}, {bus} (SCL={scl} SDA={sda}{voltage})]
+		 */
+		infoResult: (arg: { bus: unknown, fw: unknown, scl: unknown, sda: unknown, voltage: unknown }) => LocalizedString
+		/**
+		 * [Errlog — {count} Xbox-Fehler ausgelesen]
+		 */
+		errlogResult: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * Ungültige Lese-Parameter (Addr 0x00–0xFF, Len ≤ 4096)
+		 */
+		invalidReadParams: () => LocalizedString
+		/**
+		 * Ungültiges Register (Hex 0x00–0xFF oder leer)
+		 */
+		invalidRegister: () => LocalizedString
+		/**
+		 * [Read 0x{addr} — {count} Bytes]
+		 */
+		readResult: (arg: { addr: unknown, count: unknown }) => LocalizedString
+		/**
+		 * [EEPROM-Read 0x{addr} — {count} Bytes]
+		 */
+		eepromReadResult: (arg: { addr: unknown, count: unknown }) => LocalizedString
+		/**
+		 * Ungültige EEPROM-Parameter (Len ≤ 65535, Offset ≤ 65535)
+		 */
+		invalidEepromParams: () => LocalizedString
+		/**
+		 * Ungültige Schreib-Adresse
+		 */
+		invalidWriteAddr: () => LocalizedString
+		/**
+		 * Ungültige Daten (Hex-Bytes, z.B. "01 02 03")
+		 */
+		invalidData: () => LocalizedString
+		/**
+		 * [Write 0x{addr}{reg} — {count} Bytes]
+		 */
+		writeResult: (arg: { addr: unknown, count: unknown, reg: unknown }) => LocalizedString
+		/**
+		 * [Xbox-Fehlercode-DB aktualisiert — {count} Codes]
+		 */
+		dbUpdated: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * DB-Update fehlgeschlagen: {error}
+		 */
+		dbUpdateError: (arg: { error: unknown }) => LocalizedString
+	}
+	common: {
+		/**
+		 * Ein Flash-Vorgang läuft! Beim Schließen kann der Chip beschädigt werden. Wirklich schließen?
+		 */
+		confirmCloseFlash: () => LocalizedString
+		/**
+		 * Abbrechen
+		 */
+		cancel: () => LocalizedString
+		/**
+		 * Öffnen
+		 */
+		open: () => LocalizedString
+		/**
+		 * unbekannt
+		 */
+		unknown: () => LocalizedString
 	}
 }
 

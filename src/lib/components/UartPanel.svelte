@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
   import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from '$lib/stores/uart';
   import {
     uartListPorts,
@@ -42,7 +44,7 @@
     try {
       await uartSendRaw(line, rawLineEnding);
     } catch (e) {
-      pushLog(`Senden fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.sendFailed({ error: String(e) }), 'error');
     }
     rawInput = '';
   }
@@ -76,7 +78,7 @@
     responseTimeout = setTimeout(() => {
       if (!gotDataSinceCommand) {
         pushLog(
-          `[Keine Antwort auf "${label}" — Verkabelung (TX↔RX gekreuzt?), Baudrate und Konsolen-Status prüfen]`,
+          get(LL).uart.noResponse({ label }),
           'error'
         );
       }
@@ -87,7 +89,7 @@
   function interpretLine(raw: string): UartLogEntry {
     const base = { id: nextLogId(), timestamp_ms: Date.now() };
     if (/^NG\b/.test(raw)) {
-      return { ...base, raw: `${raw} — Befehl von der Konsole abgelehnt`, kind: 'error' };
+      return { ...base, raw: get(LL).uart.commandRejected({ raw }), kind: 'error' };
     }
     if (raw.startsWith('OK')) {
       const payload = raw
@@ -95,10 +97,10 @@
         .replace(/:[0-9A-Fa-f]{2}$/, '')
         .replace(/\s+/g, '');
       if (/^0*$/.test(payload)) {
-        return { ...base, raw: `${raw} — leerer Eintrag (kein Fehler gespeichert)`, kind: 'status' };
+        return { ...base, raw: get(LL).uart.emptyEntryNoError({ raw }), kind: 'status' };
       }
       if (/^0*F+$/i.test(payload)) {
-        return { ...base, raw: `${raw} — leerer Eintrag (Historie gelöscht)`, kind: 'status' };
+        return { ...base, raw: get(LL).uart.emptyEntryCleared({ raw }), kind: 'status' };
       }
     }
     return { ...base, raw };
@@ -132,17 +134,17 @@
 
     if (wasConnected && !r.connected) {
       if (r.reconnecting) {
-        pushLog('[Verbindung verloren — Auto-Reconnect läuft…]', 'status');
+        pushLog(get(LL).uart.connLostReconnecting(), 'status');
       } else {
-        pushLog('[Verbindung unterbrochen — USB-Kabel und Bridge prüfen]', 'error');
+        pushLog(get(LL).uart.connBroken(), 'error');
         autoPollEnabled.set(false);
       }
     }
     if (!wasConnected && r.connected && wasReconnecting) {
-      pushLog(`[Wieder verbunden — ${selectedPort}]`, 'status');
+      pushLog(get(LL).uart.reconnected({ port: selectedPort }), 'status');
     }
     if (wasReconnecting && !r.reconnecting && !r.connected) {
-      pushLog('[Reconnect beendet]', 'status');
+      pushLog(get(LL).uart.reconnectDone(), 'status');
     }
 
     // --- error DB status ---
@@ -168,7 +170,7 @@
     // --- overflow warning: backend dropped lines at its buffer cap ---
     if (r.dropped_lines > 0) {
       pushLog(
-        `[${r.dropped_lines} Zeile(n) verworfen — Puffer-Überlauf, Ausgabe unvollständig]`,
+        get(LL).uart.linesDropped({ count: r.dropped_lines }),
         'error',
       );
     }
@@ -206,9 +208,9 @@
       prevConnected = true;
       uartConnected.set(true);
       autoReconnect = $appSettings.auto_reconnect;
-      pushLog(`[Verbunden — ${selectedPort}]`, 'status');
+      pushLog(get(LL).uart.connected({ port: selectedPort }), 'status');
     } catch (e) {
-      pushLog(`Verbindungsfehler: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.connectError({ error: String(e) }), 'error');
     } finally {
       loading = false;
     }
@@ -225,9 +227,9 @@
       uartConnected.set(false);
       uartReconnecting.set(false);
       autoPollEnabled.set(false);
-      pushLog('[Getrennt]', 'status');
+      pushLog(get(LL).uart.disconnected(), 'status');
     } catch (e) {
-      pushLog(`Trennen fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.disconnectError({ error: String(e) }), 'error');
     } finally {
       loading = false;
     }
@@ -237,25 +239,25 @@
 
   async function fetchErrlog() {
     errlogPending = true;
-    pushLog('[→ Fehler-Historie angefordert (errlog 0–9)]', 'status');
+    pushLog(get(LL).uart.errlogRequested(), 'status');
     // Arm before sending: sending all 10 queries takes ~1.5 s
     expectResponse('errlog', 5000);
     try {
       await uartSendErrlog();
     } catch (e) {
-      pushLog(`Errlog fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.errlogError({ error: String(e) }), 'error');
     } finally {
       errlogPending = false;
     }
   }
 
   async function fetchVersion() {
-    pushLog('[→ version angefordert]', 'status');
+    pushLog(get(LL).uart.versionRequested(), 'status');
     expectResponse('version');
     try {
       await uartSendVersion();
     } catch (e) {
-      pushLog(`Version fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.versionError({ error: String(e) }), 'error');
     }
   }
 
@@ -271,12 +273,12 @@
     }
     confirmClear = false;
     if (confirmClearTimeout) clearTimeout(confirmClearTimeout);
-    pushLog('[→ Fehler-Historie wird gelöscht (errlog clear)]', 'status');
+    pushLog(get(LL).uart.errlogClearing(), 'status');
     expectResponse('errlog clear');
     try {
       await uartClearErrlog();
     } catch (e) {
-      pushLog(`Löschen fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.clearError({ error: String(e) }), 'error');
     }
   }
 
@@ -287,10 +289,10 @@
       if (ok) {
         pushLog('LOOPBACK:PING ✓');
       } else {
-        pushLog('Loopback: kein Echo innerhalb 1 s — RX mit TX verbunden?', 'error');
+        pushLog(get(LL).uart.loopbackNoEcho(), 'error');
       }
     } catch (e) {
-      pushLog(`Loopback-Fehler: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.loopbackError({ error: String(e) }), 'error');
     } finally {
       loopbackPending = false;
     }
@@ -300,9 +302,9 @@
     try {
       await uartSetAutoPoll(enabled);
       autoPollEnabled.set(enabled);
-      pushLog(enabled ? '[Auto-Poll aktiviert — errlog alle 5 s]' : '[Auto-Poll deaktiviert]', 'status');
+      pushLog(enabled ? get(LL).uart.autoPollOn() : get(LL).uart.autoPollOff(), 'status');
     } catch (e) {
-      pushLog(`Auto-Poll fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.autoPollError({ error: String(e) }), 'error');
     }
   }
 
@@ -312,9 +314,9 @@
     try {
       const count = await uartUpdateDb();
       dbCodeCount.set(count);
-      pushLog(`[Fehlercode-DB aktualisiert — ${count.toLocaleString()} Codes]`, 'status');
+      pushLog(get(LL).uart.dbUpdated({ count: count.toLocaleString() }), 'status');
     } catch (e) {
-      pushLog(`DB-Update fehlgeschlagen: ${String(e)}`, 'error');
+      pushLog(get(LL).uart.dbUpdateError({ error: String(e) }), 'error');
     } finally {
       dbLoading.set(false);
       dbUpdating = false;
@@ -352,9 +354,9 @@
 
 <section class="flex flex-col gap-4 flex-1 bg-gray-900 rounded-lg p-4 min-h-0">
   <div>
-    <h2 class="text-lg font-semibold text-gray-100">UART Diagnostik</h2>
+    <h2 class="text-lg font-semibold text-gray-100">{$LL.header.uart()}</h2>
     <p class="text-xs text-gray-500 mt-0.5">
-      Live-Verbindung zur PS5-Diagnosebrücke (CH340, CP210x, FTDI o.ä.) — Fehler-Log, Firmware-Version und Temperatur auslesen
+      {$LL.uart.intro()}
     </p>
   </div>
 
@@ -364,7 +366,7 @@
       <select
         bind:value={selectedPort}
         disabled={$uartConnected || $uartReconnecting}
-        title="UART-Port der Diagnosebrücke. Erkannte Bridges (CH340, CP210x, FTDI usw.) werden automatisch hervorgehoben und bevorzugt ausgewählt. Klicke ↻ nach dem Einstecken."
+        title={$LL.uart.portSelectTitle()}
         class="appearance-none bg-gray-800 text-gray-100 text-sm rounded px-2 py-1 pr-6
                border border-gray-700 disabled:opacity-50 focus:outline-none"
       >
@@ -373,7 +375,7 @@
             {p.name}{p.is_bridge ? ` — ${p.description}` : ''}
           </option>
         {:else}
-          <option value="">Keine Ports gefunden — Bridge einstecken und ↻ klicken</option>
+          <option value="">{$LL.uart.noPorts()}</option>
         {/each}
       </select>
       <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
@@ -382,7 +384,7 @@
     <button
       onclick={refreshPorts}
       disabled={$uartConnected || $uartReconnecting}
-      title="Port-Liste aktualisieren — klicke hier nachdem du die UART-Bridge eingesteckt hast."
+      title={$LL.uart.refreshPortsTitle()}
       class="text-xs text-gray-400 hover:text-gray-200 disabled:opacity-40"
     >
       ↻
@@ -392,10 +394,10 @@
       onclick={$uartConnected || $uartReconnecting ? disconnect : connect}
       disabled={loading || (!$uartConnected && !$uartReconnecting && !selectedPort)}
       title={$uartConnected
-        ? 'Verbindung trennen und UART-Port freigeben.'
+        ? $LL.uart.disconnectTitle()
         : $uartReconnecting
-          ? 'Automatischen Reconnect-Versuch abbrechen und trennen.'
-          : 'Mit dem ausgewählten UART-Port verbinden. Die PS5 muss eingeschaltet oder im Standby sein.'}
+          ? $LL.uart.cancelReconnectTitle()
+          : $LL.uart.connectTitle()}
       class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
                ? 'bg-red-700 hover:bg-red-600 text-white'
@@ -407,20 +409,20 @@
              disabled:opacity-40"
     >
       {#if $uartReconnecting}
-        ⟳ Reconnecting…
+        {$LL.uart.reconnecting()}
       {:else if $uartConnected}
-        Trennen
+        {$LL.uart.disconnectBtn()}
       {:else if loading}
-        Verbinde…
+        {$LL.uart.connecting()}
       {:else}
-        Verbinden
+        {$LL.uart.connectBtn()}
       {/if}
     </button>
 
     {#if $uartConnected || $uartReconnecting}
       <label
         class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none"
-        title="Verbindet automatisch neu wenn die Bridge kurz getrennt und wieder eingesteckt wird. Nützlich bei losen Steckern. Einstellung wird gespeichert."
+        title={$LL.uart.autoReconnectTitle()}
       >
         <input
           type="checkbox"
@@ -439,55 +441,55 @@
           }}
           class="accent-blue-500"
         />
-        Auto-Reconnect
+        {$LL.uart.autoReconnect()}
       </label>
     {/if}
 
     <button
       onclick={fetchErrlog}
       disabled={!$uartConnected || errlogPending}
-      title="Fragt die komplette Fehler-Historie der PS5 ab (errlog 0–9, die letzten 10 gespeicherten Einträge). Gefundene Fehler erscheinen als Karten mit Code, Beschreibung und Temperatur; leere Einträge werden grau markiert."
+      title={$LL.uart.errlogTitle()}
       class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
              disabled:opacity-40"
     >
-      {errlogPending ? '⟳ Errlog…' : 'Errlog'}
+      {errlogPending ? $LL.uart.errlogPending() : $LL.uart.errlog()}
     </button>
 
     <button
       onclick={clearErrlog}
       disabled={!$uartConnected}
-      title="Löscht die gespeicherte Fehler-Historie auf der PS5 unwiderruflich (errlog clear). Sinnvoll nach einer Reparatur, um zu prüfen ob neue Fehler auftreten. Erfordert zweiten Klick zur Bestätigung."
+      title={$LL.uart.clearTitle()}
       class="px-3 py-1 text-sm rounded text-white disabled:opacity-40
              {confirmClear
                ? 'bg-red-700 hover:bg-red-600'
                : 'bg-gray-700 hover:bg-gray-600'}"
     >
-      {confirmClear ? 'Wirklich löschen?' : 'Historie löschen'}
+      {confirmClear ? $LL.uart.confirmClear() : $LL.uart.clearHistory()}
     </button>
 
     <button
       onclick={fetchVersion}
       disabled={!$uartConnected}
-      title="Sendet den 'version'-Befehl an die PS5. Die Konsole antwortet mit der aktuell installierten Firmware-Version."
+      title={$LL.uart.versionTitle()}
       class="px-3 py-1 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white
              disabled:opacity-40"
     >
-      Version
+      {$LL.uart.version()}
     </button>
 
     <button
       onclick={loopbackTest}
       disabled={!$uartConnected || loopbackPending}
-      title="Hardware-Test: RX und TX auf der Bridge kurzschließen (Draht oder Büroklammer), dann hier klicken. Kommt das Echo zurück, funktionieren TX-Pin, RX-Pin und Bridge-Chip korrekt."
+      title={$LL.uart.loopbackTitle()}
       class="px-3 py-1 text-sm rounded bg-purple-700 hover:bg-purple-600 text-white
              disabled:opacity-40"
     >
-      {loopbackPending ? '⟳ Loopback…' : 'Loopback'}
+      {loopbackPending ? $LL.uart.loopbackPending() : $LL.uart.loopback()}
     </button>
 
     <label
       class="flex items-center gap-1 text-sm text-gray-300 select-none cursor-pointer"
-      title="Sendet den 'errlog'-Befehl automatisch alle 5 Sekunden. Nützlich um neue Fehler live mitzuverfolgen ohne manuell zu klicken. Nur während aktiver Verbindung verfügbar."
+      title={$LL.uart.autoPollTitle()}
     >
       <input
         type="checkbox"
@@ -496,37 +498,37 @@
         onchange={(e) => toggleAutoPoll((e.target as HTMLInputElement).checked)}
         class="accent-blue-500 disabled:opacity-40"
       />
-      Auto-Poll
+      {$LL.uart.autoPoll()}
     </label>
 
     <div class="flex items-center gap-2 ml-auto">
       {#if $dbLoading}
-        <span class="text-xs text-gray-500 flex items-center gap-1" title="Fehlercodes-Datenbank wird geladen…">
-          <span class="inline-block animate-spin">⟳</span> Lade DB…
+        <span class="text-xs text-gray-500 flex items-center gap-1" title={$LL.uart.dbLoadingTitle()}>
+          <span class="inline-block animate-spin">⟳</span> {$LL.uart.loadingDb()}
         </span>
       {:else if $dbCodeCount != null}
         <span
           class="text-xs text-green-400"
-          title="Anzahl der geladenen PS5-Fehlercodes in der lokalen Datenbank. Wird für die automatische Beschreibung von Errlog-Einträgen verwendet."
+          title={$LL.uart.codesTitle()}
         >
-          {$dbCodeCount.toLocaleString()} Codes
+          {$LL.uart.codes({ count: $dbCodeCount.toLocaleString() })}
         </span>
       {:else}
         <span
           class="text-xs text-red-400"
-          title="Fehlercodes-Datenbank konnte nicht geladen werden. Klicke 'DB aktualisieren' (benötigt Internetverbindung) oder prüfe die Verbindung."
+          title={$LL.uart.dbNotLoadedTitle()}
         >
-          Nicht geladen
+          {$LL.uart.dbNotLoaded()}
         </span>
       {/if}
       <button
         onclick={updateDb}
         disabled={dbUpdating}
-        title="Lädt die neueste Fehlercodes-Datenbank von GitHub herunter und speichert sie lokal. Benötigt Internetverbindung. Lokal gecachte DB bleibt auch offline verfügbar."
+        title={$LL.uart.updateDbTitle()}
         class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
                disabled:opacity-40"
       >
-        {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
+        {dbUpdating ? $LL.uart.updating() : $LL.uart.updateDb()}
       </button>
     </div>
   </div>
@@ -536,30 +538,30 @@
     <div class="flex items-center gap-2">
       <input
         type="text"
-        placeholder="Roheingabe — beliebige Zeile an die Konsole senden…"
+        placeholder={$LL.uart.rawPlaceholder()}
         bind:value={rawInput}
         onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendRaw(); } }}
-        title="Raw-Terminal: sendet genau diese Zeile (ohne PS5-Prüfsummen-Rahmen) an das UART-Gerät. Enter sendet, Shift+Enter für Mehrzeiliges. Nützlich für non-PS5-Geräte oder zum Testen unbekannter Befehle."
+        title={$LL.uart.rawTitle()}
         class="flex-1 bg-gray-800 text-gray-100 text-xs font-mono rounded px-2 py-1.5 border border-gray-700
                placeholder:text-gray-600 focus:outline-none focus:border-gray-500"
       />
       <select
         bind:value={rawLineEnding}
-        title="Zeilenende, das an die Eingabe angehängt wird"
+        title={$LL.uart.lineEndingTitle()}
         class="bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 border border-gray-700 focus:outline-none focus:border-gray-500"
       >
         <option value="crlf">CR+LF</option>
         <option value="lf">LF</option>
         <option value="cr">CR</option>
-        <option value="none">kein</option>
+        <option value="none">{$LL.uart.lineEndingNone()}</option>
       </select>
       <button
         onclick={sendRaw}
         disabled={!rawInput}
-        title="Zeile senden (Enter)"
+        title={$LL.uart.sendTitle()}
         class="px-3 py-1.5 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-40"
       >
-        Senden
+        {$LL.uart.send()}
       </button>
     </div>
   {/if}
@@ -571,11 +573,11 @@
     </span>
     <span class="text-xs text-gray-400">
       {#if $uartReconnecting}
-        Reconnecting… — Bridge aus- und wieder einstecken oder "Trennen" klicken um abzubrechen
+        {$LL.uart.statusReconnecting()}
       {:else if $uartConnected}
-        Verbunden — {selectedPort}
+        {$LL.uart.statusConnected({ port: selectedPort })}
       {:else}
-        Getrennt — Port wählen und "Verbinden" klicken
+        {$LL.uart.statusDisconnected()}
       {/if}
     </span>
   </div>
@@ -585,17 +587,17 @@
     <div class="relative">
       <input
         type="text"
-        placeholder="Fehlercode (hex) oder Beschreibung suchen…"
+        placeholder={$LL.uart.searchPlaceholder()}
         oninput={onSearchInput}
         value={dbQuery}
-        title="Suche in der lokalen Fehlercodes-Datenbank. Eingabe als Hexzahl (z.B. 80000001) für exakte Suche, oder Text für Volltextsuche in Beschreibungen. Filtert auch das Log."
+        title={$LL.uart.searchTitle()}
         class="w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 border border-gray-700
                placeholder:text-gray-600 focus:outline-none focus:border-gray-500"
       />
       {#if dbQuery}
         <button
           onclick={() => { dbQuery = ''; searchResults = []; }}
-          title="Suche zurücksetzen"
+          title={$LL.uart.searchResetTitle()}
           class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs"
         >
           ✕
@@ -608,7 +610,7 @@
         {#each searchResults as r (r.code)}
           <button
             onclick={() => { dbQuery = r.code.toString(); searchResults = []; }}
-            title="Klicken um diesen Code als Log-Filter zu setzen"
+            title={$LL.uart.searchResultTitle()}
             class="w-full text-left px-2 py-1.5 hover:bg-gray-700 flex items-center gap-2 border-b
                    border-gray-700 last:border-0"
           >
@@ -629,10 +631,10 @@
       {#if entry.parsed}
         <div
           class="rounded bg-gray-800 border border-gray-700 p-2 text-xs"
-          title="Erkannter Errlog-Eintrag — Fehlercode automatisch aus der Datenbank aufgelöst"
+          title={$LL.uart.errlogEntryTitle()}
         >
           <div class="flex items-start justify-between gap-2">
-            <span class="font-mono font-bold text-orange-400" title="Fehlercode (hexadezimal)">
+            <span class="font-mono font-bold text-orange-400" title={$LL.uart.errorCodeTitle()}>
               0x{entry.parsed.entry.error_code.toString(16).toUpperCase().padStart(8, '0')}
             </span>
             <span class="text-gray-500 shrink-0">
@@ -643,14 +645,14 @@
             <p class="text-gray-200 mt-1">{entry.parsed.description}</p>
           {/if}
           <div class="mt-1 flex flex-wrap gap-3 text-gray-400 font-mono">
-            <span title="SoC-Temperatur zum Zeitpunkt des Fehlers">
-              Temp: <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span>
+            <span title={$LL.uart.tempTitle()}>
+              {$LL.uart.temp()} <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span>
             </span>
-            <span title="Power-State-Register — gibt Auskunft über aktiven Energiezustand der Konsole">
-              PowerStates: {entry.parsed.entry.power_states.toString(16).toUpperCase().padStart(8, '0')}
+            <span title={$LL.uart.powerStatesTitle()}>
+              {$LL.uart.powerStates()} {entry.parsed.entry.power_states.toString(16).toUpperCase().padStart(8, '0')}
             </span>
-            <span title="UpCause — Ursache für den letzten Systemstart (0=normal, andere Werte = Reset/Absturz)">
-              UpCause: {entry.parsed.entry.up_cause.toString(16).toUpperCase().padStart(8, '0')}
+            <span title={$LL.uart.upCauseTitle()}>
+              {$LL.uart.upCause()} {entry.parsed.entry.up_cause.toString(16).toUpperCase().padStart(8, '0')}
             </span>
           </div>
         </div>
@@ -661,14 +663,14 @@
           entry.raw.startsWith('LOOPBACK:')    ? 'text-cyan-400 font-semibold' :
                                                  'text-green-400'
         }">
-          <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>{entry.raw.startsWith('LOOPBACK:') ? `✓ Echo: ${entry.raw}` : entry.raw}
+          <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>{entry.raw.startsWith('LOOPBACK:') ? $LL.uart.echo({ raw: entry.raw }) : entry.raw}
         </div>
       {/if}
     {:else}
       <span class="text-gray-600 text-xs">
         {dbQuery.trim()
-          ? 'Keine Treffer für diesen Filter.'
-          : 'Kein Output — verbinde die UART-Bridge und klicke "Errlog" oder "Version".'}
+          ? $LL.uart.noMatches()
+          : $LL.uart.logEmpty()}
       </span>
     {/each}
   </div>

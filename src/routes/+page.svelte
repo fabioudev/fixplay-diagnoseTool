@@ -21,6 +21,8 @@
   import { refreshUpdateContext, checkUpdates, currentVersion } from '$lib/stores/updater';
   import { activeView, navigate, SHORTCUT_VIEWS } from '$lib/stores/app';
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let settingsOpen = $state(false);
   let aboutOpen    = $state(false);
@@ -61,7 +63,7 @@
             // Tauri v2: prevent close by not calling e.preventDefault()? Actually
             // we need to use the confirm dialog approach since onCloseRequested
             // in Tauri v2 uses async prevention via the event.
-            if (!confirm('Ein Flash-Vorgang läuft! Beim Schließen kann der Chip beschädigt werden. Wirklich schließen?')) {
+            if (!confirm(get(LL).common.confirmCloseFlash())) {
               e.preventDefault();
             }
           }
@@ -113,35 +115,35 @@
 
     <main class="flex-1 min-h-0 overflow-hidden">
       {#if $activeView === 'home'}
-        <ErrorBoundary panel="Start">
+        <ErrorBoundary panel={$LL.nav.home()}>
           <HomePanel onnavigate={navigate} />
         </ErrorBoundary>
       {:else if $activeView === 'flash'}
-        <ErrorBoundary panel="NOR Flash">
+        <ErrorBoundary panel={$LL.nav.flash()}>
           <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
             <FlashPanel />
           </div>
         </ErrorBoundary>
       {:else if $activeView === 'uart'}
-        <ErrorBoundary panel="UART">
+        <ErrorBoundary panel={$LL.nav.uart()}>
           <div class="flex h-full p-4">
             <UartPanel />
           </div>
         </ErrorBoundary>
       {:else if $activeView === 'i2c'}
-        <ErrorBoundary panel="I2C / Pico">
+        <ErrorBoundary panel={$LL.nav.i2c()}>
           <div class="flex h-full p-4">
             <I2cPanel />
           </div>
         </ErrorBoundary>
       {:else if $activeView === 'archive'}
-        <ErrorBoundary panel="Archiv">
+        <ErrorBoundary panel={$LL.nav.archive()}>
           <div class="flex flex-col gap-4 h-full overflow-y-auto p-4">
             <ArchiveSection standalone />
           </div>
         </ErrorBoundary>
       {:else if $activeView === 'controller'}
-        <ErrorBoundary panel="Controller">
+        <ErrorBoundary panel={$LL.nav.controller()}>
           <ControllerPanel />
         </ErrorBoundary>
       {/if}
