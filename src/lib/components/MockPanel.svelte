@@ -520,7 +520,7 @@
             <textarea
               rows="3"
               value={JSON.stringify($mockState.i2c.errlog)}
-              oninput={(e) => { try { setI2c('errlog', JSON.parse((e.target as HTMLTextAreaElement).value)); } catch {} }}
+              oninput={(e) => { try { setI2c('errlog', JSON.parse((e.target as HTMLTextAreaElement).value)); } catch { /* ignored */ }}}
               class={inputCls + ' font-mono'}
             ></textarea>
           </div>
@@ -530,7 +530,7 @@
             <textarea
               rows="3"
               value={$mockState.i2c.info ? JSON.stringify($mockState.i2c.info) : ''}
-              oninput={(e) => { try { const v = (e.target as HTMLTextAreaElement).value; setI2c('info', v ? JSON.parse(v) : null); } catch {} }}
+              oninput={(e) => { try { const v = (e.target as HTMLTextAreaElement).value; setI2c('info', v ? JSON.parse(v) : null); } catch { /* ignored */ }}}
               class={inputCls + ' font-mono'}
             ></textarea>
           </div>

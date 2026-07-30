@@ -294,7 +294,7 @@
             <span class="text-xs text-slate-500 dark:text-slate-400">{$LL.calibration.valuesChanged({ changed })}</span>
           </div>
           <div class="grid grid-cols-12 gap-1 text-center text-[10px] font-mono">
-            {#each calibDiff as d, i}
+            {#each calibDiff as d, i (i)}
               <div
                 class="rounded px-0.5 py-1 {d.delta === 0
                   ? 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'

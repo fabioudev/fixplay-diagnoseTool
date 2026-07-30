@@ -7,7 +7,7 @@
   // panel was missing.
   import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass, Hand } from 'lucide-svelte';
   import { get } from 'svelte/store';
-  import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
+  import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected } from '$lib/stores/controller';
   import LL from '$lib/i18n/i18n-svelte';
   import type { TranslationFunctions } from '$lib/i18n/i18n-types';
   import type { LocalizedString } from 'typesafe-i18n';
@@ -403,7 +403,7 @@
     <div class="flex flex-col gap-3">
       <div class="flex items-center gap-4">
         <div class="flex flex-col gap-2 flex-1">
-          {#each COLOR_SLIDERS as [label, get, set, color]}
+          {#each COLOR_SLIDERS as [label, get, set, color], i (i)}
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-400 w-3" style="color:{color}">{label}</span>
               <input type="range" min="0" max="255" value={get()} oninput={(e) => set(parseFloat((e.target as HTMLInputElement).value))} class="flex-1" style="accent-color:{color}" />

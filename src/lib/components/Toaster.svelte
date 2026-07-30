@@ -4,6 +4,7 @@
   // for errors) stay until dismissed; the rest auto-dismiss after their timeout.
   import { fly, fade } from 'svelte/transition';
   import { flip } from 'svelte/animate';
+  import { SvelteSet } from 'svelte/reactivity';
   import { notifications, dismissNotification } from '$lib/stores/notifications';
   import { X } from 'lucide-svelte';
   import LL from '$lib/i18n/i18n-svelte';
@@ -14,7 +15,7 @@
   $effect(() => {
     // Re-run whenever the queue changes: clear stale timers, arm new ones for
     // any non-sticky toast that doesn't already have one.
-    const seen = new Set<number>();
+    const seen = new SvelteSet<number>();
     for (const n of $notifications) {
       seen.add(n.id);
       if (n.timeout_ms > 0 && !(n.id in timers)) {

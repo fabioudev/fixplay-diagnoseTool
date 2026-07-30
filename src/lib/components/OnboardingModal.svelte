@@ -22,13 +22,13 @@
   ];
 
   function dismiss() {
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, '1'); } catch { /* ignored */ }
     completeOnboarding();
     open = false;
   }
 
   function skip() {
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, '1'); } catch { /* ignored */ }
     completeOnboarding();
     open = false;
   }

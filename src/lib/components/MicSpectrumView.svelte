@@ -13,7 +13,6 @@
 
   let canvas = $state<HTMLCanvasElement | null>(null);
   let deviceFound = $state(false);
-  let permissionDenied = $state(false);
   let errorMsg = $state<string | null>(null);
 
   let audioCtx: AudioContext | null = null;
@@ -99,7 +98,6 @@
       draw();
     } catch (e) {
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
-        permissionDenied = true;
         errorMsg = 'Mikrofon-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
       } else {
         errorMsg = 'Mikrofon-Fehler: ' + (e instanceof Error ? e.message : String(e));
@@ -114,7 +112,6 @@
     analyser = null;
     peaks = [];
     deviceFound = false;
-    permissionDenied = false;
     errorMsg = null;
     // Clear the canvas.
     if (canvas) {

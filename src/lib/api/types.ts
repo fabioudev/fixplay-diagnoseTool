@@ -123,7 +123,7 @@ export interface I2cPollResult {
 }
 
 /** I2C action-log entries use the shared raw-line style. */
-export interface I2cLogEntry extends RawLogEntry {}
+export type I2cLogEntry = RawLogEntry;
 
 export interface I2cErrorSearchResult {
   code:        string;
@@ -169,7 +169,7 @@ export interface FlashStatusEvent {
 }
 
 /** Flash log entries use the shared message+level style. */
-export interface FlashLogEntry extends TextLogEntry {}
+export type FlashLogEntry = TextLogEntry;
 
 export interface DumpEntry {
   bin_path:      string;

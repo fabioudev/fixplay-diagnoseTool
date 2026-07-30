@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  i2cConnected, i2cPorts, xboxDbCount, xboxDbLoading,
+  xboxDbCount, xboxDbLoading,
   i2cScanResults, i2cErrlogEntries, i2cLog, nextI2cLogId,
 } from './i2c';
 import type { I2cLogEntry } from './i2c';

@@ -88,7 +88,7 @@
 
     {#if $archiveLoading}
       <div class="flex flex-col gap-3">
-        {#each Array(3) as _}
+        {#each Array(3) as _, i (i)}
           <div class="p-3 rounded-lg bg-gray-800 border border-gray-700 animate-pulse">
             <div class="h-3 w-32 bg-gray-700 rounded mb-2"></div>
             <div class="h-5 w-full bg-gray-700/70 rounded"></div>

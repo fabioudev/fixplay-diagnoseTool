@@ -1,7 +1,7 @@
 <script lang="ts">
   // Start screen / dashboard — entry point for the application.
   // Shows quick-access cards for each diagnostic tool section.
-  import { Cpu, Usb, Archive, Gamepad2, CircuitBoard, Home } from 'lucide-svelte';
+  import { Cpu, Usb, Archive, Gamepad2, CircuitBoard } from 'lucide-svelte';
   import FixplayIcon from './FixplayIcon.svelte';
   import LL from '$lib/i18n/i18n-svelte';
   import type { TranslationFunctions } from '$lib/i18n/i18n-types';

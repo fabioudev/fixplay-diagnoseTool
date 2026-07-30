@@ -50,7 +50,7 @@
 
   onMount(() => {
     // First-run onboarding — show once per install.
-    try { if (!localStorage.getItem('fixplay-onboarding-done')) onboardingOpen = true; } catch {}
+    try { if (!localStorage.getItem('fixplay-onboarding-done')) onboardingOpen = true; } catch { /* ignored */ }
 
     if (!__MOCK_MODE__) {
       refreshUpdateContext().then(() => checkUpdates());
@@ -85,7 +85,7 @@
         if (last !== null) whatsNewOpen = true;
         localStorage.setItem('fixplay-last-version', v);
       }
-    } catch {}
+    } catch { /* ignored */ }
   });
 </script>
 

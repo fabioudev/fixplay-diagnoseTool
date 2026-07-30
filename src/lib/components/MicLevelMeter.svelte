@@ -15,7 +15,6 @@
   let level = $state(0);        // 0..100
   let peak = $state(0);         // peak hold, decays over 2s
   let deviceFound = $state(false);
-  let permissionDenied = $state(false);
   let errorMsg = $state<string | null>(null);
 
   let audioCtx: AudioContext | null = null;
@@ -78,7 +77,6 @@
       tick();
     } catch (e) {
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
-        permissionDenied = true;
         errorMsg = 'Mikrofon-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
       } else {
         errorMsg = 'Mikrofon-Fehler: ' + (e instanceof Error ? e.message : String(e));
@@ -95,7 +93,6 @@
     level = 0;
     peak = 0;
     deviceFound = false;
-    permissionDenied = false;
     errorMsg = null;
   }
 

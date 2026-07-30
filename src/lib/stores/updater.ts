@@ -51,7 +51,7 @@ export async function checkUpdates(): Promise<void> {
       try {
         const remind = localStorage.getItem('fixplay-update-remind');
         if (remind) snoozed = Date.now() < parseInt(remind, 10);
-      } catch {}
+      } catch { /* ignored */ }
       if (!snoozed) updateDismissed.set(false);
     }
   } catch (e) {

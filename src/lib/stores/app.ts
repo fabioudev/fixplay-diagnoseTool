@@ -60,7 +60,7 @@ export function navigate(v: View): void {
 export function completeOnboarding(): void {
   try {
     if (typeof localStorage !== 'undefined') localStorage.setItem(ONBOARDING_KEY, '1');
-  } catch {}
+  } catch { /* ignored */ }
   appState.update((s) => ({ ...s, onboardingDone: true }));
 }
 

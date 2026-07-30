@@ -147,7 +147,7 @@
   <!-- Touchpad — ref: center(559,143) size ~227×50 -->
   <rect x={TP.x} y={TP.y} width={TP.w} height={TP.h} rx="4"
     fill={btnFill('touchpad')} stroke={btnStroke('touchpad')} stroke-width="1.2" />
-  {#each [0, 1] as i}
+  {#each [0, 1] as i (i)}
     {#if touchDot(i)}
       <circle cx={touchDot(i)!.x} cy={touchDot(i)!.y} r="3" fill="#5eecd9" opacity="0.9" />
     {/if}
@@ -199,7 +199,7 @@
 
   <!-- Analog sticks — ref: L3(352,529) R3(763,529), radius 87 → 26 -->
   <g>
-    {#each [{ side: 'left' as const, cx: LEFT_CX, cy: LEFT_CY }, { side: 'right' as const, cx: RIGHT_CX, cy: RIGHT_CY }] as s}
+    {#each [{ side: 'left' as const, cx: LEFT_CX, cy: LEFT_CY }, { side: 'right' as const, cx: RIGHT_CX, cy: RIGHT_CY }] as s (s.side)}
       {@const l3r3 = s.side === 'left' ? 'l3' : 'r3'}
       <circle cx={s.cx} cy={s.cy} r={STICK_R}
         fill="#0b1220" stroke={pressed(l3r3) ? '#5eecd9' : '#374151'}

@@ -77,7 +77,7 @@ describe('ConfirmDialog', () => {
   });
 
   it('renders a danger-styled confirm button when confirmDanger is set', () => {
-    const { container } = render(ConfirmDialog, {
+    render(ConfirmDialog, {
       props: { open: true, confirmLabel: 'Entfernen', confirmDanger: true },
     });
     // The danger variant uses a red background class on the confirm button.

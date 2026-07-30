@@ -3,7 +3,7 @@
   import { onDestroy } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { pushControllerLog, buttonState, micConnected, controllerModel, controllerInfo } from '$lib/stores/controller';
-  import { X, Loader2, Play, Square, Mic, FileDown } from 'lucide-svelte';
+  import { X, Loader2, Play, Square, FileDown } from 'lucide-svelte';
   import { trapFocus } from '$lib/utils/focusTrap';
   import { fade, scale } from 'svelte/transition';
   import { save as saveDialog } from '@tauri-apps/plugin-dialog';

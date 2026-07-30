@@ -9,7 +9,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { invoke } from '$lib/mock/core';
 import { mockState, resetMockState } from '$lib/mock/state';
 import { createControllerForDevice, createControllerManager } from '$lib/controllers/controller-manager';
-import type { HIDDeviceLike, HIDInputReportEvent } from '$lib/controllers/base-controller';
+import type { HIDDeviceLike } from '$lib/controllers/base-controller';
 import type { HidPollResult } from '$lib/controllers/tauri-hid-device';
 import {
   applyProcessedInput,
@@ -19,8 +19,6 @@ import {
   batteryStatus,
   imuState,
   touchPoints,
-  micConnected,
-  headphoneConnected,
 } from '$lib/stores/controller';
 import { get } from 'svelte/store';
 

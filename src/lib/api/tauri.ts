@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, ChipId, FlashBinaryStatus, SerialArchive, ErrorSearchResult, FlashPreviewResult, DiskSpace, AppSettings, UartPortInfo, UartPollResult, I2cPortInfo, I2cErrlogEntry, I2cInfo, I2cPollResult, I2cErrorSearchResult, UpdateChannel } from './types';
+import type { FlashReadResult, ChipId, FlashBinaryStatus, SerialArchive, ErrorSearchResult, FlashPreviewResult, DiskSpace, AppSettings, UartPortInfo, UartPollResult, I2cPortInfo, I2cErrlogEntry, I2cInfo, I2cPollResult, I2cErrorSearchResult, UpdateChannel } from './types';
 
 export const uartListPorts = (): Promise<UartPortInfo[]> => invoke<UartPortInfo[]>('uart_list_ports');
 export const uartConnect     = (port: string): Promise<void> => invoke<void>('uart_connect', { port });

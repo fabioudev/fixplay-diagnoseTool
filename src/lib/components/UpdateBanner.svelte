@@ -57,7 +57,7 @@
     <button
       onclick={() => {
         const expiry = Date.now() + 24 * 60 * 60 * 1000;
-        try { localStorage.setItem('fixplay-update-remind', String(expiry)); } catch {}
+        try { localStorage.setItem('fixplay-update-remind', String(expiry)); } catch { /* ignored */ }
         updateDismissed.set(true);
       }}
       class="text-emerald-300/70 hover:text-emerald-100 px-2 py-1 rounded shrink-0 text-xs"
