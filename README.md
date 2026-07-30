@@ -39,18 +39,23 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 - **One-click test patterns** — automated sequences for lights, vibration, and triggers
 - **Quick test modal** — scripted pass/fail tests for all actuator systems including speaker and microphone
 - **Microphone live level meter** via WebAudio
-- **Stick calibration** (center + range/circularity)
+- **Microphone frequency spectrum** — live FFT magnitude view (0–5.4 kHz) for mic diagnostics
+- **IMU visualization** — live gyro (°/s) + accelerometer (g) bars and a 2-D tilt pad
+- **Touchpad gesture recognition** — tap / swipe (with direction) / hold / two-finger detection with a fading trail and gesture log
+- **Speaker→Mic loopback test** — plays a tone and verifies the mic picks it up
+- **Stick calibration** (center + range/circularity) with before/after diff
 - **Bluetooth support** — full CRC32 framing for output and feature reports over BT
 - Read controller info: firmware version, MAC address, serial number, board model
 - NVS read/write for persistent settings
 
 ### General
 - **Start screen** with quick-access cards for all tools
-- **Mock mode** (`MOCK=1`) — full browser-based preview without hardware or Tauri backend
+- **Mock mode** (`MOCK=1`) — full browser-based preview without hardware or Tauri backend, including a gesture-replay simulator
 - **In-app updater** with signed bundles and automatic update checks
-- **Dark theme** throughout
+- **Dark/light theme** with a persisted toggle
+- **Internationalization (i18n)** — German (default) and English with a live language toggle
 - **Tablet mode** for touch-optimized layout
-- Cross-platform: **Windows** (.msi/.exe), **Linux** (.deb/.rpm/.AppImage), **Arch** (AUR)
+- Cross-platform: **Windows** (.msi/.exe), **Linux** (.deb/.rpm/.AppImage), **Arch** (AUR), plus **macOS** (.dmg) and **Linux/Windows ARM64**
 
 ---
 
@@ -61,10 +66,13 @@ Download the latest release from [GitHub Releases](https://github.com/fabioudev/
 
 | Platform | Package |
 |----------|---------|
-| Windows | `.msi` installer or `.exe` setup |
-| Linux (Ubuntu/Debian) | `.deb` |
-| Linux (Fedora/RHEL) | `.rpm` |
-| Linux (universal) | `.AppImage` |
+| Windows (x64) | `.msi` installer or `.exe` setup |
+| Windows (ARM64) | `.msi` installer or `.exe` setup |
+| Linux x64 (Ubuntu/Debian) | `.deb` |
+| Linux x64 (Fedora/RHEL) | `.rpm` |
+| Linux x64 (universal) | `.AppImage` |
+| Linux ARM64 | `.deb` / `.rpm` |
+| macOS | `.dmg` |
 
 ### Arch Linux (AUR)
 Two packages are auto-published per release:
@@ -170,11 +178,16 @@ git push origin v0.2.0
 ```
 
 The workflow builds:
-- **Linux:** AppImage, `.deb`, `.rpm` (with libwayland-client stripped from AppImage)
-- **Windows:** `.msi`, `.exe` (with flashrom.exe built from source)
+- **Linux (x64):** AppImage, `.deb`, `.rpm` (with libwayland-client stripped from AppImage)
+- **Linux (ARM64):** `.deb`, `.rpm` (native `ubuntu-24.04-arm` runner; no AppImage — linuxdeploy is x86_64-only)
+- **Windows (x64):** `.msi`, `.exe` (with flashrom.exe built from source)
+- **Windows (ARM64):** `.msi`, `.exe` (native `windows-11-arm` runner)
+- **macOS:** `.dmg` (unsigned; native `macos-latest` runner)
 - **Arch:** `.pkg.tar.zst` (built in an `archlinux:latest` container)
 - **AUR:** `fixplay-diagnosetool` and `fixplay-diagnosetool-bin` auto-updated
 - **Updater:** `latest.json` manifest with SHA256 checksums and signatures
+
+> The macOS and ARM64 targets are built by a separate `build-extra` job with `continue-on-error: true` — they ship when they succeed but never block a release. Native ARM64 flashrom binaries are not yet built, so flashrom features are runtime-unavailable on ARM64/macOS until a native flashrom is added.
 
 Prerelease tags (containing `-`) skip the AUR publish step.
 
