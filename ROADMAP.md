@@ -86,7 +86,7 @@
 - [x] **#70** Stick renderer has zero tests despite being pure math — calculateCircularityError tests
 - [x] **#71** Store tests are tautological (test Svelte's `writable()`, not app logic) — rewritten to test id-generator uniqueness/monotonicity, log prepend+cap contracts, parsed-entry shape, nullable db-count semantic, and partial-update preservation instead of bare set/get round-trips
 - [x] **#72** No mock error-state simulation — MockPanel "Fehler simulieren" section arms per-command errors (errors map in mock state); invoke() rejects with the armed message; 3 tests
-- [ ] **#73** No integration tests anywhere
+- [x] **#73** No integration tests anywhere — `integration/controller-pipeline.test.ts` drives the full mock `hid_poll` → `ControllerManager.processControllerInput` → `applyProcessedInput` seam and asserts sticks/triggers/buttons/battery/IMU/touch stores all reflect one configured input together (incl. the real DS5 10%-step battery quantization 50→55, incremental button updates across frames, and connected=false disconnect); `integration/flash-pipeline.test.ts` drives `invoke('flash_read')` → `flash://progress`/`flash://result` events → result NVS/archive, plus error-injection interplay. 5 integration tests
 - [x] **#74** No `rust-toolchain.toml` for reproducible builds — added
 - [x] **#75** No Dependabot or Renovate for automated dependency updates — `.github/dependabot.yml` (npm + all 5 cargo workspaces, weekly)
 - [x] **#76** No `cargo audit` or vulnerability scanning in CI — `audit` job in CI (advisory, continue-on-error)
