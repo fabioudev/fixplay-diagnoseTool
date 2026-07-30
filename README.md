@@ -53,7 +53,7 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 - **Mock mode** (`MOCK=1`) — full browser-based preview without hardware or Tauri backend, including a gesture-replay simulator
 - **In-app updater** with signed bundles and automatic update checks
 - **Dark/light theme** with a persisted toggle
-- **Internationalization (i18n)** — German (default) and English with a live language toggle
+- **Internationalization (i18n)** — German (default) and English with a live language toggle, backed by [typesafe-i18n](https://github.com/ivanhofer/typesafe-i18n) for compile-time type safety: a missing or mis-typed translation key is a TypeScript build error, not a runtime gap
 - **Tablet mode** for touch-optimized layout
 - Cross-platform: **Windows** (.msi/.exe), **Linux** (.deb/.rpm/.AppImage), **Arch** (AUR), plus **macOS** (.dmg) and **Linux/Windows ARM64**
 
@@ -124,10 +124,23 @@ npm run tauri dev     # Full app with hot-reload (needs Rust + system deps)
 npm run dev           # Frontend-only Vite dev server
 npm run build         # Production frontend build
 npm run test          # Frontend unit tests (Vitest)
-npm run check         # Type-check (svelte-check)
+npm run check         # Type-check (svelte-check; also regenerates i18n types)
+npm run i18n          # Regenerate typesafe-i18n types after editing translations
 cargo test --workspace  # Rust unit tests
 cargo clippy --workspace  # Rust lint
 ```
+
+### Internationalization
+
+Translations live in `src/lib/i18n/` — `de/index.ts` is the base locale (source of truth), `en/index.ts` mirrors it. The app reads strings through the `LL` Svelte store (`$LL.group.key()` in markup; `get(LL).group.key()` in script). The user's choice is persisted under the `fixplay-locale` localStorage key and applied without a reload, so live hardware state survives a language switch.
+
+To add or change a string:
+
+1. Edit `src/lib/i18n/de/index.ts` (and `en/index.ts`).
+2. Run `npm run i18n` (or `npm run check`, which runs it implicitly) to regenerate `i18n-types.ts`.
+3. A missing key in either locale is a TypeScript compile error — `npm run check` / `npm run build` will fail until both locales match the base.
+
+Component tests that render `$LL`-based components must call `initI18n()` (from `$lib/i18n/init`) in their setup, since `LL` is otherwise only initialized in `+layout.svelte` at runtime.
 
 ### Project Structure
 ```

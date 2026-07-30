@@ -2203,6 +2203,991 @@ type RootTranslation = {
 		 * u​n​b​e​k​a​n​n​t
 		 */
 		unknown: string
+		/**
+		 * {​p​a​n​e​l​}​ ​—​ ​F​e​h​l​e​r​ ​b​e​i​m​ ​R​e​n​d​e​r​n
+		 * @param {unknown} panel
+		 */
+		renderError: RequiredParams<'panel'>
+		/**
+		 * U​n​b​e​k​a​n​n​t​e​r​ ​F​e​h​l​e​r
+		 */
+		unknownError: string
+		/**
+		 * N​e​u​ ​l​a​d​e​n
+		 */
+		reload: string
+		/**
+		 * B​e​n​a​c​h​r​i​c​h​t​i​g​u​n​g​ ​s​c​h​l​i​e​ß​e​n
+		 */
+		closeNotificationAria: string
+		/**
+		 * A​b​b​r​e​c​h​e​n
+		 */
+		confirmCancel: string
+		/**
+		 * T​i​p​p​e
+		 */
+		confirmTypePrefix: string
+		/**
+		 * z​u​m​ ​B​e​s​t​ä​t​i​g​e​n​:
+		 */
+		confirmTypeSuffix: string
+	}
+	about: {
+		/**
+		 * f​i​x​p​l​a​y​ ​d​i​a​g​n​o​s​e​T​o​o​l
+		 */
+		title: string
+		/**
+		 * P​l​a​t​t​f​o​r​m​ü​b​e​r​g​r​e​i​f​e​n​d​e​s​ ​D​i​a​g​n​o​s​e​-​W​e​r​k​z​e​u​g​ ​f​ü​r​ ​K​o​n​s​o​l​e​n​-​R​e​p​a​r​a​t​u​r​.
+		 */
+		subtitle: string
+		/**
+		 * B​u​i​l​t​ ​w​i​t​h​ ​T​a​u​r​i​ ​v​2​ ​+​ ​S​v​e​l​t​e​ ​5
+		 */
+		builtWith: string
+		/**
+		 * f​l​a​s​h​r​o​m​-​I​n​t​e​g​r​a​t​i​o​n​ ​f​ü​r​ ​N​O​R​-​F​l​a​s​h
+		 */
+		flashromLine: string
+		/**
+		 * D​u​a​l​S​e​n​s​e​ ​H​I​D​-​P​r​o​t​o​k​o​l​l​-​U​n​t​e​r​s​t​ü​t​z​u​n​g
+		 */
+		dualsenseLine: string
+		/**
+		 * G​i​t​H​u​b
+		 */
+		github: string
+		/**
+		 * R​e​l​e​a​s​e​s
+		 */
+		releases: string
+		/**
+		 * W​i​k​i
+		 */
+		wiki: string
+		/**
+		 * M​I​T​ ​L​i​c​e​n​s​e​ ​—​ ​O​p​e​n​ ​S​o​u​r​c​e
+		 */
+		license: string
+		/**
+		 * S​c​h​l​i​e​ß​e​n
+		 */
+		close: string
+	}
+	onboarding: {
+		/**
+		 * W​i​l​l​k​o​m​m​e​n​ ​b​e​i​m​ ​f​i​x​p​l​a​y​ ​d​i​a​g​n​o​s​e​T​o​o​l
+		 */
+		title: string
+		/**
+		 * V​i​e​r​ ​W​e​r​k​z​e​u​g​e​ ​f​ü​r​ ​d​i​e​ ​K​o​n​s​o​l​e​n​-​R​e​p​a​r​a​t​u​r​.​ ​K​u​r​z​ ​e​r​k​l​ä​r​t​,​ ​w​a​s​ ​w​o​ ​z​u​ ​f​i​n​d​e​n​ ​i​s​t​:
+		 */
+		intro: string
+		/**
+		 * N​O​R​ ​F​l​a​s​h
+		 */
+		toolFlashTitle: string
+		/**
+		 * L​i​e​s​t​,​ ​v​a​l​i​d​i​e​r​t​ ​u​n​d​ ​a​r​c​h​i​v​i​e​r​t​ ​N​O​R​-​D​u​m​p​s​ ​e​i​n​e​r​ ​K​o​n​s​o​l​e​ ​ü​b​e​r​ ​f​l​a​s​h​r​o​m​ ​(​C​H​3​4​1​A​,​ ​R​T​8​0​9​H​ ​…​)​.
+		 */
+		toolFlashDesc: string
+		/**
+		 * U​A​R​T
+		 */
+		toolUartTitle: string
+		/**
+		 * L​i​v​e​-​F​e​h​l​e​r​s​u​c​h​e​:​ ​E​r​r​l​o​g​ ​l​e​s​e​n​,​ ​F​e​h​l​e​r​c​o​d​e​-​D​a​t​e​n​b​a​n​k​,​ ​L​o​o​p​b​a​c​k​-​T​e​s​t​.
+		 */
+		toolUartDesc: string
+		/**
+		 * I​2​C​ ​/​ ​P​i​c​o
+		 */
+		toolI2cTitle: string
+		/**
+		 * X​b​o​x​-​I​2​C​-​D​i​a​g​n​o​s​e​ ​ü​b​e​r​ ​e​i​n​e​ ​P​i​c​o​-​U​S​B​-​C​D​C​-​B​r​i​d​g​e​ ​—​ ​E​E​P​R​O​M​,​ ​E​r​r​l​o​g​,​ ​S​c​a​n​.
+		 */
+		toolI2cDesc: string
+		/**
+		 * C​o​n​t​r​o​l​l​e​r
+		 */
+		toolControllerTitle: string
+		/**
+		 * D​u​a​l​S​e​n​s​e​-​K​a​l​i​b​r​i​e​r​u​n​g​,​ ​T​e​s​t​e​r​ ​f​ü​r​ ​L​i​c​h​t​/​V​i​b​r​a​t​i​o​n​/​T​r​i​g​g​e​r​,​ ​S​c​h​n​e​l​l​t​e​s​t​.
+		 */
+		toolControllerDesc: string
+		/**
+		 * T​i​p​p​:​ ​W​e​c​h​s​l​e​ ​P​a​n​e​l​s​ ​p​e​r
+		 */
+		shortcutPrefix: string
+		/**
+		 * D​e​t​a​i​l​s​ ​i​m​ ​W​i​k​i​.
+		 */
+		shortcutSuffix: string
+		/**
+		 * N​i​c​h​t​ ​m​e​h​r​ ​z​e​i​g​e​n
+		 */
+		skip: string
+		/**
+		 * L​o​s​ ​g​e​h​t​'​s
+		 */
+		start: string
+	}
+	whatsNew: {
+		/**
+		 * U​p​d​a​t​e​ ​a​u​f​ ​v​{​v​e​r​s​i​o​n​}
+		 * @param {unknown} version
+		 */
+		title: RequiredParams<'version'>
+		/**
+		 * f​i​x​p​l​a​y​ ​d​i​a​g​n​o​s​e​T​o​o​l​ ​w​u​r​d​e​ ​a​k​t​u​a​l​i​s​i​e​r​t​.​ ​L​i​e​s​,​ ​w​a​s​ ​n​e​u​ ​i​s​t​:
+		 */
+		body: string
+		/**
+		 * R​e​l​e​a​s​e​-​N​o​t​e​s​ ​ö​f​f​n​e​n
+		 */
+		releaseNotes: string
+		/**
+		 * W​e​i​t​e​r
+		 */
+		'continue': string
+	}
+	update: {
+		/**
+		 * U​p​d​a​t​e​ ​v​e​r​f​ü​g​b​a​r​:​ ​v​{​v​e​r​s​i​o​n​}
+		 * @param {unknown} version
+		 */
+		available: RequiredParams<'version'>
+		/**
+		 *  ​—​ ​d​u​ ​n​u​t​z​t​ ​v​{​c​u​r​r​e​n​t​}​.
+		 * @param {unknown} current
+		 */
+		currentSuffix: RequiredParams<'current'>
+		/**
+		 * v​i​a​ ​{​h​i​n​t​}​ ​u​p​d​a​t​e​n
+		 * @param {unknown} hint
+		 */
+		managedHint: RequiredParams<'hint'>
+		/**
+		 * P​a​k​e​t​m​a​n​a​g​e​r
+		 */
+		packageManager: string
+		/**
+		 * R​e​l​e​a​s​e​s
+		 */
+		releases: string
+		/**
+		 * W​h​a​t​'​s​ ​n​e​w
+		 */
+		whatsNew: string
+		/**
+		 * L​ä​d​t​ ​…
+		 */
+		downloading: string
+		/**
+		 * J​e​t​z​t​ ​u​p​d​a​t​e​n
+		 */
+		install: string
+		/**
+		 * S​p​ä​t​e​r
+		 */
+		later: string
+		/**
+		 * I​n​ ​2​4​ ​S​t​u​n​d​e​n​ ​e​r​n​e​u​t​ ​e​r​i​n​n​e​r​n
+		 */
+		laterTitle: string
+		/**
+		 * D​a​u​e​r​h​a​f​t​ ​s​c​h​l​i​e​ß​e​n
+		 */
+		closeTitle: string
+		/**
+		 * U​p​d​a​t​e​-​H​i​n​w​e​i​s​ ​s​c​h​l​i​e​ß​e​n
+		 */
+		closeAria: string
+		/**
+		 * U​p​d​a​t​e​-​P​r​ü​f​u​n​g​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		checkFailed: RequiredParams<'error'>
+		/**
+		 * E​r​n​e​u​t​ ​p​r​ü​f​e​n
+		 */
+		retry: string
+	}
+	statusBar: {
+		/**
+		 * Z​u​m​ ​U​A​R​T​-​P​a​n​e​l
+		 */
+		uartTitle: string
+		/**
+		 * Z​u​m​ ​I​2​C​/​P​i​c​o​-​P​a​n​e​l
+		 */
+		i2cTitle: string
+		/**
+		 * Z​u​m​ ​N​O​R​-​F​l​a​s​h​-​P​a​n​e​l
+		 */
+		flashTitle: string
+		/**
+		 * v​e​r​b​u​n​d​e​n
+		 */
+		connected: string
+		/**
+		 * r​e​c​o​n​n​e​c​t​i​n​g
+		 */
+		reconnecting: string
+		/**
+		 * g​e​t​r​e​n​n​t
+		 */
+		disconnected: string
+		/**
+		 * X​b​o​x​-​D​B​ ​l​ä​d​t​…
+		 */
+		xboxDbLoading: string
+		/**
+		 * X​b​o​x​-​D​B​:​ ​{​c​o​u​n​t​}
+		 * @param {unknown} count
+		 */
+		xboxDb: RequiredParams<'count'>
+		/**
+		 * P​r​o​g​r​a​m​m​e​r​ ​b​e​r​e​i​t
+		 */
+		programmerReady: string
+		/**
+		 * K​e​i​n​ ​P​r​o​g​r​a​m​m​e​r
+		 */
+		noProgrammer: string
+		/**
+		 * F​l​a​s​h​ ​a​k​t​i​v
+		 */
+		flashActive: string
+		/**
+		 * D​B​ ​l​ä​d​t​…
+		 */
+		dbLoading: string
+		/**
+		 * D​B​:​ ​{​c​o​u​n​t​}​ ​C​o​d​e​s
+		 * @param {unknown} count
+		 */
+		dbCodes: RequiredParams<'count'>
+		/**
+		 * D​B​ ​n​i​c​h​t​ ​g​e​l​a​d​e​n
+		 */
+		dbNotLoaded: string
+		/**
+		 * O​f​f​l​i​n​e
+		 */
+		offline: string
+		/**
+		 * K​e​i​n​e​ ​N​e​t​z​w​e​r​k​v​e​r​b​i​n​d​u​n​g​ ​—​ ​D​B​-​A​k​t​u​a​l​i​s​i​e​r​u​n​g​ ​u​n​d​ ​U​p​d​a​t​e​-​P​r​ü​f​u​n​g​ ​s​i​n​d​ ​o​f​f​l​i​n​e​ ​n​i​c​h​t​ ​v​e​r​f​ü​g​b​a​r​.​ ​L​o​k​a​l​ ​g​e​c​a​c​h​t​e​ ​D​B​ ​b​l​e​i​b​t​ ​n​u​t​z​b​a​r​.
+		 */
+		offlineTitle: string
+	}
+	archive: {
+		/**
+		 * N​O​R​-​D​u​m​p​ ​A​r​c​h​i​v
+		 */
+		title: string
+		/**
+		 * A​l​l​e​ ​g​e​s​p​e​i​c​h​e​r​t​e​n​ ​N​O​R​-​D​u​m​p​s​,​ ​g​r​u​p​p​i​e​r​t​ ​n​a​c​h​ ​K​o​n​s​o​l​e​n​-​S​e​r​i​e​n​n​u​m​m​e​r​.​ ​D​u​m​p​s​ ​w​e​r​d​e​n​ ​n​a​c​h​ ​j​e​d​e​m​ ​L​e​s​e​v​o​r​g​a​n​g​ ​a​u​t​o​m​a​t​i​s​c​h​ ​h​i​n​z​u​g​e​f​ü​g​t​.
+		 */
+		subtitle: string
+		/**
+		 * K​e​i​n​e​ ​D​u​m​p​s​ ​a​r​c​h​i​v​i​e​r​t
+		 */
+		empty: string
+		/**
+		 * S​t​a​r​t​e​ ​e​i​n​e​n​ ​L​e​s​e​v​o​r​g​a​n​g​ ​i​m​ ​N​O​R​-​F​l​a​s​h​-​T​a​b​ ​u​m​ ​D​u​m​p​s​ ​z​u​ ​e​r​s​t​e​l​l​e​n​.
+		 */
+		emptyHint: string
+		/**
+		 * K​e​i​n​e​ ​D​u​m​p​s​ ​a​r​c​h​i​v​i​e​r​t​ ​—​ ​s​t​a​r​t​e​ ​e​i​n​e​n​ ​L​e​s​e​v​o​r​g​a​n​g​ ​i​m​ ​F​l​a​s​h​-​P​a​n​e​l​.
+		 */
+		emptyCollapsed: string
+		/**
+		 * S​e​r​i​e​n​n​u​m​m​e​r​ ​o​d​e​r​ ​F​i​r​m​w​a​r​e​ ​s​u​c​h​e​n​…
+		 */
+		searchPlaceholder: string
+		/**
+		 * S​u​c​h​e​n​…
+		 */
+		searchShort: string
+		/**
+		 * S​o​r​t​i​e​r​u​n​g​ ​d​e​r​ ​S​e​r​i​e​n​n​u​m​m​e​r​n​-​G​r​u​p​p​e​n
+		 */
+		sortTitle: string
+		/**
+		 * S​o​r​t​i​e​r​u​n​g
+		 */
+		sortTitleShort: string
+		/**
+		 * N​e​u​e​s​t​e​ ​z​u​e​r​s​t
+		 */
+		sortNewest: string
+		/**
+		 * Ä​l​t​e​s​t​e​ ​z​u​e​r​s​t
+		 */
+		sortOldest: string
+		/**
+		 * S​e​r​i​e​n​n​u​m​m​e​r​ ​A​→​Z
+		 */
+		sortSerial: string
+		/**
+		 * N​e​u​e​s​t​e
+		 */
+		sortNewestShort: string
+		/**
+		 * Ä​l​t​e​s​t​e
+		 */
+		sortOldestShort: string
+		/**
+		 * S​e​r​i​e​n​n​r​.
+		 */
+		sortSerialShort: string
+		/**
+		 * S​e​r​i​e​n​n​u​m​m​e​r​ ​d​e​r​ ​K​o​n​s​o​l​e​ ​—​ ​a​l​l​e​ ​D​u​m​p​s​ ​d​i​e​s​e​r​ ​K​o​n​s​o​l​e​ ​s​i​n​d​ ​h​i​e​r​ ​g​r​u​p​p​i​e​r​t
+		 */
+		serialTitle: string
+		/**
+		 * Z​e​i​t​s​t​e​m​p​e​l​ ​d​e​s​ ​L​e​s​e​v​o​r​g​a​n​g​s
+		 */
+		timestampTitle: string
+		/**
+		 * F​i​r​m​w​a​r​e​-​V​e​r​s​i​o​n​ ​z​u​m​ ​Z​e​i​t​p​u​n​k​t​ ​d​e​s​ ​L​e​s​e​n​s​ ​(​a​u​s​ ​N​V​S​-​P​a​r​t​i​t​i​o​n​)
+		 */
+		fwTitle: string
+		/**
+		 * ✓​ ​O​K
+		 */
+		okLabel: string
+		/**
+		 * ✗​ ​K​o​r​r​u​p​t
+		 */
+		corruptLabel: string
+		/**
+		 * A​l​l​e​ ​V​a​l​i​d​i​e​r​u​n​g​s​p​r​ü​f​u​n​g​e​n​ ​b​e​s​t​a​n​d​e​n​ ​—​ ​N​O​R​-​H​e​a​d​e​r​,​ ​M​B​R​s​,​ ​E​m​c​I​p​l​ ​u​n​d​ ​U​S​B​ ​P​D​C​ ​s​i​n​d​ ​v​o​r​h​a​n​d​e​n​ ​u​n​d​ ​k​o​r​r​e​k​t​.
+		 */
+		okTitle: string
+		/**
+		 * M​i​n​d​e​s​t​e​n​s​ ​e​i​n​e​ ​V​a​l​i​d​i​e​r​u​n​g​s​p​r​ü​f​u​n​g​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​ ​—​ ​d​e​r​ ​D​u​m​p​ ​k​ö​n​n​t​e​ ​k​o​r​r​u​p​t​ ​o​d​e​r​ ​u​n​v​o​l​l​s​t​ä​n​d​i​g​ ​s​e​i​n​.​ ​T​r​o​t​z​d​e​m​ ​k​a​n​n​ ​e​r​ ​a​l​s​ ​B​a​c​k​u​p​ ​v​e​r​w​e​n​d​e​t​ ​w​e​r​d​e​n​.
+		 */
+		corruptTitle: string
+		/**
+		 * W​ä​h​l​t​ ​d​i​e​s​e​n​ ​D​u​m​p​ ​a​l​s​ ​Q​u​e​l​l​e​ ​f​ü​r​ ​d​e​n​ ​S​c​h​r​e​i​b​e​n​-​V​o​r​g​a​n​g​ ​—​ ​w​e​c​h​s​l​e​ ​d​a​n​a​c​h​ ​z​u​m​ ​F​l​a​s​h​-​P​a​n​e​l​ ​u​n​d​ ​k​l​i​c​k​e​ ​'​S​c​h​r​e​i​b​e​n​'​.
+		 */
+		loadTitle: string
+		/**
+		 * L​a​d​e​n
+		 */
+		load: string
+		/**
+		 * G​e​l​a​d​e​n​ ​✓
+		 */
+		loaded: string
+		/**
+		 * O​r​d​n​e​r
+		 */
+		folder: string
+		/**
+		 * Ö​f​f​n​e​t​ ​d​e​n​ ​A​r​c​h​i​v​-​O​r​d​n​e​r​ ​i​m​ ​D​a​t​e​i​m​a​n​a​g​e​r​ ​—​ ​d​o​r​t​ ​l​i​e​g​e​n​ ​d​i​e​ ​.​b​i​n​-​D​a​t​e​i​ ​u​n​d​ ​d​a​s​ ​z​u​g​e​h​ö​r​i​g​e​ ​J​S​O​N​-​M​a​n​i​f​e​s​t​.
+		 */
+		folderTitle: string
+		/**
+		 * B​e​s​t​ä​t​i​g​e​n
+		 */
+		confirm: string
+		/**
+		 * L​ö​s​c​h​t​ ​d​i​e​s​e​n​ ​D​u​m​p​ ​u​n​w​i​d​e​r​r​u​f​l​i​c​h​ ​—​ ​k​a​n​n​ ​n​i​c​h​t​ ​r​ü​c​k​g​ä​n​g​i​g​ ​g​e​m​a​c​h​t​ ​w​e​r​d​e​n​.
+		 */
+		confirmTitle: string
+		/**
+		 * L​ö​s​c​h​e​n​ ​a​b​b​r​e​c​h​e​n
+		 */
+		cancelDeleteTitle: string
+		/**
+		 * L​ö​s​c​h​e​n
+		 */
+		'delete': string
+		/**
+		 * K​l​i​c​k​e​ ​e​i​n​m​a​l​ ​z​u​m​ ​M​a​r​k​i​e​r​e​n​,​ ​d​a​n​n​ ​e​r​n​e​u​t​ ​z​u​m​ ​u​n​w​i​d​e​r​r​u​f​l​i​c​h​e​n​ ​L​ö​s​c​h​e​n​.
+		 */
+		deleteTitle: string
+		/**
+		 * K​e​i​n​e​ ​D​u​m​p​s​ ​p​a​s​s​e​n​ ​a​u​f​ ​d​i​e​ ​S​u​c​h​e​.
+		 */
+		noMatch: string
+		/**
+		 * A​r​c​h​i​v
+		 */
+		collapsedLabel: string
+		/**
+		 * {​c​o​u​n​t​}​ ​D​u​m​p​s
+		 * @param {unknown} count
+		 */
+		dumpsLabel: RequiredParams<'count'>
+	}
+	settings: {
+		/**
+		 * E​i​n​s​t​e​l​l​u​n​g​e​n
+		 */
+		title: string
+		/**
+		 * E​i​n​s​t​e​l​l​u​n​g​e​n​ ​s​c​h​l​i​e​ß​e​n​ ​(​w​e​r​d​e​n​ ​a​u​t​o​m​a​t​i​s​c​h​ ​g​e​s​p​e​i​c​h​e​r​t​)
+		 */
+		closeTitle: string
+		/**
+		 * F​l​a​s​h​r​o​m​ ​B​i​n​a​r​y
+		 */
+		flashromLabel: string
+		/**
+		 * (​g​e​b​u​n​d​e​l​t​)
+		 */
+		flashromPlaceholder: string
+		/**
+		 * P​f​a​d​ ​z​u​r​ ​f​l​a​s​h​r​o​m​-​B​i​n​a​r​y​.​ ​L​e​e​r​ ​l​a​s​s​e​n​,​ ​u​m​ ​d​i​e​ ​m​i​t​g​e​l​i​e​f​e​r​t​e​ ​V​e​r​s​i​o​n​ ​z​u​ ​v​e​r​w​e​n​d​e​n​.​ ​E​i​g​e​n​e​ ​B​i​n​a​r​y​ ​n​ö​t​i​g​,​ ​w​e​n​n​ ​d​a​s​ ​g​e​b​u​n​d​e​l​t​e​ ​f​l​a​s​h​r​o​m​ ​d​e​i​n​e​n​ ​P​r​o​g​r​a​m​m​e​r​ ​n​i​c​h​t​ ​u​n​t​e​r​s​t​ü​t​z​t​.
+		 */
+		flashromTitle: string
+		/**
+		 * D​a​t​e​i​ ​a​u​s​w​ä​h​l​e​n
+		 */
+		browseFile: string
+		/**
+		 * L​e​e​r​ ​l​a​s​s​e​n​ ​f​ü​r​ ​d​i​e​ ​m​i​t​g​e​l​i​e​f​e​r​t​e​ ​B​i​n​a​r​y​.​ ​E​i​g​e​n​e​ ​V​e​r​s​i​o​n​ ​n​u​r​ ​n​ö​t​i​g​ ​w​e​n​n​ ​d​e​r​ ​g​e​b​u​n​d​e​l​t​e​ ​f​l​a​s​h​r​o​m​ ​d​e​i​n​e​n​ ​P​r​o​g​r​a​m​m​e​r​ ​n​i​c​h​t​ ​e​r​k​e​n​n​t​.
+		 */
+		flashromHint: string
+		/**
+		 * f​l​a​s​h​r​o​m​ ​g​e​f​u​n​d​e​n
+		 */
+		flashromFound: string
+		/**
+		 * n​i​c​h​t​ ​g​e​f​u​n​d​e​n
+		 */
+		flashromNotFound: string
+		/**
+		 * E​r​n​e​u​t​ ​p​r​ü​f​e​n
+		 */
+		recheck: string
+		/**
+		 * A​r​c​h​i​v​-​V​e​r​z​e​i​c​h​n​i​s
+		 */
+		archiveLabel: string
+		/**
+		 * (​S​t​a​n​d​a​r​d​-​A​p​p​-​D​a​t​e​n​o​r​d​n​e​r​)
+		 */
+		archivePlaceholder: string
+		/**
+		 * O​r​d​n​e​r​,​ ​i​n​ ​d​e​m​ ​N​O​R​-​D​u​m​p​s​ ​g​e​s​p​e​i​c​h​e​r​t​ ​w​e​r​d​e​n​.​ ​L​e​e​r​ ​l​a​s​s​e​n​ ​f​ü​r​ ​d​e​n​ ​S​t​a​n​d​a​r​d​-​A​p​p​-​D​a​t​e​n​o​r​d​n​e​r​ ​d​e​s​ ​B​e​t​r​i​e​b​s​s​y​s​t​e​m​s​.
+		 */
+		archiveTitle: string
+		/**
+		 * O​r​d​n​e​r​ ​a​u​s​w​ä​h​l​e​n
+		 */
+		browseFolder: string
+		/**
+		 * L​e​e​r​ ​l​a​s​s​e​n​ ​f​ü​r​ ​d​e​n​ ​S​t​a​n​d​a​r​d​-​S​p​e​i​c​h​e​r​o​r​t​ ​d​e​s​ ​O​S​.​ ​D​u​m​p​s​ ​w​e​r​d​e​n​ ​n​a​c​h​ ​S​e​r​i​e​n​n​u​m​m​e​r​ ​i​n​ ​U​n​t​e​r​o​r​d​n​e​r​n​ ​a​b​g​e​l​e​g​t​.
+		 */
+		archiveHint: string
+		/**
+		 * U​A​R​T​ ​B​a​u​d​r​a​t​e
+		 */
+		baudLabel: string
+		/**
+		 * Ü​b​e​r​t​r​a​g​u​n​g​s​g​e​s​c​h​w​i​n​d​i​g​k​e​i​t​ ​d​e​r​ ​U​A​R​T​-​V​e​r​b​i​n​d​u​n​g​.​ ​P​S​5​-​D​i​a​g​n​o​s​e​b​r​ü​c​k​e​n​ ​v​e​r​w​e​n​d​e​n​ ​t​y​p​i​s​c​h​e​r​w​e​i​s​e​ ​1​1​5​2​0​0​ ​B​a​u​d​.​ ​N​u​r​ ​ä​n​d​e​r​n​,​ ​w​e​n​n​ ​d​u​ ​w​e​i​ß​t​,​ ​w​a​s​ ​d​u​ ​t​u​s​t​.
+		 */
+		baudTitle: string
+		/**
+		 *  ​(​S​t​a​n​d​a​r​d​ ​P​S​5​)
+		 */
+		baudStandardPs5: string
+		/**
+		 * W​i​r​k​t​ ​b​e​i​m​ ​n​ä​c​h​s​t​e​n​ ​U​A​R​T​-​V​e​r​b​i​n​d​u​n​g​s​a​u​f​b​a​u​.​ ​P​S​5​-​S​t​a​n​d​a​r​d​ ​i​s​t​ ​1​1​5​2​0​0​.
+		 */
+		baudHint: string
+		/**
+		 * I​2​C​ ​/​ ​P​i​c​o​ ​B​a​u​d​r​a​t​e
+		 */
+		i2cBaudLabel: string
+		/**
+		 * B​a​u​d​r​a​t​e​ ​d​e​s​ ​U​S​B​-​C​D​C​-​P​o​r​t​s​ ​d​e​s​ ​P​i​c​o​.​ ​U​S​B​ ​C​D​C​ ​i​g​n​o​r​i​e​r​t​ ​d​e​n​ ​W​e​r​t​ ​i​n​ ​d​e​r​ ​R​e​g​e​l​,​ ​a​b​e​r​ ​d​e​r​ ​s​e​r​i​e​l​l​e​ ​P​o​r​t​ ​b​e​n​ö​t​i​g​t​ ​e​i​n​e​n​.​ ​S​t​a​n​d​a​r​d​ ​1​1​5​2​0​0​.
+		 */
+		i2cBaudTitle: string
+		/**
+		 *  ​(​S​t​a​n​d​a​r​d​ ​P​i​c​o​)
+		 */
+		baudStandardPico: string
+		/**
+		 * U​S​B​ ​C​D​C​ ​i​g​n​o​r​i​e​r​t​ ​d​i​e​ ​B​a​u​d​r​a​t​e​ ​m​e​i​s​t​ ​—​ ​S​t​a​n​d​a​r​d​ ​1​1​5​2​0​0​ ​b​e​i​b​e​h​a​l​t​e​n​.
+		 */
+		i2cBaudHint: string
+		/**
+		 * T​a​b​l​e​t​-​M​o​d​u​s
+		 */
+		tabletLabel: string
+		/**
+		 * V​e​r​g​r​ö​ß​e​r​t​ ​T​o​u​c​h​-​T​a​r​g​e​t​s​ ​u​n​d​ ​S​c​h​a​l​t​f​l​ä​c​h​e​n​ ​f​ü​r​ ​T​o​u​c​h​-​B​e​d​i​e​n​u​n​g​ ​a​u​f​ ​T​a​b​l​e​t​s​ ​u​n​d​ ​T​o​u​c​h​s​c​r​e​e​n​-​G​e​r​ä​t​e​n​.
+		 */
+		tabletTitle: string
+		/**
+		 * G​r​ö​ß​e​r​e​ ​T​o​u​c​h​-​T​a​r​g​e​t​s​ ​f​ü​r​ ​T​o​u​c​h​-​B​e​d​i​e​n​u​n​g
+		 */
+		tabletInline: string
+		/**
+		 * A​k​t​i​v​i​e​r​t​ ​v​e​r​g​r​ö​ß​e​r​t​e​ ​S​c​h​a​l​t​f​l​ä​c​h​e​n​ ​u​n​d​ ​A​b​s​t​ä​n​d​e​ ​f​ü​r​ ​T​o​u​c​h​s​c​r​e​e​n​s​.
+		 */
+		tabletHint: string
+		/**
+		 * O​r​d​n​e​r​ ​ö​f​f​n​e​n
+		 */
+		openFolders: string
+		/**
+		 * A​r​c​h​i​v
+		 */
+		archiveBtn: string
+		/**
+		 * A​r​c​h​i​v​-​O​r​d​n​e​r​ ​i​m​ ​D​a​t​e​i​m​a​n​a​g​e​r​ ​ö​f​f​n​e​n
+		 */
+		archiveBtnTitle: string
+		/**
+		 * K​o​n​f​i​g
+		 */
+		configBtn: string
+		/**
+		 * K​o​n​f​i​g​u​r​a​t​i​o​n​s​-​O​r​d​n​e​r​ ​(​s​e​t​t​i​n​g​s​.​j​s​o​n​)​ ​ö​f​f​n​e​n
+		 */
+		configBtnTitle: string
+		/**
+		 * U​p​d​a​t​e​s
+		 */
+		updates: string
+		/**
+		 * P​r​ü​f​e​ ​…
+		 */
+		checking: string
+		/**
+		 * N​a​c​h​ ​U​p​d​a​t​e​ ​s​u​c​h​e​n
+		 */
+		checkBtn: string
+		/**
+		 * U​p​d​a​t​e​ ​v​{​v​e​r​s​i​o​n​}​ ​v​e​r​f​ü​g​b​a​r​.
+		 * @param {unknown} version
+		 */
+		updateAvailableMsg: RequiredParams<'version'>
+		/**
+		 * D​u​ ​n​u​t​z​t​ ​d​i​e​ ​a​k​t​u​e​l​l​e​ ​V​e​r​s​i​o​n​.
+		 */
+		updateCurrentMsg: string
+		/**
+		 * P​r​ü​f​u​n​g​ ​f​e​h​l​g​e​s​c​h​l​a​g​e​n​:​ ​{​e​r​r​o​r​}
+		 * @param {unknown} error
+		 */
+		updateCheckFailedMsg: RequiredParams<'error'>
+		/**
+		 * P​r​ü​f​t​ ​m​a​n​u​e​l​l​ ​a​u​f​ ​e​i​n​e​ ​n​e​u​e​ ​V​e​r​s​i​o​n​.​ ​B​e​i​ ​e​i​n​e​m​ ​v​e​r​f​ü​g​b​a​r​e​n​ ​U​p​d​a​t​e​ ​e​r​s​c​h​e​i​n​t​ ​o​b​e​n​ ​d​e​r​ ​U​p​d​a​t​e​-​B​a​n​n​e​r​.
+		 */
+		updateHint: string
+		/**
+		 * A​u​t​o​m​a​t​i​s​c​h​ ​g​e​s​p​e​i​c​h​e​r​t​ ​b​e​i​m​ ​V​e​r​l​a​s​s​e​n​.
+		 */
+		autosaveHint: string
+		/**
+		 * Z​u​r​ü​c​k​s​e​t​z​e​n
+		 */
+		reset: string
+		/**
+		 * A​l​l​e​ ​E​i​n​s​t​e​l​l​u​n​g​e​n​ ​a​u​f​ ​S​t​a​n​d​a​r​d​ ​z​u​r​ü​c​k​s​e​t​z​e​n
+		 */
+		resetTitle: string
+		/**
+		 * A​l​l​e​ ​E​i​n​s​t​e​l​l​u​n​g​e​n​ ​a​u​f​ ​S​t​a​n​d​a​r​d​ ​z​u​r​ü​c​k​s​e​t​z​e​n​?
+		 */
+		resetConfirm: string
+		/**
+		 * F​l​a​s​h​r​o​m​ ​B​i​n​a​r​y​ ​w​ä​h​l​e​n
+		 */
+		flashromBrowseTitle: string
+		/**
+		 * A​r​c​h​i​v​-​V​e​r​z​e​i​c​h​n​i​s​ ​w​ä​h​l​e​n
+		 */
+		archiveBrowseTitle: string
+	}
+	mock: {
+		/**
+		 * M​o​c​k​-​D​a​t​e​n​ ​d​e​r​ ​V​o​r​s​c​h​a​u​ ​l​i​v​e​ ​ä​n​d​e​r​n
+		 */
+		launcherTitle: string
+		/**
+		 * M​o​c​k
+		 */
+		launcher: string
+		/**
+		 * M​o​c​k​-​S​t​e​u​e​r​u​n​g
+		 */
+		panelTitle: string
+		/**
+		 * N​u​r​ ​V​o​r​s​c​h​a​u​ ​—​ ​Ä​n​d​e​r​u​n​g​e​n​ ​g​e​l​t​e​n​ ​l​i​v​e
+		 */
+		panelSubtitle: string
+		/**
+		 * G​e​s​a​m​t​e​n​ ​M​o​c​k​-​S​t​a​t​e​ ​a​l​s​ ​J​S​O​N​ ​k​o​p​i​e​r​e​n​ ​(​f​ü​r​ ​B​u​g​-​R​e​p​o​r​t​s​)
+		 */
+		copyStateTitle: string
+		/**
+		 * K​o​p​i​e​r​t​!
+		 */
+		copied: string
+		/**
+		 * S​t​a​t​e​ ​a​l​s​ ​J​S​O​N
+		 */
+		copyState: string
+		/**
+		 * A​l​l​e​ ​M​o​c​k​-​W​e​r​t​e​ ​a​u​f​ ​S​t​a​n​d​a​r​d​ ​z​u​r​ü​c​k​s​e​t​z​e​n
+		 */
+		resetTitle: string
+		/**
+		 * Z​u​r​ü​c​k​s​e​t​z​e​n
+		 */
+		reset: string
+		/**
+		 * S​c​h​l​i​e​ß​e​n
+		 */
+		closeTitle: string
+		/**
+		 * F​l​a​s​h
+		 */
+		flashTab: string
+		/**
+		 * U​A​R​T
+		 */
+		uartTab: string
+		/**
+		 * I​2​C
+		 */
+		i2cTab: string
+		/**
+		 * C​o​n​t​r​o​l​l​e​r
+		 */
+		controllerTab: string
+		/**
+		 * P​r​o​g​r​a​m​m​e​r​ ​&​ ​G​e​r​ä​t​e
+		 */
+		sectionProgrammers: string
+		/**
+		 * P​r​o​g​r​a​m​m​e​r​ ​(​e​i​n​e​ ​p​r​o​ ​Z​e​i​l​e​)
+		 */
+		programmersLabel: string
+		/**
+		 * G​e​f​u​n​d​e​n​e​ ​G​e​r​ä​t​e
+		 */
+		devicesLabel: string
+		/**
+		 * +​ ​G​e​r​ä​t
+		 */
+		addDevice: string
+		/**
+		 * E​n​t​f​e​r​n​e​n
+		 */
+		removeTitle: string
+		/**
+		 * N​O​R​-​D​u​m​p​ ​(​N​V​S​ ​&​ ​V​a​l​i​d​i​e​r​u​n​g​)
+		 */
+		sectionNvs: string
+		/**
+		 * S​e​r​i​e​n​n​u​m​m​e​r
+		 */
+		serialLabel: string
+		/**
+		 * M​A​C​-​A​d​r​e​s​s​e
+		 */
+		macLabel: string
+		/**
+		 * S​K​U
+		 */
+		skuLabel: string
+		/**
+		 * B​o​a​r​d​-​I​D
+		 */
+		boardIdLabel: string
+		/**
+		 * C​o​n​s​o​l​e​-​T​y​p​e
+		 */
+		consoleTypeLabel: string
+		/**
+		 * F​W​-​V​e​r​s​i​o​n
+		 */
+		fwVersionLabel: string
+		/**
+		 * V​a​l​i​d​i​e​r​u​n​g
+		 */
+		validationLabel: string
+		/**
+		 * z​w​e​i​ ​L​e​s​e​-​D​u​r​c​h​l​ä​u​f​e​ ​s​t​i​m​m​e​n​ ​ü​b​e​r​e​i​n​ ​(​d​u​m​p​s​_​m​a​t​c​h​)
+		 */
+		dumpsMatchLabel: string
+		/**
+		 * R​e​a​d​ ​m​s​/​S​c​h​r​i​t​t
+		 */
+		readStepLabel: string
+		/**
+		 * W​r​i​t​e​ ​m​s​/​S​c​h​r​i​t​t
+		 */
+		writeStepLabel: string
+		/**
+		 * V​e​r​i​f​y​ ​m​s​/​S​c​h​r​i​t​t
+		 */
+		verifyStepLabel: string
+		/**
+		 * A​r​c​h​i​v
+		 */
+		sectionArchive: string
+		/**
+		 * +​ ​S​e​r​i​e​n​n​u​m​m​e​r
+		 */
+		addArchive: string
+		/**
+		 * G​r​u​p​p​e​ ​e​n​t​f​e​r​n​e​n
+		 */
+		removeGroupTitle: string
+		/**
+		 * +​ ​D​u​m​p
+		 */
+		addDump: string
+		/**
+		 * D​u​m​p​ ​e​n​t​f​e​r​n​e​n
+		 */
+		removeDumpTitle: string
+		/**
+		 * G​r​ö​ß​e​ ​(​B​y​t​e​s​)
+		 */
+		sizeLabel: string
+		/**
+		 * V​e​r​b​i​n​d​u​n​g
+		 */
+		sectionConn: string
+		/**
+		 * v​e​r​b​u​n​d​e​n​ ​(​u​a​r​t​_​p​o​l​l​)
+		 */
+		connectedUart: string
+		/**
+		 * r​e​c​o​n​n​e​c​t​i​n​g
+		 */
+		reconnecting: string
+		/**
+		 * L​o​o​p​b​a​c​k​-​T​e​s​t​ ​O​K
+		 */
+		loopbackOk: string
+		/**
+		 * E​r​r​o​r​-​D​B​ ​E​i​n​t​r​ä​g​e​ ​(​0​ ​=​ ​k​e​i​n​e​ ​D​B​)
+		 */
+		dbCountLabel: string
+		/**
+		 * P​o​r​t​s
+		 */
+		sectionPorts: string
+		/**
+		 * +​ ​P​o​r​t
+		 */
+		addPort: string
+		/**
+		 * P​o​r​t
+		 */
+		portPlaceholder: string
+		/**
+		 * B​e​s​c​h​r​e​i​b​u​n​g
+		 */
+		descPlaceholder: string
+		/**
+		 * U​A​R​T​-​B​r​i​d​g​e​ ​(​P​S​5​-​D​i​a​g​n​o​s​e​)
+		 */
+		bridgeLabel: string
+		/**
+		 * F​e​h​l​e​r​e​i​n​t​r​ä​g​e​ ​(​e​r​r​l​o​g​)
+		 */
+		sectionEntries: string
+		/**
+		 * +​ ​E​i​n​t​r​a​g
+		 */
+		addEntry: string
+		/**
+		 * E​r​r​o​r​-​C​o​d​e​ ​(​h​e​x​)
+		 */
+		errorCodeLabel: string
+		/**
+		 * P​o​w​e​r
+		 */
+		powerLabel: string
+		/**
+		 * U​p​-​C​a​u​s​e
+		 */
+		upCauseLabel: string
+		/**
+		 * T​e​m​p​ ​°​C
+		 */
+		tempLabel: string
+		/**
+		 * R​o​h​e​ ​U​A​R​T​-​Z​e​i​l​e​n​ ​(​e​i​n​e​ ​p​r​o​ ​Z​e​i​l​e​)
+		 */
+		rawLinesLabel: string
+		/**
+		 * E​r​r​o​r​-​D​B​ ​S​u​c​h​e​ ​(​T​r​e​f​f​e​r​)
+		 */
+		sectionSearch: string
+		/**
+		 * +​ ​T​r​e​f​f​e​r
+		 */
+		addSearch: string
+		/**
+		 * M​o​c​k​-​T​r​e​f​f​e​r​ ​f​ü​r​ ​"​{​q​u​e​r​y​}​"
+		 * @param {unknown} query
+		 */
+		searchHit: RequiredParams<'query'>
+		/**
+		 * B​e​s​c​h​r​e​i​b​u​n​g​ ​d​a​r​f​ ​„​{​q​u​e​r​y​}​"​ ​e​n​t​h​a​l​t​e​n​ ​—​ ​w​i​r​d​ ​d​u​r​c​h​ ​d​e​n​ ​S​u​c​h​b​e​g​r​i​f​f​ ​e​r​s​e​t​z​t​.
+		 * @param {unknown} query
+		 */
+		searchHint: RequiredParams<'query'>
+		/**
+		 * C​o​d​e​ ​(​h​e​x​)
+		 */
+		codeTitle: string
+		/**
+		 * K​a​t​e​g​o​r​i​e
+		 */
+		categoryPlaceholder: string
+		/**
+		 * I​2​C​ ​/​ ​P​i​c​o​ ​B​r​i​d​g​e
+		 */
+		sectionI2c: string
+		/**
+		 * v​e​r​b​u​n​d​e​n​ ​(​i​2​c​_​p​o​l​l​)
+		 */
+		connectedI2c: string
+		/**
+		 * X​b​o​x​-​D​B​ ​C​o​d​e​-​A​n​z​a​h​l​ ​(​n​u​l​l​ ​=​ ​n​i​c​h​t​ ​g​e​l​a​d​e​n​)
+		 */
+		xboxDbLabel: string
+		/**
+		 * i​2​c​_​s​c​a​n​ ​T​r​e​f​f​e​r​ ​(​k​o​m​m​a​-​g​e​t​r​e​n​n​t​e​ ​H​e​x​-​A​d​r​e​s​s​e​n​)
+		 */
+		scanLabel: string
+		/**
+		 * E​r​r​l​o​g​-​E​i​n​t​r​ä​g​e​ ​(​J​S​O​N​-​A​r​r​a​y​)
+		 */
+		errlogLabel: string
+		/**
+		 * i​2​c​_​i​n​f​o​ ​(​J​S​O​N​ ​o​d​e​r​ ​l​e​e​r​)
+		 */
+		infoLabel: string
+		/**
+		 * H​I​D​ ​/​ ​C​o​n​t​r​o​l​l​e​r
+		 */
+		sectionHid: string
+		/**
+		 * v​e​r​b​u​n​d​e​n​ ​(​h​i​d​_​p​o​l​l​)
+		 */
+		connectedHid: string
+		/**
+		 * V​I​D​ ​(​h​e​x​)
+		 */
+		vidLabel: string
+		/**
+		 * P​I​D​ ​(​h​e​x​)
+		 */
+		pidLabel: string
+		/**
+		 * H​e​r​s​t​e​l​l​e​r
+		 */
+		manufacturerPh: string
+		/**
+		 * P​r​o​d​u​k​t
+		 */
+		productPh: string
+		/**
+		 * S​i​m​u​l​i​e​r​t​e​r​ ​I​n​p​u​t
+		 */
+		sectionInput: string
+		/**
+		 * S​t​e​u​e​r​u​n​g​ ​f​ü​r​ ​d​i​e​ ​L​i​v​e​-​V​i​s​u​a​l​i​s​i​e​r​u​n​g​.​ ​T​a​s​t​e​n​ ​k​l​i​c​k​e​n​ ​z​u​m​ ​U​m​s​c​h​a​l​t​e​n​,​ ​S​t​i​c​k​s​/​T​r​i​g​g​e​r​ ​p​e​r​ ​S​l​i​d​e​r​.
+		 */
+		inputHint: string
+		/**
+		 * B​a​t​t​e​r​i​e​ ​(​0​…​1​0​0​)
+		 */
+		batteryLabel: string
+		/**
+		 * l​ä​d​t
+		 */
+		charging: string
+		/**
+		 * B​u​t​t​o​n​s
+		 */
+		buttonsLabel: string
+		/**
+		 * a​l​l​e​ ​l​ö​s​e​n
+		 */
+		clearButtons: string
+		/**
+		 * T​o​u​c​h​p​a​d​-​G​e​s​t​e​n
+		 */
+		gesturesLabel: string
+		/**
+		 * S​t​o​p
+		 */
+		stop: string
+		/**
+		 * T​i​p​p
+		 */
+		gestureTap: string
+		/**
+		 * W​i​s​c​h​e​n​ ​→
+		 */
+		gestureSwipeRight: string
+		/**
+		 * W​i​s​c​h​e​n​ ​↓
+		 */
+		gestureSwipeDown: string
+		/**
+		 * H​a​l​t​e​n
+		 */
+		gestureHold: string
+		/**
+		 * 2​-​F​i​n​g​e​r
+		 */
+		gestureTwoFinger: string
+		/**
+		 * S​p​i​e​l​t​ ​e​i​n​e​ ​G​e​s​t​e​ ​a​u​f​ ​d​a​s​ ​T​o​u​c​h​p​a​d​ ​e​i​n​ ​—​ ​d​e​r​ ​G​e​s​t​e​n​-​V​i​s​u​a​l​i​z​e​r​ ​(​T​e​s​t​e​r​ ​→​ ​T​o​u​c​h​p​a​d​)​ ​e​r​k​e​n​n​t​ ​s​i​e​ ​l​i​v​e​.
+		 */
+		gestureHint: string
+		/**
+		 * F​e​h​l​e​r​ ​s​i​m​u​l​i​e​r​e​n
+		 */
+		sectionErrors: string
+		/**
+		 * a​l​l​e​ ​l​ö​s​e​n
+		 */
+		clearErrors: string
+		/**
+		 * B​e​k​o​m​m​t​ ​e​i​n​ ​B​e​f​e​h​l​ ​h​i​e​r​ ​e​i​n​e​n​ ​T​e​x​t​,​ ​w​i​r​f​t​ ​d​e​r​ ​M​o​c​k​ ​b​e​i​m​ ​n​ä​c​h​s​t​e​n​ ​A​u​f​r​u​f​ ​d​i​e​s​e​n​ ​F​e​h​l​e​r​ ​—​ ​s​o​ ​l​a​s​s​e​n​ ​s​i​c​h​ ​d​i​e​ ​E​r​r​o​r​-​P​f​a​d​e​ ​d​e​r​ ​U​I​ ​(​T​o​a​s​t​/​L​o​g​/​B​a​n​n​e​r​)​ ​i​n​ ​d​e​r​ ​V​o​r​s​c​h​a​u​ ​t​e​s​t​e​n​.​ ​L​e​e​r​ ​=​ ​F​e​h​l​e​r​ ​g​e​l​ö​s​c​h​t​.
+		 */
+		errorInjectHint: string
+		/**
+		 * z​.​B​.​ ​P​r​o​g​r​a​m​m​e​r​ ​n​i​c​h​t​ ​g​e​f​u​n​d​e​n
+		 */
+		errorPlaceholder: string
+		/**
+		 * W​e​r​t​e​ ​w​e​r​d​e​n​ ​i​m​ ​B​r​o​w​s​e​r​ ​g​e​s​p​e​i​c​h​e​r​t​.​ ​K​l​i​c​k​ ​„​Z​u​r​ü​c​k​s​e​t​z​e​n​"​ ​f​ü​r​ ​d​i​e​ ​D​e​f​a​u​l​t​s​.
+		 */
+		footerHint: string
+		/**
+		 * N​e​u​e​r​ ​P​r​o​g​r​a​m​m​e​r
+		 */
+		newProgrammer: string
+		/**
+		 * N​e​u​e​r​ ​P​o​r​t​ ​(​M​o​c​k​)
+		 */
+		newPort: string
+		/**
+		 * N​e​u​e​r​ ​F​e​h​l​e​r​e​i​n​t​r​a​g​ ​(​M​o​c​k​)
+		 */
+		newEntry: string
 	}
 }
 
@@ -4279,6 +5264,978 @@ export type TranslationFunctions = {
 		 * unbekannt
 		 */
 		unknown: () => LocalizedString
+		/**
+		 * {panel} — Fehler beim Rendern
+		 */
+		renderError: (arg: { panel: unknown }) => LocalizedString
+		/**
+		 * Unbekannter Fehler
+		 */
+		unknownError: () => LocalizedString
+		/**
+		 * Neu laden
+		 */
+		reload: () => LocalizedString
+		/**
+		 * Benachrichtigung schließen
+		 */
+		closeNotificationAria: () => LocalizedString
+		/**
+		 * Abbrechen
+		 */
+		confirmCancel: () => LocalizedString
+		/**
+		 * Tippe
+		 */
+		confirmTypePrefix: () => LocalizedString
+		/**
+		 * zum Bestätigen:
+		 */
+		confirmTypeSuffix: () => LocalizedString
+	}
+	about: {
+		/**
+		 * fixplay diagnoseTool
+		 */
+		title: () => LocalizedString
+		/**
+		 * Plattformübergreifendes Diagnose-Werkzeug für Konsolen-Reparatur.
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Built with Tauri v2 + Svelte 5
+		 */
+		builtWith: () => LocalizedString
+		/**
+		 * flashrom-Integration für NOR-Flash
+		 */
+		flashromLine: () => LocalizedString
+		/**
+		 * DualSense HID-Protokoll-Unterstützung
+		 */
+		dualsenseLine: () => LocalizedString
+		/**
+		 * GitHub
+		 */
+		github: () => LocalizedString
+		/**
+		 * Releases
+		 */
+		releases: () => LocalizedString
+		/**
+		 * Wiki
+		 */
+		wiki: () => LocalizedString
+		/**
+		 * MIT License — Open Source
+		 */
+		license: () => LocalizedString
+		/**
+		 * Schließen
+		 */
+		close: () => LocalizedString
+	}
+	onboarding: {
+		/**
+		 * Willkommen beim fixplay diagnoseTool
+		 */
+		title: () => LocalizedString
+		/**
+		 * Vier Werkzeuge für die Konsolen-Reparatur. Kurz erklärt, was wo zu finden ist:
+		 */
+		intro: () => LocalizedString
+		/**
+		 * NOR Flash
+		 */
+		toolFlashTitle: () => LocalizedString
+		/**
+		 * Liest, validiert und archiviert NOR-Dumps einer Konsole über flashrom (CH341A, RT809H …).
+		 */
+		toolFlashDesc: () => LocalizedString
+		/**
+		 * UART
+		 */
+		toolUartTitle: () => LocalizedString
+		/**
+		 * Live-Fehlersuche: Errlog lesen, Fehlercode-Datenbank, Loopback-Test.
+		 */
+		toolUartDesc: () => LocalizedString
+		/**
+		 * I2C / Pico
+		 */
+		toolI2cTitle: () => LocalizedString
+		/**
+		 * Xbox-I2C-Diagnose über eine Pico-USB-CDC-Bridge — EEPROM, Errlog, Scan.
+		 */
+		toolI2cDesc: () => LocalizedString
+		/**
+		 * Controller
+		 */
+		toolControllerTitle: () => LocalizedString
+		/**
+		 * DualSense-Kalibrierung, Tester für Licht/Vibration/Trigger, Schnelltest.
+		 */
+		toolControllerDesc: () => LocalizedString
+		/**
+		 * Tipp: Wechsle Panels per
+		 */
+		shortcutPrefix: () => LocalizedString
+		/**
+		 * Details im Wiki.
+		 */
+		shortcutSuffix: () => LocalizedString
+		/**
+		 * Nicht mehr zeigen
+		 */
+		skip: () => LocalizedString
+		/**
+		 * Los geht's
+		 */
+		start: () => LocalizedString
+	}
+	whatsNew: {
+		/**
+		 * Update auf v{version}
+		 */
+		title: (arg: { version: unknown }) => LocalizedString
+		/**
+		 * fixplay diagnoseTool wurde aktualisiert. Lies, was neu ist:
+		 */
+		body: () => LocalizedString
+		/**
+		 * Release-Notes öffnen
+		 */
+		releaseNotes: () => LocalizedString
+		/**
+		 * Weiter
+		 */
+		'continue': () => LocalizedString
+	}
+	update: {
+		/**
+		 * Update verfügbar: v{version}
+		 */
+		available: (arg: { version: unknown }) => LocalizedString
+		/**
+		 *  — du nutzt v{current}.
+		 */
+		currentSuffix: (arg: { current: unknown }) => LocalizedString
+		/**
+		 * via {hint} updaten
+		 */
+		managedHint: (arg: { hint: unknown }) => LocalizedString
+		/**
+		 * Paketmanager
+		 */
+		packageManager: () => LocalizedString
+		/**
+		 * Releases
+		 */
+		releases: () => LocalizedString
+		/**
+		 * What's new
+		 */
+		whatsNew: () => LocalizedString
+		/**
+		 * Lädt …
+		 */
+		downloading: () => LocalizedString
+		/**
+		 * Jetzt updaten
+		 */
+		install: () => LocalizedString
+		/**
+		 * Später
+		 */
+		later: () => LocalizedString
+		/**
+		 * In 24 Stunden erneut erinnern
+		 */
+		laterTitle: () => LocalizedString
+		/**
+		 * Dauerhaft schließen
+		 */
+		closeTitle: () => LocalizedString
+		/**
+		 * Update-Hinweis schließen
+		 */
+		closeAria: () => LocalizedString
+		/**
+		 * Update-Prüfung fehlgeschlagen: {error}
+		 */
+		checkFailed: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Erneut prüfen
+		 */
+		retry: () => LocalizedString
+	}
+	statusBar: {
+		/**
+		 * Zum UART-Panel
+		 */
+		uartTitle: () => LocalizedString
+		/**
+		 * Zum I2C/Pico-Panel
+		 */
+		i2cTitle: () => LocalizedString
+		/**
+		 * Zum NOR-Flash-Panel
+		 */
+		flashTitle: () => LocalizedString
+		/**
+		 * verbunden
+		 */
+		connected: () => LocalizedString
+		/**
+		 * reconnecting
+		 */
+		reconnecting: () => LocalizedString
+		/**
+		 * getrennt
+		 */
+		disconnected: () => LocalizedString
+		/**
+		 * Xbox-DB lädt…
+		 */
+		xboxDbLoading: () => LocalizedString
+		/**
+		 * Xbox-DB: {count}
+		 */
+		xboxDb: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * Programmer bereit
+		 */
+		programmerReady: () => LocalizedString
+		/**
+		 * Kein Programmer
+		 */
+		noProgrammer: () => LocalizedString
+		/**
+		 * Flash aktiv
+		 */
+		flashActive: () => LocalizedString
+		/**
+		 * DB lädt…
+		 */
+		dbLoading: () => LocalizedString
+		/**
+		 * DB: {count} Codes
+		 */
+		dbCodes: (arg: { count: unknown }) => LocalizedString
+		/**
+		 * DB nicht geladen
+		 */
+		dbNotLoaded: () => LocalizedString
+		/**
+		 * Offline
+		 */
+		offline: () => LocalizedString
+		/**
+		 * Keine Netzwerkverbindung — DB-Aktualisierung und Update-Prüfung sind offline nicht verfügbar. Lokal gecachte DB bleibt nutzbar.
+		 */
+		offlineTitle: () => LocalizedString
+	}
+	archive: {
+		/**
+		 * NOR-Dump Archiv
+		 */
+		title: () => LocalizedString
+		/**
+		 * Alle gespeicherten NOR-Dumps, gruppiert nach Konsolen-Seriennummer. Dumps werden nach jedem Lesevorgang automatisch hinzugefügt.
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Keine Dumps archiviert
+		 */
+		empty: () => LocalizedString
+		/**
+		 * Starte einen Lesevorgang im NOR-Flash-Tab um Dumps zu erstellen.
+		 */
+		emptyHint: () => LocalizedString
+		/**
+		 * Keine Dumps archiviert — starte einen Lesevorgang im Flash-Panel.
+		 */
+		emptyCollapsed: () => LocalizedString
+		/**
+		 * Seriennummer oder Firmware suchen…
+		 */
+		searchPlaceholder: () => LocalizedString
+		/**
+		 * Suchen…
+		 */
+		searchShort: () => LocalizedString
+		/**
+		 * Sortierung der Seriennummern-Gruppen
+		 */
+		sortTitle: () => LocalizedString
+		/**
+		 * Sortierung
+		 */
+		sortTitleShort: () => LocalizedString
+		/**
+		 * Neueste zuerst
+		 */
+		sortNewest: () => LocalizedString
+		/**
+		 * Älteste zuerst
+		 */
+		sortOldest: () => LocalizedString
+		/**
+		 * Seriennummer A→Z
+		 */
+		sortSerial: () => LocalizedString
+		/**
+		 * Neueste
+		 */
+		sortNewestShort: () => LocalizedString
+		/**
+		 * Älteste
+		 */
+		sortOldestShort: () => LocalizedString
+		/**
+		 * Seriennr.
+		 */
+		sortSerialShort: () => LocalizedString
+		/**
+		 * Seriennummer der Konsole — alle Dumps dieser Konsole sind hier gruppiert
+		 */
+		serialTitle: () => LocalizedString
+		/**
+		 * Zeitstempel des Lesevorgangs
+		 */
+		timestampTitle: () => LocalizedString
+		/**
+		 * Firmware-Version zum Zeitpunkt des Lesens (aus NVS-Partition)
+		 */
+		fwTitle: () => LocalizedString
+		/**
+		 * ✓ OK
+		 */
+		okLabel: () => LocalizedString
+		/**
+		 * ✗ Korrupt
+		 */
+		corruptLabel: () => LocalizedString
+		/**
+		 * Alle Validierungsprüfungen bestanden — NOR-Header, MBRs, EmcIpl und USB PDC sind vorhanden und korrekt.
+		 */
+		okTitle: () => LocalizedString
+		/**
+		 * Mindestens eine Validierungsprüfung fehlgeschlagen — der Dump könnte korrupt oder unvollständig sein. Trotzdem kann er als Backup verwendet werden.
+		 */
+		corruptTitle: () => LocalizedString
+		/**
+		 * Wählt diesen Dump als Quelle für den Schreiben-Vorgang — wechsle danach zum Flash-Panel und klicke 'Schreiben'.
+		 */
+		loadTitle: () => LocalizedString
+		/**
+		 * Laden
+		 */
+		load: () => LocalizedString
+		/**
+		 * Geladen ✓
+		 */
+		loaded: () => LocalizedString
+		/**
+		 * Ordner
+		 */
+		folder: () => LocalizedString
+		/**
+		 * Öffnet den Archiv-Ordner im Dateimanager — dort liegen die .bin-Datei und das zugehörige JSON-Manifest.
+		 */
+		folderTitle: () => LocalizedString
+		/**
+		 * Bestätigen
+		 */
+		confirm: () => LocalizedString
+		/**
+		 * Löscht diesen Dump unwiderruflich — kann nicht rückgängig gemacht werden.
+		 */
+		confirmTitle: () => LocalizedString
+		/**
+		 * Löschen abbrechen
+		 */
+		cancelDeleteTitle: () => LocalizedString
+		/**
+		 * Löschen
+		 */
+		'delete': () => LocalizedString
+		/**
+		 * Klicke einmal zum Markieren, dann erneut zum unwiderruflichen Löschen.
+		 */
+		deleteTitle: () => LocalizedString
+		/**
+		 * Keine Dumps passen auf die Suche.
+		 */
+		noMatch: () => LocalizedString
+		/**
+		 * Archiv
+		 */
+		collapsedLabel: () => LocalizedString
+		/**
+		 * {count} Dumps
+		 */
+		dumpsLabel: (arg: { count: unknown }) => LocalizedString
+	}
+	settings: {
+		/**
+		 * Einstellungen
+		 */
+		title: () => LocalizedString
+		/**
+		 * Einstellungen schließen (werden automatisch gespeichert)
+		 */
+		closeTitle: () => LocalizedString
+		/**
+		 * Flashrom Binary
+		 */
+		flashromLabel: () => LocalizedString
+		/**
+		 * (gebundelt)
+		 */
+		flashromPlaceholder: () => LocalizedString
+		/**
+		 * Pfad zur flashrom-Binary. Leer lassen, um die mitgelieferte Version zu verwenden. Eigene Binary nötig, wenn das gebundelte flashrom deinen Programmer nicht unterstützt.
+		 */
+		flashromTitle: () => LocalizedString
+		/**
+		 * Datei auswählen
+		 */
+		browseFile: () => LocalizedString
+		/**
+		 * Leer lassen für die mitgelieferte Binary. Eigene Version nur nötig wenn der gebundelte flashrom deinen Programmer nicht erkennt.
+		 */
+		flashromHint: () => LocalizedString
+		/**
+		 * flashrom gefunden
+		 */
+		flashromFound: () => LocalizedString
+		/**
+		 * nicht gefunden
+		 */
+		flashromNotFound: () => LocalizedString
+		/**
+		 * Erneut prüfen
+		 */
+		recheck: () => LocalizedString
+		/**
+		 * Archiv-Verzeichnis
+		 */
+		archiveLabel: () => LocalizedString
+		/**
+		 * (Standard-App-Datenordner)
+		 */
+		archivePlaceholder: () => LocalizedString
+		/**
+		 * Ordner, in dem NOR-Dumps gespeichert werden. Leer lassen für den Standard-App-Datenordner des Betriebssystems.
+		 */
+		archiveTitle: () => LocalizedString
+		/**
+		 * Ordner auswählen
+		 */
+		browseFolder: () => LocalizedString
+		/**
+		 * Leer lassen für den Standard-Speicherort des OS. Dumps werden nach Seriennummer in Unterordnern abgelegt.
+		 */
+		archiveHint: () => LocalizedString
+		/**
+		 * UART Baudrate
+		 */
+		baudLabel: () => LocalizedString
+		/**
+		 * Übertragungsgeschwindigkeit der UART-Verbindung. PS5-Diagnosebrücken verwenden typischerweise 115200 Baud. Nur ändern, wenn du weißt, was du tust.
+		 */
+		baudTitle: () => LocalizedString
+		/**
+		 *  (Standard PS5)
+		 */
+		baudStandardPs5: () => LocalizedString
+		/**
+		 * Wirkt beim nächsten UART-Verbindungsaufbau. PS5-Standard ist 115200.
+		 */
+		baudHint: () => LocalizedString
+		/**
+		 * I2C / Pico Baudrate
+		 */
+		i2cBaudLabel: () => LocalizedString
+		/**
+		 * Baudrate des USB-CDC-Ports des Pico. USB CDC ignoriert den Wert in der Regel, aber der serielle Port benötigt einen. Standard 115200.
+		 */
+		i2cBaudTitle: () => LocalizedString
+		/**
+		 *  (Standard Pico)
+		 */
+		baudStandardPico: () => LocalizedString
+		/**
+		 * USB CDC ignoriert die Baudrate meist — Standard 115200 beibehalten.
+		 */
+		i2cBaudHint: () => LocalizedString
+		/**
+		 * Tablet-Modus
+		 */
+		tabletLabel: () => LocalizedString
+		/**
+		 * Vergrößert Touch-Targets und Schaltflächen für Touch-Bedienung auf Tablets und Touchscreen-Geräten.
+		 */
+		tabletTitle: () => LocalizedString
+		/**
+		 * Größere Touch-Targets für Touch-Bedienung
+		 */
+		tabletInline: () => LocalizedString
+		/**
+		 * Aktiviert vergrößerte Schaltflächen und Abstände für Touchscreens.
+		 */
+		tabletHint: () => LocalizedString
+		/**
+		 * Ordner öffnen
+		 */
+		openFolders: () => LocalizedString
+		/**
+		 * Archiv
+		 */
+		archiveBtn: () => LocalizedString
+		/**
+		 * Archiv-Ordner im Dateimanager öffnen
+		 */
+		archiveBtnTitle: () => LocalizedString
+		/**
+		 * Konfig
+		 */
+		configBtn: () => LocalizedString
+		/**
+		 * Konfigurations-Ordner (settings.json) öffnen
+		 */
+		configBtnTitle: () => LocalizedString
+		/**
+		 * Updates
+		 */
+		updates: () => LocalizedString
+		/**
+		 * Prüfe …
+		 */
+		checking: () => LocalizedString
+		/**
+		 * Nach Update suchen
+		 */
+		checkBtn: () => LocalizedString
+		/**
+		 * Update v{version} verfügbar.
+		 */
+		updateAvailableMsg: (arg: { version: unknown }) => LocalizedString
+		/**
+		 * Du nutzt die aktuelle Version.
+		 */
+		updateCurrentMsg: () => LocalizedString
+		/**
+		 * Prüfung fehlgeschlagen: {error}
+		 */
+		updateCheckFailedMsg: (arg: { error: unknown }) => LocalizedString
+		/**
+		 * Prüft manuell auf eine neue Version. Bei einem verfügbaren Update erscheint oben der Update-Banner.
+		 */
+		updateHint: () => LocalizedString
+		/**
+		 * Automatisch gespeichert beim Verlassen.
+		 */
+		autosaveHint: () => LocalizedString
+		/**
+		 * Zurücksetzen
+		 */
+		reset: () => LocalizedString
+		/**
+		 * Alle Einstellungen auf Standard zurücksetzen
+		 */
+		resetTitle: () => LocalizedString
+		/**
+		 * Alle Einstellungen auf Standard zurücksetzen?
+		 */
+		resetConfirm: () => LocalizedString
+		/**
+		 * Flashrom Binary wählen
+		 */
+		flashromBrowseTitle: () => LocalizedString
+		/**
+		 * Archiv-Verzeichnis wählen
+		 */
+		archiveBrowseTitle: () => LocalizedString
+	}
+	mock: {
+		/**
+		 * Mock-Daten der Vorschau live ändern
+		 */
+		launcherTitle: () => LocalizedString
+		/**
+		 * Mock
+		 */
+		launcher: () => LocalizedString
+		/**
+		 * Mock-Steuerung
+		 */
+		panelTitle: () => LocalizedString
+		/**
+		 * Nur Vorschau — Änderungen gelten live
+		 */
+		panelSubtitle: () => LocalizedString
+		/**
+		 * Gesamten Mock-State als JSON kopieren (für Bug-Reports)
+		 */
+		copyStateTitle: () => LocalizedString
+		/**
+		 * Kopiert!
+		 */
+		copied: () => LocalizedString
+		/**
+		 * State als JSON
+		 */
+		copyState: () => LocalizedString
+		/**
+		 * Alle Mock-Werte auf Standard zurücksetzen
+		 */
+		resetTitle: () => LocalizedString
+		/**
+		 * Zurücksetzen
+		 */
+		reset: () => LocalizedString
+		/**
+		 * Schließen
+		 */
+		closeTitle: () => LocalizedString
+		/**
+		 * Flash
+		 */
+		flashTab: () => LocalizedString
+		/**
+		 * UART
+		 */
+		uartTab: () => LocalizedString
+		/**
+		 * I2C
+		 */
+		i2cTab: () => LocalizedString
+		/**
+		 * Controller
+		 */
+		controllerTab: () => LocalizedString
+		/**
+		 * Programmer & Geräte
+		 */
+		sectionProgrammers: () => LocalizedString
+		/**
+		 * Programmer (eine pro Zeile)
+		 */
+		programmersLabel: () => LocalizedString
+		/**
+		 * Gefundene Geräte
+		 */
+		devicesLabel: () => LocalizedString
+		/**
+		 * + Gerät
+		 */
+		addDevice: () => LocalizedString
+		/**
+		 * Entfernen
+		 */
+		removeTitle: () => LocalizedString
+		/**
+		 * NOR-Dump (NVS & Validierung)
+		 */
+		sectionNvs: () => LocalizedString
+		/**
+		 * Seriennummer
+		 */
+		serialLabel: () => LocalizedString
+		/**
+		 * MAC-Adresse
+		 */
+		macLabel: () => LocalizedString
+		/**
+		 * SKU
+		 */
+		skuLabel: () => LocalizedString
+		/**
+		 * Board-ID
+		 */
+		boardIdLabel: () => LocalizedString
+		/**
+		 * Console-Type
+		 */
+		consoleTypeLabel: () => LocalizedString
+		/**
+		 * FW-Version
+		 */
+		fwVersionLabel: () => LocalizedString
+		/**
+		 * Validierung
+		 */
+		validationLabel: () => LocalizedString
+		/**
+		 * zwei Lese-Durchläufe stimmen überein (dumps_match)
+		 */
+		dumpsMatchLabel: () => LocalizedString
+		/**
+		 * Read ms/Schritt
+		 */
+		readStepLabel: () => LocalizedString
+		/**
+		 * Write ms/Schritt
+		 */
+		writeStepLabel: () => LocalizedString
+		/**
+		 * Verify ms/Schritt
+		 */
+		verifyStepLabel: () => LocalizedString
+		/**
+		 * Archiv
+		 */
+		sectionArchive: () => LocalizedString
+		/**
+		 * + Seriennummer
+		 */
+		addArchive: () => LocalizedString
+		/**
+		 * Gruppe entfernen
+		 */
+		removeGroupTitle: () => LocalizedString
+		/**
+		 * + Dump
+		 */
+		addDump: () => LocalizedString
+		/**
+		 * Dump entfernen
+		 */
+		removeDumpTitle: () => LocalizedString
+		/**
+		 * Größe (Bytes)
+		 */
+		sizeLabel: () => LocalizedString
+		/**
+		 * Verbindung
+		 */
+		sectionConn: () => LocalizedString
+		/**
+		 * verbunden (uart_poll)
+		 */
+		connectedUart: () => LocalizedString
+		/**
+		 * reconnecting
+		 */
+		reconnecting: () => LocalizedString
+		/**
+		 * Loopback-Test OK
+		 */
+		loopbackOk: () => LocalizedString
+		/**
+		 * Error-DB Einträge (0 = keine DB)
+		 */
+		dbCountLabel: () => LocalizedString
+		/**
+		 * Ports
+		 */
+		sectionPorts: () => LocalizedString
+		/**
+		 * + Port
+		 */
+		addPort: () => LocalizedString
+		/**
+		 * Port
+		 */
+		portPlaceholder: () => LocalizedString
+		/**
+		 * Beschreibung
+		 */
+		descPlaceholder: () => LocalizedString
+		/**
+		 * UART-Bridge (PS5-Diagnose)
+		 */
+		bridgeLabel: () => LocalizedString
+		/**
+		 * Fehlereinträge (errlog)
+		 */
+		sectionEntries: () => LocalizedString
+		/**
+		 * + Eintrag
+		 */
+		addEntry: () => LocalizedString
+		/**
+		 * Error-Code (hex)
+		 */
+		errorCodeLabel: () => LocalizedString
+		/**
+		 * Power
+		 */
+		powerLabel: () => LocalizedString
+		/**
+		 * Up-Cause
+		 */
+		upCauseLabel: () => LocalizedString
+		/**
+		 * Temp °C
+		 */
+		tempLabel: () => LocalizedString
+		/**
+		 * Rohe UART-Zeilen (eine pro Zeile)
+		 */
+		rawLinesLabel: () => LocalizedString
+		/**
+		 * Error-DB Suche (Treffer)
+		 */
+		sectionSearch: () => LocalizedString
+		/**
+		 * + Treffer
+		 */
+		addSearch: () => LocalizedString
+		/**
+		 * Mock-Treffer für "{query}"
+		 */
+		searchHit: (arg: { query: unknown }) => LocalizedString
+		/**
+		 * Beschreibung darf „{query}" enthalten — wird durch den Suchbegriff ersetzt.
+		 */
+		searchHint: (arg: { query: unknown }) => LocalizedString
+		/**
+		 * Code (hex)
+		 */
+		codeTitle: () => LocalizedString
+		/**
+		 * Kategorie
+		 */
+		categoryPlaceholder: () => LocalizedString
+		/**
+		 * I2C / Pico Bridge
+		 */
+		sectionI2c: () => LocalizedString
+		/**
+		 * verbunden (i2c_poll)
+		 */
+		connectedI2c: () => LocalizedString
+		/**
+		 * Xbox-DB Code-Anzahl (null = nicht geladen)
+		 */
+		xboxDbLabel: () => LocalizedString
+		/**
+		 * i2c_scan Treffer (komma-getrennte Hex-Adressen)
+		 */
+		scanLabel: () => LocalizedString
+		/**
+		 * Errlog-Einträge (JSON-Array)
+		 */
+		errlogLabel: () => LocalizedString
+		/**
+		 * i2c_info (JSON oder leer)
+		 */
+		infoLabel: () => LocalizedString
+		/**
+		 * HID / Controller
+		 */
+		sectionHid: () => LocalizedString
+		/**
+		 * verbunden (hid_poll)
+		 */
+		connectedHid: () => LocalizedString
+		/**
+		 * VID (hex)
+		 */
+		vidLabel: () => LocalizedString
+		/**
+		 * PID (hex)
+		 */
+		pidLabel: () => LocalizedString
+		/**
+		 * Hersteller
+		 */
+		manufacturerPh: () => LocalizedString
+		/**
+		 * Produkt
+		 */
+		productPh: () => LocalizedString
+		/**
+		 * Simulierter Input
+		 */
+		sectionInput: () => LocalizedString
+		/**
+		 * Steuerung für die Live-Visualisierung. Tasten klicken zum Umschalten, Sticks/Trigger per Slider.
+		 */
+		inputHint: () => LocalizedString
+		/**
+		 * Batterie (0…100)
+		 */
+		batteryLabel: () => LocalizedString
+		/**
+		 * lädt
+		 */
+		charging: () => LocalizedString
+		/**
+		 * Buttons
+		 */
+		buttonsLabel: () => LocalizedString
+		/**
+		 * alle lösen
+		 */
+		clearButtons: () => LocalizedString
+		/**
+		 * Touchpad-Gesten
+		 */
+		gesturesLabel: () => LocalizedString
+		/**
+		 * Stop
+		 */
+		stop: () => LocalizedString
+		/**
+		 * Tipp
+		 */
+		gestureTap: () => LocalizedString
+		/**
+		 * Wischen →
+		 */
+		gestureSwipeRight: () => LocalizedString
+		/**
+		 * Wischen ↓
+		 */
+		gestureSwipeDown: () => LocalizedString
+		/**
+		 * Halten
+		 */
+		gestureHold: () => LocalizedString
+		/**
+		 * 2-Finger
+		 */
+		gestureTwoFinger: () => LocalizedString
+		/**
+		 * Spielt eine Geste auf das Touchpad ein — der Gesten-Visualizer (Tester → Touchpad) erkennt sie live.
+		 */
+		gestureHint: () => LocalizedString
+		/**
+		 * Fehler simulieren
+		 */
+		sectionErrors: () => LocalizedString
+		/**
+		 * alle lösen
+		 */
+		clearErrors: () => LocalizedString
+		/**
+		 * Bekommt ein Befehl hier einen Text, wirft der Mock beim nächsten Aufruf diesen Fehler — so lassen sich die Error-Pfade der UI (Toast/Log/Banner) in der Vorschau testen. Leer = Fehler gelöscht.
+		 */
+		errorInjectHint: () => LocalizedString
+		/**
+		 * z.B. Programmer nicht gefunden
+		 */
+		errorPlaceholder: () => LocalizedString
+		/**
+		 * Werte werden im Browser gespeichert. Klick „Zurücksetzen" für die Defaults.
+		 */
+		footerHint: () => LocalizedString
+		/**
+		 * Neuer Programmer
+		 */
+		newProgrammer: () => LocalizedString
+		/**
+		 * Neuer Port (Mock)
+		 */
+		newPort: () => LocalizedString
+		/**
+		 * Neuer Fehlereintrag (Mock)
+		 */
+		newEntry: () => LocalizedString
 	}
 }
 

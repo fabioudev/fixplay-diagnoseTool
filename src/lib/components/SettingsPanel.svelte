@@ -6,6 +6,8 @@
   import type { FlashBinaryStatus } from '$lib/api/types';
   import { checkUpdates, updateAvailable, updateError } from '$lib/stores/updater';
   import { CheckCircle2, XCircle, RefreshCw, RotateCcw, FolderOpen } from 'lucide-svelte';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let { open, onclose }: { open: boolean; onclose: () => void } = $props();
 
@@ -14,6 +16,8 @@
   let flashromStatus = $state<FlashBinaryStatus | null>(null);
   let updateChecking = $state(false);
   let updateCheckMsg = $state<string | null>(null);
+  // Drives the colour of updateCheckMsg: emerald for available/current, amber for errors.
+  let updateCheckOk = $state(false);
 
   onMount(async () => {
     const s = await settingsGet().catch(() => null);
@@ -31,7 +35,7 @@
   }
 
   async function browseFlashrom() {
-    const result = await openDialog({ title: 'Flashrom Binary wählen' });
+    const result = await openDialog({ title: get(LL).settings.flashromBrowseTitle() });
     if (result && typeof result === 'string') {
       appSettings.update(s => ({ ...s, flashrom_path: result }));
       await save();
@@ -39,7 +43,7 @@
   }
 
   async function browseArchiveDir() {
-    const result = await openDialog({ title: 'Archiv-Verzeichnis wählen', directory: true });
+    const result = await openDialog({ title: get(LL).settings.archiveBrowseTitle(), directory: true });
     if (result && typeof result === 'string') {
       appSettings.update(s => ({ ...s, archive_dir: result }));
       await save();
@@ -49,24 +53,27 @@
   async function checkForUpdates() {
     updateChecking = true;
     updateCheckMsg = null;
+    updateCheckOk = false;
     try {
       await checkUpdates();
       if ($updateAvailable) {
-        updateCheckMsg = `Update v${$updateAvailable.version} verfügbar.`;
+        updateCheckMsg = get(LL).settings.updateAvailableMsg({ version: $updateAvailable.version });
+        updateCheckOk = true;
       } else if ($updateError) {
-        updateCheckMsg = `Prüfung fehlgeschlagen: ${$updateError}`;
+        updateCheckMsg = get(LL).settings.updateCheckFailedMsg({ error: $updateError });
       } else {
-        updateCheckMsg = 'Du nutzt die aktuelle Version.';
+        updateCheckMsg = get(LL).settings.updateCurrentMsg();
+        updateCheckOk = true;
       }
     } catch (e) {
-      updateCheckMsg = 'Prüfung fehlgeschlagen: ' + (e instanceof Error ? e.message : String(e));
+      updateCheckMsg = get(LL).settings.updateCheckFailedMsg({ error: e instanceof Error ? e.message : String(e) });
     } finally {
       updateChecking = false;
     }
   }
 
   async function resetSettings() {
-    if (!confirm('Alle Einstellungen auf Standard zurücksetzen?')) return;
+    if (!confirm(get(LL).settings.resetConfirm())) return;
     appSettings.set({
       flashrom_path:  null,
       archive_dir:    null,
@@ -102,10 +109,10 @@
   <div class="fixed top-0 right-0 h-full w-80 bg-gray-900 border-l border-gray-700
               shadow-xl z-50 flex flex-col">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-      <h2 class="text-sm font-semibold text-gray-100">Einstellungen</h2>
+      <h2 class="text-sm font-semibold text-gray-100">{$LL.settings.title()}</h2>
       <button
         onclick={onclose}
-        title="Einstellungen schließen (werden automatisch gespeichert)"
+        title={$LL.settings.closeTitle()}
         class="text-gray-400 hover:text-gray-200 text-lg leading-none"
       >✕</button>
     </div>
@@ -115,40 +122,40 @@
       <!-- Flashrom Binary -->
       <div class="flex flex-col gap-1.5">
         <label for="settings-flashrom" class="text-xs font-medium text-gray-400">
-          Flashrom Binary
+          {$LL.settings.flashromLabel()}
         </label>
         <div class="flex gap-1">
           <input
             id="settings-flashrom"
             type="text"
-            placeholder="(gebundelt)"
+            placeholder={$LL.settings.flashromPlaceholder()}
             value={$appSettings.flashrom_path ?? ''}
             oninput={(e) => appSettings.update(s => ({ ...s, flashrom_path: (e.target as HTMLInputElement).value || null }))}
             onblur={save}
-            title="Pfad zur flashrom-Binary. Leer lassen, um die mitgelieferte Version zu verwenden. Eigene Binary nötig, wenn das gebundelte flashrom deinen Programmer nicht unterstützt."
+            title={$LL.settings.flashromTitle()}
             class="flex-1 bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
                    focus:outline-none focus:border-gray-500"
           />
           <button
             onclick={browseFlashrom}
-            title="Datei auswählen"
+            title={$LL.settings.browseFile()}
             class="px-2 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 shrink-0"
           >…</button>
         </div>
         <p class="text-xs text-gray-600">
-          Leer lassen für die mitgelieferte Binary. Eigene Version nur nötig wenn der gebundelte flashrom deinen Programmer nicht erkennt.
+          {$LL.settings.flashromHint()}
         </p>
         {#if flashromStatus}
           <div class="flex items-center gap-1.5 text-xs {flashromStatus.ok ? 'text-emerald-400' : 'text-amber-400'}" title={flashromStatus.path}>
             {#if flashromStatus.ok}
               <CheckCircle2 class="w-3.5 h-3.5 shrink-0" />
-              <span class="truncate">flashrom gefunden</span>
+              <span class="truncate">{$LL.settings.flashromFound()}</span>
             {:else}
               <XCircle class="w-3.5 h-3.5 shrink-0" />
-              <span class="truncate" title={flashromStatus.reason ?? ''}>{flashromStatus.reason ?? 'nicht gefunden'}</span>
+              <span class="truncate" title={flashromStatus.reason ?? ''}>{flashromStatus.reason ?? $LL.settings.flashromNotFound()}</span>
             {/if}
-            <button onclick={refreshFlashrom} class="ml-auto text-gray-500 hover:text-gray-300 shrink-0" title="Erneut prüfen">
+            <button onclick={refreshFlashrom} class="ml-auto text-gray-500 hover:text-gray-300 shrink-0" title={$LL.settings.recheck()}>
               <RefreshCw class="w-3 h-3" />
             </button>
           </div>
@@ -158,36 +165,36 @@
       <!-- Archive Directory -->
       <div class="flex flex-col gap-1.5">
         <label for="settings-archive-dir" class="text-xs font-medium text-gray-400">
-          Archiv-Verzeichnis
+          {$LL.settings.archiveLabel()}
         </label>
         <div class="flex gap-1">
           <input
             id="settings-archive-dir"
             type="text"
-            placeholder="(Standard-App-Datenordner)"
+            placeholder={$LL.settings.archivePlaceholder()}
             value={$appSettings.archive_dir ?? ''}
             oninput={(e) => appSettings.update(s => ({ ...s, archive_dir: (e.target as HTMLInputElement).value || null }))}
             onblur={save}
-            title="Ordner, in dem NOR-Dumps gespeichert werden. Leer lassen für den Standard-App-Datenordner des Betriebssystems."
+            title={$LL.settings.archiveTitle()}
             class="flex-1 bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
                    focus:outline-none focus:border-gray-500"
           />
           <button
             onclick={browseArchiveDir}
-            title="Ordner auswählen"
+            title={$LL.settings.browseFolder()}
             class="px-2 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 shrink-0"
           >…</button>
         </div>
         <p class="text-xs text-gray-600">
-          Leer lassen für den Standard-Speicherort des OS. Dumps werden nach Seriennummer in Unterordnern abgelegt.
+          {$LL.settings.archiveHint()}
         </p>
       </div>
 
       <!-- UART Baud Rate -->
       <div class="flex flex-col gap-1.5">
         <label for="settings-baud-rate" class="text-xs font-medium text-gray-400">
-          UART Baudrate
+          {$LL.settings.baudLabel()}
         </label>
         <div class="relative">
           <select
@@ -197,25 +204,25 @@
               appSettings.update(s => ({ ...s, baud_rate: Number((e.target as HTMLSelectElement).value) }));
               await save();
             }}
-            title="Übertragungsgeschwindigkeit der UART-Verbindung. PS5-Diagnosebrücken verwenden typischerweise 115200 Baud. Nur ändern, wenn du weißt, was du tust."
+            title={$LL.settings.baudTitle()}
             class="appearance-none w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 pr-6
                    border border-gray-700 focus:outline-none focus:border-gray-500"
           >
             {#each BAUD_RATES as rate (rate)}
-              <option value={rate}>{rate}{rate === 115200 ? ' (Standard PS5)' : ''}</option>
+              <option value={rate}>{rate}{rate === 115200 ? $LL.settings.baudStandardPs5() : ''}</option>
             {/each}
           </select>
           <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
         </div>
         <p class="text-xs text-gray-600">
-          Wirkt beim nächsten UART-Verbindungsaufbau. PS5-Standard ist 115200.
+          {$LL.settings.baudHint()}
         </p>
       </div>
 
       <!-- I2C / Pico Baud Rate -->
       <div class="flex flex-col gap-1.5">
         <label for="settings-i2c-baud-rate" class="text-xs font-medium text-gray-400">
-          I2C / Pico Baudrate
+          {$LL.settings.i2cBaudLabel()}
         </label>
         <div class="relative">
           <select
@@ -225,29 +232,29 @@
               appSettings.update(s => ({ ...s, i2c_baud_rate: Number((e.target as HTMLSelectElement).value) }));
               await save();
             }}
-            title="Baudrate des USB-CDC-Ports des Pico. USB CDC ignoriert den Wert in der Regel, aber der serielle Port benötigt einen. Standard 115200."
+            title={$LL.settings.i2cBaudTitle()}
             class="appearance-none w-full bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 pr-6
                    border border-gray-700 focus:outline-none focus:border-gray-500"
           >
             {#each BAUD_RATES as rate (rate)}
-              <option value={rate}>{rate}{rate === 115200 ? ' (Standard Pico)' : ''}</option>
+              <option value={rate}>{rate}{rate === 115200 ? $LL.settings.baudStandardPico() : ''}</option>
             {/each}
           </select>
           <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
         </div>
         <p class="text-xs text-gray-600">
-          USB CDC ignoriert die Baudrate meist — Standard 115200 beibehalten.
+          {$LL.settings.i2cBaudHint()}
         </p>
       </div>
 
       <!-- Tablet Mode -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-gray-400">
-          Tablet-Modus
+          {$LL.settings.tabletLabel()}
         </label>
         <label
           class="flex items-center gap-2.5 cursor-pointer select-none"
-          title="Vergrößert Touch-Targets und Schaltflächen für Touch-Bedienung auf Tablets und Touchscreen-Geräten."
+          title={$LL.settings.tabletTitle()}
         >
           <input
             type="checkbox"
@@ -258,52 +265,52 @@
             }}
             class="accent-blue-500 w-4 h-4"
           />
-          <span class="text-xs text-gray-300">Größere Touch-Targets für Touch-Bedienung</span>
+          <span class="text-xs text-gray-300">{$LL.settings.tabletInline()}</span>
         </label>
         <p class="text-xs text-gray-600">
-          Aktiviert vergrößerte Schaltflächen und Abstände für Touchscreens.
+          {$LL.settings.tabletHint()}
         </p>
       </div>
 
       <!-- Open folders -->
       <div class="flex flex-col gap-1.5">
-        <span class="text-xs font-medium text-gray-400">Ordner öffnen</span>
+        <span class="text-xs font-medium text-gray-400">{$LL.settings.openFolders()}</span>
         <div class="flex gap-2">
           <button
             onclick={openArchiveDir}
             class="flex items-center gap-1.5 flex-1 px-2.5 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
-            title="Archiv-Ordner im Dateimanager öffnen"
+            title={$LL.settings.archiveBtnTitle()}
           >
-            <FolderOpen class="w-3.5 h-3.5" /> Archiv
+            <FolderOpen class="w-3.5 h-3.5" /> {$LL.settings.archiveBtn()}
           </button>
           <button
             onclick={openConfigDir}
             class="flex items-center gap-1.5 flex-1 px-2.5 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
-            title="Konfigurations-Ordner (settings.json) öffnen"
+            title={$LL.settings.configBtnTitle()}
           >
-            <FolderOpen class="w-3.5 h-3.5" /> Konfig
+            <FolderOpen class="w-3.5 h-3.5" /> {$LL.settings.configBtn()}
           </button>
         </div>
       </div>
 
       <!-- Updates -->
       <div class="flex flex-col gap-1.5">
-        <span class="text-xs font-medium text-gray-400">Updates</span>
+        <span class="text-xs font-medium text-gray-400">{$LL.settings.updates()}</span>
         <button
           onclick={checkForUpdates}
           disabled={updateChecking}
           class="flex items-center justify-center gap-1.5 w-full px-3 py-2 text-xs rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-gray-200 transition-colors"
         >
           <RefreshCw class="w-3.5 h-3.5 {updateChecking ? 'animate-spin' : ''}" />
-          {updateChecking ? 'Prüfe …' : 'Nach Update suchen'}
+          {updateChecking ? $LL.settings.checking() : $LL.settings.checkBtn()}
         </button>
         {#if updateCheckMsg}
-          <p class="text-xs {updateCheckMsg.includes('verfügbar') || updateCheckMsg.includes('aktuelle') ? 'text-emerald-400' : 'text-amber-400'}">
+          <p class="text-xs {updateCheckOk ? 'text-emerald-400' : 'text-amber-400'}">
             {updateCheckMsg}
           </p>
         {/if}
         <p class="text-xs text-gray-600">
-          Prüft manuell auf eine neue Version. Bei einem verfügbaren Update erscheint oben der Update-Banner.
+          {$LL.settings.updateHint()}
         </p>
       </div>
 
@@ -311,13 +318,13 @@
 
     <!-- Footer hint -->
     <div class="px-4 py-3 border-t border-gray-700 flex items-center justify-between gap-2">
-      <p class="text-xs text-gray-600">Automatisch gespeichert beim Verlassen.</p>
+      <p class="text-xs text-gray-600">{$LL.settings.autosaveHint()}</p>
       <button
         onclick={resetSettings}
         class="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 transition-colors"
-        title="Alle Einstellungen auf Standard zurücksetzen"
+        title={$LL.settings.resetTitle()}
       >
-        <RotateCcw class="w-3.5 h-3.5" /> Zurücksetzen
+        <RotateCcw class="w-3.5 h-3.5" /> {$LL.settings.reset()}
       </button>
     </div>
   </div>

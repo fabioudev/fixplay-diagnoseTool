@@ -12,6 +12,7 @@
   } from '$lib/stores/archive';
   import type { DumpEntry } from '$lib/api/types';
   import { Search, ArrowUpDown } from 'lucide-svelte';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let open          = $state(false);
   let confirmDelete = $state<string | null>(null);
@@ -79,9 +80,9 @@
 {#if standalone}
   <section class="flex flex-col gap-4 flex-1 bg-gray-900 rounded-lg p-4 min-h-0">
     <div>
-      <h2 class="text-lg font-semibold text-gray-100">NOR-Dump Archiv</h2>
+      <h2 class="text-lg font-semibold text-gray-100">{$LL.archive.title()}</h2>
       <p class="text-xs text-gray-500 mt-0.5">
-        Alle gespeicherten NOR-Dumps, gruppiert nach Konsolen-Seriennummer. Dumps werden nach jedem Lesevorgang automatisch hinzugefügt.
+        {$LL.archive.subtitle()}
       </p>
     </div>
 
@@ -96,8 +97,8 @@
       </div>
     {:else if $archives.length === 0}
       <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
-        <p class="text-gray-400 text-sm">Keine Dumps archiviert</p>
-        <p class="text-gray-600 text-xs">Starte einen Lesevorgang im NOR-Flash-Tab um Dumps zu erstellen.</p>
+        <p class="text-gray-400 text-sm">{$LL.archive.empty()}</p>
+        <p class="text-gray-600 text-xs">{$LL.archive.emptyHint()}</p>
       </div>
     {:else}
       <!-- Search + sort toolbar -->
@@ -106,7 +107,7 @@
           <Search class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
           <input
             type="text"
-            placeholder="Seriennummer oder Firmware suchen…"
+            placeholder={$LL.archive.searchPlaceholder()}
             value={$archiveQuery}
             oninput={(e) => archiveQuery.set((e.target as HTMLInputElement).value)}
             class="w-full bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-2 py-1.5
@@ -119,13 +120,13 @@
           <select
             value={$archiveSortMode}
             onchange={(e) => archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
-            title="Sortierung der Seriennummern-Gruppen"
+            title={$LL.archive.sortTitle()}
             class="appearance-none bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-6 py-1.5
                    border border-gray-700 focus:outline-none focus:border-gray-500"
           >
-            <option value="newest">Neueste zuerst</option>
-            <option value="oldest">Älteste zuerst</option>
-            <option value="serial">Seriennummer A→Z</option>
+            <option value="newest">{$LL.archive.sortNewest()}</option>
+            <option value="oldest">{$LL.archive.sortOldest()}</option>
+            <option value="serial">{$LL.archive.sortSerial()}</option>
           </select>
           <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
         </div>
@@ -136,7 +137,7 @@
           <div class="p-3 rounded-lg bg-gray-800 border border-gray-700">
             <p
               class="text-xs font-semibold text-gray-400 mb-2 font-mono"
-              title="Seriennummer der Konsole — alle Dumps dieser Konsole sind hier gruppiert"
+              title={$LL.archive.serialTitle()}
             >
               {archive.serial}
             </p>
@@ -145,54 +146,52 @@
                 <div class="flex items-center gap-2 text-xs bg-gray-900 rounded px-2 py-1.5 flex-wrap">
                   <span
                     class="font-mono text-gray-500 shrink-0"
-                    title="Zeitstempel des Lesevorgangs"
+                    title={$LL.archive.timestampTitle()}
                   >
                     {new Date(dump.timestamp * 1000).toLocaleString()}
                   </span>
                   <span
                     class="font-mono text-gray-300 shrink-0"
-                    title="Firmware-Version zum Zeitpunkt des Lesens (aus NVS-Partition)"
+                    title={$LL.archive.fwTitle()}
                   >
                     {dump.fw_version ?? '—'}
                   </span>
                   <span
                     class="{dump.validation_ok ? 'text-green-400' : 'text-red-400'} shrink-0"
-                    title={dump.validation_ok
-                      ? 'Alle Validierungsprüfungen bestanden — NOR-Header, MBRs, EmcIpl und USB PDC sind vorhanden und korrekt.'
-                      : 'Mindestens eine Validierungsprüfung fehlgeschlagen — der Dump könnte korrupt oder unvollständig sein. Trotzdem kann er als Backup verwendet werden.'}
+                    title={dump.validation_ok ? $LL.archive.okTitle() : $LL.archive.corruptTitle()}
                   >
-                    {dump.validation_ok ? '✓ OK' : '✗ Korrupt'}
+                    {dump.validation_ok ? $LL.archive.okLabel() : $LL.archive.corruptLabel()}
                   </span>
                   <div class="flex items-center gap-1 ml-auto shrink-0">
                     <button
                       onclick={() => handleLoad(dump)}
-                      title="Wählt diesen Dump als Quelle für den Schreiben-Vorgang — wechsle danach zum Flash-Panel und klicke 'Schreiben'."
+                      title={$LL.archive.loadTitle()}
                       class="px-2 py-0.5 rounded text-blue-100 {
                         loadedPath === dump.bin_path
                           ? 'bg-green-700'
                           : 'bg-blue-800 hover:bg-blue-700'
                       }"
                     >
-                      {loadedPath === dump.bin_path ? 'Geladen ✓' : 'Laden'}
+                      {loadedPath === dump.bin_path ? $LL.archive.loaded() : $LL.archive.load()}
                     </button>
                     <button
                       onclick={() => openPath(folderPath(dump.bin_path))}
-                      title="Öffnet den Archiv-Ordner im Dateimanager — dort liegen die .bin-Datei und das zugehörige JSON-Manifest."
+                      title={$LL.archive.folderTitle()}
                       class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
                     >
-                      Ordner
+                      {$LL.archive.folder()}
                     </button>
                     {#if confirmDelete === dump.bin_path}
                       <button
                         onclick={() => handleDelete(dump.bin_path)}
-                        title="Löscht diesen Dump unwiderruflich — kann nicht rückgängig gemacht werden."
+                        title={$LL.archive.confirmTitle()}
                         class="px-2 py-0.5 rounded bg-red-700 hover:bg-red-600 text-white"
                       >
-                        Bestätigen
+                        {$LL.archive.confirm()}
                       </button>
                       <button
                         onclick={() => (confirmDelete = null)}
-                        title="Löschen abbrechen"
+                        title={$LL.archive.cancelDeleteTitle()}
                         class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300"
                       >
                         ✕
@@ -200,10 +199,10 @@
                     {:else}
                       <button
                         onclick={() => handleDelete(dump.bin_path)}
-                        title="Klicke einmal zum Markieren, dann erneut zum unwiderruflichen Löschen."
+                        title={$LL.archive.deleteTitle()}
                         class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-red-300"
                       >
-                        Löschen
+                        {$LL.archive.delete()}
                       </button>
                     {/if}
                   </div>
@@ -213,7 +212,7 @@
           </div>
         {:else}
           <p class="text-gray-600 text-xs text-center py-8">
-            Keine Dumps passen auf die Suche.
+            {$LL.archive.noMatch()}
           </p>
         {/each}
       </div>
@@ -223,12 +222,12 @@
   <div class="bg-gray-900 rounded-lg border border-gray-800">
     <button
       onclick={() => (open = !open)}
-      title="Alle gespeicherten NOR-Dumps, gruppiert nach Konsolen-Seriennummer. Dumps werden nach jedem Lesevorgang automatisch hinzugefügt."
+      title={$LL.archive.subtitle()}
       class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium
              text-gray-300 hover:text-gray-100 transition-colors"
     >
       <span>
-        Archiv {$archiveLoading ? '…' : `(${$archiveDumpCount} Dump${$archiveDumpCount !== 1 ? 's' : ''})`}
+        {$LL.archive.collapsedLabel()} {$archiveLoading ? '…' : `(${$LL.archive.dumpsLabel({ count: $archiveDumpCount })})`}
       </span>
       <span class="text-gray-500 text-xs">{open ? '▲' : '▼'}</span>
     </button>
@@ -240,7 +239,7 @@
             <Search class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
             <input
               type="text"
-              placeholder="Suchen…"
+              placeholder={$LL.archive.searchShort()}
               value={$archiveQuery}
               oninput={(e) => archiveQuery.set((e.target as HTMLInputElement).value)}
               class="w-full bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-2 py-1.5
@@ -251,20 +250,20 @@
           <select
             value={$archiveSortMode}
             onchange={(e) => archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
-            title="Sortierung"
+            title={$LL.archive.sortTitleShort()}
             class="appearance-none bg-gray-800 text-gray-200 text-xs rounded px-2 py-1.5
                    border border-gray-700 focus:outline-none focus:border-gray-500"
           >
-            <option value="newest">Neueste</option>
-            <option value="oldest">Älteste</option>
-            <option value="serial">Seriennr.</option>
+            <option value="newest">{$LL.archive.sortNewestShort()}</option>
+            <option value="oldest">{$LL.archive.sortOldestShort()}</option>
+            <option value="serial">{$LL.archive.sortSerialShort()}</option>
           </select>
         </div>
         {#each filteredArchives as archive (archive.serial)}
           <div class="p-3 border-b border-gray-800 last:border-0">
             <p
               class="text-xs font-semibold text-gray-400 mb-2 font-mono"
-              title="Seriennummer der Konsole — alle Dumps dieser Konsole sind hier gruppiert"
+              title={$LL.archive.serialTitle()}
             >
               {archive.serial}
             </p>
@@ -273,54 +272,52 @@
                 <div class="flex items-center gap-2 text-xs bg-gray-800 rounded px-2 py-1.5 flex-wrap">
                   <span
                     class="font-mono text-gray-500 shrink-0"
-                    title="Zeitstempel des Lesevorgangs"
+                    title={$LL.archive.timestampTitle()}
                   >
                     {new Date(dump.timestamp * 1000).toLocaleString()}
                   </span>
                   <span
                     class="font-mono text-gray-300 shrink-0"
-                    title="Firmware-Version zum Zeitpunkt des Lesens (aus NVS-Partition)"
+                    title={$LL.archive.fwTitle()}
                   >
                     {dump.fw_version ?? '—'}
                   </span>
                   <span
                     class="{dump.validation_ok ? 'text-green-400' : 'text-red-400'} shrink-0"
-                    title={dump.validation_ok
-                      ? 'Alle Validierungsprüfungen bestanden — NOR-Header, MBRs, EmcIpl und USB PDC sind vorhanden und korrekt.'
-                      : 'Mindestens eine Validierungsprüfung fehlgeschlagen — der Dump könnte korrupt oder unvollständig sein. Trotzdem kann er als Backup verwendet werden.'}
+                    title={dump.validation_ok ? $LL.archive.okTitle() : $LL.archive.corruptTitle()}
                   >
-                    {dump.validation_ok ? '✓ OK' : '✗ Korrupt'}
+                    {dump.validation_ok ? $LL.archive.okLabel() : $LL.archive.corruptLabel()}
                   </span>
                   <div class="flex items-center gap-1 ml-auto shrink-0">
                     <button
                       onclick={() => handleLoad(dump)}
-                      title="Wählt diesen Dump als Quelle für den Schreiben-Vorgang — wechsle danach zum Flash-Panel und klicke 'Schreiben'."
+                      title={$LL.archive.loadTitle()}
                       class="px-2 py-0.5 rounded text-blue-100 {
                         loadedPath === dump.bin_path
                           ? 'bg-green-700'
                           : 'bg-blue-800 hover:bg-blue-700'
                       }"
                     >
-                      {loadedPath === dump.bin_path ? 'Geladen ✓' : 'Laden'}
+                      {loadedPath === dump.bin_path ? $LL.archive.loaded() : $LL.archive.load()}
                     </button>
                     <button
                       onclick={() => openPath(folderPath(dump.bin_path))}
-                      title="Öffnet den Archiv-Ordner im Dateimanager — dort liegen die .bin-Datei und das zugehörige JSON-Manifest."
+                      title={$LL.archive.folderTitle()}
                       class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
                     >
-                      Ordner
+                      {$LL.archive.folder()}
                     </button>
                     {#if confirmDelete === dump.bin_path}
                       <button
                         onclick={() => handleDelete(dump.bin_path)}
-                        title="Löscht diesen Dump unwiderruflich — kann nicht rückgängig gemacht werden."
+                        title={$LL.archive.confirmTitle()}
                         class="px-2 py-0.5 rounded bg-red-700 hover:bg-red-600 text-white"
                       >
-                        Bestätigen
+                        {$LL.archive.confirm()}
                       </button>
                       <button
                         onclick={() => (confirmDelete = null)}
-                        title="Löschen abbrechen"
+                        title={$LL.archive.cancelDeleteTitle()}
                         class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300"
                       >
                         ✕
@@ -328,10 +325,10 @@
                     {:else}
                       <button
                         onclick={() => handleDelete(dump.bin_path)}
-                        title="Klicke einmal zum Markieren, dann erneut zum unwiderruflichen Löschen."
+                        title={$LL.archive.deleteTitle()}
                         class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-red-300"
                       >
-                        Löschen
+                        {$LL.archive.delete()}
                       </button>
                     {/if}
                   </div>
@@ -342,8 +339,8 @@
         {:else}
           <p class="text-gray-600 text-xs p-4">
             {$archives.length === 0
-              ? 'Keine Dumps archiviert — starte einen Lesevorgang im Flash-Panel.'
-              : 'Keine Dumps passen auf die Suche.'}
+              ? $LL.archive.emptyCollapsed()
+              : $LL.archive.noMatch()}
           </p>
         {/each}
       </div>

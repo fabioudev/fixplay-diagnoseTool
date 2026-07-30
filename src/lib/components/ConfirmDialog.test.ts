@@ -2,6 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ConfirmDialog from './ConfirmDialog.svelte';
+import { initI18n } from '$lib/i18n/init';
 
 // The modals use `transition:fade`/`scale` whose outro delays DOM removal until
 // the Web Animations API fires onfinish. The setup file polyfills animate() to
@@ -15,6 +16,7 @@ const flushTransition = () => new Promise((r) => setTimeout(r, 50));
 // the confirm/cancel callbacks.
 
 beforeEach(() => {
+  initI18n();
   document.body.innerHTML = '';
 });
 

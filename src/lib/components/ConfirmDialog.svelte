@@ -2,6 +2,7 @@
   import { AlertTriangle } from 'lucide-svelte';
   import { trapFocus } from '$lib/utils/focusTrap';
   import { fade, scale } from 'svelte/transition';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let {
     open = $bindable(false),
@@ -53,7 +54,7 @@
       {#if typeToConfirm}
         <div class="mb-4">
           <p class="text-xs text-gray-500 mb-1.5">
-            Tippe <code class="text-amber-400 bg-gray-700 px-1 rounded">{typeToConfirm}</code> zum Bestätigen:
+            {$LL.common.confirmTypePrefix()} <code class="text-amber-400 bg-gray-700 px-1 rounded">{typeToConfirm}</code> {$LL.common.confirmTypeSuffix()}
           </p>
           <input
             type="text"
@@ -66,7 +67,7 @@
 
       <div class="flex justify-end gap-2">
         <button class="rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={close}>
-          Abbrechen
+          {$LL.common.confirmCancel()}
         </button>
         <button
           class="rounded-lg px-4 py-2 text-sm text-white disabled:opacity-40 {confirmDanger ? 'bg-red-600 hover:bg-red-700' : 'bg-teal-600 hover:bg-teal-700'}"

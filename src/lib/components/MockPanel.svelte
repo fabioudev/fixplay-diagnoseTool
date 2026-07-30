@@ -10,6 +10,8 @@
   import type { HidDeviceInfo } from '$lib/controllers/tauri-hid-device';
   import { copyToClipboard } from '$lib/utils/clipboard';
   import { Copy } from 'lucide-svelte';
+  import { get } from 'svelte/store';
+  import LL from '$lib/i18n/i18n-svelte';
 
   let open = $state(false);
   let tab = $state<'flash' | 'uart' | 'i2c' | 'controller'>('flash');
@@ -82,7 +84,7 @@
   }
   function addDevice(): void {
     const n = $mockState.flash.devices.length;
-    mockState.update((s) => ({ ...s, flash: { ...s.flash, devices: [...s.flash.devices, { id: `dev-${n}`, name: 'Neuer Programmer', device_type: 'Ch341' }] } }));
+    mockState.update((s) => ({ ...s, flash: { ...s.flash, devices: [...s.flash.devices, { id: `dev-${n}`, name: get(LL).mock.newProgrammer(), device_type: 'Ch341' }] } }));
   }
   function removeDevice(i: number): void {
     mockState.update((s) => ({ ...s, flash: { ...s.flash, devices: s.flash.devices.filter((_, idx) => idx !== i) } }));
@@ -132,7 +134,7 @@
     mockState.update((s) => ({ ...s, uart: { ...s.uart, ports: s.uart.ports.map((p, idx) => (idx === i ? { ...p, ...patch } : p)) } }));
   }
   function addPort(): void {
-    mockState.update((s) => ({ ...s, uart: { ...s.uart, ports: [...s.uart.ports, { name: '/dev/ttyUSB2', is_bridge: false, description: 'Neuer Port (Mock)' }] } }));
+    mockState.update((s) => ({ ...s, uart: { ...s.uart, ports: [...s.uart.ports, { name: '/dev/ttyUSB2', is_bridge: false, description: get(LL).mock.newPort() }] } }));
   }
   function removePort(i: number): void {
     mockState.update((s) => ({ ...s, uart: { ...s.uart, ports: s.uart.ports.filter((_, idx) => idx !== i) } }));
@@ -151,7 +153,7 @@
     }));
   }
   function addEntry(): void {
-    const entry: UartEntryEvent = { entry: { error_code: 0xe0000002, timestamp: Date.now(), power_states: 1, up_cause: 1, temp_soc: 40, raw_fields: ['E0000002', '0001', '0001', '0031'] }, description: 'Neuer Fehlereintrag (Mock)' };
+    const entry: UartEntryEvent = { entry: { error_code: 0xe0000002, timestamp: Date.now(), power_states: 1, up_cause: 1, temp_soc: 40, raw_fields: ['E0000002', '0001', '0001', '0031'] }, description: get(LL).mock.newEntry() };
     mockState.update((s) => ({ ...s, uart: { ...s.uart, entries: [...s.uart.entries, entry] } }));
   }
   function removeEntry(i: number): void {
@@ -163,7 +165,7 @@
     mockState.update((s) => ({ ...s, uart: { ...s.uart, search_results: s.uart.search_results.map((r, idx) => (idx === i ? { ...r, ...patch } : r)) } }));
   }
   function addSearch(): void {
-    mockState.update((s) => ({ ...s, uart: { ...s.uart, search_results: [...s.uart.search_results, { code: 0xe0000002, description: 'Mock-Treffer für "{query}"', category: 'generic' }] } }));
+    mockState.update((s) => ({ ...s, uart: { ...s.uart, search_results: [...s.uart.search_results, { code: 0xe0000002, description: get(LL).mock.searchHit({ query: '{query}' }), category: 'generic' }] } }));
   }
   function removeSearch(i: number): void {
     mockState.update((s) => ({ ...s, uart: { ...s.uart, search_results: s.uart.search_results.filter((_, idx) => idx !== i) } }));
@@ -283,10 +285,10 @@
     class="fixed bottom-4 right-4 z-40 flex items-center gap-2 px-3.5 py-2.5 rounded-full
            bg-amber-500/90 hover:bg-amber-400 text-gray-950 text-sm font-semibold shadow-lg
            border border-amber-300/50 transition-colors"
-    title="Mock-Daten der Vorschau live ändern"
+    title={$LL.mock.launcherTitle()}
   >
     <span>🎭</span>
-    <span>Mock</span>
+    <span>{$LL.mock.launcher()}</span>
   </button>
 {/if}
 
@@ -299,21 +301,21 @@
               shadow-xl z-50 flex flex-col">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
       <div class="flex flex-col leading-tight">
-        <h2 class="text-sm font-semibold text-amber-300">Mock-Steuerung</h2>
-        <span class="text-[10px] text-gray-500">Nur Vorschau — Änderungen gelten live</span>
+        <h2 class="text-sm font-semibold text-amber-300">{$LL.mock.panelTitle()}</h2>
+        <span class="text-[10px] text-gray-500">{$LL.mock.panelSubtitle()}</span>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick={copyState} class={btnCls} title="Gesamten Mock-State als JSON kopieren (für Bug-Reports)">
-          <Copy class="w-3 h-3 inline -mt-0.5 mr-1" />{copiedState ? 'Kopiert!' : 'State als JSON'}
+        <button onclick={copyState} class={btnCls} title={$LL.mock.copyStateTitle()}>
+          <Copy class="w-3 h-3 inline -mt-0.5 mr-1" />{copiedState ? $LL.mock.copied() : $LL.mock.copyState()}
         </button>
-        <button onclick={reset} class={btnDanger} title="Alle Mock-Werte auf Standard zurücksetzen">Zurücksetzen</button>
-        <button onclick={() => (open = false)} class="text-gray-400 hover:text-gray-200 text-lg leading-none" title="Schließen">✕</button>
+        <button onclick={reset} class={btnDanger} title={$LL.mock.resetTitle()}>{$LL.mock.reset()}</button>
+        <button onclick={() => (open = false)} class="text-gray-400 hover:text-gray-200 text-lg leading-none" title={$LL.mock.closeTitle()}>✕</button>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="flex border-b border-gray-700 shrink-0">
-      {#each ([{ id: 'flash', label: 'Flash' }, { id: 'uart', label: 'UART' }, { id: 'i2c', label: 'I2C' }, { id: 'controller', label: 'Controller' }] as const) as t (t.id)}
+      {#each ([{ id: 'flash', label: $LL.mock.flashTab() }, { id: 'uart', label: $LL.mock.uartTab() }, { id: 'i2c', label: $LL.mock.i2cTab() }, { id: 'controller', label: $LL.mock.controllerTab() }] as const) as t (t.id)}
         <button
           onclick={() => (tab = t.id)}
           class="flex-1 px-3 py-2.5 text-xs font-medium transition-colors
@@ -327,16 +329,16 @@
       <!-- ===================== FLASH ===================== -->
       {#if tab === 'flash'}
         <section class="flex flex-col gap-3">
-          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Programmer &amp; Geräte</h3>
+          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionProgrammers()}</h3>
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>Programmer (eine pro Zeile)</label>
+            <label class={lblCls}>{$LL.mock.programmersLabel()}</label>
             <textarea bind:value={programmersText} oninput={onProgrammersInput} rows="3" class={inputCls}></textarea>
           </div>
 
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
-              <label class={lblCls}>Gefundene Geräte</label>
-              <button onclick={addDevice} class={btnCls}>+ Gerät</button>
+              <label class={lblCls}>{$LL.mock.devicesLabel()}</label>
+              <button onclick={addDevice} class={btnCls}>{$LL.mock.addDevice()}</button>
             </div>
             {#each $mockState.flash.devices as dev, i (i)}
               <div class="flex flex-col gap-1 p-2 rounded bg-gray-800/50 border border-gray-700">
@@ -346,7 +348,7 @@
                     <option value="Ch341">Ch341</option>
                     <option value="Uart">Uart</option>
                   </select>
-                  <button onclick={() => removeDevice(i)} class={btnDanger} title="Entfernen">✕</button>
+                  <button onclick={() => removeDevice(i)} class={btnDanger} title={$LL.mock.removeTitle()}>✕</button>
                 </div>
                 <input value={dev.name} oninput={(e) => setDevice(i, { name: (e.target as HTMLInputElement).value })} placeholder="Name" class={inputCls} />
               </div>
@@ -355,18 +357,18 @@
         </section>
 
         <section class="flex flex-col gap-3">
-          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">NOR-Dump (NVS &amp; Validierung)</h3>
+          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionNvs()}</h3>
           <div class="grid grid-cols-2 gap-2">
-            <div class="flex flex-col gap-1"><label class={lblCls}>Seriennummer</label><input value={$mockState.flash.nvs.serial} oninput={(e) => setNvs('serial', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>MAC-Adresse</label><input value={$mockState.flash.nvs.mac_address} oninput={(e) => setNvs('mac_address', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>SKU</label><input value={$mockState.flash.nvs.sku} oninput={(e) => setNvs('sku', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>Board-ID</label><input value={$mockState.flash.nvs.board_id} oninput={(e) => setNvs('board_id', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>Console-Type</label><input type="number" value={$mockState.flash.nvs.console_type} oninput={(e) => setNvs('console_type', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>FW-Version</label><input value={$mockState.flash.nvs.fw_version} oninput={(e) => setNvs('fw_version', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.serialLabel()}</label><input value={$mockState.flash.nvs.serial} oninput={(e) => setNvs('serial', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.macLabel()}</label><input value={$mockState.flash.nvs.mac_address} oninput={(e) => setNvs('mac_address', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.skuLabel()}</label><input value={$mockState.flash.nvs.sku} oninput={(e) => setNvs('sku', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.boardIdLabel()}</label><input value={$mockState.flash.nvs.board_id} oninput={(e) => setNvs('board_id', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.consoleTypeLabel()}</label><input type="number" value={$mockState.flash.nvs.console_type} oninput={(e) => setNvs('console_type', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.fwVersionLabel()}</label><input value={$mockState.flash.nvs.fw_version} oninput={(e) => setNvs('fw_version', (e.target as HTMLInputElement).value)} class={inputCls} /></div>
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label class={lblCls}>Validierung</label>
+            <label class={lblCls}>{$LL.mock.validationLabel()}</label>
             <div class="grid grid-cols-2 gap-1.5">
               {#each validationKeys as vk (vk.key)}
                 <label class="flex items-center gap-2 cursor-pointer select-none">
@@ -379,38 +381,38 @@
 
           <label class="flex items-center gap-2 cursor-pointer select-none">
             <input type="checkbox" checked={$mockState.flash.dumps_match} onchange={(e) => setFlash('dumps_match', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" />
-            <span class="text-xs text-gray-300">zwei Lese-Durchläufe stimmen überein (dumps_match)</span>
+            <span class="text-xs text-gray-300">{$LL.mock.dumpsMatchLabel()}</span>
           </label>
 
           <div class="grid grid-cols-3 gap-2">
-            <div class="flex flex-col gap-1"><label class={lblCls}>Read ms/Schritt</label><input type="number" value={$mockState.flash.read_step_ms} oninput={(e) => setFlash('read_step_ms', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>Write ms/Schritt</label><input type="number" value={$mockState.flash.write_step_ms} oninput={(e) => setFlash('write_step_ms', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
-            <div class="flex flex-col gap-1"><label class={lblCls}>Verify ms/Schritt</label><input type="number" value={$mockState.flash.verify_step_ms} oninput={(e) => setFlash('verify_step_ms', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.readStepLabel()}</label><input type="number" value={$mockState.flash.read_step_ms} oninput={(e) => setFlash('read_step_ms', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.writeStepLabel()}</label><input type="number" value={$mockState.flash.write_step_ms} oninput={(e) => setFlash('write_step_ms', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
+            <div class="flex flex-col gap-1"><label class={lblCls}>{$LL.mock.verifyStepLabel()}</label><input type="number" value={$mockState.flash.verify_step_ms} oninput={(e) => setFlash('verify_step_ms', num((e.target as HTMLInputElement).value))} class={inputCls} /></div>
           </div>
         </section>
 
         <section class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Archiv</h3>
-            <button onclick={addArchive} class={btnCls}>+ Seriennummer</button>
+            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionArchive()}</h3>
+            <button onclick={addArchive} class={btnCls}>{$LL.mock.addArchive()}</button>
           </div>
           {#each $mockState.flash.archive as grp, a (a)}
             <div class="flex flex-col gap-2 p-2 rounded bg-gray-800/50 border border-gray-700">
               <div class="flex gap-2">
-                <input value={grp.serial} oninput={(e) => setArchiveSerial(a, (e.target as HTMLInputElement).value)} placeholder="Seriennummer" class={inputCls} />
-                <button onclick={() => removeArchive(a)} class={btnDanger} title="Gruppe entfernen">✕</button>
+                <input value={grp.serial} oninput={(e) => setArchiveSerial(a, (e.target as HTMLInputElement).value)} placeholder={$LL.mock.serialLabel()} class={inputCls} />
+                <button onclick={() => removeArchive(a)} class={btnDanger} title={$LL.mock.removeGroupTitle()}>✕</button>
               </div>
               {#each grp.dumps as dump, d (d)}
                 <div class="flex flex-col gap-1 pl-2 border-l border-gray-700">
                   <div class="flex gap-2 items-end">
                     <div class="flex flex-col gap-1 flex-1"><label class={lblCls}>FW</label><input value={dump.fw_version ?? ''} oninput={(e) => setDump(a, d, { fw_version: (e.target as HTMLInputElement).value || null })} class={inputCls} /></div>
-                    <div class="flex flex-col gap-1 w-28"><label class={lblCls}>Größe (Bytes)</label><input type="number" value={dump.size_bytes} oninput={(e) => setDump(a, d, { size_bytes: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
+                    <div class="flex flex-col gap-1 w-28"><label class={lblCls}>{$LL.mock.sizeLabel()}</label><input type="number" value={dump.size_bytes} oninput={(e) => setDump(a, d, { size_bytes: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
                     <label class="flex items-center gap-1.5 cursor-pointer select-none pb-1.5"><input type="checkbox" checked={dump.validation_ok} onchange={(e) => setDump(a, d, { validation_ok: (e.target as HTMLInputElement).checked })} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">OK</span></label>
-                    <button onclick={() => removeDump(a, d)} class={btnDanger} title="Dump entfernen">✕</button>
+                    <button onclick={() => removeDump(a, d)} class={btnDanger} title={$LL.mock.removeDumpTitle()}>✕</button>
                   </div>
                 </div>
               {/each}
-              <button onclick={() => addDump(a)} class={btnCls + ' self-start'}>+ Dump</button>
+              <button onclick={() => addDump(a)} class={btnCls + ' self-start'}>{$LL.mock.addDump()}</button>
             </div>
           {/each}
         </section>
@@ -418,13 +420,13 @@
       <!-- ===================== UART ===================== -->
       {:else if tab === 'uart'}
         <section class="flex flex-col gap-3">
-          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Verbindung</h3>
+          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionConn()}</h3>
           <div class="flex flex-col gap-2">
-            <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.uart.connected} onchange={(e) => setUart('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">verbunden (uart_poll)</span></label>
-            <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.uart.reconnecting} onchange={(e) => setUart('reconnecting', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">reconnecting</span></label>
-            <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.uart.loopback_ok} onchange={(e) => setUart('loopback_ok', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">Loopback-Test OK</span></label>
+            <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.uart.connected} onchange={(e) => setUart('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.connectedUart()}</span></label>
+            <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.uart.reconnecting} onchange={(e) => setUart('reconnecting', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.reconnecting()}</span></label>
+            <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.uart.loopback_ok} onchange={(e) => setUart('loopback_ok', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.loopbackOk()}</span></label>
             <div class="flex flex-col gap-1">
-              <label class={lblCls}>Error-DB Einträge (0 = keine DB)</label>
+              <label class={lblCls}>{$LL.mock.dbCountLabel()}</label>
               <input type="number" value={$mockState.uart.db_count ?? 0} oninput={(e) => setUart('db_count', num((e.target as HTMLInputElement).value) || null)} class={inputCls} />
             </div>
           </div>
@@ -432,61 +434,61 @@
 
         <section class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Ports</h3>
-            <button onclick={addPort} class={btnCls}>+ Port</button>
+            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionPorts()}</h3>
+            <button onclick={addPort} class={btnCls}>{$LL.mock.addPort()}</button>
           </div>
           {#each $mockState.uart.ports as port, i (i)}
             <div class="flex flex-col gap-1 p-2 rounded bg-gray-800/50 border border-gray-700">
               <div class="flex gap-2">
-                <input value={port.name} oninput={(e) => setPort(i, { name: (e.target as HTMLInputElement).value })} placeholder="Port" class={inputCls} />
-                <button onclick={() => removePort(i)} class={btnDanger} title="Entfernen">✕</button>
+                <input value={port.name} oninput={(e) => setPort(i, { name: (e.target as HTMLInputElement).value })} placeholder={$LL.mock.portPlaceholder()} class={inputCls} />
+                <button onclick={() => removePort(i)} class={btnDanger} title={$LL.mock.removeTitle()}>✕</button>
               </div>
-              <input value={port.description} oninput={(e) => setPort(i, { description: (e.target as HTMLInputElement).value })} placeholder="Beschreibung" class={inputCls} />
-              <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={port.is_bridge} onchange={(e) => setPort(i, { is_bridge: (e.target as HTMLInputElement).checked })} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">UART-Bridge (PS5-Diagnose)</span></label>
+              <input value={port.description} oninput={(e) => setPort(i, { description: (e.target as HTMLInputElement).value })} placeholder={$LL.mock.descPlaceholder()} class={inputCls} />
+              <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={port.is_bridge} onchange={(e) => setPort(i, { is_bridge: (e.target as HTMLInputElement).checked })} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.bridgeLabel()}</span></label>
             </div>
           {/each}
         </section>
 
         <section class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Fehlereinträge (errlog)</h3>
-            <button onclick={addEntry} class={btnCls}>+ Eintrag</button>
+            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionEntries()}</h3>
+            <button onclick={addEntry} class={btnCls}>{$LL.mock.addEntry()}</button>
           </div>
           {#each $mockState.uart.entries as ent, i (i)}
             <div class="flex flex-col gap-1.5 p-2 rounded bg-gray-800/50 border border-gray-700">
               <div class="flex gap-2">
-                <div class="flex flex-col gap-1 w-32"><label class={lblCls}>Error-Code (hex)</label><input value={hex(ent.entry.error_code)} oninput={(e) => setEntry(i, { error_code: parseHex((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
-                <div class="flex flex-col gap-1 w-20"><label class={lblCls}>Power</label><input type="number" value={ent.entry.power_states} oninput={(e) => setEntry(i, { power_states: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
-                <div class="flex flex-col gap-1 w-20"><label class={lblCls}>Up-Cause</label><input type="number" value={ent.entry.up_cause} oninput={(e) => setEntry(i, { up_cause: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
-                <div class="flex flex-col gap-1 w-20"><label class={lblCls}>Temp °C</label><input type="number" value={ent.entry.temp_soc} oninput={(e) => setEntry(i, { temp_soc: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
-                <button onclick={() => removeEntry(i)} class={btnDanger} title="Entfernen">✕</button>
+                <div class="flex flex-col gap-1 w-32"><label class={lblCls}>{$LL.mock.errorCodeLabel()}</label><input value={hex(ent.entry.error_code)} oninput={(e) => setEntry(i, { error_code: parseHex((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
+                <div class="flex flex-col gap-1 w-20"><label class={lblCls}>{$LL.mock.powerLabel()}</label><input type="number" value={ent.entry.power_states} oninput={(e) => setEntry(i, { power_states: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
+                <div class="flex flex-col gap-1 w-20"><label class={lblCls}>{$LL.mock.upCauseLabel()}</label><input type="number" value={ent.entry.up_cause} oninput={(e) => setEntry(i, { up_cause: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
+                <div class="flex flex-col gap-1 w-20"><label class={lblCls}>{$LL.mock.tempLabel()}</label><input type="number" value={ent.entry.temp_soc} oninput={(e) => setEntry(i, { temp_soc: num((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
+                <button onclick={() => removeEntry(i)} class={btnDanger} title={$LL.mock.removeTitle()}>✕</button>
               </div>
-              <input value={ent.description ?? ''} oninput={(e) => setEntry(i, {}, (e.target as HTMLInputElement).value || null)} placeholder="Beschreibung" class={inputCls} />
+              <input value={ent.description ?? ''} oninput={(e) => setEntry(i, {}, (e.target as HTMLInputElement).value || null)} placeholder={$LL.mock.descPlaceholder()} class={inputCls} />
             </div>
           {/each}
         </section>
 
         <section class="flex flex-col gap-2">
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>Rohe UART-Zeilen (eine pro Zeile)</label>
+            <label class={lblCls}>{$LL.mock.rawLinesLabel()}</label>
             <textarea bind:value={linesText} oninput={onLinesInput} rows="4" class={inputCls}></textarea>
           </div>
         </section>
 
         <section class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Error-DB Suche (Treffer)</h3>
-            <button onclick={addSearch} class={btnCls}>+ Treffer</button>
+            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionSearch()}</h3>
+            <button onclick={addSearch} class={btnCls}>{$LL.mock.addSearch()}</button>
           </div>
-          <p class="text-[11px] text-gray-600">Beschreibung darf „&#123;query&#125;" enthalten — wird durch den Suchbegriff ersetzt.</p>
+          <p class="text-[11px] text-gray-600">{$LL.mock.searchHint({ query: '{query}' })}</p>
           {#each $mockState.uart.search_results as res, i (i)}
             <div class="flex flex-col gap-1 p-2 rounded bg-gray-800/50 border border-gray-700">
               <div class="flex gap-2">
-                <input value={hex(res.code)} oninput={(e) => setSearch(i, { code: parseHex((e.target as HTMLInputElement).value) })} class={inputCls + ' w-32'} title="Code (hex)" />
-                <input value={res.category} oninput={(e) => setSearch(i, { category: (e.target as HTMLInputElement).value })} class={inputCls + ' w-28'} placeholder="Kategorie" />
+                <input value={hex(res.code)} oninput={(e) => setSearch(i, { code: parseHex((e.target as HTMLInputElement).value) })} class={inputCls + ' w-32'} title={$LL.mock.codeTitle()} />
+                <input value={res.category} oninput={(e) => setSearch(i, { category: (e.target as HTMLInputElement).value })} class={inputCls + ' w-28'} placeholder={$LL.mock.categoryPlaceholder()} />
                 <button onclick={() => removeSearch(i)} class={btnDanger}>✕</button>
               </div>
-              <input value={res.description} oninput={(e) => setSearch(i, { description: (e.target as HTMLInputElement).value })} placeholder="Beschreibung" class={inputCls} />
+              <input value={res.description} oninput={(e) => setSearch(i, { description: (e.target as HTMLInputElement).value })} placeholder={$LL.mock.descPlaceholder()} class={inputCls} />
             </div>
           {/each}
         </section>
@@ -494,16 +496,16 @@
       <!-- ===================== I2C / Pico ===================== -->
       {:else if tab === 'i2c'}
         <section class="flex flex-col gap-3">
-          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">I2C / Pico Bridge</h3>
-          <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.i2c.connected} onchange={(e) => setI2c('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">verbunden (i2c_poll)</span></label>
+          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionI2c()}</h3>
+          <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.i2c.connected} onchange={(e) => setI2c('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.connectedI2c()}</span></label>
 
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>Xbox-DB Code-Anzahl (null = nicht geladen)</label>
+            <label class={lblCls}>{$LL.mock.xboxDbLabel()}</label>
             <input type="number" value={$mockState.i2c.db_count ?? 0} oninput={(e) => setI2c('db_count', num((e.target as HTMLInputElement).value) || null)} class={inputCls} />
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>i2c_scan Treffer (komma-getrennte Hex-Adressen)</label>
+            <label class={lblCls}>{$LL.mock.scanLabel()}</label>
             <input
               value={$mockState.i2c.scan_results.map((a) => '0x' + a.toString(16)).join(', ')}
               oninput={(e) => setI2c('scan_results', (e.target as HTMLInputElement).value
@@ -514,7 +516,7 @@
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>Errlog-Einträge (JSON-Array)</label>
+            <label class={lblCls}>{$LL.mock.errlogLabel()}</label>
             <textarea
               rows="3"
               value={JSON.stringify($mockState.i2c.errlog)}
@@ -524,7 +526,7 @@
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>i2c_info (JSON oder leer)</label>
+            <label class={lblCls}>{$LL.mock.infoLabel()}</label>
             <textarea
               rows="3"
               value={$mockState.i2c.info ? JSON.stringify($mockState.i2c.info) : ''}
@@ -537,23 +539,23 @@
       <!-- ===================== CONTROLLER ===================== -->
       {:else if tab === 'controller'}
         <section class="flex flex-col gap-3">
-          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">HID / Controller</h3>
-          <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.hid.connected} onchange={(e) => setHid('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">verbunden (hid_poll)</span></label>
+          <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionHid()}</h3>
+          <label class="flex items-center gap-2 cursor-pointer select-none"><input type="checkbox" checked={$mockState.hid.connected} onchange={(e) => setHid('connected', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.connectedHid()}</span></label>
 
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
-              <label class={lblCls}>Geräte</label>
-              <button onclick={addHidDevice} class={btnCls}>+ Gerät</button>
+              <label class={lblCls}>{$LL.mock.devicesLabel()}</label>
+              <button onclick={addHidDevice} class={btnCls}>{$LL.mock.addDevice()}</button>
             </div>
             {#each $mockState.hid.devices as dev, i (i)}
               <div class="flex flex-col gap-1 p-2 rounded bg-gray-800/50 border border-gray-700">
                 <div class="flex gap-2">
                   <div class="flex flex-col gap-1 w-28"><label class={lblCls}>VID (hex)</label><input value={hex(dev.vendor_id)} oninput={(e) => setHidDevice(i, { vendor_id: parseHex((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
                   <div class="flex flex-col gap-1 w-28"><label class={lblCls}>PID (hex)</label><input value={hex(dev.product_id)} oninput={(e) => setHidDevice(i, { product_id: parseHex((e.target as HTMLInputElement).value) })} class={inputCls} /></div>
-                  <button onclick={() => removeHidDevice(i)} class={btnDanger} title="Entfernen">✕</button>
+                  <button onclick={() => removeHidDevice(i)} class={btnDanger} title={$LL.mock.removeTitle()}>✕</button>
                 </div>
-                <input value={dev.manufacturer ?? ''} oninput={(e) => setHidDevice(i, { manufacturer: (e.target as HTMLInputElement).value || null })} placeholder="Hersteller" class={inputCls} />
-                <input value={dev.product ?? ''} oninput={(e) => setHidDevice(i, { product: (e.target as HTMLInputElement).value || null })} placeholder="Produkt" class={inputCls} />
+                <input value={dev.manufacturer ?? ''} oninput={(e) => setHidDevice(i, { manufacturer: (e.target as HTMLInputElement).value || null })} placeholder={$LL.mock.manufacturerPh()} class={inputCls} />
+                <input value={dev.product ?? ''} oninput={(e) => setHidDevice(i, { product: (e.target as HTMLInputElement).value || null })} placeholder={$LL.mock.productPh()} class={inputCls} />
               </div>
             {/each}
           </div>
@@ -561,10 +563,10 @@
 
         <section class="flex flex-col gap-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Simulierter Input</h3>
-            <button onclick={resetInput} class={btnCls}>Reset</button>
+            <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">{$LL.mock.sectionInput()}</h3>
+            <button onclick={resetInput} class={btnCls}>{$LL.mock.reset()}</button>
           </div>
-          <p class="text-[11px] text-gray-600">Steuerung für die Live-Visualisierung. Tasten klicken zum Umschalten, Sticks/Trigger per Slider.</p>
+          <p class="text-[11px] text-gray-600">{$LL.mock.inputHint()}</p>
 
           <div class="grid grid-cols-2 gap-2">
             <div class="flex flex-col gap-1"><label class={lblCls}>LX (-1…1)</label><input type="range" min="-1" max="1" step="0.01" value={$mockState.hid.input.lx} oninput={(e) => setInput('lx', signed((e.target as HTMLInputElement).value))} class="accent-teal-500" /></div>
@@ -576,13 +578,13 @@
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class={lblCls}>Batterie (0…100)</label>
+            <label class={lblCls}>{$LL.mock.batteryLabel()}</label>
             <input type="range" min="0" max="100" value={$mockState.hid.input.battery} oninput={(e) => setInput('battery', num((e.target as HTMLInputElement).value))} class="accent-teal-500" />
-            <label class="flex items-center gap-2 cursor-pointer select-none mt-1"><input type="checkbox" checked={$mockState.hid.input.charging} onchange={(e) => setInput('charging', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">lädt</span></label>
+            <label class="flex items-center gap-2 cursor-pointer select-none mt-1"><input type="checkbox" checked={$mockState.hid.input.charging} onchange={(e) => setInput('charging', (e.target as HTMLInputElement).checked)} class="accent-amber-500 w-4 h-4" /><span class="text-xs text-gray-300">{$LL.mock.charging()}</span></label>
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <div class="flex items-center justify-between"><label class={lblCls}>Buttons</label><button onclick={clearButtons} class={btnCls}>alle lösen</button></div>
+            <div class="flex items-center justify-between"><label class={lblCls}>{$LL.mock.buttonsLabel()}</label><button onclick={clearButtons} class={btnCls}>{$LL.mock.clearButtons()}</button></div>
             <div class="flex flex-wrap gap-1.5">
               {#each SIM_BUTTONS as name (name)}
                 <button
@@ -596,19 +598,19 @@
           <!-- Touchpad gesture replay (#57) -->
           <div class="flex flex-col gap-1.5">
             <div class="flex items-center justify-between">
-              <label class={lblCls}>Touchpad-Gesten</label>
+              <label class={lblCls}>{$LL.mock.gesturesLabel()}</label>
               {#if replayTimer}
-                <button onclick={stopReplay} class={btnCls}>Stop</button>
+                <button onclick={stopReplay} class={btnCls}>{$LL.mock.stop()}</button>
               {/if}
             </div>
             <div class="flex flex-wrap gap-1.5">
-              <button onclick={replayTap} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Tipp</button>
-              <button onclick={replaySwipeRight} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Wischen →</button>
-              <button onclick={replaySwipeDown} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Wischen ↓</button>
-              <button onclick={replayHold} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Halten</button>
-              <button onclick={replayTwoFinger} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">2-Finger</button>
+              <button onclick={replayTap} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">{$LL.mock.gestureTap()}</button>
+              <button onclick={replaySwipeRight} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">{$LL.mock.gestureSwipeRight()}</button>
+              <button onclick={replaySwipeDown} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">{$LL.mock.gestureSwipeDown()}</button>
+              <button onclick={replayHold} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">{$LL.mock.gestureHold()}</button>
+              <button onclick={replayTwoFinger} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">{$LL.mock.gestureTwoFinger()}</button>
             </div>
-            <p class="text-[11px] text-gray-600">Spielt eine Geste auf das Touchpad ein — der Gesten-Visualizer (Tester → Touchpad) erkennt sie live.</p>
+            <p class="text-[11px] text-gray-600">{$LL.mock.gestureHint()}</p>
             {#each [0, 1] as fi (fi)}
               <div class="flex items-center gap-2">
                 <label class="flex items-center gap-1.5 cursor-pointer select-none w-16">
@@ -626,17 +628,17 @@
       <!-- ===================== ERROR INJECTION (#72) ===================== -->
       <section class="flex flex-col gap-2 pt-2 border-t border-gray-700">
         <div class="flex items-center justify-between">
-          <h3 class="text-xs font-semibold text-red-300 uppercase tracking-wide">Fehler simulieren</h3>
-          <button onclick={clearAllErrors} class={btnCls}>alle lösen</button>
+          <h3 class="text-xs font-semibold text-red-300 uppercase tracking-wide">{$LL.mock.sectionErrors()}</h3>
+          <button onclick={clearAllErrors} class={btnCls}>{$LL.mock.clearErrors()}</button>
         </div>
-        <p class="text-[11px] text-gray-600">Bekommt ein Befehl hier einen Text, wirft der Mock beim nächsten Aufruf diesen Fehler — so lassen sich die Error-Pfade der UI (Toast/Log/Banner) in der Vorschau testen. Leer = Fehler gelöscht.</p>
+        <p class="text-[11px] text-gray-600">{$LL.mock.errorInjectHint()}</p>
         {#each ERROR_INJECTABLE as cmd (cmd)}
           <div class="flex items-center gap-2">
             <span class="text-[11px] font-mono text-gray-400 w-44 shrink-0 truncate" title={cmd}>{cmd}</span>
             <input
               value={$mockState.errors[cmd] ?? ''}
               oninput={(e) => setMockError(cmd, (e.target as HTMLInputElement).value)}
-              placeholder="z.B. Programmer nicht gefunden"
+              placeholder={$LL.mock.errorPlaceholder()}
               class={inputCls}
             />
           </div>
@@ -646,7 +648,7 @@
     </div>
 
     <div class="px-4 py-3 border-t border-gray-700">
-      <p class="text-[11px] text-gray-600">Werte werden im Browser gespeichert. Klick „Zurücksetzen” für die Defaults.</p>
+      <p class="text-[11px] text-gray-600">{$LL.mock.footerHint()}</p>
     </div>
   </div>
 {/if}

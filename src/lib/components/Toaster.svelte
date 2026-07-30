@@ -6,6 +6,7 @@
   import { flip } from 'svelte/animate';
   import { notifications, dismissNotification } from '$lib/stores/notifications';
   import { X } from 'lucide-svelte';
+  import LL from '$lib/i18n/i18n-svelte';
 
   // Auto-dismiss each non-sticky toast once its timeout elapses. Scheduled in a
   // $effect so the timers are cleaned up when the component tears down.
@@ -60,7 +61,7 @@
       </div>
       <button
         class="shrink-0 text-gray-500 hover:text-gray-200"
-        aria-label="Benachrichtigung schließen"
+        aria-label={$LL.common.closeNotificationAria()}
         onclick={() => dismissNotification(n.id)}
       >
         <X size={14} />

@@ -4,12 +4,18 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import StatusBar from './StatusBar.svelte';
 import { dbCodeCount } from '$lib/stores/uart';
 import { xboxDbCount } from '$lib/stores/i2c';
+import { initI18n } from '$lib/i18n/init';
 
 // StatusBar derives several badges from stores (programmer count, DB counts,
 // online state). This verifies the store→badge wiring at the component level,
 // which the pure store tests can't reach.
+//
+// The badges are localized via $LL, which is only initialized in +layout.svelte
+// at runtime — in component tests we must initI18n() first or $LL resolves to
+// nothing and the count text never reaches the DOM.
 
 beforeEach(() => {
+  initI18n();
   dbCodeCount.set(null);
   xboxDbCount.set(null);
   document.body.innerHTML = '';
