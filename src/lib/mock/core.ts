@@ -78,6 +78,12 @@ function buildDs5InputReport(input: MockControllerInput): number[] {
   else if (input.charging) status = 1;
   r[52] = (status << 4) | charge;
 
+  // IMU at rest (#56): accel Z = 1 g (8192 raw = 0x2000, little-endian at
+  // struct offset 25 → low byte 25, high byte 26) so the dev-mode IMU
+  // visualizer shows a realistic rest state instead of zeros.
+  r[25] = 0x00;
+  r[26] = 0x20;
+
   return r;
 }
 

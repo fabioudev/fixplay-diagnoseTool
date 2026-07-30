@@ -27,6 +27,7 @@ function makeInput(partial: Partial<ProcessedInput>): ProcessedInput {
     },
     micConnected: false,
     headphoneConnected: false,
+    imu: { gyro: { x: 0, y: 0, z: 0 }, accel: { x: 0, y: 0, z: 0 } },
     ...partial,
   };
 }

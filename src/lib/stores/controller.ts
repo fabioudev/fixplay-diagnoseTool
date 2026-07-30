@@ -41,6 +41,15 @@ export const micConnected = writable<boolean>(false);
 export const headphoneConnected = writable<boolean>(false);
 
 /**
+ * Latest IMU sample (#56): gyro (°/s) + accel (g) from the DualSense input
+ * report. Updated on every processed input; consumed by the IMU visualizer.
+ */
+export const imuState = writable<{ gyro: { x: number; y: number; z: number }; accel: { x: number; y: number; z: number } }>({
+  gyro: { x: 0, y: 0, z: 0 },
+  accel: { x: 0, y: 0, z: 0 },
+});
+
+/**
  * Stick deadzone radius (0..1 of full deflection) used by the stick
  * visualizers and the range-calibration result. Ephemeral per session — the
  * slider in ControllerPanel adjusts it live; it is not (yet) persisted across
@@ -99,5 +108,6 @@ export function applyProcessedInput(input: ProcessedInput): void {
   }
   micConnected.set(input.micConnected);
   headphoneConnected.set(input.headphoneConnected);
+  imuState.set(input.imu);
 }
 

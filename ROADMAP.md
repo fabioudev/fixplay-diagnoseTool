@@ -66,7 +66,7 @@
 - [ ] **#53** No i18n infrastructure; all strings hardcoded in German
 - [x] **#54** No battery level on controller visualizer — battery bar + % below PS button
 - [x] **#55** No headphone connection indicator on visualizer — 🎧 icon when connected
-- [ ] **#56** No gyro/accelerometer visualization
+- [x] **#56** No gyro/accelerometer visualization — `parseDs5Imu(common)` pure parser in `controller-manager.ts` (gyro xyz @ struct offsets 15/17/19 → °/s ÷1024, accel xyz @ 21/23/25 → g ÷8192, signed LE, zeros for short reports) feeds an `imuState` store; `ImuVisualizer.svelte` renders centered per-axis bars (gyro ±2000 °/s teal/amber, accel ±2 g blue/purple) plus a 2-D tilt-dot pad driven by accel X/Y; an 'imu' tab in TesterPanel surfaces it; mock report emits a 1 g rest state on accel Z. 5 parser tests
 - [ ] **#57** No touchpad gesture visualization
 - [x] **#58** No peak hold on mic level meter — peak hold with 2s decay
 - [ ] **#59** No frequency spectrum view for mic

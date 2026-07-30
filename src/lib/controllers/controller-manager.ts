@@ -27,6 +27,53 @@ export interface TouchPoint {
   y: number;
 }
 
+/** A 3-axis sample from the DualSense IMU. */
+export interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+/**
+ * Inertial measurement unit sample (#56). The DualSense USB input report carries
+ * three 16-bit little-endian signed gyro axes (struct offsets 15/17/19) and
+ * three accel axes (21/23/25), sampled per report. Scaled to physical units:
+ * gyro in °/s (raw / 1024, ±2048 °/s range) and accel in g (raw / 8192, ±4 g).
+ * Offsets follow the Linux `hid-playstation` `dualsense_input_report` struct;
+ * WebHID strips the report id so `common` offset 0 == struct offset 0.
+ */
+export interface ImuSample {
+  /** Gyroscope angular rates in °/s. */
+  gyro: Vec3;
+  /** Accelerometer readings in g (1 g ≈ rest gravity on the z-axis). */
+  accel: Vec3;
+}
+
+/**
+ * Parse the DualSense IMU sample (gyro + accel) from a common input-report
+ * DataView (#56). Six 16-bit little-endian signed axes: gyro xyz at struct
+ * offsets 15/17/19, accel xyz at 21/23/25. Scaled to °/s (÷1024) and g (÷8192).
+ * Returns zeros for a short report (no IMU). Extracted as a pure function so
+ * the byte layout + scaling is unit-testable without a controller.
+ */
+export function parseDs5Imu(common: DataView): ImuSample {
+  if (common.byteLength < 27) {
+    return { gyro: { x: 0, y: 0, z: 0 }, accel: { x: 0, y: 0, z: 0 } };
+  }
+  return {
+    gyro: {
+      x: common.getInt16(15, true) / 1024,
+      y: common.getInt16(17, true) / 1024,
+      z: common.getInt16(19, true) / 1024,
+    },
+    accel: {
+      x: common.getInt16(21, true) / 8192,
+      y: common.getInt16(23, true) / 8192,
+      z: common.getInt16(25, true) / 8192,
+    },
+  };
+}
+
 export interface InputChanges {
   sticks?: SticksState;
   l2_analog?: number;
@@ -42,6 +89,8 @@ export interface ProcessedInput {
   micConnected: boolean;
   /** Input report byte 53 bit 0 — headphones connected. */
   headphoneConnected: boolean;
+  /** Gyro + accel sample (DualSense; zeros when the report has no IMU). */
+  imu: ImuSample;
 }
 
 export class ControllerManager {
@@ -368,12 +417,17 @@ export class ControllerManager {
     const micConnected = (status1 & 0x02) !== 0;
     const headphoneConnected = (status1 & 0x01) !== 0;
 
+    // IMU (gyro + accel): six 16-bit little-endian signed axes at struct
+    // offsets 15..25. Scaled to °/s (÷1024) and g (÷8192). See parseDs5Imu.
+    const imu: ImuSample = parseDs5Imu(common);
+
     const result: ProcessedInput = {
       changes,
       touchPoints: this.touchPoints,
       batteryStatus: this.batteryStatus,
       micConnected,
       headphoneConnected,
+      imu,
     };
     this.inputHandler?.(result);
   }

@@ -5,12 +5,13 @@
   // live sliders / pickers so you can dial in a value and watch the controller
   // respond — the "tester für lichter / vibratoren / adaptive trigger" the
   // panel was missing.
-  import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic } from 'lucide-svelte';
+  import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass } from 'lucide-svelte';
   import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
   import MicLevelMeter from './MicLevelMeter.svelte';
   import SpeakerMicLoopback from './SpeakerMicLoopback.svelte';
+  import ImuVisualizer from './ImuVisualizer.svelte';
 
   let {
     manager,
@@ -18,7 +19,7 @@
     manager: ControllerManager | null;
   } = $props();
 
-  type Tab = 'lights' | 'vibration' | 'trigger' | 'speaker';
+  type Tab = 'lights' | 'vibration' | 'trigger' | 'speaker' | 'imu';
   let tab = $state<Tab>('lights');
 
   // ── Lights ────────────────────────────────────────────────────────────────
@@ -372,6 +373,7 @@
     { id: 'vibration', label: 'Vibration', icon: Vibrate },
     { id: 'trigger', label: 'Trigger', icon: Gauge },
     { id: 'speaker', label: 'Audio', icon: Volume2 },
+    { id: 'imu', label: 'IMU', icon: Compass },
   ];
 </script>
 
@@ -611,6 +613,14 @@
         <div class="text-xs text-gray-400 mb-1.5">Speaker→Mic Loopback</div>
         <SpeakerMicLoopback {manager} />
       </div>
+    </div>
+  {:else if tab === 'imu'}
+    <div class="flex flex-col gap-3">
+      <p class="text-xs text-gray-500">
+        Live-Sensordaten des DualSense-IMU. Bewege oder neige den Controller, um
+        Gyroskop (°/s) und Beschleunigung (g) zu sehen.
+      </p>
+      <ImuVisualizer />
     </div>
   {/if}
 </div>
