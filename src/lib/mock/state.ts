@@ -68,6 +68,11 @@ export interface MockControllerInput {
   /** Battery 0..100. */
   battery: number;
   charging: boolean;
+  /** Simulated touchpad touch points (0..1, up to 2). {active,x,y} with x in
+   * 0..1919 and y in 0..941 raw pad coords — written into the DS5 input report
+   * at touchpad offset 32 so the touchpad gesture visualizer (#57) can be
+   * exercised in a browser. */
+  touchPoints: { active: boolean; x: number; y: number }[];
 }
 
 export interface MockHidState {
@@ -233,6 +238,10 @@ export const DEFAULT_MOCK_STATE: MockState = {
       buttons: {},
       battery: 75,
       charging: false,
+      touchPoints: [
+        { active: false, x: 0, y: 0 },
+        { active: false, x: 0, y: 0 },
+      ],
     },
   },
   i2c: {

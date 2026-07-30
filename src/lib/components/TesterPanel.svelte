@@ -5,13 +5,14 @@
   // live sliders / pickers so you can dial in a value and watch the controller
   // respond — the "tester für lichter / vibratoren / adaptive trigger" the
   // panel was missing.
-  import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass } from 'lucide-svelte';
+  import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass, Hand } from 'lucide-svelte';
   import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
   import MicLevelMeter from './MicLevelMeter.svelte';
   import SpeakerMicLoopback from './SpeakerMicLoopback.svelte';
   import ImuVisualizer from './ImuVisualizer.svelte';
+  import TouchpadGestureVisualizer from './TouchpadGestureVisualizer.svelte';
 
   let {
     manager,
@@ -19,7 +20,7 @@
     manager: ControllerManager | null;
   } = $props();
 
-  type Tab = 'lights' | 'vibration' | 'trigger' | 'speaker' | 'imu';
+  type Tab = 'lights' | 'vibration' | 'trigger' | 'speaker' | 'imu' | 'touch';
   let tab = $state<Tab>('lights');
 
   // ── Lights ────────────────────────────────────────────────────────────────
@@ -374,6 +375,7 @@
     { id: 'trigger', label: 'Trigger', icon: Gauge },
     { id: 'speaker', label: 'Audio', icon: Volume2 },
     { id: 'imu', label: 'IMU', icon: Compass },
+    { id: 'touch', label: 'Touchpad', icon: Hand },
   ];
 </script>
 
@@ -621,6 +623,14 @@
         Gyroskop (°/s) und Beschleunigung (g) zu sehen.
       </p>
       <ImuVisualizer />
+    </div>
+  {:else if tab === 'touch'}
+    <div class="flex flex-col gap-3">
+      <p class="text-xs text-gray-500">
+        Touchpad-Gesten des DualSense. Streiche oder tippe auf das Pad, um
+        Tipp / Wischen / Halten / Zwei-Finger zu erkennen.
+      </p>
+      <TouchpadGestureVisualizer />
     </div>
   {/if}
 </div>

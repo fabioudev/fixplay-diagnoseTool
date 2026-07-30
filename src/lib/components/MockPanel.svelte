@@ -201,6 +201,57 @@
   }
   function signed(v: string): number { const n = Number(v); return Number.isFinite(n) ? Math.max(-1, Math.min(1, n)) : 0; }
 
+  // --- touchpad gesture replay (#57): step the mock touch points through a
+  // down→move→up sequence so the gesture tracker fires real events in dev. ---
+  let replayTimer: ReturnType<typeof setInterval> | null = null;
+  function setTouch(i: number, patch: Partial<{ active: boolean; x: number; y: number }>): void {
+    mockState.update((s) => {
+      const tp = s.hid.input.touchPoints.map((p, idx) => (idx === i ? { ...p, ...patch } : p));
+      return { ...s, hid: { ...s.hid, input: { ...s.hid.input, touchPoints: tp } } };
+    });
+  }
+  function stopReplay(): void {
+    if (replayTimer) { clearInterval(replayTimer); replayTimer = null; }
+    setTouch(0, { active: false }); setTouch(1, { active: false });
+  }
+  /** Play a sequence of touch states (per finger) at a fixed cadence. */
+  function replay(steps: { active: boolean; x: number; y: number }[][], stepMs = 60): void {
+    stopReplay();
+    let i = 0;
+    const tick = (): void => {
+      if (i >= steps.length) { stopReplay(); return; }
+      const frame = steps[i++];
+      frame.forEach((f, fi) => setTouch(fi, f));
+    };
+    tick();
+    replayTimer = setInterval(tick, stepMs);
+  }
+  /** Build a swipe: down at (x0,y0), linear travel to (x1,y1), then lift. */
+  function swipeSteps(x0: number, y0: number, x1: number, y1: number, n = 8): { active: boolean; x: number; y: number }[][] {
+    const steps: { active: boolean; x: number; y: number }[][] = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      steps.push([{ active: true, x: Math.round(x0 + (x1 - x0) * t), y: Math.round(y0 + (y1 - y0) * t) }, { active: false, x: 0, y: 0 }]);
+    }
+    steps.push([{ active: false, x: 0, y: 0 }, { active: false, x: 0, y: 0 }]);
+    return steps;
+  }
+  function replayTap(): void { replay([[{ active: true, x: 960, y: 470 }, { active: false, x: 0, y: 0 }], [{ active: false, x: 0, y: 0 }, { active: false, x: 0, y: 0 }]], 80); }
+  function replaySwipeRight(): void { replay(swipeSteps(100, 470, 1800, 470)); }
+  function replaySwipeDown(): void { replay(swipeSteps(960, 100, 960, 880)); }
+  function replayHold(): void {
+    stopReplay();
+    setTouch(0, { active: true, x: 960, y: 470 });
+    setTimeout(() => setTouch(0, { active: false }), 700);
+  }
+  function replayTwoFinger(): void {
+    replay([
+      [{ active: true, x: 480, y: 470 }, { active: false, x: 0, y: 0 }],
+      [{ active: true, x: 480, y: 470 }, { active: true, x: 1440, y: 470 }],
+      [{ active: false, x: 0, y: 0 }, { active: false, x: 0, y: 0 }],
+    ], 120);
+  }
+
   // --- helpers ---
   function hex(n: number): string { return '0x' + n.toString(16); }
   function parseHex(v: string): number { return parseInt(v.replace(/^0x/i, ''), 16) || 0; }
@@ -540,6 +591,34 @@
                 >{name}</button>
               {/each}
             </div>
+          </div>
+
+          <!-- Touchpad gesture replay (#57) -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label class={lblCls}>Touchpad-Gesten</label>
+              {#if replayTimer}
+                <button onclick={stopReplay} class={btnCls}>Stop</button>
+              {/if}
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick={replayTap} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Tipp</button>
+              <button onclick={replaySwipeRight} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Wischen →</button>
+              <button onclick={replaySwipeDown} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Wischen ↓</button>
+              <button onclick={replayHold} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">Halten</button>
+              <button onclick={replayTwoFinger} class="px-2 py-1 text-xs rounded bg-amber-500/20 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30">2-Finger</button>
+            </div>
+            <p class="text-[11px] text-gray-600">Spielt eine Geste auf das Touchpad ein — der Gesten-Visualizer (Tester → Touchpad) erkennt sie live.</p>
+            {#each [0, 1] as fi (fi)}
+              <div class="flex items-center gap-2">
+                <label class="flex items-center gap-1.5 cursor-pointer select-none w-16">
+                  <input type="checkbox" checked={$mockState.hid.input.touchPoints[fi]?.active} onchange={(e) => setTouch(fi, { active: (e.target as HTMLInputElement).checked })} class="accent-amber-500 w-3.5 h-3.5" />
+                  <span class="text-[11px] text-gray-400">F{fi + 1}</span>
+                </label>
+                <input type="range" min="0" max="1919" value={$mockState.hid.input.touchPoints[fi]?.x ?? 0} oninput={(e) => setTouch(fi, { x: num((e.target as HTMLInputElement).value) })} class="flex-1 accent-teal-500" title="X" />
+                <input type="range" min="0" max="941" value={$mockState.hid.input.touchPoints[fi]?.y ?? 0} oninput={(e) => setTouch(fi, { y: num((e.target as HTMLInputElement).value) })} class="flex-1 accent-teal-500" title="Y" />
+              </div>
+            {/each}
           </div>
         </section>
       {/if}
