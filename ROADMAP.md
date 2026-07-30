@@ -122,3 +122,8 @@
 - [x] **#103** Unvalidated file paths in four Tauri commands (path traversal from frontend) — archive_delete_dump contained to archive root via canonicalize check
 - [x] **#104** CSP disabled entirely (`null`) — restrictive CSP set in tauri.conf.json
 - [x] **#105** No baud rate range validation — validate_baud_rate/clamp_baud_rate at all use sites
+
+## 🟦 Hardware Guides
+
+- [x] **#106** No in-app hardware reference for the CH341A / UART wiring — added a collapsible `HardwareGuide.svelte` at the top of the NOR-Flash and UART panels: CH341A 5V-vs-3.3V warning, 8-pin SPI NOR pinout (SOIC-8 SVG + table), ZIF-socket placement, jumpers (SPI/I2C mode, ACT# programmer jumper, voltage), 3.3V-fix summary, in-circuit warning; UART 3.3V-TTL warning, crossed TX/RX wiring SVG, EDM-010 24-pin service-header pads, 115200 baud, procedure + troubleshooting, Titania note. Pin/protocol tokens literal; prose localized DE+EN under `$LL.hwGuide`. Component test covers both variants.
+- [x] **#107** No standalone CH341A reference document — added `docs/CH341A_GUIDE.md` (board variants, 5V problem, multimeter pre-check, three 3.3V-fix variants, 8-/16-pin pinout, side headers + ACT# jumper, in-circuit risks, flashrom commands, drivers/udev, pre-read checklist, sources). Linked from README.
