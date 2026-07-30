@@ -3,6 +3,8 @@
 **Cross-platform desktop diagnostic tool for gaming console repair.**  
 Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. DualSense controller testing and calibration. Built with **Tauri v2** (Rust + Svelte 5).
 
+**UI languages:** ![Deutsch](https://img.shields.io/badge/UI-Deutsch-default-blue) ![English](https://img.shields.io/badge/UI-English-blue) — switchable live via the in-app language toggle; English is fully supported throughout the app.
+
 <p align="center">
   <img src="static/favicon.svg" alt="fixplay logo" width="128" />
 </p>
@@ -131,6 +133,8 @@ cargo clippy --workspace  # Rust lint
 ```
 
 ### Internationalization
+
+The app ships in **two languages**: **Deutsch** (German, the default) and **English** — both fully translated across the entire UI (panels, testers, visualizers, modals, dialogs, status bar, and the dev mock panel). The whole interface is localized, not just navigation chrome.
 
 Translations live in `src/lib/i18n/` — `de/index.ts` is the base locale (source of truth), `en/index.ts` mirrors it. The app reads strings through the `LL` Svelte store (`$LL.group.key()` in markup; `get(LL).group.key()` in script). The user's choice is persisted under the `fixplay-locale` localStorage key and applied without a reload, so live hardware state survives a language switch.
 
