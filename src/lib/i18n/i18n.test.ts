@@ -1,92 +1,69 @@
 // @vitest-environment jsdom
+// Smoke test for the typesafe-i18n setup: locale loading, persisted-locale
+// initialisation, reactive `LL` switching, and toggle persistence. Uses
+// `vi.resetModules()` + dynamic imports so the module-level `initialised` guard
+// and the svelte adapter stores are fresh for every test.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { locale, setLocale, toggleLocale, t, translate, LOCALE_STORAGE_KEY, DEFAULT_LOCALE } from './index';
-import { translations } from './translations';
+import { get } from 'svelte/store';
 
-beforeEach(() => {
-  localStorage.clear();
-  // Reset to the default locale between tests.
-  setLocale(DEFAULT_LOCALE);
-});
+describe('i18n (typesafe-i18n, #53)', () => {
+	beforeEach(() => {
+		localStorage.clear();
+		vi.resetModules();
+	});
 
-describe('i18n store (#53)', () => {
-  it('defaults to German', () => {
-    let l = DEFAULT_LOCALE;
-    const unsub = locale.subscribe((v) => (l = v));
-    unsub();
-    expect(l).toBe('de');
-  });
+	it('initialises with the base locale (de) when nothing is persisted', async () => {
+		const { initI18n, locale } = await import('./init');
+		const LL = (await import('./i18n-svelte')).default;
+		initI18n();
+		expect(get(locale)).toBe('de');
+		expect(get(LL).nav.home()).toBe('Start');
+		expect(get(LL).header.controller()).toBe('Controller-Diagnose');
+	});
 
-  it('setLocale switches the active locale and persists it', () => {
-    setLocale('en');
-    let l = 'de';
-    const unsub = locale.subscribe((v) => (l = v));
-    unsub();
-    expect(l).toBe('en');
-    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
-  });
+	it('honours a persisted locale', async () => {
+		localStorage.setItem('fixplay-locale', 'en');
+		const { initI18n, locale } = await import('./init');
+		const LL = (await import('./i18n-svelte')).default;
+		initI18n();
+		expect(get(locale)).toBe('en');
+		expect(get(LL).nav.home()).toBe('Home');
+		expect(get(LL).header.controller()).toBe('Controller Diagnostics');
+	});
 
-  it('toggleLocale flips de ↔ en', () => {
-    setLocale('de');
-    toggleLocale();
-    let l = 'de';
-    const unsub = locale.subscribe((v) => (l = v));
-    unsub();
-    expect(l).toBe('en');
-    toggleLocale();
-    const unsub2 = locale.subscribe((v) => (l = v));
-    unsub2();
-    expect(l).toBe('de');
-  });
+	it('setLocale updates the LL store reactively without a reload', async () => {
+		const { initI18n, setLocale } = await import('./init');
+		const LL = (await import('./i18n-svelte')).default;
+		initI18n();
+		expect(get(LL).nav.home()).toBe('Start');
+		setLocale('en');
+		expect(get(LL).nav.home()).toBe('Home');
+		setLocale('de');
+		expect(get(LL).nav.home()).toBe('Start');
+	});
 
-  it('reads the persisted locale on init', async () => {
-    localStorage.setItem(LOCALE_STORAGE_KEY, 'en');
-    vi.resetModules();
-    const mod = await import('./index');
-    let l = 'de';
-    const unsub = mod.locale.subscribe((v) => (l = v));
-    unsub();
-    expect(l).toBe('en');
-  });
-});
+	it('toggleLocale flips de <-> en and persists to localStorage', async () => {
+		const { initI18n, toggleLocale, locale } = await import('./init');
+		initI18n();
+		toggleLocale();
+		expect(get(locale)).toBe('en');
+		expect(localStorage.getItem('fixplay-locale')).toBe('en');
+		toggleLocale();
+		expect(get(locale)).toBe('de');
+		expect(localStorage.getItem('fixplay-locale')).toBe('de');
+	});
 
-describe('t / translate (#53)', () => {
-  it('translates a key in the active locale', () => {
-    setLocale('de');
-    expect(translate('nav.home')).toBe('Start');
-    setLocale('en');
-    expect(translate('nav.home')).toBe('Home');
-  });
+	it('falls back to the base locale for an invalid persisted value', async () => {
+		localStorage.setItem('fixplay-locale', 'fr');
+		const { initI18n, locale } = await import('./init');
+		initI18n();
+		expect(get(locale)).toBe('de');
+	});
 
-  it('interpolates {param} placeholders', () => {
-    setLocale('de');
-    expect(translate('nav.programmerCount', { count: 3 })).toBe('3 Programmer');
-    setLocale('en');
-    expect(translate('nav.programmerCount', { count: 3 })).toBe('3 programmers');
-  });
-
-  it('falls back to German when a key is missing in the active locale', () => {
-    // Remove a key from the en dict at runtime to simulate an incomplete locale.
-    const en = translations.en as Record<string, string>;
-    const saved = en['nav.archive'];
-    delete en['nav.archive'];
-    setLocale('en');
-    expect(translate('nav.archive')).toBe('Archiv'); // de fallback
-    en['nav.archive'] = saved; // restore
-  });
-
-  it('falls back to the key itself when missing from all locales', () => {
-    setLocale('de');
-    expect(translate('no.such.key' as never)).toBe('no.such.key');
-  });
-
-  it('reactive $t reflects locale changes', () => {
-    setLocale('de');
-    let rendered = '';
-    const unsub = t.subscribe((fn) => (rendered = fn('tester.lights')));
-    expect(rendered).toBe('Lichter');
-    setLocale('en');
-    expect(rendered).toBe('Lights');
-    unsub();
-  });
+	it('interpolates parameters', async () => {
+		const { initI18n } = await import('./init');
+		const LL = (await import('./i18n-svelte')).default;
+		initI18n();
+		expect(get(LL).nav.programmerCount({ count: 3 })).toBe('3 Programmer');
+	});
 });

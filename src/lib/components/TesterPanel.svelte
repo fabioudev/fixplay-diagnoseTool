@@ -7,7 +7,9 @@
   // panel was missing.
   import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass, Hand } from 'lucide-svelte';
   import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
-  import { t } from '$lib/i18n';
+  import LL from '$lib/i18n/i18n-svelte';
+  import type { TranslationFunctions } from '$lib/i18n/i18n-types';
+  import type { LocalizedString } from 'typesafe-i18n';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
   import MicLevelMeter from './MicLevelMeter.svelte';
@@ -371,14 +373,14 @@
     { name: 'R2', getMode: () => rMode, setMode: (m) => (rMode = m), getStart: () => rStart, setStart: (v) => (rStart = v), getEnd: () => rEnd, setEnd: (v) => (rEnd = v), getForce: () => rForce, setForce: (v) => (rForce = v), getFreq: () => rFreq, setFreq: (v) => (rFreq = v), getLevel: () => $triggerState.r2 },
   ];
 
-  type TabDef = { id: Tab; labelKey: string; icon: typeof Lightbulb };
+  type TabDef = { id: Tab; label: (ll: TranslationFunctions) => LocalizedString; icon: typeof Lightbulb };
   const TABS: TabDef[] = [
-    { id: 'lights', labelKey: 'tester.lights', icon: Lightbulb },
-    { id: 'vibration', labelKey: 'tester.vibration', icon: Vibrate },
-    { id: 'trigger', labelKey: 'tester.trigger', icon: Gauge },
-    { id: 'speaker', labelKey: 'tester.audio', icon: Volume2 },
-    { id: 'imu', labelKey: 'tester.imu', icon: Compass },
-    { id: 'touch', labelKey: 'tester.touchpad', icon: Hand },
+    { id: 'lights', label: (ll) => ll.tester.lights(), icon: Lightbulb },
+    { id: 'vibration', label: (ll) => ll.tester.vibration(), icon: Vibrate },
+    { id: 'trigger', label: (ll) => ll.tester.trigger(), icon: Gauge },
+    { id: 'speaker', label: (ll) => ll.tester.audio(), icon: Volume2 },
+    { id: 'imu', label: (ll) => ll.tester.imu(), icon: Compass },
+    { id: 'touch', label: (ll) => ll.tester.touchpad(), icon: Hand },
   ];
 </script>
 
@@ -390,7 +392,7 @@
         class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors
                {tab === tb.id ? 'bg-teal-500/15 text-teal-300 border border-teal-500/40' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 border border-transparent'}"
       >
-        <tb.icon class="h-3.5 w-3.5" /> {$t(tb.labelKey)}
+        <tb.icon class="h-3.5 w-3.5" /> {tb.label($LL)}
       </button>
     {/each}
   </div>

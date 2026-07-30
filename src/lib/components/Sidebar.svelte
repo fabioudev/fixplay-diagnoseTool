@@ -6,7 +6,9 @@
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
   import { recentViews, type RecentView } from '$lib/stores/recents';
-  import { t } from '$lib/i18n';
+  import LL from '$lib/i18n/i18n-svelte';
+  import type { TranslationFunctions } from '$lib/i18n/i18n-types';
+  import type { LocalizedString } from 'typesafe-i18n';
 
   type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
@@ -24,13 +26,16 @@
     onabout?: () => void;
   } = $props();
 
-  const items: { id: View; labelKey: string; icon: typeof Cpu; key: number }[] = [
-    { id: 'home',    labelKey: 'nav.home',    icon: Home,          key: 1 },
-    { id: 'flash',   labelKey: 'nav.flash',   icon: Cpu,           key: 2 },
-    { id: 'uart',    labelKey: 'nav.uart',    icon: Usb,           key: 3 },
-    { id: 'i2c',     labelKey: 'nav.i2c',     icon: CircuitBoard, key: 4 },
-    { id: 'controller', labelKey: 'nav.controller', icon: Gamepad2, key: 5 },
-    { id: 'archive', labelKey: 'nav.archive', icon: Archive,       key: 6 },
+  // Each item carries a typed accessor into the translation functions rather
+  // than a dotted string key — so the call site (`item.label($LL)`) is fully
+  // type-checked and renames/missing keys surface as compile errors.
+  const items: { id: View; label: (ll: TranslationFunctions) => LocalizedString; icon: typeof Cpu; key: number }[] = [
+    { id: 'home',    label: (ll) => ll.nav.home(),    icon: Home,          key: 1 },
+    { id: 'flash',   label: (ll) => ll.nav.flash(),   icon: Cpu,           key: 2 },
+    { id: 'uart',    label: (ll) => ll.nav.uart(),    icon: Usb,           key: 3 },
+    { id: 'i2c',     label: (ll) => ll.nav.i2c(),     icon: CircuitBoard, key: 4 },
+    { id: 'controller', label: (ll) => ll.nav.controller(), icon: Gamepad2, key: 5 },
+    { id: 'archive', label: (ll) => ll.nav.archive(), icon: Archive,       key: 6 },
   ];
 
   const programmerCount = $derived($flashProgrammers.length);
@@ -76,12 +81,12 @@
                  ? 'bg-blue-600/15 text-blue-300'
                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'}"
         aria-current={active === item.id ? 'page' : undefined}
-        aria-label={$t(item.labelKey)}
-        title={`${$t(item.labelKey)}  (Ctrl+${item.key})`}
+        aria-label={item.label($LL)}
+        title={`${item.label($LL)}  (Ctrl+${item.key})`}
       >
         <item.icon class="w-5 h-5 shrink-0" />
         {#if !collapsed}
-          <span class="truncate">{$t(item.labelKey)}</span>
+          <span class="truncate">{item.label($LL)}</span>
         {/if}
       </button>
     {/each}
@@ -89,7 +94,7 @@
     <!-- Recently used: auto-tracked quick-row, only when expanded and non-empty -->
     {#if !collapsed && recents.length > 0}
       <div class="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-600">
-        {$t('nav.recents')}
+        {$LL.nav.recents()}
       </div>
       {#each recents as item (item.id)}
         <button
@@ -99,10 +104,10 @@
                    ? 'bg-blue-600/15 text-blue-300'
                    : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/60'}"
           aria-current={active === item.id ? 'page' : undefined}
-          title={$t(item.labelKey)}
+          title={item.label($LL)}
         >
           <item.icon class="w-4 h-4 shrink-0" />
-          <span class="truncate">{$t(item.labelKey)}</span>
+          <span class="truncate">{item.label($LL)}</span>
         </button>
       {/each}
     {/if}
@@ -115,12 +120,12 @@
              {collapsed ? 'justify-center px-2 py-2' : 'gap-2 px-3 py-2'}
              {programmerCount > 0 ? 'text-green-400' : 'text-gray-500'}"
       title={programmerCount > 0
-        ? $t('nav.programmerCountTitle', { count: programmerCount })
-        : $t('nav.programmerNoneTitle')}
+        ? $LL.nav.programmerCountTitle({ count: programmerCount })
+        : $LL.nav.programmerNoneTitle()}
     >
       <span class="w-2 h-2 rounded-full shrink-0 {programmerCount > 0 ? 'bg-green-400' : 'bg-gray-600'}"></span>
       {#if !collapsed}
-        <span class="truncate">{programmerCount > 0 ? $t('nav.programmerCount', { count: programmerCount }) : $t('nav.programmerNone')}</span>
+        <span class="truncate">{programmerCount > 0 ? $LL.nav.programmerCount({ count: programmerCount }) : $LL.nav.programmerNone()}</span>
       {/if}
     </div>
     <button
@@ -129,12 +134,12 @@
              {collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-2.5 text-sm'}
              {tabletMode ? 'py-3.5' : ''}
              text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
-      aria-label={$t('nav.settings')}
-      title={collapsed ? $t('nav.settings') : undefined}
+      aria-label={$LL.nav.settings()}
+      title={collapsed ? $LL.nav.settings() : undefined}
     >
       <Settings class="w-5 h-5 shrink-0" />
       {#if !collapsed}
-        <span>{$t('nav.settings')}</span>
+        <span>{$LL.nav.settings()}</span>
       {/if}
     </button>
     {#if onabout}
@@ -144,12 +149,12 @@
                {collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-2.5 text-sm'}
                {tabletMode ? 'py-3.5' : ''}
                text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
-        aria-label={$t('nav.about')}
-        title={collapsed ? $t('nav.about') : undefined}
+        aria-label={$LL.nav.about()}
+        title={collapsed ? $LL.nav.about() : undefined}
       >
         <Info class="w-5 h-5 shrink-0" />
         {#if !collapsed}
-          <span>{$t('nav.about')}</span>
+          <span>{$LL.nav.about()}</span>
         {/if}
       </button>
     {/if}

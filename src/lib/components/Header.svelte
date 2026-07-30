@@ -3,7 +3,10 @@
 <script lang="ts">
   import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff, Sun, Moon, Languages } from 'lucide-svelte';
   import { theme, toggleTheme } from '$lib/stores/theme';
-  import { t, locale, toggleLocale } from '$lib/i18n';
+  import LL, { locale } from '$lib/i18n/i18n-svelte';
+  import { toggleLocale } from '$lib/i18n/init';
+  import type { TranslationFunctions } from '$lib/i18n/i18n-types';
+  import type { LocalizedString } from 'typesafe-i18n';
 
   let pinned = $state(false);
 
@@ -28,13 +31,13 @@
     onToggleSidebar: () => void;
   } = $props();
 
-  const titleKey: Record<View, string> = {
-    home:    'header.home',
-    flash:   'header.flash',
-    uart:    'header.uart',
-    i2c:     'header.i2c',
-    archive: 'header.archive',
-    controller: 'header.controller',
+  const titleKey: Record<View, (ll: TranslationFunctions) => LocalizedString> = {
+    home:        (ll) => ll.header.home(),
+    flash:       (ll) => ll.header.flash(),
+    uart:        (ll) => ll.header.uart(),
+    i2c:         (ll) => ll.header.i2c(),
+    archive:     (ll) => ll.header.archive(),
+    controller:  (ll) => ll.header.controller(),
   };
 </script>
 
@@ -44,8 +47,8 @@
   <button
     onclick={onToggleSidebar}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
-    aria-label={collapsed ? $t('header.sidebarExpand') : $t('header.sidebarCollapse')}
-    title={collapsed ? $t('header.sidebarExpand') : $t('header.sidebarCollapse')}
+    aria-label={collapsed ? $LL.header.sidebarExpand() : $LL.header.sidebarCollapse()}
+    title={collapsed ? $LL.header.sidebarExpand() : $LL.header.sidebarCollapse()}
   >
     {#if collapsed}
       <PanelLeftOpen class="w-5 h-5" />
@@ -55,7 +58,7 @@
   </button>
 
   <h1 class="text-sm font-semibold text-gray-100 truncate flex-1 min-w-0">
-    {$t(titleKey[view])}
+    {titleKey[view]($LL)}
   </h1>
 
   <button
@@ -65,13 +68,13 @@
              ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/40'
              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border border-transparent'}"
     title={$updateAvailable
-      ? $t('header.updateAvailable', { version: $updateAvailable.version })
-      : $t('header.checkUpdates')}
-    aria-label={$t('header.checkUpdates')}
+      ? $LL.header.updateAvailable({ version: $updateAvailable.version })
+      : $LL.header.checkUpdates()}
+    aria-label={$LL.header.checkUpdates()}
   >
     <RefreshCw class="w-4 h-4 {$updateBusy ? 'animate-spin' : ''}" />
     {#if $updateAvailable}
-      <span class="hidden sm:inline">Update</span>
+      <span class="hidden sm:inline">{$LL.header.updateBadge()}</span>
       <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400"></span>
     {/if}
   </button>
@@ -79,8 +82,8 @@
   <button
     onclick={togglePin}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
-    aria-label={pinned ? $t('header.pinOff') : $t('header.pinOn')}
-    title={pinned ? $t('header.pinTitleOn') : $t('header.pinTitleOff')}
+    aria-label={pinned ? $LL.header.pinOff() : $LL.header.pinOn()}
+    title={pinned ? $LL.header.pinTitleOn() : $LL.header.pinTitleOff()}
   >
     {#if pinned}
       <Pin class="w-4 h-4 text-teal-400" />
@@ -89,12 +92,12 @@
     {/if}
   </button>
 
-  <!-- Language toggle (#53) -->
+  <!-- Language toggle -->
   <button
     onclick={toggleLocale}
     class="flex items-center gap-1 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors shrink-0"
-    aria-label={$t('header.language')}
-    title={$t('header.language')}
+    aria-label={$LL.header.language()}
+    title={$LL.header.language()}
   >
     <Languages class="w-4 h-4" />
     <span class="uppercase">{$locale}</span>
@@ -103,8 +106,8 @@
   <button
     onclick={toggleTheme}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
-    aria-label={$theme === 'dark' ? $t('header.themeLight') : $t('header.themeDark')}
-    title={$theme === 'dark' ? $t('header.themeLight') : $t('header.themeDark')}
+    aria-label={$theme === 'dark' ? $LL.header.themeLight() : $LL.header.themeDark()}
+    title={$theme === 'dark' ? $LL.header.themeLight() : $LL.header.themeDark()}
   >
     {#if $theme === 'dark'}
       <Sun class="w-4 h-4" />
