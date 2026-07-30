@@ -7,6 +7,7 @@
   // panel was missing.
   import { Lightbulb, Vibrate, Gauge, Play, Square, RotateCcw, Volume2, Mic, Compass, Hand } from 'lucide-svelte';
   import { pushControllerLog, lightbarColor, triggerState, buttonState, micConnected, headphoneConnected } from '$lib/stores/controller';
+  import { t } from '$lib/i18n';
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
   import MicLevelMeter from './MicLevelMeter.svelte';
@@ -370,26 +371,26 @@
     { name: 'R2', getMode: () => rMode, setMode: (m) => (rMode = m), getStart: () => rStart, setStart: (v) => (rStart = v), getEnd: () => rEnd, setEnd: (v) => (rEnd = v), getForce: () => rForce, setForce: (v) => (rForce = v), getFreq: () => rFreq, setFreq: (v) => (rFreq = v), getLevel: () => $triggerState.r2 },
   ];
 
-  type TabDef = { id: Tab; label: string; icon: typeof Lightbulb };
+  type TabDef = { id: Tab; labelKey: string; icon: typeof Lightbulb };
   const TABS: TabDef[] = [
-    { id: 'lights', label: 'Lichter', icon: Lightbulb },
-    { id: 'vibration', label: 'Vibration', icon: Vibrate },
-    { id: 'trigger', label: 'Trigger', icon: Gauge },
-    { id: 'speaker', label: 'Audio', icon: Volume2 },
-    { id: 'imu', label: 'IMU', icon: Compass },
-    { id: 'touch', label: 'Touchpad', icon: Hand },
+    { id: 'lights', labelKey: 'tester.lights', icon: Lightbulb },
+    { id: 'vibration', labelKey: 'tester.vibration', icon: Vibrate },
+    { id: 'trigger', labelKey: 'tester.trigger', icon: Gauge },
+    { id: 'speaker', labelKey: 'tester.audio', icon: Volume2 },
+    { id: 'imu', labelKey: 'tester.imu', icon: Compass },
+    { id: 'touch', labelKey: 'tester.touchpad', icon: Hand },
   ];
 </script>
 
 <div class="rounded-xl bg-gray-800/40 p-4">
   <div class="mb-3 flex items-center gap-1.5">
-    {#each TABS as t (t.id)}
+    {#each TABS as tb (tb.id)}
       <button
-        onclick={() => (tab = t.id)}
+        onclick={() => (tab = tb.id)}
         class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors
-               {tab === t.id ? 'bg-teal-500/15 text-teal-300 border border-teal-500/40' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 border border-transparent'}"
+               {tab === tb.id ? 'bg-teal-500/15 text-teal-300 border border-teal-500/40' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 border border-transparent'}"
       >
-        <t.icon class="h-3.5 w-3.5" /> {t.label}
+        <tb.icon class="h-3.5 w-3.5" /> {$t(tb.labelKey)}
       </button>
     {/each}
   </div>

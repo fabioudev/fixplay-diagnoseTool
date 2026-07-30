@@ -1,8 +1,9 @@
 
 
 <script lang="ts">
-  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff, Sun, Moon } from 'lucide-svelte';
+  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff, Sun, Moon, Languages } from 'lucide-svelte';
   import { theme, toggleTheme } from '$lib/stores/theme';
+  import { t, locale, toggleLocale } from '$lib/i18n';
 
   let pinned = $state(false);
 
@@ -27,13 +28,13 @@
     onToggleSidebar: () => void;
   } = $props();
 
-  const titles: Record<View, string> = {
-    home:    'Start',
-    flash:   'NOR Flash Diagnose',
-    uart:    'UART Diagnostik',
-    i2c:     'I2C / Pico Diagnostik',
-    archive: 'NOR-Dump Archiv',
-    controller: 'Controller-Diagnose',
+  const titleKey: Record<View, string> = {
+    home:    'header.home',
+    flash:   'header.flash',
+    uart:    'header.uart',
+    i2c:     'header.i2c',
+    archive: 'header.archive',
+    controller: 'header.controller',
   };
 </script>
 
@@ -43,8 +44,8 @@
   <button
     onclick={onToggleSidebar}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
-    aria-label={collapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
-    title={collapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+    aria-label={collapsed ? $t('header.sidebarExpand') : $t('header.sidebarCollapse')}
+    title={collapsed ? $t('header.sidebarExpand') : $t('header.sidebarCollapse')}
   >
     {#if collapsed}
       <PanelLeftOpen class="w-5 h-5" />
@@ -54,7 +55,7 @@
   </button>
 
   <h1 class="text-sm font-semibold text-gray-100 truncate flex-1 min-w-0">
-    {titles[view]}
+    {$t(titleKey[view])}
   </h1>
 
   <button
@@ -64,9 +65,9 @@
              ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/40'
              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border border-transparent'}"
     title={$updateAvailable
-      ? `Update verfügbar: v${$updateAvailable.version}`
-      : 'Nach Updates suchen'}
-    aria-label="Nach Updates suchen"
+      ? $t('header.updateAvailable', { version: $updateAvailable.version })
+      : $t('header.checkUpdates')}
+    aria-label={$t('header.checkUpdates')}
   >
     <RefreshCw class="w-4 h-4 {$updateBusy ? 'animate-spin' : ''}" />
     {#if $updateAvailable}
@@ -78,8 +79,8 @@
   <button
     onclick={togglePin}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
-    aria-label={pinned ? 'Immer im Vordergrund deaktivieren' : 'Immer im Vordergrund'}
-    title={pinned ? 'Immer im Vordergrund: AN' : 'Immer im Vordergrund: AUS'}
+    aria-label={pinned ? $t('header.pinOff') : $t('header.pinOn')}
+    title={pinned ? $t('header.pinTitleOn') : $t('header.pinTitleOff')}
   >
     {#if pinned}
       <Pin class="w-4 h-4 text-teal-400" />
@@ -88,11 +89,22 @@
     {/if}
   </button>
 
+  <!-- Language toggle (#53) -->
+  <button
+    onclick={toggleLocale}
+    class="flex items-center gap-1 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors shrink-0"
+    aria-label={$t('header.language')}
+    title={$t('header.language')}
+  >
+    <Languages class="w-4 h-4" />
+    <span class="uppercase">{$locale}</span>
+  </button>
+
   <button
     onclick={toggleTheme}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
-    aria-label={$theme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'}
-    title={$theme === 'dark' ? 'Helles Design aktivieren' : 'Dunkles Design aktivieren'}
+    aria-label={$theme === 'dark' ? $t('header.themeLight') : $t('header.themeDark')}
+    title={$theme === 'dark' ? $t('header.themeLight') : $t('header.themeDark')}
   >
     {#if $theme === 'dark'}
       <Sun class="w-4 h-4" />

@@ -6,6 +6,7 @@
   import { flashProgrammers } from '$lib/stores/flash';
   import { appSettings } from '$lib/stores/settings';
   import { recentViews, type RecentView } from '$lib/stores/recents';
+  import { t } from '$lib/i18n';
 
   type View = 'home' | 'flash' | 'uart' | 'i2c' | 'archive' | 'controller';
 
@@ -23,13 +24,13 @@
     onabout?: () => void;
   } = $props();
 
-  const items: { id: View; label: string; icon: typeof Cpu; key: number }[] = [
-    { id: 'home',    label: 'Start',      icon: Home,          key: 1 },
-    { id: 'flash',   label: 'NOR Flash', icon: Cpu,           key: 2 },
-    { id: 'uart',    label: 'UART',      icon: Usb,           key: 3 },
-    { id: 'i2c',     label: 'I2C / Pico', icon: CircuitBoard, key: 4 },
-    { id: 'controller', label: 'Controller', icon: Gamepad2,  key: 5 },
-    { id: 'archive', label: 'Archiv',    icon: Archive,       key: 6 },
+  const items: { id: View; labelKey: string; icon: typeof Cpu; key: number }[] = [
+    { id: 'home',    labelKey: 'nav.home',    icon: Home,          key: 1 },
+    { id: 'flash',   labelKey: 'nav.flash',   icon: Cpu,           key: 2 },
+    { id: 'uart',    labelKey: 'nav.uart',    icon: Usb,           key: 3 },
+    { id: 'i2c',     labelKey: 'nav.i2c',     icon: CircuitBoard, key: 4 },
+    { id: 'controller', labelKey: 'nav.controller', icon: Gamepad2, key: 5 },
+    { id: 'archive', labelKey: 'nav.archive', icon: Archive,       key: 6 },
   ];
 
   const programmerCount = $derived($flashProgrammers.length);
@@ -75,12 +76,12 @@
                  ? 'bg-blue-600/15 text-blue-300'
                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'}"
         aria-current={active === item.id ? 'page' : undefined}
-        aria-label={item.label}
-        title={`${item.label}  (Ctrl+${item.key})`}
+        aria-label={$t(item.labelKey)}
+        title={`${$t(item.labelKey)}  (Ctrl+${item.key})`}
       >
         <item.icon class="w-5 h-5 shrink-0" />
         {#if !collapsed}
-          <span class="truncate">{item.label}</span>
+          <span class="truncate">{$t(item.labelKey)}</span>
         {/if}
       </button>
     {/each}
@@ -88,7 +89,7 @@
     <!-- Recently used: auto-tracked quick-row, only when expanded and non-empty -->
     {#if !collapsed && recents.length > 0}
       <div class="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-600">
-        Zuletzt genutzt
+        {$t('nav.recents')}
       </div>
       {#each recents as item (item.id)}
         <button
@@ -98,10 +99,10 @@
                    ? 'bg-blue-600/15 text-blue-300'
                    : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/60'}"
           aria-current={active === item.id ? 'page' : undefined}
-          title={item.label}
+          title={$t(item.labelKey)}
         >
           <item.icon class="w-4 h-4 shrink-0" />
-          <span class="truncate">{item.label}</span>
+          <span class="truncate">{$t(item.labelKey)}</span>
         </button>
       {/each}
     {/if}
@@ -114,12 +115,12 @@
              {collapsed ? 'justify-center px-2 py-2' : 'gap-2 px-3 py-2'}
              {programmerCount > 0 ? 'text-green-400' : 'text-gray-500'}"
       title={programmerCount > 0
-        ? `${programmerCount} Programmer erkannt`
-        : 'Kein Programmer erkannt'}
+        ? $t('nav.programmerCountTitle', { count: programmerCount })
+        : $t('nav.programmerNoneTitle')}
     >
       <span class="w-2 h-2 rounded-full shrink-0 {programmerCount > 0 ? 'bg-green-400' : 'bg-gray-600'}"></span>
       {#if !collapsed}
-        <span class="truncate">{programmerCount > 0 ? `${programmerCount} Programmer` : 'Kein Programmer'}</span>
+        <span class="truncate">{programmerCount > 0 ? $t('nav.programmerCount', { count: programmerCount }) : $t('nav.programmerNone')}</span>
       {/if}
     </div>
     <button
@@ -128,12 +129,12 @@
              {collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-2.5 text-sm'}
              {tabletMode ? 'py-3.5' : ''}
              text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
-      aria-label="Einstellungen"
-      title={collapsed ? 'Einstellungen' : undefined}
+      aria-label={$t('nav.settings')}
+      title={collapsed ? $t('nav.settings') : undefined}
     >
       <Settings class="w-5 h-5 shrink-0" />
       {#if !collapsed}
-        <span>Einstellungen</span>
+        <span>{$t('nav.settings')}</span>
       {/if}
     </button>
     {#if onabout}
@@ -143,12 +144,12 @@
                {collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-2.5 text-sm'}
                {tabletMode ? 'py-3.5' : ''}
                text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
-        aria-label="Über"
-        title={collapsed ? 'Über' : undefined}
+        aria-label={$t('nav.about')}
+        title={collapsed ? $t('nav.about') : undefined}
       >
         <Info class="w-5 h-5 shrink-0" />
         {#if !collapsed}
-          <span>Über</span>
+          <span>{$t('nav.about')}</span>
         {/if}
       </button>
     {/if}
