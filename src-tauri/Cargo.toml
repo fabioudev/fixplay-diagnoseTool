@@ -25,6 +25,10 @@ serde_json    = { workspace = true }
 tokio         = { workspace = true }
 tracing       = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+# File logging for release builds (rolling daily log file under the app's
+# local-data dir); only loaded in non-debug builds via the `file-logging` code.
+tracing-appender = "0.2"
+dirs             = "6"
 anyhow        = { workspace = true }
 serialport    = "4"
 hidapi        = "2"

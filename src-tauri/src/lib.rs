@@ -5,13 +5,79 @@ mod state;
 use state::AppState;
 use tauri::{Emitter, Manager};
 
-pub fn run() {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "info".into()),
-        )
+/// Initialize the tracing subscriber.
+///
+/// In debug builds this is a simple console (stderr) subscriber — fast feedback
+/// during development, no log files written. In release builds a second layer
+/// writes a rolling daily log file (`fixplay.log.YYYY-MM-DD`) under the app's
+/// local-data dir so users on Windows — where a GUI `.exe` has no attached
+/// terminal to read stderr — can still share the log for support. If the log
+/// directory can't be created the file layer is skipped and we fall back to
+/// console-only so a logging failure never prevents the app from starting.
+fn init_logging() {
+    let filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| "info".into());
+
+    #[cfg(debug_assertions)]
+    {
+        // Dev: console only.
+        tracing_subscriber::fmt().with_env_filter(filter).init();
+    }
+
+    #[cfg(not(debug_assertions))]
+    {
+        init_release_logging(filter);
+    }
+}
+
+/// Release-build logging: console + a rolling daily file under the app's
+/// local-data dir. See [`init_logging`] for the rationale.
+#[cfg(not(debug_assertions))]
+fn init_release_logging(filter: tracing_subscriber::EnvFilter) {
+    use tracing_subscriber::{fmt, prelude::*};
+
+    let console_layer = fmt::layer();
+
+    // Resolve the log dir: `<local-data>/fixplay-diagnoseTool/logs`. Use the
+    // platform local-data dir (e.g. %LOCALAPPDATA% on Windows, ~/.local/share
+    // on Linux, ~/Library/Application Support on macOS). Fall back to
+    // console-only if the dir can't be determined or created.
+    let Some(log_dir) = dirs::data_local_dir().map(|d| d.join("fixplay-diagnoseTool").join("logs"))
+    else {
+        tracing_subscriber::registry()
+            .with(filter)
+            .with(console_layer)
+            .init();
+        return;
+    };
+    if std::fs::create_dir_all(&log_dir).is_err() {
+        tracing_subscriber::registry()
+            .with(filter)
+            .with(console_layer)
+            .init();
+        return;
+    }
+
+    // Rolling daily appender: one file per day, auto-rotated. `with_ansi(false)`
+    // keeps colour codes out of the file. The appender is a synchronous writer
+    // (logs are written on the emitting thread) — fine for this app's volume and
+    // avoids the non-blocking guard lifetime entanglement.
+    let file_appender = tracing_appender::rolling::daily(&log_dir, "fixplay.log");
+    let file_layer = fmt::layer()
+        .with_ansi(false)
+        .with_writer(file_appender);
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(console_layer)
+        .with(file_layer)
         .init();
+
+    tracing::info!("file logging enabled → {}", log_dir.display());
+}
+
+pub fn run() {
+    init_logging();
 
     tauri::Builder::default()
         .manage(AppState::default())
