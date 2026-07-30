@@ -467,6 +467,44 @@ pub struct FlashPreviewResult {
     pub nvs:        Option<NvsData>,
 }
 
+/// Free / total disk space (bytes) for the volume that holds the dump archive.
+/// Surfaced in the Flash panel so the user sees up front when there isn't enough
+/// room for a NOR dump (each read is 2 MiB, written twice + archived).
+#[derive(Serialize, Clone)]
+pub struct DiskSpace {
+    pub free_bytes:  u64,
+    pub total_bytes: u64,
+}
+
+/// Walk up `path` to the nearest ancestor that already exists on disk, so a
+/// `statfs`/`statvfs` query succeeds even before the archive dir has been
+/// created (e.g. first run, or a custom archive base on a fresh mount).
+fn nearest_existing_ancestor(path: &std::path::Path) -> std::path::PathBuf {
+    let mut p = path;
+    loop {
+        if p.exists() {
+            return p.to_path_buf();
+        }
+        match p.parent() {
+            Some(parent) => p = parent,
+            None => return path.to_path_buf(),
+        }
+    }
+}
+
+#[tauri::command]
+pub fn flash_free_disk_space(app: AppHandle) -> Result<DiskSpace, String> {
+    let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let settings = crate::settings::load_settings_or_default(&app);
+    let archive_base = crate::settings::resolve_archive_base(&settings, &data_dir);
+    // Query the volume that actually holds the archive (which may differ from
+    // app-data when the user set a custom archive path in settings).
+    let probe = nearest_existing_ancestor(&archive_base);
+    let free = fs4::free_space(&probe).map_err(|e| e.to_string())?;
+    let total = fs4::total_space(&probe).map_err(|e| e.to_string())?;
+    Ok(DiskSpace { free_bytes: free, total_bytes: total })
+}
+
 #[tauri::command]
 pub fn flash_validate_file(path: String) -> Result<FlashPreviewResult, String> {
     let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;

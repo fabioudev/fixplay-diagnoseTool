@@ -198,6 +198,12 @@ export interface FlashPreviewResult {
   nvs:        NvsData | null;
 }
 
+/** Free / total disk space (bytes) for the volume holding the dump archive. */
+export interface DiskSpace {
+  free_bytes:  number;
+  total_bytes: number;
+}
+
 export interface AppSettings {
   flashrom_path:  string | null;
   archive_dir:    string | null;

@@ -32,3 +32,5 @@ dirs             = "6"
 anyhow        = { workspace = true }
 serialport    = "4"
 hidapi        = "2"
+# Cross-platform free/total disk-space query for the app-data volume (#43).
+fs4           = "0.12"

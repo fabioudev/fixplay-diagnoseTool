@@ -6,8 +6,8 @@
     flashBusy, flashProgress, flashResult, flashLog,
     flashProgrammer, flashProgrammers, flashWriteRequest, flashWritePreview, nextFlashLogId,
   } from '$lib/stores/flash';
-  import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
-  import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult, ChipId } from '$lib/api/types';
+  import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, flashFreeDiskSpace, openPath } from '$lib/api/tauri';
+  import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult, ChipId, DiskSpace } from '$lib/api/types';
   import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
 
   let programmers = $state<string[]>([]);
@@ -16,6 +16,23 @@
   let writeVerify = $state(true);
   let chipId      = $state<ChipId | null>(null);
   let chipIdBusy  = $state(false);
+  let diskSpace   = $state<DiskSpace | null>(null);
+
+  /** A NOR read writes 2 MiB twice plus the archived copy — warn well below that. */
+  const DISK_WARN_BYTES = 64 * 1024 * 1024; // 64 MiB
+
+  /** Human-readable binary byte size (MiB / GiB / TiB). */
+  function formatBytes(bytes: number): string {
+    const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+    let v = bytes;
+    let i = 0;
+    while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+    return `${v >= 100 || i === 0 ? Math.round(v) : v.toFixed(1)} ${units[i]}`;
+  }
+
+  async function refreshDiskSpace() {
+    diskSpace = await flashFreeDiskSpace().catch(() => null);
+  }
 
   // Per-phase ETA tracking. Progress resets to 0 at each phase (read1/read2/
   // write/verify), so we anchor on the first event of the current phase and
@@ -76,6 +93,9 @@
       ]);
     }
 
+    // Free-disk-space indicator for the archive volume (#43).
+    refreshDiskSpace();
+
     const [u1, u2, u3] = await Promise.all([
       listen<FlashProgressEvent>('flash://progress', (e) => {
         flashProgress.set(e.payload);
@@ -110,6 +130,8 @@
         flashBusy.set(false);
         flashProgress.set(null);
         etaLabel = ''; etaPhase = ''; etaStart = 0;
+        // A completed read archives a dump — refresh the free-space indicator.
+        refreshDiskSpace();
       }),
     ]);
     unlisten.push(u1, u2, u3);
@@ -202,6 +224,7 @@
     } finally {
       flashBusy.set(false);
       flashProgress.set(null);
+      refreshDiskSpace();
     }
   }
 
@@ -273,6 +296,19 @@
       </span>
     {/if}
   </div>
+
+  {#if diskSpace}
+    {@const low = diskSpace.free_bytes < DISK_WARN_BYTES}
+    <p
+      class="text-xs flex items-center gap-1.5 {low ? 'text-red-400' : 'text-gray-500'}"
+      title="Freier Speicher auf dem Volume, das das Dump-Archiv aufnimmt. Ein NOR-Lesevorgang schreibt 2 MiB zweimal plus die archivierte Kopie."
+    >
+      {#if low}⚠ {/if}
+      Speicher: <span class="font-mono">{formatBytes(diskSpace.free_bytes)}</span>
+      frei von <span class="font-mono">{formatBytes(diskSpace.total_bytes)}</span>
+      {#if low}— zu wenig für einen NOR-Dump!{/if}
+    </p>
+  {/if}
 
   <!-- Chip identification (from flash_read_id / JEDEC ID) -->
   {#if chipId}

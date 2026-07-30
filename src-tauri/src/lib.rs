@@ -266,6 +266,7 @@ pub fn run() {
             commands::flash::archive_list_dumps,
             commands::flash::archive_delete_dump,
             commands::flash::flash_validate_file,
+            commands::flash::flash_free_disk_space,
             commands::uart::uart_list_ports,
             commands::uart::uart_connect,
             commands::uart::uart_disconnect,

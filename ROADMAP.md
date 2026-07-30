@@ -50,7 +50,7 @@
 - [x] **#40** No progress indicator for background DB fetches — spinner shown during DB load/update
 - [x] **#41** No "flashrom version" display — binary status (found/missing + reason) in settings
 - [x] **#42** No estimated time remaining for flash operations — per-phase ETA extrapolated from observed progress rate (shown at ≥20% of each phase)
-- [ ] **#43** No disk space indicator
+- [x] **#43** No disk space indicator — `flash_free_disk_space` Tauri command (via `fs4`) reports free/total bytes for the volume holding the dump archive (walks up to the nearest existing ancestor so it works before the archive dir exists, and respects a custom archive path); shown in the Flash panel as "Speicher: X frei von Y", red warning when free < 64 MiB, refreshed on mount and after each read/write
 - [x] **#44** No "what's new" dialog after update — WhatsNewDialog on version change
 
 ## 🔵 Features

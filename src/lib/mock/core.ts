@@ -158,6 +158,10 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
   archive_delete_dump: (args) => {
     console.log(`[mock] archive_delete_dump(${args?.binPath}) — no-op in browser`);
   },
+  flash_free_disk_space: () => {
+    // Mock: 12 GiB free of a 256 GiB volume — plenty for NOR dumps.
+    return { free_bytes: 12 * 1024 * 1024 * 1024, total_bytes: 256 * 1024 * 1024 * 1024 };
+  },
 
   // --- uart ---
   uart_list_ports: () => {

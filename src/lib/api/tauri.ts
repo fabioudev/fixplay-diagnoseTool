@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { DeviceInfo, FlashReadResult, ChipId, FlashBinaryStatus, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings, UartPortInfo, UartPollResult, I2cPortInfo, I2cErrlogEntry, I2cInfo, I2cPollResult, I2cErrorSearchResult, UpdateChannel } from './types';
+import type { DeviceInfo, FlashReadResult, ChipId, FlashBinaryStatus, SerialArchive, ErrorSearchResult, FlashPreviewResult, DiskSpace, AppSettings, UartPortInfo, UartPollResult, I2cPortInfo, I2cErrlogEntry, I2cInfo, I2cPollResult, I2cErrorSearchResult, UpdateChannel } from './types';
 
 export const uartListPorts = (): Promise<UartPortInfo[]> => invoke<UartPortInfo[]>('uart_list_ports');
 export const uartConnect     = (port: string): Promise<void> => invoke<void>('uart_connect', { port });
@@ -33,6 +33,9 @@ export const saveTextFile = (path: string, content: string) =>
   invoke<void>('save_text_file', { path, content });
 export const flashValidateFile = (path: string) =>
   invoke<FlashPreviewResult>('flash_validate_file', { path });
+
+export const flashFreeDiskSpace = (): Promise<DiskSpace> =>
+  invoke<DiskSpace>('flash_free_disk_space');
 
 export const archiveListDumps  = () =>
   invoke<SerialArchive[]>('archive_list_dumps');
