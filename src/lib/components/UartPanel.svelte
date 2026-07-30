@@ -7,6 +7,7 @@
     uartDisconnect,
     uartSendErrlog,
     uartSendVersion,
+    uartSendRaw,
     uartClearErrlog,
     uartSetAutoPoll,
     uartSetAutoReconnect,
@@ -29,6 +30,22 @@
   let searchResults   = $state<ErrorSearchResult[]>([]);
   let loopbackPending = $state(false);
   let autoReconnect   = $state(false);
+
+  // Raw terminal mode (#45): free-form line send with a chosen line ending.
+  let rawInput      = $state('');
+  let rawLineEnding = $state<'none' | 'cr' | 'lf' | 'crlf'>('crlf');
+
+  async function sendRaw() {
+    const line = rawInput;
+    if (!line || !$uartConnected) return;
+    pushLog(`[→ ${line}]`, 'status');
+    try {
+      await uartSendRaw(line, rawLineEnding);
+    } catch (e) {
+      pushLog(`Senden fehlgeschlagen: ${String(e)}`, 'error');
+    }
+    rawInput = '';
+  }
 
   const filteredLog = $derived(
     dbQuery.trim()
@@ -513,6 +530,39 @@
       </button>
     </div>
   </div>
+
+  <!-- Raw terminal (#45): send an arbitrary line with a chosen line ending -->
+  {#if $uartConnected}
+    <div class="flex items-center gap-2">
+      <input
+        type="text"
+        placeholder="Roheingabe — beliebige Zeile an die Konsole senden…"
+        bind:value={rawInput}
+        onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendRaw(); } }}
+        title="Raw-Terminal: sendet genau diese Zeile (ohne PS5-Prüfsummen-Rahmen) an das UART-Gerät. Enter sendet, Shift+Enter für Mehrzeiliges. Nützlich für non-PS5-Geräte oder zum Testen unbekannter Befehle."
+        class="flex-1 bg-gray-800 text-gray-100 text-xs font-mono rounded px-2 py-1.5 border border-gray-700
+               placeholder:text-gray-600 focus:outline-none focus:border-gray-500"
+      />
+      <select
+        bind:value={rawLineEnding}
+        title="Zeilenende, das an die Eingabe angehängt wird"
+        class="bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5 border border-gray-700 focus:outline-none focus:border-gray-500"
+      >
+        <option value="crlf">CR+LF</option>
+        <option value="lf">LF</option>
+        <option value="cr">CR</option>
+        <option value="none">kein</option>
+      </select>
+      <button
+        onclick={sendRaw}
+        disabled={!rawInput}
+        title="Zeile senden (Enter)"
+        class="px-3 py-1.5 text-sm rounded bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-40"
+      >
+        Senden
+      </button>
+    </div>
+  {/if}
 
   <!-- Status indicator -->
   <div class="flex items-center gap-2">

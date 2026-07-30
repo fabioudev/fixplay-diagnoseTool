@@ -272,6 +272,7 @@ pub fn run() {
             commands::uart::uart_disconnect,
             commands::uart::uart_send_errlog,
             commands::uart::uart_send_version,
+            commands::uart::uart_send_raw,
             commands::uart::uart_clear_errlog,
             commands::uart::uart_set_auto_poll,
             commands::uart::uart_set_auto_reconnect,

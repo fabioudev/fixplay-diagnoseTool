@@ -179,6 +179,15 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
   uart_send_version: async () => {
     await delay(120);
   },
+  uart_send_raw: async (args) => {
+    // Mock raw terminal: echo the sent line back as a received line so the
+    // terminal shows the round-trip in dev mode (real devices mirror input).
+    await delay(60);
+    const line = String(args?.line ?? '');
+    if (line) {
+      emitLocal('uart://status', { message: `↩ ${line}`, level: 'info' });
+    }
+  },
   uart_clear_errlog: () => {},
   uart_set_auto_poll: () => {},
   uart_set_auto_reconnect: () => {},

@@ -281,6 +281,41 @@ pub async fn uart_send_version(state: State<'_, AppState>) -> Result<(), String>
     send_tracked(&state, &cmd)
 }
 
+/// Send an arbitrary line to the UART — the "raw terminal" mode (#45). Unlike
+/// the structured errlog/version commands this writes exactly what the user
+/// typed, with a chosen line ending (`none` / `cr` / `lf` / `crlf`), so it can
+/// talk to non-PS5 devices or probe undocumented commands. The content (without
+/// terminator) is tracked in `recent_sent` so the PS5's echo is dropped from the
+/// log — the frontend shows a local "→" marker instead, keeping the terminal
+/// output clean (one sent marker + the response, no duplicate echo).
+#[tauri::command]
+pub async fn uart_send_raw(line: String, line_ending: String, state: State<'_, AppState>) -> Result<(), String> {
+    let ending = match line_ending.as_str() {
+        "cr"   => "\r",
+        "lf"   => "\n",
+        "crlf" => "\r\n",
+        _      => "",
+    };
+    let payload = format!("{line}{ending}");
+    {
+        let guard = state.uart.lock().unwrap();
+        guard
+            .as_ref()
+            .ok_or("Nicht verbunden — zuerst \"Verbinden\" klicken")?
+            .write_line(&payload)
+            .map_err(|e| format!("Senden fehlgeschlagen: {}", e))?;
+    }
+    // Track the content (no terminator) so the mirrored echo is dropped. The
+    // reader splits on `\n` and strips a trailing `\r`, so the echoed line it
+    // reconstructs equals `line` exactly.
+    let mut sent = state.recent_sent.lock().unwrap();
+    if sent.len() >= 20 {
+        sent.pop_front();
+    }
+    sent.push_back(line);
+    Ok(())
+}
+
 /// Clear the PS5's stored error log history.
 #[tauri::command]
 pub async fn uart_clear_errlog(state: State<'_, AppState>) -> Result<(), String> {

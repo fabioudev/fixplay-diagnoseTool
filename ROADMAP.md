@@ -55,7 +55,7 @@
 
 ## 🔵 Features
 
-- [ ] **#45** No UART raw terminal mode
+- [x] **#45** No UART raw terminal mode — `uart_send_raw` command writes an arbitrary line with a chosen line ending (none/CR/LF/CRLF, no PS5 checksum framing) so it can talk to non-PS5 devices or probe undocumented commands; the sent content is tracked so the PS5 echo is dropped (frontend shows a local "→" marker). UartPanel shows a raw input row + line-ending selector (Enter to send) while connected; mock handler echoes the round-trip in dev mode
 - [x] **#46** No stick drift visualization — DriftSparkline rolling history (80-sample magnitude sparkline with green/amber/red threshold bands) under each stick, complementing the instantaneous drift %
 - [x] **#47** No test report generation — QuickTestModal "Report" button builds a timestamped .txt (controller identity, per-test OK/FEHLER, pass/fail/skipped totals + overall verdict) via saveDialog + saveTextFile
 - [ ] **#48** No calibration before/after comparison
