@@ -58,7 +58,7 @@
 - [x] **#45** No UART raw terminal mode — `uart_send_raw` command writes an arbitrary line with a chosen line ending (none/CR/LF/CRLF, no PS5 checksum framing) so it can talk to non-PS5 devices or probe undocumented commands; the sent content is tracked so the PS5 echo is dropped (frontend shows a local "→" marker). UartPanel shows a raw input row + line-ending selector (Enter to send) while connected; mock handler echoes the round-trip in dev mode
 - [x] **#46** No stick drift visualization — DriftSparkline rolling history (80-sample magnitude sparkline with green/amber/red threshold bands) under each stick, complementing the instantaneous drift %
 - [x] **#47** No test report generation — QuickTestModal "Report" button builds a timestamped .txt (controller identity, per-test OK/FEHLER, pass/fail/skipped totals + overall verdict) via saveDialog + saveTextFile
-- [ ] **#48** No calibration before/after comparison
+- [x] **#48** No calibration before/after comparison — CalibrationModal snapshots the 12 in-memory finetune u16 values before calibration starts and reads them again after a successful center/range calibration, then renders a 12-cell "Vorher → Nachher" grid highlighting changed values (with per-value Δ, green for +/red for −) and a "X von 12 Werten geändert" summary; 2 component tests (diff renders + no table when the finetune read fails)
 - [x] **#49** No "undo" or "restore defaults" for controller operations — "Verwerfen" button restores the in-memory finetune snapshot (taken on connect + after each successful flash) via writeFinetuneData, discarding calibration changes without touching persisted NVS
 - [ ] **#50** No speaker-to-mic loopback test
 - [x] **#51** No I2C mock tab in MockPanel — added I2C tab (ports, db, scan, errlog, info)

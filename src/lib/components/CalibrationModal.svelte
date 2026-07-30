@@ -16,7 +16,7 @@
     initialMode = 'center' as 'center' | 'range',
   }: {
     open: boolean;
-    manager: { calibrateSticksBegin: () => Promise<void>; calibrateSticksSample: () => Promise<void>; calibrateSticksEnd: () => Promise<void>; calibrateRangeBegin: () => Promise<void>; calibrateRangeEnd: () => Promise<void>; } | null;
+    manager: { calibrateSticksBegin: () => Promise<void>; calibrateSticksSample: () => Promise<void>; calibrateSticksEnd: () => Promise<void>; calibrateRangeBegin: () => Promise<void>; calibrateRangeEnd: () => Promise<void>; getInMemoryModuleData: () => Promise<number[] | null>; } | null;
     onDone?: (success: boolean, message: string) => void;
     initialMode?: 'center' | 'range';
   } = $props();
@@ -29,6 +29,19 @@
   let error = $state<string | null>(null);
   let success = $state(false);
   let statusText = $state('');
+
+  // Before/after comparison (#48): snapshot the in-memory finetune module data
+  // (12 little-endian u16 values) before calibration starts, then read it again
+  // after a successful calibration to show the per-value delta.
+  let beforeData = $state<number[] | null>(null);
+  let afterData  = $state<number[] | null>(null);
+  /** Per-index {before, after, delta} for the 12 finetune values; null until
+   *  both snapshots exist and have equal length. */
+  const calibDiff = $derived(
+    beforeData && afterData && beforeData.length === afterData.length
+      ? beforeData.map((b, i) => ({ before: b, after: afterData![i], delta: afterData![i] - b }))
+      : null
+  );
 
   // ── Range calibration: live sampling of stick motion ──
   // For each stick we keep 48 angular bins (CIRCULARITY_DATA_SIZE) and record
@@ -66,6 +79,8 @@
     error = null;
     success = false;
     statusText = '';
+    beforeData = null;
+    afterData = null;
     resetRangeSampling();
   }
 
@@ -101,6 +116,7 @@
       success = true;
       statusText = 'Stick-Mittelkalibrierung abgeschlossen!';
       pushControllerLog('Stick center calibration completed', 'info');
+      if (manager) { afterData = await manager.getInMemoryModuleData().catch(() => null); }
       onDone?.(true, 'Stick-Mittelkalibrierung abgeschlossen');
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
@@ -158,6 +174,7 @@
       const rightErr = calculateCircularityError(rangeRight);
       statusText = `Range-Kalibrierung abgeschlossen! (Kreisförmigkeit L: ${leftErr.toFixed(1)}%, R: ${rightErr.toFixed(1)}%)`;
       pushControllerLog('Range calibration completed', 'info');
+      if (manager) { afterData = await manager.getInMemoryModuleData().catch(() => null); }
       onDone?.(true, 'Range-Kalibrierung abgeschlossen');
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
@@ -171,6 +188,8 @@
 
   async function start() {
     reset();
+    // Snapshot the finetune data before calibration so we can show the delta.
+    if (manager) { beforeData = await manager.getInMemoryModuleData().catch(() => null); }
     if (mode === 'center') {
       totalSteps = 6;
       await runCenterCalibration();
@@ -259,6 +278,36 @@
       {#if success}
         <div class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-300">
           ✓ {statusText}
+        </div>
+      {/if}
+
+      <!-- Before/after finetune comparison (#48) -->
+      {#if calibDiff}
+        {@const changed = calibDiff.filter((d) => d.delta !== 0).length}
+        <div class="mb-4 rounded-lg border border-slate-200 p-3 dark:border-slate-600">
+          <div class="mb-2 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Vorher → Nachher</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{changed} von 12 Werten geändert</span>
+          </div>
+          <div class="grid grid-cols-12 gap-1 text-center text-[10px] font-mono">
+            {#each calibDiff as d, i}
+              <div
+                class="rounded px-0.5 py-1 {d.delta === 0
+                  ? 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+                  : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200'}"
+                title={`Wert ${i + 1}\nvorher: ${d.before}\nnachher: ${d.after}\nΔ: ${d.delta > 0 ? '+' : ''}${d.delta}`}
+              >
+                <div class="text-slate-400 dark:text-slate-500">{i + 1}</div>
+                <div>{d.after}</div>
+                <div class="text-[9px] {d.delta > 0 ? 'text-green-600 dark:text-green-400' : d.delta < 0 ? 'text-red-600 dark:text-red-400' : ''}">
+                  {d.delta > 0 ? '+' : ''}{d.delta}
+                </div>
+              </div>
+            {/each}
+          </div>
+          <p class="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+            12 rohe Finetune-Module-Werte (u16) — blau markierte wurden durch die Kalibrierung verändert.
+          </p>
         </div>
       {/if}
 
