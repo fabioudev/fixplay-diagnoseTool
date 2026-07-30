@@ -60,7 +60,7 @@
 - [x] **#47** No test report generation — QuickTestModal "Report" button builds a timestamped .txt (controller identity, per-test OK/FEHLER, pass/fail/skipped totals + overall verdict) via saveDialog + saveTextFile
 - [x] **#48** No calibration before/after comparison — CalibrationModal snapshots the 12 in-memory finetune u16 values before calibration starts and reads them again after a successful center/range calibration, then renders a 12-cell "Vorher → Nachher" grid highlighting changed values (with per-value Δ, green for +/red for −) and a "X von 12 Werten geändert" summary; 2 component tests (diff renders + no table when the finetune read fails)
 - [x] **#49** No "undo" or "restore defaults" for controller operations — "Verwerfen" button restores the in-memory finetune snapshot (taken on connect + after each successful flash) via writeFinetuneData, discarding calibration changes without touching persisted NVS
-- [ ] **#50** No speaker-to-mic loopback test
+- [x] **#50** No speaker-to-mic loopback test — `SpeakerMicLoopback.svelte` plays a DualSense speaker tone while capturing the DualSense USB mic (raw stream, no echo-cancellation/noise-suppression), compares the mic peak during the tone against a 500 ms silent baseline, and reports OK/FEHLER (absolute floor ≥25% AND rise >15% over baseline so ambient noise alone can't pass it); wired into TesterPanel's audio section with baseline/peak readout
 - [x] **#51** No I2C mock tab in MockPanel — added I2C tab (ports, db, scan, errlog, info)
 - [ ] **#52** No dark/light theme support
 - [ ] **#53** No i18n infrastructure; all strings hardcoded in German

@@ -15,17 +15,17 @@ beforeEach(() => {
   // $effect logs a harmless "Not implemented: getContext" warning. Stub a
   // minimal 2D context (with the methods StickVisualizer actually calls) so
   // the test output stays clean.
-  HTMLCanvasElement.prototype.getContext = function () {
-    return {
-      setTransform() {}, clearRect() {}, save() {}, restore() {},
-      translate() {}, scale() {}, rotate() {},
-      beginPath() {}, arc() {}, ellipse() {}, moveTo() {}, lineTo() {},
-      closePath() {}, stroke() {}, fill() {}, fillRect() {}, strokeRect() {},
-      fillText() {}, strokeText() {}, measureText: () => ({ width: 0 }),
-      createLinearGradient: () => ({ addColorStop() {} }),
-      fillStyle: '', strokeStyle: '', lineWidth: 1, font: '', textAlign: '',
-    } as unknown as CanvasRenderingContext2D;
-  };
+  const stubCtx = {
+    setTransform() {}, clearRect() {}, save() {}, restore() {},
+    translate() {}, scale() {}, rotate() {},
+    beginPath() {}, arc() {}, ellipse() {}, moveTo() {}, lineTo() {},
+    closePath() {}, stroke() {}, fill() {}, fillRect() {}, strokeRect() {},
+    fillText() {}, strokeText() {}, measureText: () => ({ width: 0 }),
+    createLinearGradient: () => ({ addColorStop() {} }),
+    fillStyle: '', strokeStyle: '', lineWidth: 1, font: '', textAlign: '',
+  } as unknown as CanvasRenderingContext2D;
+  HTMLCanvasElement.prototype.getContext = (() => stubCtx) as unknown as
+    typeof HTMLCanvasElement.prototype.getContext;
 });
 
 function makeManager(before: number[], after: number[]) {

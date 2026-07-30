@@ -10,6 +10,7 @@
   import type { AdaptiveTriggerConfig } from '$lib/controllers/base-controller';
   import type { ControllerManager } from '$lib/controllers/controller-manager';
   import MicLevelMeter from './MicLevelMeter.svelte';
+  import SpeakerMicLoopback from './SpeakerMicLoopback.svelte';
 
   let {
     manager,
@@ -603,6 +604,12 @@
             <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-1.5 text-xs text-red-400 hover:bg-red-600/30" onclick={stopSpeaker}><Square class="h-3.5 w-3.5" /> Stop</button>
           {/if}
         </div>
+      </div>
+
+      <!-- Speaker→Mic loopback test (#50) -->
+      <div class="border-t border-gray-700 pt-2">
+        <div class="text-xs text-gray-400 mb-1.5">Speaker→Mic Loopback</div>
+        <SpeakerMicLoopback {manager} />
       </div>
     </div>
   {/if}
