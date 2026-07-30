@@ -13,6 +13,7 @@
   import { get } from 'svelte/store';
   import type { TranslationFunctions } from '$lib/i18n/i18n-types';
   import type { LocalizedString } from 'typesafe-i18n';
+  import HardwareGuide from './HardwareGuide.svelte';
 
   let programmers = $state<string[]>([]);
   let phaseLabel  = $state('');
@@ -245,6 +246,8 @@
       {$LL.flash.intro()}
     </p>
   </div>
+
+  <HardwareGuide variant="ch341a" />
 
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-2">

@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import LL from '$lib/i18n/i18n-svelte';
+  import HardwareGuide from './HardwareGuide.svelte';
   import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from '$lib/stores/uart';
   import {
     uartListPorts,
@@ -359,6 +360,8 @@
       {$LL.uart.intro()}
     </p>
   </div>
+
+  <HardwareGuide variant="uart" />
 
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-2">

@@ -2275,6 +2275,96 @@ type RootTranslation = {
 		 */
 		close: string
 	}
+	hwGuide: {
+		ch341a: {
+			/**
+			 * C​H​3​4​1​A​ ​—​ ​P​r​o​g​r​a​m​m​e​r​-​G​u​i​d​e
+			 */
+			title: string
+			/**
+			 * 5​V​-​W​a​r​n​u​n​g
+			 */
+			danger: string
+			/**
+			 * D​a​s​ ​k​l​a​s​s​i​s​c​h​e​ ​s​c​h​w​a​r​z​e​ ​B​o​a​r​d​ ​t​r​e​i​b​t​ ​d​i​e​ ​S​P​I​-​L​e​i​t​u​n​g​e​n​ ​(​C​S​/​M​I​S​O​/​M​O​S​I​/​C​L​K​)​ ​m​i​t​ ​~​5​ ​V​,​ ​o​b​w​o​h​l​ ​d​e​r​ ​S​o​c​k​e​l​ ​3​,​3​ ​V​ ​l​i​e​f​e​r​t​.​ ​3​,​3​-​V​-​N​O​R​ ​(​z​.​B​.​ ​P​S​5​-​N​O​R​)​ ​k​a​n​n​ ​d​a​d​u​r​c​h​ ​z​e​r​s​t​ö​r​t​ ​w​e​r​d​e​n​.​ ​V​o​r​ ​G​e​b​r​a​u​c​h​ ​m​i​t​ ​M​u​l​t​i​m​e​t​e​r​ ​p​r​ü​f​e​n​ ​o​d​e​r​ ​3​,​3​-​V​-​F​i​x​ ​a​n​w​e​n​d​e​n​.
+			 */
+			dangerText: string
+			/**
+			 * 8​-​P​i​n​ ​S​P​I​-​N​O​R​ ​P​i​n​o​u​t​ ​(​2​5​-​S​e​r​i​e​s​)
+			 */
+			pinout8: string
+			/**
+			 * P​i​n​ ​1​ ​=​ ​P​u​n​k​t​/​K​e​r​b​e​.​ ​I​m​ ​1​6​-​P​i​n​-​Z​I​F​-​S​o​c​k​e​l​ ​u​n​t​e​n​ ​a​u​f​ ​P​i​n​s​ ​1​–​8​ ​l​e​g​e​n​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e​.​ ​V​o​r​ ​d​e​m​ ​S​c​h​l​i​e​ß​e​n​ ​d​e​s​ ​H​e​b​e​l​ ​L​a​g​e​ ​p​r​ü​f​e​n​.
+			 */
+			socketNote: string
+			/**
+			 * J​u​m​p​e​r​ ​&​ ​H​e​a​d​e​r
+			 */
+			jumpers: string
+			/**
+			 * S​P​I​/​I​2​C​-​M​o​d​e​-​J​u​m​p​e​r​ ​(​g​e​l​b​)​ ​a​u​f​ ​S​P​I
+			 */
+			jumperMode: string
+			/**
+			 * A​C​T​#​-​J​u​m​p​e​r​ ​(​U​A​R​T​-​H​e​a​d​e​r​ ​P​1​↔​P​2​)​ ​m​u​s​s​ ​g​e​s​e​t​z​t​ ​s​e​i​n​ ​—​ ​s​o​n​s​t​ ​m​e​l​d​e​t​ ​s​i​c​h​ ​d​e​r​ ​C​H​3​4​1​A​ ​n​u​r​ ​a​l​s​ ​U​S​B​-​S​e​r​i​e​l​l​-​W​a​n​d​l​e​r​ ​u​n​d​ ​f​l​a​s​h​r​o​m​ ​f​i​n​d​e​t​ ​n​i​c​h​t​s​.
+			 */
+			jumperAct: string
+			/**
+			 * S​p​a​n​n​u​n​g​s​-​J​u​m​p​e​r​ ​(​n​u​r​ ​b​l​u​e​ ​b​o​a​r​d​)​ ​a​u​f​ ​3​,​3​ ​V
+			 */
+			jumperVolt: string
+			/**
+			 * 3​,​3​-​V​-​F​i​x​ ​(​s​c​h​w​a​r​z​e​s​ ​B​o​a​r​d​)
+			 */
+			fix: string
+			/**
+			 * P​i​n​ ​2​8​ ​(​V​C​C​)​ ​d​e​s​ ​C​H​3​4​1​A​ ​v​o​m​ ​5​V​-​R​a​i​l​ ​t​r​e​n​n​e​n​ ​u​n​d​ ​a​n​ ​d​e​n​ ​3​,​3​V​-​R​e​g​l​e​r​ ​(​A​M​S​1​1​1​7​-​A​u​s​g​a​n​g​ ​/​ ​C​4​)​ ​f​ü​h​r​e​n​;​ ​P​i​n​ ​9​ ​(​V​3​)​ ​e​b​e​n​s​o​.​ ​A​l​t​e​r​n​a​t​i​v​ ​d​i​e​ ​5​V​-​L​e​i​t​e​r​b​a​h​n​ ​a​u​f​ ​d​e​r​ ​P​l​a​t​i​n​e​n​u​n​t​e​r​s​e​i​t​e​ ​d​u​r​c​h​t​r​e​n​n​e​n​.​ ​D​a​n​a​c​h​ ​a​l​l​e​ ​L​e​i​t​u​n​g​e​n​ ​3​,​3​ ​V​ ​—​ ​m​i​t​ ​M​u​l​t​i​m​e​t​e​r​ ​g​e​g​e​n​ ​G​N​D​ ​b​e​s​t​ä​t​i​g​e​n​.
+			 */
+			fixText: string
+			/**
+			 * I​n​-​C​i​r​c​u​i​t​:​ ​T​a​r​g​e​t​ ​k​o​m​p​l​e​t​t​ ​s​t​r​o​m​l​o​s​,​ ​g​g​f​.​ ​F​l​a​s​h​-​P​i​n​/​L​e​i​t​u​n​g​ ​i​s​o​l​i​e​r​e​n​ ​—​ ​s​o​n​s​t​ ​k​a​n​n​ ​d​e​r​ ​Z​i​e​l​-​M​C​U​ ​d​i​e​ ​D​a​t​e​n​l​e​i​t​u​n​g​e​n​ ​t​r​e​i​b​e​n​ ​→​ ​k​o​r​r​u​p​t​e​r​ ​D​u​m​p​.
+			 */
+			incircuit: string
+			/**
+			 * V​o​l​l​s​t​ä​n​d​i​g​e​r​ ​G​u​i​d​e​ ​i​m​ ​R​e​p​o
+			 */
+			fullGuide: string
+		}
+		uart: {
+			/**
+			 * U​A​R​T​ ​—​ ​P​S​5​-​D​i​a​g​n​o​s​e​-​G​u​i​d​e
+			 */
+			title: string
+			/**
+			 * 3​,​3​V​ ​T​T​L​ ​—​ ​n​i​e​m​a​l​s​ ​5​V
+			 */
+			danger: string
+			/**
+			 * P​S​5​-​U​A​R​T​ ​a​r​b​e​i​t​e​t​ ​m​i​t​ ​3​,​3​V​-​P​e​g​e​l​n​.​ ​E​i​n​ ​5​V​-​A​d​a​p​t​e​r​ ​k​a​n​n​ ​S​o​u​t​h​b​r​i​d​g​e​/​K​o​n​s​o​l​e​ ​b​e​s​c​h​ä​d​i​g​e​n​.​ ​A​d​a​p​t​e​r​ ​a​u​f​ ​3​,​3​V​ ​s​t​e​l​l​e​n​ ​(​C​P​2​1​0​2​/​F​T​2​3​2​R​L​ ​m​i​t​ ​S​c​h​a​l​t​e​r​)​.
+			 */
+			dangerText: string
+			/**
+			 * V​e​r​k​a​b​e​l​u​n​g​ ​(​T​X​/​R​X​ ​g​e​k​r​e​u​z​t​)
+			 */
+			wiring: string
+			/**
+			 * B​a​u​d​r​a​t​e​:​ ​1​1​5​2​0​0​ ​(​E​M​C​-​U​A​R​T​)
+			 */
+			baud: string
+			/**
+			 * E​D​M​-​0​1​0​ ​U​A​R​T​-​P​a​d​s​ ​(​2​4​-​p​o​l​.​ ​S​e​r​v​i​c​e​-​H​e​a​d​e​r​)
+			 */
+			pads: string
+			/**
+			 * P​S​5​ ​a​n​ ​S​t​r​o​m​ ​(​n​i​c​h​t​ ​e​i​n​s​c​h​a​l​t​e​n​)​ ​→​ ​A​d​a​p​t​e​r​ ​p​e​r​ ​U​S​B​ ​→​ ​F​e​h​l​e​r​c​o​d​e​s​ ​l​e​s​e​n​.​ ​B​e​i​ ​„​O​p​e​r​a​t​i​o​n​ ​C​a​n​c​e​l​l​e​d​"​ ​T​X​/​R​X​ ​t​a​u​s​c​h​e​n​.​ ​F​u​s​e​ ​F​7​0​0​3​ ​p​r​ü​f​e​n​;​ ​t​o​t​e​r​ ​S​o​u​t​h​b​r​i​d​g​e​ ​o​d​e​r​ ​k​a​p​u​t​t​e​s​ ​N​O​R​ ​→​ ​k​e​i​n​ ​U​A​R​T​ ​(​3​ ​B​e​e​p​s​)​.
+			 */
+			procedure: string
+			/**
+			 * T​i​t​a​n​i​a​-​U​A​R​T​:​ ​4​6​0​8​0​0​/​2​3​0​4​0​0​ ​B​a​u​d​ ​(​a​n​d​e​r​e​ ​S​c​h​n​i​t​t​s​t​e​l​l​e​ ​a​l​s​ ​E​M​C​)​.
+			 */
+			titania: string
+		}
+	}
 	onboarding: {
 		/**
 		 * W​i​l​l​k​o​m​m​e​n​ ​b​e​i​m​ ​f​i​x​p​l​a​y​ ​d​i​a​g​n​o​s​e​T​o​o​l
@@ -5334,6 +5424,96 @@ export type TranslationFunctions = {
 		 * Schließen
 		 */
 		close: () => LocalizedString
+	}
+	hwGuide: {
+		ch341a: {
+			/**
+			 * CH341A — Programmer-Guide
+			 */
+			title: () => LocalizedString
+			/**
+			 * 5V-Warnung
+			 */
+			danger: () => LocalizedString
+			/**
+			 * Das klassische schwarze Board treibt die SPI-Leitungen (CS/MISO/MOSI/CLK) mit ~5 V, obwohl der Sockel 3,3 V liefert. 3,3-V-NOR (z.B. PS5-NOR) kann dadurch zerstört werden. Vor Gebrauch mit Multimeter prüfen oder 3,3-V-Fix anwenden.
+			 */
+			dangerText: () => LocalizedString
+			/**
+			 * 8-Pin SPI-NOR Pinout (25-Series)
+			 */
+			pinout8: () => LocalizedString
+			/**
+			 * Pin 1 = Punkt/Kerbe. Im 16-Pin-ZIF-Sockel unten auf Pins 1–8 legen, Pin 1 an der markierten Ecke. Vor dem Schließen des Hebel Lage prüfen.
+			 */
+			socketNote: () => LocalizedString
+			/**
+			 * Jumper & Header
+			 */
+			jumpers: () => LocalizedString
+			/**
+			 * SPI/I2C-Mode-Jumper (gelb) auf SPI
+			 */
+			jumperMode: () => LocalizedString
+			/**
+			 * ACT#-Jumper (UART-Header P1↔P2) muss gesetzt sein — sonst meldet sich der CH341A nur als USB-Seriell-Wandler und flashrom findet nichts.
+			 */
+			jumperAct: () => LocalizedString
+			/**
+			 * Spannungs-Jumper (nur blue board) auf 3,3 V
+			 */
+			jumperVolt: () => LocalizedString
+			/**
+			 * 3,3-V-Fix (schwarzes Board)
+			 */
+			fix: () => LocalizedString
+			/**
+			 * Pin 28 (VCC) des CH341A vom 5V-Rail trennen und an den 3,3V-Regler (AMS1117-Ausgang / C4) führen; Pin 9 (V3) ebenso. Alternativ die 5V-Leiterbahn auf der Platinenunterseite durchtrennen. Danach alle Leitungen 3,3 V — mit Multimeter gegen GND bestätigen.
+			 */
+			fixText: () => LocalizedString
+			/**
+			 * In-Circuit: Target komplett stromlos, ggf. Flash-Pin/Leitung isolieren — sonst kann der Ziel-MCU die Datenleitungen treiben → korrupter Dump.
+			 */
+			incircuit: () => LocalizedString
+			/**
+			 * Vollständiger Guide im Repo
+			 */
+			fullGuide: () => LocalizedString
+		}
+		uart: {
+			/**
+			 * UART — PS5-Diagnose-Guide
+			 */
+			title: () => LocalizedString
+			/**
+			 * 3,3V TTL — niemals 5V
+			 */
+			danger: () => LocalizedString
+			/**
+			 * PS5-UART arbeitet mit 3,3V-Pegeln. Ein 5V-Adapter kann Southbridge/Konsole beschädigen. Adapter auf 3,3V stellen (CP2102/FT232RL mit Schalter).
+			 */
+			dangerText: () => LocalizedString
+			/**
+			 * Verkabelung (TX/RX gekreuzt)
+			 */
+			wiring: () => LocalizedString
+			/**
+			 * Baudrate: 115200 (EMC-UART)
+			 */
+			baud: () => LocalizedString
+			/**
+			 * EDM-010 UART-Pads (24-pol. Service-Header)
+			 */
+			pads: () => LocalizedString
+			/**
+			 * PS5 an Strom (nicht einschalten) → Adapter per USB → Fehlercodes lesen. Bei „Operation Cancelled" TX/RX tauschen. Fuse F7003 prüfen; toter Southbridge oder kaputtes NOR → kein UART (3 Beeps).
+			 */
+			procedure: () => LocalizedString
+			/**
+			 * Titania-UART: 460800/230400 Baud (andere Schnittstelle als EMC).
+			 */
+			titania: () => LocalizedString
+		}
 	}
 	onboarding: {
 		/**
