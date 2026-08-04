@@ -64,18 +64,20 @@
   ];
 
   // Numbered callouts on the CH341A board top-view (match the legend below).
+  // Positions chosen so each circle sits on/clearly beside its target without
+  // overlapping silkscreen text (verified via render check).
   export const BOARD_CALLOUTS: { n: number; x: number; y: number }[] = [
-    { n: 1, x: 16, y: 80 },   // USB
-    { n: 2, x: 170, y: 28 },  // ZIF lever
-    { n: 3, x: 92, y: 52 },   // ZIF socket
-    { n: 4, x: 46, y: 122 },  // CH341A IC
-    { n: 5, x: 46, y: 96 },   // AMS1117 regulator
-    { n: 6, x: 74, y: 158 },  // 12 MHz crystal
+    { n: 1, x: 14, y: 99 },   // USB (centered on the metal shell)
+    { n: 2, x: 170, y: 22 },  // ZIF lever (above the handle so it stays visible)
+    { n: 3, x: 92, y: 52 },   // ZIF socket (top-left corner)
+    { n: 4, x: 46, y: 122 },  // CH341A IC (above its silkscreen label)
+    { n: 5, x: 46, y: 98 },   // AMS1117 regulator (covers the tiny body)
+    { n: 6, x: 73, y: 144 },  // 12 MHz crystal (above body so the 12M label stays visible)
     { n: 7, x: 30, y: 166 },  // power LED
     { n: 8, x: 202, y: 176 }, // ACT# jumper
     { n: 9, x: 160, y: 176 }, // SPI/I2C mode jumper
     { n: 10, x: 276, y: 60 }, // side header
-    { n: 11, x: 172, y: 138 },// 8-pin NOR chip (seated)
+    { n: 11, x: 135, y: 130 },// 8-pin NOR chip (upper-left of body, clear of label)
   ];
 </script>
 
@@ -147,7 +149,7 @@
               <!-- 8-pin NOR chip seated at the bottom of the ZIF -->
               <rect x="120" y="118" width="102" height="34" rx="2" fill="#1f2937" stroke="#6b7280" stroke-width="1" />
               <circle cx="128" cy="125" r="1.8" fill="#cbd5e1" />
-              <text x="171" y="139" text-anchor="middle" class="chip-lbl" fill="#9ca3af">25-series NOR</text>
+              <text x="171" y="148" text-anchor="middle" class="chip-lbl" fill="#9ca3af">25-series NOR</text>
               {#each [0, 1, 2, 3] as i (i)}
                 <rect x="113" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#6b7280" />
                 <rect x="222" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#6b7280" />
@@ -158,7 +160,6 @@
               <text x="45" y="144" text-anchor="middle" class="chip-lbl" fill="#9ca3af">CH341A</text>
               <!-- AMS1117 3.3V regulator (SOT-223) -->
               <rect x="34" y="92" width="22" height="12" rx="1" fill="#1f2937" stroke="#6b7280" stroke-width="1" />
-              <text x="45" y="101" text-anchor="middle" class="chip-lbl" fill="#9ca3af">3V3</text>
               <!-- 12 MHz crystal -->
               <rect x="60" y="150" width="26" height="11" rx="5" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
               <text x="73" y="158" text-anchor="middle" class="chip-lbl" fill="#374151">12M</text>
