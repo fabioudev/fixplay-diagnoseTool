@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 
 describe('HardwareGuide', () => {
-  it('ch341a variant: expands and shows the 8-pin SPI pinout + 5V warning', async () => {
+  it('ch341a variant: expands and shows the board, 8-/16-pin pinouts + wiring', async () => {
     render(HardwareGuide, { props: { variant: 'ch341a' } });
 
     // Collapsed by default — title is the toggle button.
@@ -25,16 +25,25 @@ describe('HardwareGuide', () => {
     await fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
-    // Localized heading.
+    // Board overview + legend.
+    expect(screen.getByText('CH341A-Board (schwarz, klassisch) — Draufsicht')).toBeTruthy();
+    expect(screen.getByText('ZIF-Hebel')).toBeTruthy(); // legend span
+    // 5V danger callout prose.
+    expect(screen.getByText('5V-Warnung')).toBeTruthy();
+
+    // 8-pin pinout heading + language-neutral pin tokens (SVG + table).
     expect(screen.getByText('8-Pin SPI-NOR Pinout (25-Series)')).toBeTruthy();
-    // Language-neutral pin tokens appear in BOTH the SVG diagram and the table.
     expect(screen.getAllByText('#CS').length).toBeGreaterThan(0);
     expect(screen.getAllByText('#HOLD').length).toBeGreaterThan(0);
     expect(screen.getAllByText('VCC').length).toBeGreaterThan(0);
-    // MISO is the description of pin 2 (DO) — table only.
-    expect(screen.getByText('MISO')).toBeTruthy();
-    // 5V danger callout prose.
-    expect(screen.getByText('5V-Warnung')).toBeTruthy();
+    // Pin 2 description (table only) — "Data Out (MISO)".
+    expect(screen.getByText('Data Out (MISO)')).toBeTruthy();
+
+    // 16-pin pinout heading.
+    expect(screen.getByText('16-Pin SPI-NOR Pinout (25-Series, SOP-16)')).toBeTruthy();
+
+    // ZIF → chip wiring table heading.
+    expect(screen.getByText('ZIF-Verkabelung — Programmer ↔ 8-pol. Chip')).toBeTruthy();
   });
 
   it('uart variant: expands and shows the crossed TX/RX wiring + pads', async () => {

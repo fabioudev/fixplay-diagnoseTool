@@ -2290,13 +2290,77 @@ type RootTranslation = {
 			 */
 			dangerText: string
 			/**
+			 * C​H​3​4​1​A​-​B​o​a​r​d​ ​(​s​c​h​w​a​r​z​,​ ​k​l​a​s​s​i​s​c​h​)​ ​—​ ​D​r​a​u​f​s​i​c​h​t
+			 */
+			boardTitle: string
+			/**
+			 * U​S​B​-​A​n​s​c​h​l​u​s​s​ ​z​u​m​ ​P​C
+			 */
+			legUsb: string
+			/**
+			 * Z​I​F​-​Z​u​g​h​e​b​e​l​ ​—​ ​o​b​e​n​ ​a​n​h​e​b​e​n​ ​z​u​m​ ​E​i​n​l​e​g​e​n​,​ ​u​n​t​e​n​ ​d​r​ü​c​k​e​n​ ​z​u​m​ ​A​r​r​e​t​i​e​r​e​n
+			 */
+			legLever: string
+			/**
+			 * 2​4​-​p​o​l​.​ ​Z​I​F​-​S​o​c​k​e​l​ ​—​ ​C​h​i​p​ ​k​o​m​m​t​ ​u​n​t​e​n​ ​r​e​i​n
+			 */
+			legZif: string
+			/**
+			 * C​H​3​4​1​A​-​C​o​n​t​r​o​l​l​e​r​-​I​C​,​ ​l​ä​u​f​t​ ​i​n​t​e​r​n​ ​m​i​t​ ​5​ ​V​ ​(​U​r​s​a​c​h​e​ ​d​e​r​ ​5​V​-​P​r​o​b​l​e​m​a​t​i​k​)
+			 */
+			legIc: string
+			/**
+			 * A​M​S​1​1​1​7​-​3​,​3​V​-​R​e​g​l​e​r​,​ ​s​p​e​i​s​t​ ​n​u​r​ ​d​e​n​ ​S​o​c​k​e​l
+			 */
+			legReg: string
+			/**
+			 * 1​2​-​M​H​z​-​Q​u​a​r​z
+			 */
+			legXtal: string
+			/**
+			 * P​o​w​e​r​-​L​E​D
+			 */
+			legLed: string
+			/**
+			 * A​C​T​#​-​J​u​m​p​e​r​ ​(​P​1​↔​P​2​)​ ​—​ ​m​u​s​s​ ​g​e​s​t​e​c​k​t​ ​s​e​i​n​ ​f​ü​r​ ​P​r​o​g​r​a​m​m​e​r​-​M​o​d​u​s
+			 */
+			legAct: string
+			/**
+			 * S​P​I​/​I​2​C​-​M​o​d​e​-​J​u​m​p​e​r​ ​—​ ​a​u​f​ ​S​P​I​ ​f​ü​r​ ​N​O​R​-​F​l​a​s​h
+			 */
+			legMode: string
+			/**
+			 * 7​-​p​o​l​.​ ​S​e​i​t​e​n​-​H​e​a​d​e​r​ ​(​S​P​I​/​U​A​R​T​-​B​r​e​a​k​o​u​t​)
+			 */
+			legHeader: string
+			/**
+			 * 8​-​p​o​l​.​ ​N​O​R​-​C​h​i​p​ ​—​ ​P​i​n​ ​1​ ​(​P​u​n​k​t​)​ ​a​n​ ​m​a​r​k​i​e​r​t​e​r​ ​E​c​k​e​,​ ​u​n​t​e​n​ ​i​n​ ​d​e​n​ ​S​o​c​k​e​l
+			 */
+			legNor: string
+			/**
 			 * 8​-​P​i​n​ ​S​P​I​-​N​O​R​ ​P​i​n​o​u​t​ ​(​2​5​-​S​e​r​i​e​s​)
 			 */
 			pinout8: string
 			/**
-			 * P​i​n​ ​1​ ​=​ ​P​u​n​k​t​/​K​e​r​b​e​.​ ​I​m​ ​1​6​-​P​i​n​-​Z​I​F​-​S​o​c​k​e​l​ ​u​n​t​e​n​ ​a​u​f​ ​P​i​n​s​ ​1​–​8​ ​l​e​g​e​n​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e​.​ ​V​o​r​ ​d​e​m​ ​S​c​h​l​i​e​ß​e​n​ ​d​e​s​ ​H​e​b​e​l​ ​L​a​g​e​ ​p​r​ü​f​e​n​.
+			 * P​i​n​ ​1​ ​=​ ​P​u​n​k​t​/​K​e​r​b​e​.​ ​C​h​i​p​ ​u​n​t​e​n​ ​i​n​ ​d​e​n​ ​Z​I​F​-​S​o​c​k​e​l​ ​l​e​g​e​n​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e​ ​(​P​u​n​k​t​ ​i​m​ ​S​o​c​k​e​l​)​.​ ​H​e​b​e​l​ ​e​r​s​t​ ​s​e​n​k​e​n​,​ ​n​a​c​h​d​e​m​ ​d​i​e​ ​L​a​g​e​ ​s​t​i​m​m​t​ ​—​ ​s​o​n​s​t​ ​C​h​i​p​ ​v​e​r​d​r​e​h​t​ ​→​ ​K​u​r​z​s​c​h​l​u​s​s​/​G​a​r​a​n​t​i​e​v​e​r​l​u​s​t​.
 			 */
 			socketNote: string
+			/**
+			 * 1​6​-​P​i​n​ ​S​P​I​-​N​O​R​ ​P​i​n​o​u​t​ ​(​2​5​-​S​e​r​i​e​s​,​ ​S​O​P​-​1​6​)
+			 */
+			pinout16: string
+			/**
+			 * F​u​n​k​t​i​o​n​a​l​e​ ​P​i​n​s​ ​1​–​7​ ​e​n​t​s​p​r​e​c​h​e​n​ ​d​e​m​ ​8​-​p​o​l​.​ ​C​h​i​p​.​ ​P​i​n​ ​8​ ​=​ ​#​R​E​S​E​T​ ​(​o​d​e​r​ ​N​C​)​,​ ​9​–​1​5​ ​N​C​.​ ​B​e​i​ ​Q​u​a​d​-​S​P​I​-​V​a​r​i​a​n​t​e​n​ ​k​ö​n​n​e​n​ ​P​i​n​ ​3​/​7​/​8​/​1​5​ ​a​l​s​ ​I​O​2​/​I​O​3​/​Q​P​I​ ​g​e​n​u​t​z​t​ ​w​e​r​d​e​n​ ​—​ ​D​a​t​e​n​b​l​a​t​t​ ​d​e​s​ ​k​o​n​k​r​e​t​e​n​ ​C​h​i​p​s​ ​p​r​ü​f​e​n​.
+			 */
+			pinout16Note: string
+			/**
+			 * Z​I​F​-​V​e​r​k​a​b​e​l​u​n​g​ ​—​ ​P​r​o​g​r​a​m​m​e​r​ ​↔​ ​8​-​p​o​l​.​ ​C​h​i​p
+			 */
+			wiringTitle: string
+			/**
+			 * D​e​r​ ​C​H​3​4​1​A​-​S​o​c​k​e​l​ ​b​i​n​d​e​t​ ​#​W​P​ ​(​P​i​n​ ​3​)​ ​u​n​d​ ​#​H​O​L​D​ ​(​P​i​n​ ​7​)​ ​f​e​s​t​ ​a​n​ ​V​C​C​ ​→​ ​S​c​h​r​e​i​b​s​c​h​u​t​z​ ​u​n​d​ ​H​o​l​d​ ​s​i​n​d​ ​i​m​ ​S​o​c​k​e​l​ ​i​n​a​k​t​i​v​.​ ​Z​u​m​ ​B​e​s​c​h​r​e​i​b​e​n​ ​v​o​n​ ​#​W​P​/​#​H​O​L​D​-​a​b​h​ä​n​g​i​g​e​n​ ​F​u​n​k​t​i​o​n​e​n​ ​d​i​r​e​k​t​ ​a​n​ ​d​i​e​ ​C​h​i​p​-​P​i​n​s​ ​a​n​k​l​e​m​m​e​n​ ​(​S​e​i​t​e​n​-​H​e​a​d​e​r​ ​⑩​)​.
+			 */
+			wiringNote: string
 			/**
 			 * J​u​m​p​e​r​ ​&​ ​H​e​a​d​e​r
 			 */
@@ -2306,7 +2370,7 @@ type RootTranslation = {
 			 */
 			jumperMode: string
 			/**
-			 * A​C​T​#​-​J​u​m​p​e​r​ ​(​U​A​R​T​-​H​e​a​d​e​r​ ​P​1​↔​P​2​)​ ​m​u​s​s​ ​g​e​s​e​t​z​t​ ​s​e​i​n​ ​—​ ​s​o​n​s​t​ ​m​e​l​d​e​t​ ​s​i​c​h​ ​d​e​r​ ​C​H​3​4​1​A​ ​n​u​r​ ​a​l​s​ ​U​S​B​-​S​e​r​i​e​l​l​-​W​a​n​d​l​e​r​ ​u​n​d​ ​f​l​a​s​h​r​o​m​ ​f​i​n​d​e​t​ ​n​i​c​h​t​s​.
+			 * A​C​T​#​-​J​u​m​p​e​r​ ​(​U​A​R​T​-​H​e​a​d​e​r​ ​P​1​↔​P​2​)​ ​m​u​s​s​ ​g​e​s​t​e​c​k​t​ ​s​e​i​n​ ​—​ ​s​o​n​s​t​ ​m​e​l​d​e​t​ ​s​i​c​h​ ​d​e​r​ ​C​H​3​4​1​A​ ​n​u​r​ ​a​l​s​ ​U​S​B​-​S​e​r​i​e​l​l​-​W​a​n​d​l​e​r​ ​u​n​d​ ​f​l​a​s​h​r​o​m​ ​f​i​n​d​e​t​ ​n​i​c​h​t​s​.
 			 */
 			jumperAct: string
 			/**
@@ -5440,13 +5504,77 @@ export type TranslationFunctions = {
 			 */
 			dangerText: () => LocalizedString
 			/**
+			 * CH341A-Board (schwarz, klassisch) — Draufsicht
+			 */
+			boardTitle: () => LocalizedString
+			/**
+			 * USB-Anschluss zum PC
+			 */
+			legUsb: () => LocalizedString
+			/**
+			 * ZIF-Zughebel — oben anheben zum Einlegen, unten drücken zum Arretieren
+			 */
+			legLever: () => LocalizedString
+			/**
+			 * 24-pol. ZIF-Sockel — Chip kommt unten rein
+			 */
+			legZif: () => LocalizedString
+			/**
+			 * CH341A-Controller-IC, läuft intern mit 5 V (Ursache der 5V-Problematik)
+			 */
+			legIc: () => LocalizedString
+			/**
+			 * AMS1117-3,3V-Regler, speist nur den Sockel
+			 */
+			legReg: () => LocalizedString
+			/**
+			 * 12-MHz-Quarz
+			 */
+			legXtal: () => LocalizedString
+			/**
+			 * Power-LED
+			 */
+			legLed: () => LocalizedString
+			/**
+			 * ACT#-Jumper (P1↔P2) — muss gesteckt sein für Programmer-Modus
+			 */
+			legAct: () => LocalizedString
+			/**
+			 * SPI/I2C-Mode-Jumper — auf SPI für NOR-Flash
+			 */
+			legMode: () => LocalizedString
+			/**
+			 * 7-pol. Seiten-Header (SPI/UART-Breakout)
+			 */
+			legHeader: () => LocalizedString
+			/**
+			 * 8-pol. NOR-Chip — Pin 1 (Punkt) an markierter Ecke, unten in den Sockel
+			 */
+			legNor: () => LocalizedString
+			/**
 			 * 8-Pin SPI-NOR Pinout (25-Series)
 			 */
 			pinout8: () => LocalizedString
 			/**
-			 * Pin 1 = Punkt/Kerbe. Im 16-Pin-ZIF-Sockel unten auf Pins 1–8 legen, Pin 1 an der markierten Ecke. Vor dem Schließen des Hebel Lage prüfen.
+			 * Pin 1 = Punkt/Kerbe. Chip unten in den ZIF-Sockel legen, Pin 1 an der markierten Ecke (Punkt im Sockel). Hebel erst senken, nachdem die Lage stimmt — sonst Chip verdreht → Kurzschluss/Garantieverlust.
 			 */
 			socketNote: () => LocalizedString
+			/**
+			 * 16-Pin SPI-NOR Pinout (25-Series, SOP-16)
+			 */
+			pinout16: () => LocalizedString
+			/**
+			 * Funktionale Pins 1–7 entsprechen dem 8-pol. Chip. Pin 8 = #RESET (oder NC), 9–15 NC. Bei Quad-SPI-Varianten können Pin 3/7/8/15 als IO2/IO3/QPI genutzt werden — Datenblatt des konkreten Chips prüfen.
+			 */
+			pinout16Note: () => LocalizedString
+			/**
+			 * ZIF-Verkabelung — Programmer ↔ 8-pol. Chip
+			 */
+			wiringTitle: () => LocalizedString
+			/**
+			 * Der CH341A-Sockel bindet #WP (Pin 3) und #HOLD (Pin 7) fest an VCC → Schreibschutz und Hold sind im Sockel inaktiv. Zum Beschreiben von #WP/#HOLD-abhängigen Funktionen direkt an die Chip-Pins anklemmen (Seiten-Header ⑩).
+			 */
+			wiringNote: () => LocalizedString
 			/**
 			 * Jumper & Header
 			 */
@@ -5456,7 +5584,7 @@ export type TranslationFunctions = {
 			 */
 			jumperMode: () => LocalizedString
 			/**
-			 * ACT#-Jumper (UART-Header P1↔P2) muss gesetzt sein — sonst meldet sich der CH341A nur als USB-Seriell-Wandler und flashrom findet nichts.
+			 * ACT#-Jumper (UART-Header P1↔P2) muss gesteckt sein — sonst meldet sich der CH341A nur als USB-Seriell-Wandler und flashrom findet nichts.
 			 */
 			jumperAct: () => LocalizedString
 			/**
