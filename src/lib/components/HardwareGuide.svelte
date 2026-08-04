@@ -91,7 +91,7 @@
   let open = $state(false);
 
   // SOIC pin layout helpers: pins 1..n down the left, n+1..2n up the right.
-  const L8 = SOIC8; // 1..4 top-to-bottom left
+  const L8 = SOIC8.slice(0, 4); // 1..4 top-to-bottom left
   const R8 = [...SOIC8.slice(4)].reverse(); // 8,7,6,5 top-to-bottom right
   const L16 = SOIC16.slice(0, 8); // 1..8 left
   const R16 = [...SOIC16.slice(8)].reverse(); // 16..9 right
