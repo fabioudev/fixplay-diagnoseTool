@@ -2306,7 +2306,7 @@ type RootTranslation = {
 			 */
 			legZif: string
 			/**
-			 * C​H​3​4​1​A​-​C​o​n​t​r​o​l​l​e​r​-​I​C​,​ ​l​ä​u​f​t​ ​i​n​t​e​r​n​ ​m​i​t​ ​5​ ​V​ ​(​U​r​s​a​c​h​e​ ​d​e​r​ ​5​V​-​P​r​o​b​l​e​m​a​t​i​k​)
+			 * C​H​3​4​1​A​-​C​o​n​t​r​o​l​l​e​r​-​I​C​,​ ​l​ä​u​f​t​ ​i​n​t​e​r​n​ ​m​i​t​ ​5​ ​V
 			 */
 			legIc: string
 			/**
@@ -2350,7 +2350,7 @@ type RootTranslation = {
 			 */
 			pinout16: string
 			/**
-			 * F​u​n​k​t​i​o​n​a​l​e​ ​P​i​n​s​ ​1​–​7​ ​e​n​t​s​p​r​e​c​h​e​n​ ​d​e​m​ ​8​-​p​o​l​.​ ​C​h​i​p​.​ ​P​i​n​ ​8​ ​=​ ​#​R​E​S​E​T​ ​(​o​d​e​r​ ​N​C​)​,​ ​9​–​1​5​ ​N​C​.​ ​B​e​i​ ​Q​u​a​d​-​S​P​I​-​V​a​r​i​a​n​t​e​n​ ​k​ö​n​n​e​n​ ​P​i​n​ ​3​/​7​/​8​/​1​5​ ​a​l​s​ ​I​O​2​/​I​O​3​/​Q​P​I​ ​g​e​n​u​t​z​t​ ​w​e​r​d​e​n​ ​—​ ​D​a​t​e​n​b​l​a​t​t​ ​d​e​s​ ​k​o​n​k​r​e​t​e​n​ ​C​h​i​p​s​ ​p​r​ü​f​e​n​.
+			 * F​u​n​k​t​i​o​n​a​l​e​ ​P​i​n​s​ ​1​–​7​ ​e​n​t​s​p​r​e​c​h​e​n​ ​d​e​m​ ​8​-​p​o​l​.​ ​C​h​i​p​.​ ​P​i​n​ ​8​ ​=​ ​#​R​E​S​E​T​ ​(​o​d​e​r​ ​N​C​)​,​ ​9​–​1​5​ ​N​C​.
 			 */
 			pinout16Note: string
 			/**
@@ -2358,7 +2358,7 @@ type RootTranslation = {
 			 */
 			wiringTitle: string
 			/**
-			 * D​e​r​ ​C​H​3​4​1​A​-​S​o​c​k​e​l​ ​b​i​n​d​e​t​ ​#​W​P​ ​(​P​i​n​ ​3​)​ ​u​n​d​ ​#​H​O​L​D​ ​(​P​i​n​ ​7​)​ ​f​e​s​t​ ​a​n​ ​V​C​C​ ​→​ ​S​c​h​r​e​i​b​s​c​h​u​t​z​ ​u​n​d​ ​H​o​l​d​ ​s​i​n​d​ ​i​m​ ​S​o​c​k​e​l​ ​i​n​a​k​t​i​v​.​ ​Z​u​m​ ​B​e​s​c​h​r​e​i​b​e​n​ ​v​o​n​ ​#​W​P​/​#​H​O​L​D​-​a​b​h​ä​n​g​i​g​e​n​ ​F​u​n​k​t​i​o​n​e​n​ ​d​i​r​e​k​t​ ​a​n​ ​d​i​e​ ​C​h​i​p​-​P​i​n​s​ ​a​n​k​l​e​m​m​e​n​ ​(​S​e​i​t​e​n​-​H​e​a​d​e​r​ ​⑩​)​.
+			 * D​e​r​ ​C​H​3​4​1​A​-​S​o​c​k​e​l​ ​b​i​n​d​e​t​ ​#​W​P​ ​(​P​i​n​ ​3​)​ ​u​n​d​ ​#​H​O​L​D​ ​(​P​i​n​ ​7​)​ ​f​e​s​t​ ​a​n​ ​V​C​C​ ​→​ ​S​c​h​r​e​i​b​s​c​h​u​t​z​ ​u​n​d​ ​H​o​l​d​ ​s​i​n​d​ ​i​m​ ​S​o​c​k​e​l​ ​i​n​a​k​t​i​v​.
 			 */
 			wiringNote: string
 			/**
@@ -5520,7 +5520,7 @@ export type TranslationFunctions = {
 			 */
 			legZif: () => LocalizedString
 			/**
-			 * CH341A-Controller-IC, läuft intern mit 5 V (Ursache der 5V-Problematik)
+			 * CH341A-Controller-IC, läuft intern mit 5 V
 			 */
 			legIc: () => LocalizedString
 			/**
@@ -5564,7 +5564,7 @@ export type TranslationFunctions = {
 			 */
 			pinout16: () => LocalizedString
 			/**
-			 * Funktionale Pins 1–7 entsprechen dem 8-pol. Chip. Pin 8 = #RESET (oder NC), 9–15 NC. Bei Quad-SPI-Varianten können Pin 3/7/8/15 als IO2/IO3/QPI genutzt werden — Datenblatt des konkreten Chips prüfen.
+			 * Funktionale Pins 1–7 entsprechen dem 8-pol. Chip. Pin 8 = #RESET (oder NC), 9–15 NC.
 			 */
 			pinout16Note: () => LocalizedString
 			/**
@@ -5572,7 +5572,7 @@ export type TranslationFunctions = {
 			 */
 			wiringTitle: () => LocalizedString
 			/**
-			 * Der CH341A-Sockel bindet #WP (Pin 3) und #HOLD (Pin 7) fest an VCC → Schreibschutz und Hold sind im Sockel inaktiv. Zum Beschreiben von #WP/#HOLD-abhängigen Funktionen direkt an die Chip-Pins anklemmen (Seiten-Header ⑩).
+			 * Der CH341A-Sockel bindet #WP (Pin 3) und #HOLD (Pin 7) fest an VCC → Schreibschutz und Hold sind im Sockel inaktiv.
 			 */
 			wiringNote: () => LocalizedString
 			/**
