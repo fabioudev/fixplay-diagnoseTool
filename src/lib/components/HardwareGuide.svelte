@@ -164,65 +164,82 @@
               </filter>
             </defs>
 
-            <!-- PCB outline: #0b0f1a board with subtle inner glow -->
-            <rect x="18" y="26" width="304" height="158" rx="7" fill="#0b0f1a" stroke="#1e293b" stroke-width="1" />
+            <!-- PCB outline: Deep matte black with realistic radius -->
+            <rect x="18" y="26" width="304" height="158" rx="8" fill="#0a0a0c" stroke="#1f1f23" stroke-width="1" />
 
-            <!-- USB-A male connector: Silver-grey metallic finish -->
-            <rect x="6" y="86" width="16" height="26" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
-            <rect x="9" y="91" width="10" height="16" fill="#475569" />
-
-            <!-- 24-pin ZIF socket: Deep Forest Green #14532d -->
-            <rect x="96" y="44" width="150" height="120" rx="3" fill="#14532d" stroke="#166534" stroke-width="1.5" />
-
-            <!-- ZIF lever: realistic pull-handle with gradient and shadow -->
-            <g filter="url(#shadowFilter)">
-              <rect x="110" y="36" width="120" height="7" rx="2" fill="url(#leverGrad)" stroke="#6b7280" stroke-width="0.5" />
-              <rect x="158" y="32" width="24" height="13" rx="3" fill="url(#leverGrad)" stroke="#6b7280" stroke-width="0.5" />
+            <!-- PCB Silkscreen: Subtle grey technical labels -->
+            <g fill="#4b4b52" font-family="ui-monospace, monospace" font-size="6" font-weight="600">
+              <text x="40" y="110" text-anchor="middle">CH341A</text>
+              <text x="73" y="145" text-anchor="middle">12.000MHz</text>
+              <text x="100" y="40" text-anchor="start">ZIF-SOCKET</text>
+              <text x="250" y="170" text-anchor="middle">MODE</text>
             </g>
 
-            <!-- ZIF pin holes -->
+            <!-- USB-A Male connector: High-fidelity metallic finish -->
+            <g transform="translate(6, 86)">
+              <rect x="0" y="0" width="16" height="26" rx="1" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+              <rect x="3" y="3" width="10" height="20" rx="1" fill="#f8fafc" />
+              <rect x="4" y="5" width="8" height="1" fill="#94a3b8" />
+              <rect x="4" y="19" width="8" height="1" fill="#94a3b8" />
+            </g>
+
+            <!-- 24-pin ZIF socket: Stark white industrial plastic -->
+            <rect x="96" y="44" width="150" height="120" rx="3" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.5" />
+
+            <!-- ZIF lever: Accurate white lever with grip texture -->
+            <g filter="url(#shadowFilter)">
+              <rect x="110" y="36" width="120" height="7" rx="2" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
+              <rect x="158" y="32" width="24" height="13" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
+              {#each [162, 166, 170, 174] as lx}
+                <line x1={lx} y1="34" x2={lx} y2="43" stroke="#9ca3af" stroke-width="0.5" />
+              {/each}
+            </g>
+
+            <!-- ZIF pin holes: Precise dark contrast -->
             {#each Array(12) as _, row (row)}
               {#each [110, 232] as cx (cx)}
-                <circle cx={cx} cy={58 + row * 8.2} r="1.8" fill="#064e3b" stroke="#14532d" stroke-width="0.6" />
+                <circle cx={cx} cy={58 + row * 8.2} r="1.8" fill="#111827" stroke="#d1d5db" stroke-width="0.4" />
               {/each}
             {/each}
 
-            <!-- 8-pin NOR chip -->
+            <!-- 8-pin NOR chip: Realistic SOIC body -->
             <rect x="120" y="118" width="102" height="34" rx="2" fill="#111827" stroke="#374151" stroke-width="1" />
-            <circle cx="128" cy="125" r="1.8" fill="#9ca3af" />
+            <circle cx="128" cy="125" r="1.8" fill="#6b7280" />
             <text x="171" y="148" text-anchor="middle" class="chip-lbl" fill="#9ca3af">25-series NOR</text>
             {#each [0, 1, 2, 3] as i (i)}
-              <rect x="113" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#4b5563" />
-              <rect x="222" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#4b5563" />
+              <rect x="113" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#6b7280" />
+              <rect x="222" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#6b7280" />
             {/each}
 
-            <!-- CH341A IC: Matte charcoal with 3D-block highlights -->
+            <!-- CH341A IC: SSOP-28 realistic footprint -->
             <rect x="34" y="116" width="22" height="48" rx="1" fill="#111827" stroke="#374151" stroke-width="1" />
-            <rect x="34" y="116" width="22" height="1" fill="#4b5563" /> <!-- Top edge highlight -->
-            <rect x="34" y="116" width="1" height="48" fill="#4b5563" /> <!-- Left edge highlight -->
-            <circle cx="38" cy="122" r="1.4" fill="#9ca3af" />
+            <rect x="34" y="116" width="22" height="1" fill="#4b5563" />
+            <rect x="34" y="116" width="1" height="48" fill="#4b5563" />
+            <circle cx="38" cy="122" r="1.4" fill="#6b7280" />
             <text x="45" y="144" text-anchor="middle" class="chip-lbl" fill="#9ca3af">CH341A</text>
 
-            <!-- AMS1117 Regulator: Matte charcoal with highlights -->
+            <!-- AMS1117 Regulator: SOT-223 realistic footprint -->
             <rect x="34" y="92" width="22" height="12" rx="1" fill="#111827" stroke="#374151" stroke-width="1" />
-            <rect x="34" y="92" width="22" height="1" fill="#4b5563" /> <!-- Top edge highlight -->
-            <rect x="34" y="92" width="1" height="12" fill="#4b5563" /> <!-- Left edge highlight -->
+            <rect x="34" y="92" width="22" height="1" fill="#4b5563" />
+            <rect x="34" y="92" width="1" height="12" fill="#4b5563" />
+            <rect x="34" y="92" width="22" height="2" fill="#4b5563" opacity="0.5" />
 
-            <!-- 12 MHz crystal: Metallic cylinder -->
+            <!-- 12 MHz crystal: Realistic metallic cylinder -->
             <rect x="60" y="150" width="26" height="11" rx="5" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
             <text x="73" y="158" text-anchor="middle" class="chip-lbl" fill="#374151">12M</text>
 
             <!-- Power LED: Bright green with glow -->
             <circle cx="40" cy="164" r="2.6" fill="#4ade80" stroke="#16a34a" stroke-width="0.6" filter="url(#glowFilter)" />
 
-            <!-- Jumpers -->
-            <rect x="188" y="170" width="5" height="5" fill="#4b5563" />
-            <rect x="196" y="170" width="5" height="5" fill="#4b5563" />
-            <rect x="187" y="169" width="15" height="7" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
-
-            <rect x="146" y="170" width="5" height="5" fill="#4b5563" />
-            <rect x="154" y="170" width="5" height="5" fill="#4b5563" />
-            <rect x="145" y="169" width="15" height="7" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
+            <!-- Jumpers: Yellow caps on 3-pin headers -->
+            <g transform="translate(187, 169)">
+              <rect x="0" y="0" width="15" height="7" rx="1" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
+              <rect x="2" y="1" width="4" height="5" fill="#fde68a" />
+            </g>
+            <g transform="translate(145, 169)">
+              <rect x="0" y="0" width="15" height="7" rx="1" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
+              <rect x="2" y="1" width="4" height="5" fill="#fde68a" />
+            </g>
 
             <!-- Side headers -->
             {#each Array(7) as _, i (i)}
@@ -267,23 +284,29 @@
                   <feGaussianBlur stdDeviation="1" result="blur" />
                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
+                <linearGradient id="pinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#9ca3af" />
+                  <stop offset="50%" stop-color="#f3f4f6" />
+                  <stop offset="100%" stop-color="#9ca3af" />
+                </linearGradient>
               </defs>
-              <!-- Chip body with 3D effect -->
-              <rect x="40" y="14" width="80" height="100" rx="3" fill="url(#bodyGrad)" stroke="#4b5563" stroke-width="1" filter="url(#chipShadow)" />
-              <circle cx="50" cy="24" r="2.5" fill="#6b7280" />
-              <text x="80" y="68" text-anchor="middle" class="chip-lbl" fill="#9ca3af">25-series</text>
+              <!-- Chip body with industrial matte finish -->
+              <rect x="40" y="14" width="80" height="100" rx="2" fill="#1f2937" stroke="#374151" stroke-width="1" filter="url(#chipShadow)" />
+              <!-- Pin 1 Marker: Industrial indentation -->
+              <circle cx="46" cy="20" r="2" fill="#111827" />
+              <text x="80" y="68" text-anchor="middle" class="chip-lbl" fill="#9ca3af" font-weight="bold">SOIC-8</text>
               {#each L8 as p (p.n)}
                 <g>
-                  <rect x="28" y={20 + (p.n - 1) * 22} width="14" height="6" rx="1" fill="#6b7280" stroke="#374151" stroke-width="0.5" />
-                  <text x="24" y={26 + (p.n - 1) * 22} text-anchor="end" class="pin" fill="#9ca3af">{p.n}</text>
-                  <text x="48" y={26 + (p.n - 1) * 22} class="pin" fill="#e5e7eb">{p.name}</text>
+                  <rect x="28" y={20 + (p.n - 1) * 22} width="14" height="6" rx="0.5" fill="url(#pinGrad)" stroke="#4b5563" stroke-width="0.5" />
+                  <text x="24" y={26 + (p.n - 1) * 22} text-anchor="end" class="pin" fill="#6b7280">{p.n}</text>
+                  <text x="48" y={26 + (p.n - 1) * 22} class="pin" fill="#f3f4f6" font-weight="bold">{p.name}</text>
                 </g>
               {/each}
               {#each R8 as p, i (p.n)}
                 <g>
-                  <rect x="118" y={20 + i * 22} width="14" height="6" rx="1" fill="#6b7280" stroke="#374151" stroke-width="0.5" />
-                  <text x="136" y={26 + i * 22} class="pin" fill="#9ca3af">{p.n}</text>
-                  <text x="114" y={26 + i * 22} text-anchor="end" class="pin" fill="#e5e7eb">{p.name}</text>
+                  <rect x="118" y={20 + i * 22} width="14" height="6" rx="0.5" fill="url(#pinGrad)" stroke="#4b5563" stroke-width="0.5" />
+                  <text x="136" y={26 + i * 22} class="pin" fill="#6b7280">{p.n}</text>
+                  <text x="114" y={26 + i * 22} text-anchor="end" class="pin" fill="#f3f4f6" font-weight="bold">{p.name}</text>
                 </g>
               {/each}
             </svg>
@@ -306,21 +329,23 @@
           <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.ch341a.pinout16()}</p>
           <div class="flex flex-wrap items-start gap-4">
             <svg viewBox="0 0 160 210" class="w-44 shrink-to-fit shrink-0" role="img" aria-label="SOIC-16 SPI NOR pinout">
-              <rect x="40" y="14" width="80" height="180" rx="3" fill="url(#bodyGrad)" stroke="#4b5563" stroke-width="1" filter="url(#chipShadow)" />
-              <circle cx="50" cy="24" r="2.5" fill="#6b7280" />
-              <text x="80" y="108" text-anchor="middle" class="chip-lbl" fill="#9ca3af">25-series 16P</text>
+              <!-- Use existing defs from SOIC-8 for pinGrad and chipShadow -->
+              <rect x="40" y="14" width="80" height="180" rx="2" fill="#1f2937" stroke="#374151" stroke-width="1" filter="url(#chipShadow)" />
+              <!-- Pin 1 Marker -->
+              <circle cx="46" cy="20" r="2" fill="#111827" />
+              <text x="80" y="108" text-anchor="middle" class="chip-lbl" fill="#9ca3af" font-weight="bold">SOIC-16</text>
               {#each L16 as p (p.n)}
                 <g>
-                  <rect x="28" y={20 + (p.n - 1) * 20} width="14" height="5" rx="1" fill="#6b7280" stroke="#374151" stroke-width="0.5" />
-                  <text x="24" y={25 + (p.n - 1) * 20} text-anchor="end" class="pin" fill="#9ca3af">{p.n}</text>
-                  <text x="48" y={25 + (p.n - 1) * 20} class="pin" fill="#e5e7eb">{p.name}</text>
+                  <rect x="28" y={20 + (p.n - 1) * 20} width="14" height="5" rx="0.5" fill="url(#pinGrad)" stroke="#4b5563" stroke-width="0.5" />
+                  <text x="24" y={25 + (p.n - 1) * 20} text-anchor="end" class="pin" fill="#6b7280">{p.n}</text>
+                  <text x="48" y={25 + (p.n - 1) * 20} class="pin" fill="#f3f4f6" font-weight="bold">{p.name}</text>
                 </g>
               {/each}
               {#each R16 as p, i (p.n)}
                 <g>
-                  <rect x="118" y={20 + i * 20} width="14" height="5" rx="1" fill="#6b7280" stroke="#374151" stroke-width="0.5" />
-                  <text x="136" y={25 + i * 20} class="pin" fill="#9ca3af">{p.n}</text>
-                  <text x="114" y={25 + i * 20} text-anchor="end" class="pin" fill="#e5e7eb">{p.name}</text>
+                  <rect x="118" y={20 + i * 20} width="14" height="5" rx="0.5" fill="url(#pinGrad)" stroke="#4b5563" stroke-width="0.5" />
+                  <text x="136" y={25 + i * 20} class="pin" fill="#6b7280">{p.n}</text>
+                  <text x="114" y={25 + i * 20} text-anchor="end" class="pin" fill="#f3f4f6" font-weight="bold">{p.name}</text>
                 </g>
               {/each}
             </svg>
@@ -403,20 +428,51 @@
         <div>
           <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.uart.wiring()}</p>
           <div class="flex items-center gap-3 flex-wrap">
-            <svg viewBox="0 0 220 90" class="w-56 shrink-0" role="img" aria-label="PS5 UART wiring">
-              <rect x="6" y="14" width="60" height="62" rx="4" fill="#1f2937" stroke="#4b5563" stroke-width="1.2" />
-              <text x="36" y="10" text-anchor="middle" class="lbl" fill="#9ca3af">PS5</text>
-              <text x="66" y="30" text-anchor="end" class="pin" fill="#e5e7eb">TX</text>
-              <text x="66" y="50" text-anchor="end" class="pin" fill="#e5e7eb">RX</text>
-              <text x="66" y="70" text-anchor="end" class="pin" fill="#e5e7eb">GND</text>
-              <rect x="154" y="14" width="60" height="62" rx="4" fill="#1f2937" stroke="#4b5563" stroke-width="1.2" />
-              <text x="184" y="10" text-anchor="middle" class="lbl" fill="#9ca3af">Adapter</text>
-              <text x="158" y="30" class="pin" fill="#e5e7eb">RX</text>
-              <text x="158" y="50" class="pin" fill="#e5e7eb">TX</text>
-              <text x="158" y="70" class="pin" fill="#e5e7eb">GND</text>
-              <path d="M70 27 C 110 27, 120 27, 150 27" stroke="#5eecd9" stroke-width="1.4" fill="none" />
-              <path d="M70 47 C 110 47, 120 47, 150 47" stroke="#5eecd9" stroke-width="1.4" fill="none" />
-              <path d="M70 67 L 150 67" stroke="#6b7280" stroke-width="1.4" fill="none" />
+            <svg viewBox="0 0 260 110" class="w-64 shrink-0" role="img" aria-label="PS5 UART wiring">
+              <defs>
+                <linearGradient id="pcbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#064e3b" />
+                  <stop offset="100%" stop-color="#022c22" />
+                </linearGradient>
+              </defs>
+              <!-- PS5 Motherboard Section -->
+              <g transform="translate(10, 20)">
+                <rect x="0" y="0" width="80" height="70" rx="4" fill="url(#pcbGrad)" stroke="#065f46" stroke-width="1" />
+                <text x="40" y="-10" text-anchor="middle" class="lbl" fill="#9ca3af">PS5 MB</text>
+                <!-- Solder pads -->
+                <rect x="65" y="15" width="12" height="12" rx="1" fill="#b45309" stroke="#f59e0b" stroke-width="0.5" />
+                <text x="62" y="22" text-anchor="end" class="pin" fill="#e5e7eb">TX</text>
+                <rect x="65" y="35" width="12" height="12" rx="1" fill="#b45309" stroke="#f59e0b" stroke-width="0.5" />
+                <text x="62" y="42" text-anchor="end" class="pin" fill="#e5e7eb">RX</text>
+                <rect x="65" y="55" width="12" height="12" rx="1" fill="#b45309" stroke="#f59e0b" stroke-width="0.5" />
+                <text x="62" y="62" text-anchor="end" class="pin" fill="#e5e7eb">GND</text>
+              </g>
+
+              <!-- UART Adapter -->
+              <g transform="translate(170, 20)">
+                <rect x="0" y="0" width="70" height="70" rx="4" fill="#111827" stroke="#374151" stroke-width="1" />
+                <text x="35" y="-10" text-anchor="middle" class="lbl" fill="#9ca3af">UART Adapter</text>
+                <!-- Chip -->
+                <rect x="20" y="20" width="30" height="30" rx="2" fill="#1f2937" stroke="#4b5563" stroke-width="0.5" />
+                <text x="35" y="38" text-anchor="middle" class="chip-lbl" fill="#6b7280">CP2102</text>
+                <!-- Pins -->
+                <rect x="0" y="15" width="10" height="12" rx="1" fill="#4b5563" />
+                <text x="15" y="22" class="pin" fill="#e5e7eb">RX</text>
+                <rect x="0" y="35" width="10" height="12" rx="1" fill="#4b5563" />
+                <text x="15" y="42" class="pin" fill="#e5e7eb">TX</text>
+                <rect x="0" y="55" width="10" height="12" rx="1" fill="#4b5563" />
+                <text x="15" y="62" class="pin" fill="#e5e7eb">GND</text>
+              </g>
+
+              <!-- Wiring paths (crossed TX/RX) -->
+              <g fill="none" stroke-width="1.5" stroke-linecap="round">
+                <!-- PS5 TX (75, 31) -> Adapter RX (170, 31) -->
+                <path d="M87 31 C 120 31, 130 31, 170 31" stroke="#4ade80" />
+                <!-- PS5 RX (75, 41) -> Adapter TX (170, 41) -->
+                <path d="M87 41 C 120 41, 130 41, 170 41" stroke="#4ade80" />
+                <!-- GND (75, 51) -> Adapter GND (170, 51) -->
+                <path d="M87 51 L 170 51" stroke="#6b7280" />
+              </g>
             </svg>
             <p class="text-gray-500 leading-relaxed max-w-[14rem]">{$LL.hwGuide.uart.baud()}</p>
           </div>
