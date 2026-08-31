@@ -1,5 +1,7 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { pushRecent } from './recents';
+import { flashBusy } from './flash';
+import LL from '$lib/i18n/i18n-svelte';
 
 /**
  * The top-level panels the app can show. The union is shared (instead of being
@@ -50,8 +52,18 @@ export const activeView = {
 /**
  * Navigate to a panel. Centralizing this guarantees every switch records the
  * visit for the sidebar's "zuletzt genutzt" quick-row (see {@link pushRecent}).
+ *
+ * Safety gate: leaving the flash panel while a flashrom operation runs would
+ * hide (not stop!) the live progress of the app's most destructive workflow.
+ * The window-close handler in `+page.svelte` asks the same native confirm();
+ * here it also covers sidebar clicks, keyboard shortcuts and status-bar jumps.
  */
 export function navigate(v: View): void {
+  const current = get(appState).view;
+  if (current === 'flash' && v !== 'flash' && get(flashBusy)
+      && !confirm(get(LL).flash.leavePanelConfirm())) {
+    return;
+  }
   appState.update((s) => ({ ...s, view: v }));
   pushRecent(v);
 }

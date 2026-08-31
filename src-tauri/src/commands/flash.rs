@@ -185,10 +185,11 @@ pub async fn flash_read(
 
 #[tauri::command]
 pub async fn flash_write(
-    path:       String,
-    programmer: String,
-    verify:     bool,
-    app:        AppHandle,
+    path:         String,
+    programmer:   String,
+    verify:       bool,
+    allow_invalid: bool,
+    app:          AppHandle,
 ) -> Result<(), String> {
     validate_programmer(&programmer)?;
     let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
@@ -199,6 +200,10 @@ pub async fn flash_write(
     });
 
     let data = std::fs::read(&path).map_err(|e| e.to_string())?;
+    // Re-validate at the write boundary (the file may have changed since the
+    // preview) and refuse invalid images unless explicitly overridden.
+    let validation = nor::validate(&data);
+    write_gate(validation.is_valid(), allow_invalid)?;
     emit_status(&app, "Schreibe NOR (Löschen + Schreiben)...", "info");
     info!("flash_write: path={}, programmer={}, verify={}", path, programmer, verify);
 
@@ -682,5 +687,35 @@ mod verify_tests {
         let written:   Vec<u8> = vec![0x00, 0x01, 0x02, 0x03];
         let read_back: Vec<u8> = vec![0x00, 0x01];
         assert_eq!(count_diff_bytes(&written, &read_back), 2);
+    }
+}
+
+/// Backend-side write gate (defense-in-depth for the `path` parameter, CLAUDE.md
+/// rule 5): a write of an image that fails NOR validation is refused unless the
+/// frontend explicitly passed `allow_invalid` — which it only sends after the
+/// operator confirmed the dangerous write in the UI. The frontend gate (red
+/// banner + ConfirmDialog) stays, but a stale preview or a hand-crafted invoke()
+/// can no longer erase a NOR with a defective image unchecked.
+fn write_gate(is_valid: bool, allow_invalid: bool) -> Result<(), String> {
+    if is_valid || allow_invalid {
+        Ok(())
+    } else {
+        Err("Schreiben abgelehnt: NOR-Validierung fehlgeschlagen. Prüfe den Dump — ein Schreiben mit Fehlerbild kann den Chip bricken (explicit re-confirm in der Oberfläche nötig).".into())
+    }
+}
+
+#[cfg(test)]
+mod write_gate_tests {
+    use super::*;
+
+    #[test]
+    fn gate_passes_for_valid_image() {
+        assert!(write_gate(true, false).is_ok());
+    }
+
+    #[test]
+    fn gate_passes_only_with_explicit_override_for_invalid_image() {
+        assert!(write_gate(false, false).is_err());
+        assert!(write_gate(false, true).is_ok());
     }
 }

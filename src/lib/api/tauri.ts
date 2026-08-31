@@ -28,8 +28,10 @@ export const flashRead  = (programmer: string) =>
   invoke<FlashReadResult>('flash_read', { programmer });
 export const flashReadId = (programmer: string): Promise<ChipId> =>
   invoke<ChipId>('flash_read_id', { programmer });
-export const flashWrite = (path: string, programmer: string, verify: boolean): Promise<void> =>
-  invoke<void>('flash_write', { path, programmer, verify });
+// allow_invalid: only true when the operator explicitly confirmed the
+// dangerous write — the backend re-validates and refuses otherwise.
+export const flashWrite = (path: string, programmer: string, verify: boolean, allowInvalid = false): Promise<void> =>
+  invoke<void>('flash_write', { path, programmer, verify, allowInvalid });
 export const openPath   = (path: string) => invoke<void>('open_path', { path });
 export const saveTextFile = (path: string, content: string) =>
   invoke<void>('save_text_file', { path, content });

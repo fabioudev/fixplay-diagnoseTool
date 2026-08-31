@@ -706,13 +706,54 @@ type RootTranslation = {
 		 */
 		inProgress: string
 		/**
-		 * A​b​b​r​u​c​h​ ​e​r​z​w​i​n​g​e​n
-		 */
-		forceStop: string
-		/**
 		 * ⚠​ ​V​a​l​i​d​i​e​r​u​n​g​s​f​e​h​l​e​r​ ​e​r​k​a​n​n​t​ ​—​ ​F​o​r​t​f​a​h​r​e​n​ ​a​u​f​ ​e​i​g​e​n​e​ ​G​e​f​a​h​r
 		 */
 		validationErrorsWarn: string
+		/**
+		 * V​e​r​l​e​t​z​t​:​ ​{​f​a​i​l​e​d​}
+		 * @param {unknown} failed
+		 */
+		validationFailedSummary: RequiredParams<'failed'>
+		/**
+		 * V​a​l​i​d​i​e​r​u​n​g​s​f​e​h​l​e​r​ ​—​ ​w​i​r​k​l​i​c​h​ ​s​c​h​r​e​i​b​e​n​?
+		 */
+		writeBlockedTitle: string
+		/**
+		 * S​c​h​r​e​i​b​e​n​ ​b​e​s​t​ä​t​i​g​e​n
+		 */
+		writeConfirmTitle: string
+		/**
+		 * S​C​H​R​E​I​B​E​N
+		 */
+		writeConfirmWord: string
+		/**
+		 * D​e​r​ ​D​u​m​p​ ​v​e​r​l​e​t​z​t​ ​{​c​o​u​n​t​}​ ​V​a​l​i​d​i​e​r​u​n​g​s​p​r​ü​f​u​n​g​(​e​n​)​ ​(​{​f​a​i​l​e​d​}​)​.​ ​D​a​s​ ​S​c​h​r​e​i​b​e​n​ ​e​i​n​e​r​ ​d​e​f​e​k​t​e​n​ ​o​d​e​r​ ​u​n​v​o​l​l​s​t​ä​n​d​i​g​e​n​ ​D​a​t​e​i​ ​k​a​n​n​ ​d​i​e​ ​K​o​n​s​o​l​e​ ​i​r​r​e​p​a​r​a​b​e​l​ ​m​a​c​h​e​n​.
+		 * @param {unknown} count
+		 * @param {unknown} failed
+		 */
+		writeBlockedMessage: RequiredParams<'count' | 'failed'>
+		/**
+		 * V​e​r​i​f​y​ ​i​s​t​ ​A​U​S​ ​—​ ​S​c​h​r​e​i​b​f​e​h​l​e​r​ ​b​l​e​i​b​e​n​ ​u​n​b​e​m​e​r​k​t​ ​(​B​r​i​c​k​-​R​i​s​i​k​o​)​.​ ​W​i​r​k​l​i​c​h​ ​o​h​n​e​ ​V​e​r​i​f​y​ ​s​c​h​r​e​i​b​e​n​?
+		 */
+		writeNoVerifyMessage: string
+		/**
+		 * F​l​a​s​h​-​V​o​r​g​a​n​g​ ​l​ä​u​f​t​ ​(​{​p​e​r​c​e​n​t​}​ ​%​)
+		 * @param {unknown} percent
+		 */
+		busyBanner: RequiredParams<'percent'>
+		/**
+		 * Z​u​m​ ​N​O​R​-​F​l​a​s​h​-​P​a​n​e​l
+		 */
+		busyBannerGo: string
+		/**
+		 * E​i​n​ ​F​l​a​s​h​-​V​o​r​g​a​n​g​ ​l​ä​u​f​t​!​ ​E​i​n​ ​P​a​n​e​l​w​e​c​h​s​e​l​ ​z​e​i​g​t​ ​d​e​n​ ​l​a​u​f​e​n​d​e​n​ ​V​o​r​g​a​n​g​ ​n​i​c​h​t​ ​m​e​h​r​ ​a​n​ ​(​e​s​ ​i​s​t​ ​k​e​i​n​ ​A​b​b​r​u​c​h​)​.​ ​I​m​ ​N​O​R​-​F​l​a​s​h​-​P​a​n​e​l​ ​b​l​e​i​b​e​n​?
+		 */
+		leavePanelConfirm: string
+		/**
+		 * A​u​s​ ​d​e​m​ ​A​r​c​h​i​v​ ​v​o​r​g​e​m​e​r​k​t​:​ ​{​f​i​l​e​}​ ​—​ ​„​S​c​h​r​e​i​b​e​n​"​ ​s​t​a​r​t​e​t​ ​m​i​t​ ​d​i​e​s​e​r​ ​D​a​t​e​i​.
+		 * @param {unknown} file
+		 */
+		armedFromArchive: RequiredParams<'file'>
 		/**
 		 * V​a​l​i​d​i​e​r​u​n​g​:
 		 */
@@ -825,14 +866,6 @@ type RootTranslation = {
 		 * N​O​R​-​D​a​t​e​i​ ​w​ä​h​l​e​n
 		 */
 		selectNorFile: string
-		/**
-		 * O​h​n​e​ ​V​e​r​i​f​y​ ​s​c​h​r​e​i​b​e​n​?​ ​S​c​h​r​e​i​b​f​e​h​l​e​r​ ​b​l​e​i​b​e​n​ ​u​n​b​e​m​e​r​k​t​ ​—​ ​B​r​i​c​k​-​R​i​s​i​k​o​ ​f​ü​r​ ​d​i​e​ ​K​o​n​s​o​l​e​.
-		 */
-		confirmWriteNoVerify: string
-		/**
-		 * V​o​r​g​a​n​g​ ​v​o​m​ ​B​e​n​u​t​z​e​r​ ​a​b​g​e​b​r​o​c​h​e​n​ ​(​U​I​-​R​e​s​e​t​)​.​ ​D​e​r​ ​f​l​a​s​h​r​o​m​-​P​r​o​z​e​s​s​ ​l​ä​u​f​t​ ​m​ö​g​l​i​c​h​e​r​w​e​i​s​e​ ​w​e​i​t​e​r​.
-		 */
-		userAbortLog: string
 		phase: {
 			/**
 			 * L​e​s​e​n​ ​1​/​2​…
@@ -2377,6 +2410,10 @@ type RootTranslation = {
 			 * S​p​a​n​n​u​n​g​s​-​J​u​m​p​e​r​ ​(​n​u​r​ ​b​l​u​e​ ​b​o​a​r​d​)​ ​a​u​f​ ​3​,​3​ ​V
 			 */
 			jumperVolt: string
+			/**
+			 * ⚠​ ​R​i​s​i​k​o​:​ ​K​l​a​s​s​i​s​c​h​e​ ​s​c​h​w​a​r​z​e​ ​C​H​3​4​1​A​-​B​o​a​r​d​s​ ​t​r​e​i​b​e​n​ ​d​i​e​ ​S​P​I​-​L​e​i​t​u​n​g​e​n​ ​m​i​t​ ​~​5​ ​V​ ​—​ ​3​,​3​-​V​-​N​O​R​ ​k​a​n​n​ ​z​e​r​s​t​ö​r​t​ ​w​e​r​d​e​n​.​ ​V​o​r​ ​d​e​m​ ​e​r​s​t​e​n​ ​L​e​s​e​n​ ​d​e​n​ ​3​,​3​-​V​-​F​i​x​ ​p​r​ü​f​e​n​.
+			 */
+			dangerShort: string
 			/**
 			 * 3​,​3​-​V​-​F​i​x​ ​(​s​c​h​w​a​r​z​e​s​ ​B​o​a​r​d​)
 			 */
@@ -4008,13 +4045,49 @@ export type TranslationFunctions = {
 		 */
 		inProgress: () => LocalizedString
 		/**
-		 * Abbruch erzwingen
-		 */
-		forceStop: () => LocalizedString
-		/**
 		 * ⚠ Validierungsfehler erkannt — Fortfahren auf eigene Gefahr
 		 */
 		validationErrorsWarn: () => LocalizedString
+		/**
+		 * Verletzt: {failed}
+		 */
+		validationFailedSummary: (arg: { failed: unknown }) => LocalizedString
+		/**
+		 * Validierungsfehler — wirklich schreiben?
+		 */
+		writeBlockedTitle: () => LocalizedString
+		/**
+		 * Schreiben bestätigen
+		 */
+		writeConfirmTitle: () => LocalizedString
+		/**
+		 * SCHREIBEN
+		 */
+		writeConfirmWord: () => LocalizedString
+		/**
+		 * Der Dump verletzt {count} Validierungsprüfung(en) ({failed}). Das Schreiben einer defekten oder unvollständigen Datei kann die Konsole irreparabel machen.
+		 */
+		writeBlockedMessage: (arg: { count: unknown, failed: unknown }) => LocalizedString
+		/**
+		 * Verify ist AUS — Schreibfehler bleiben unbemerkt (Brick-Risiko). Wirklich ohne Verify schreiben?
+		 */
+		writeNoVerifyMessage: () => LocalizedString
+		/**
+		 * Flash-Vorgang läuft ({percent} %)
+		 */
+		busyBanner: (arg: { percent: unknown }) => LocalizedString
+		/**
+		 * Zum NOR-Flash-Panel
+		 */
+		busyBannerGo: () => LocalizedString
+		/**
+		 * Ein Flash-Vorgang läuft! Ein Panelwechsel zeigt den laufenden Vorgang nicht mehr an (es ist kein Abbruch). Im NOR-Flash-Panel bleiben?
+		 */
+		leavePanelConfirm: () => LocalizedString
+		/**
+		 * Aus dem Archiv vorgemerkt: {file} — „Schreiben" startet mit dieser Datei.
+		 */
+		armedFromArchive: (arg: { file: unknown }) => LocalizedString
 		/**
 		 * Validierung:
 		 */
@@ -4123,14 +4196,6 @@ export type TranslationFunctions = {
 		 * NOR-Datei wählen
 		 */
 		selectNorFile: () => LocalizedString
-		/**
-		 * Ohne Verify schreiben? Schreibfehler bleiben unbemerkt — Brick-Risiko für die Konsole.
-		 */
-		confirmWriteNoVerify: () => LocalizedString
-		/**
-		 * Vorgang vom Benutzer abgebrochen (UI-Reset). Der flashrom-Prozess läuft möglicherweise weiter.
-		 */
-		userAbortLog: () => LocalizedString
 		phase: {
 			/**
 			 * Lesen 1/2…
@@ -5591,6 +5656,10 @@ export type TranslationFunctions = {
 			 * Spannungs-Jumper (nur blue board) auf 3,3 V
 			 */
 			jumperVolt: () => LocalizedString
+			/**
+			 * ⚠ Risiko: Klassische schwarze CH341A-Boards treiben die SPI-Leitungen mit ~5 V — 3,3-V-NOR kann zerstört werden. Vor dem ersten Lesen den 3,3-V-Fix prüfen.
+			 */
+			dangerShort: () => LocalizedString
 			/**
 			 * 3,3-V-Fix (schwarzes Board)
 			 */

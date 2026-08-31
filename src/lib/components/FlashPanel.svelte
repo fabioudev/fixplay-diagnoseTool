@@ -1,27 +1,34 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { listen } from '@tauri-apps/api/event';
+  import { onMount } from 'svelte';
+  import { AlertTriangle } from 'lucide-svelte';
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
-    flashBusy, flashProgress, flashResult, flashLog,
+    flashBusy, flashProgress, flashResult, flashLog, flashPhase, flashEtaRemainingMs,
+    FLASH_PHASE_LABELS, formatFlashDuration,
     flashProgrammer, flashProgrammers, flashWriteRequest, flashWritePreview, nextFlashLogId,
+    pushFlashLog, isValidationOk, failedValidationKeys,
   } from '$lib/stores/flash';
   import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, flashFreeDiskSpace, openPath } from '$lib/api/tauri';
-  import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult, ChipId, DiskSpace } from '$lib/api/types';
+  import type { ChipId, DiskSpace, FlashReadResult } from '$lib/api/types';
   import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
   import LL from '$lib/i18n/i18n-svelte';
   import { get } from 'svelte/store';
   import type { TranslationFunctions } from '$lib/i18n/i18n-types';
   import type { LocalizedString } from 'typesafe-i18n';
   import HardwareGuide from './HardwareGuide.svelte';
+  import ConfirmDialog from './ConfirmDialog.svelte';
 
   let programmers = $state<string[]>([]);
-  let phaseLabel  = $state('');
-  let etaLabel    = $state('');
   let writeVerify = $state(true);
   let chipId      = $state<ChipId | null>(null);
   let chipIdBusy  = $state(false);
   let diskSpace   = $state<DiskSpace | null>(null);
+
+  // Write confirmation dialog: opens instead of writing straight away whenever
+  // the dump failed validation or verify is off. The backend re-validates too
+  // (write_gate, defense-in-depth) — this dialog is what makes the operator
+  // *intentionally* override that gate via allow_invalid.
+  let writeConfirmOpen = $state(false);
 
   /** A NOR read writes 2 MiB twice plus the archived copy — warn well below that. */
   const DISK_WARN_BYTES = 64 * 1024 * 1024; // 64 MiB
@@ -39,29 +46,6 @@
     diskSpace = await flashFreeDiskSpace().catch(() => null);
   }
 
-  // Per-phase ETA tracking. Progress resets to 0 at each phase (read1/read2/
-  // write/verify), so we anchor on the first event of the current phase and
-  // extrapolate the remaining time from the observed rate. Only shown once
-  // enough of the phase has elapsed to give a non-noisy estimate.
-  let etaPhase  = $state('');
-  let etaStart  = $state(0);
-
-  function formatDuration(ms: number): string {
-    if (!Number.isFinite(ms) || ms < 0) return '';
-    const s = Math.round(ms / 1000);
-    if (s < 60) return `~${s}s`;
-    const m = Math.floor(s / 60);
-    const r = s % 60;
-    return `~${m}m ${r}s`;
-  }
-
-  const PHASE_LABELS: Record<string, (ll: TranslationFunctions) => LocalizedString> = {
-    read1:  (ll) => ll.flash.phase.read1(),
-    read2:  (ll) => ll.flash.phase.read2(),
-    write:  (ll) => ll.flash.phase.write(),
-    verify: (ll) => ll.flash.phase.verify(),
-  };
-
   const VALIDATION_ITEMS: { key: string; label: (ll: TranslationFunctions) => LocalizedString; tip: (ll: TranslationFunctions) => LocalizedString }[] = [
     { key: 'header_ok',     label: (ll) => ll.flash.validation.headerOk.label(), tip: (ll) => ll.flash.validation.headerOk.tip() },
     { key: 'mbr1_ok',       label: (ll) => ll.flash.validation.mbr1.label(),     tip: (ll) => ll.flash.validation.mbr1.tip() },
@@ -73,7 +57,47 @@
     { key: 'size_ok',       label: (ll) => ll.flash.validation.size.label(),     tip: (ll) => ll.flash.validation.size.tip() },
   ];
 
-  const unlisten: Array<() => void> = [];
+  function validationLabel(key: string, ll: TranslationFunctions): LocalizedString {
+    return VALIDATION_ITEMS.find((i) => i.key === key)?.label(ll) ?? (key as LocalizedString);
+  }
+
+  /**
+   * Reactive dialog copy for the dangerous-write confirmation. Must be $derived
+   * (not function calls with get()): plain prop expressions in the template
+   * only re-evaluate when their tracked inputs change, and get() reads stores
+   * untracked — the dialog would freeze at its mount-time preview (null) and
+   * open with empty copy and no type-to-confirm gate.
+   */
+  const writeConfirm = $derived.by(() => {
+    const preview = $flashWritePreview;
+    if (!preview) return { title: '', message: '', typeToConfirm: '' };
+    const bad = failedValidationKeys(preview.validation);
+    if (bad.length > 0) {
+      const failed = bad.map((k) => validationLabel(k, $LL)).join(', ');
+      return {
+        title: $LL.flash.writeBlockedTitle(),
+        message: $LL.flash.writeBlockedMessage({ count: bad.length, failed }),
+        typeToConfirm: preview.nvs?.serial || $LL.flash.writeConfirmWord(),
+      };
+    }
+    return {
+      title: $LL.flash.writeConfirmTitle(),
+      message: $LL.flash.writeNoVerifyMessage(),
+      typeToConfirm: '',
+    };
+  });
+
+  // Localized display labels are derived here (not stored at event time) so a
+  // locale switch mid-operation still shows the right text. Unknown phase keys
+  // fall back to the raw key rather than hiding progress.
+  const phaseLabel = $derived.by(() => {
+    const phase = $flashPhase;
+    if (!phase) return '';
+    const fn = FLASH_PHASE_LABELS[phase];
+    return fn ? fn($LL) : phase;
+  });
+
+  const etaLabel = $derived($flashEtaRemainingMs === null ? '' : $LL.flash.eta({ time: formatFlashDuration($flashEtaRemainingMs) }));
 
   onMount(async () => {
     programmers = await flashListProgrammers().catch(() => []);
@@ -87,63 +111,31 @@
     // the first read/write.
     const binaryStatus = await flashGetBinaryStatus().catch(() => null);
     if (binaryStatus && !binaryStatus.ok) {
-      flashLog.update((log) => [
-        {
-          id: nextFlashLogId(),
-          timestamp_ms: Date.now(),
-          message: get(LL).flash.binaryProblem({ reason: binaryStatus.reason ?? get(LL).common.unknown(), path: binaryStatus.path }),
-          level: 'error',
-        },
-        ...log,
-      ]);
+      pushFlashLog({
+        id: nextFlashLogId(),
+        timestamp_ms: Date.now(),
+        message: get(LL).flash.binaryProblem({ reason: binaryStatus.reason ?? get(LL).common.unknown(), path: binaryStatus.path }),
+        level: 'error',
+      });
     }
 
     // Free-disk-space indicator for the archive volume (#43).
     refreshDiskSpace();
-
-    const [u1, u2, u3] = await Promise.all([
-      listen<FlashProgressEvent>('flash://progress', (e) => {
-        flashProgress.set(e.payload);
-        const phaseFn = PHASE_LABELS[e.payload.phase];
-        phaseLabel = phaseFn ? phaseFn(get(LL)) : e.payload.phase;
-        // ETA: re-anchor whenever the phase changes, then extrapolate from the
-        // observed rate once ≥20% of the phase is done.
-        const now = Date.now();
-        if (etaPhase !== e.payload.phase) { etaPhase = e.payload.phase; etaStart = now; }
-        const elapsed = now - etaStart;
-        const pct = e.payload.percent;
-        if (pct > 0 && pct < 100 && elapsed > 0) {
-          etaLabel = pct >= 20
-            ? get(LL).flash.eta({ time: formatDuration((100 - pct) * elapsed / pct) })
-            : '';
-        } else if (pct >= 100) {
-          etaLabel = '';
-        }
-      }),
-      listen<FlashStatusEvent>('flash://status', (e) => {
-        flashLog.update((log) => [
-          {
-            id:           nextFlashLogId(),
-            timestamp_ms: Date.now(),
-            message:      e.payload.message,
-            level:        e.payload.level as 'info' | 'warn' | 'error',
-          },
-          ...log.slice(0, 199),
-        ]);
-      }),
-      listen<FlashReadResult>('flash://result', (e) => {
-        flashResult.set(e.payload);
-        flashBusy.set(false);
-        flashProgress.set(null);
-        etaLabel = ''; etaPhase = ''; etaStart = 0;
-        // A completed read archives a dump — refresh the free-space indicator.
-        refreshDiskSpace();
-      }),
-    ]);
-    unlisten.push(u1, u2, u3);
   });
 
-  onDestroy(() => unlisten.forEach((fn) => fn()));
+  // A completed read archives a dump — refresh the free-space indicator. The
+  // lastResultSeen guard dedupes the onMount fetch and the mid-operation
+  // flashResult.set(null) reset (the effect would otherwise fire twice per
+  // completed read). (The flash:// listeners themselves live in the flash
+  // store so they survive panel switches; this purely-local concern stays
+  // component-side.)
+  let lastResultSeen: FlashReadResult | null = null;
+  $effect(() => {
+    if ($flashResult !== null && $flashResult !== lastResultSeen) {
+      lastResultSeen = $flashResult;
+      void refreshDiskSpace();
+    }
+  });
 
   async function handleReadId() {
     if (!$flashProgrammer) return;
@@ -152,10 +144,7 @@
       chipId = await flashReadId($flashProgrammer);
     } catch (e: unknown) {
       chipId = null;
-      flashLog.update((log) => [
-        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: get(LL).flash.chipIdError({ error: String(e) }), level: 'error' },
-        ...log,
-      ]);
+      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: get(LL).flash.chipIdError({ error: String(e) }), level: 'error' });
     } finally {
       chipIdBusy = false;
     }
@@ -167,10 +156,7 @@
     flashLog.set([]);
     flashProgress.set(null);
     await flashRead($flashProgrammer).catch((e: unknown) => {
-      flashLog.update((log) => [
-        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
-        ...log,
-      ]);
+      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
       flashBusy.set(false);
       flashProgress.set(null);
     });
@@ -197,36 +183,41 @@
       const preview = await flashValidateFile(selected);
       flashWritePreview.set(preview);
     } catch (e: unknown) {
-      flashLog.update((log) => [
-        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
-        ...log,
-      ]);
+      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
     } finally {
       flashBusy.set(false);
     }
   }
 
-  async function confirmWrite() {
+  /**
+   * The "Jetzt schreiben" click: gate instead of trusting the operator.
+   * A failed validation or a verify-off write opens a blocking ConfirmDialog
+   * (type-to-confirm when the dump is invalid) — without verify or with a
+   * defective image, a silent write error bricks the chip.
+   */
+  function confirmWrite() {
     const preview = $flashWritePreview;
     if (!preview) return;
-
-    // Without verify a silent write error can brick the chip — make the bypass
-    // a deliberate choice rather than an accidental checkbox state.
-    if (!writeVerify && !confirm(get(LL).flash.confirmWriteNoVerify())) {
+    if (!isValidationOk(preview.validation) || !writeVerify) {
+      writeConfirmOpen = true;
       return;
     }
+    void doWrite();
+  }
+
+  async function doWrite() {
+    const preview = $flashWritePreview;
+    if (!preview) return;
 
     flashWritePreview.set(null);
     flashBusy.set(true);
     flashLog.set([]);
     flashProgress.set(null);
     try {
-      await flashWrite(preview.path, $flashProgrammer, writeVerify);
+      const allowInvalid = !isValidationOk(preview.validation);
+      await flashWrite(preview.path, $flashProgrammer, writeVerify, allowInvalid);
     } catch (e: unknown) {
-      flashLog.update((log) => [
-        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
-        ...log,
-      ]);
+      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
     } finally {
       flashBusy.set(false);
       flashProgress.set(null);
@@ -247,7 +238,23 @@
     </p>
   </div>
 
+  <!-- Persistent 5V danger strip: the single most destructive hardware mistake
+       here is a classic black CH341A on a 3.3 V NOR — never only inside the
+       collapsed guide. -->
+  <div class="flex items-center gap-2 rounded border border-red-700 bg-red-950 px-3 py-2 text-xs text-red-300">
+    <AlertTriangle class="h-4 w-4 shrink-0" />
+    <span>{$LL.hwGuide.ch341a.dangerShort()}</span>
+  </div>
+
   <HardwareGuide variant="ch341a" />
+
+  {#if $flashWriteRequest}
+    <!-- Archive handoff: a dump is armed for the next "Schreiben" click — keep
+         the origin visible until the request is consumed. -->
+    <div class="rounded border border-blue-800 bg-blue-950/50 px-3 py-2 text-xs text-blue-200" title={$LL.flash.writeTitle()}>
+      {$LL.flash.armedFromArchive({ file: $flashWriteRequest })}
+    </div>
+  {/if}
 
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-2">
@@ -344,25 +351,32 @@
           style="width: {$flashProgress.percent}%"
         ></div>
       </div>
-      <div class="flex items-center justify-between">
-        <p class="text-xs text-gray-600">{$LL.flash.inProgress()}</p>
-        <button
-          class="text-xs text-red-400 hover:text-red-300 underline"
-          onclick={() => { flashBusy.set(false); flashProgress.set(null); etaLabel = ''; etaPhase = ''; etaStart = 0; flashLog.update((l) => [{ id: nextFlashLogId(), timestamp_ms: Date.now(), message: get(LL).flash.userAbortLog(), level: 'warn' }, ...l]); }}
-        >{$LL.flash.forceStop()}</button>
-      </div>
+      <p class="text-xs text-gray-600">{$LL.flash.inProgress()}</p>
+      <!-- No "force stop" button: a UI-only abort used to lie (flashrom kept
+           running) and re-armed other buttons against the running child. A real
+           abort needs the backend; until then the UI stays honest: the
+           operation runs to completion or to the watchdog. -->
     </div>
   {/if}
 
   <!-- Write preview card -->
   {#if $flashWritePreview}
     {@const p = $flashWritePreview}
-    {@const validationOk = p.validation.size_ok && p.validation.header_ok && p.validation.mbr1_ok && p.validation.mbr2_ok && p.validation.emc_ipl_a_ok && p.validation.emc_ipl_b_ok && p.validation.usb_pdc_a_ok && p.validation.usb_pdc_b_ok}
+    {@const validationOk = isValidationOk(p.validation)}
     <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
 
       {#if !validationOk}
-        <div class="flex items-center gap-2 rounded bg-yellow-900 border border-yellow-700 px-3 py-2">
-          <span class="text-yellow-400 font-semibold">{$LL.flash.validationErrorsWarn()}</span>
+        <!-- Full-width red block: the backend refuses invalid images unless
+             allow_invalid is passed — this banner plus the confirm dialog are
+             what turn that refusal into a conscious operator override. -->
+        <div class="rounded border border-red-700 bg-red-950 px-3 py-2 flex flex-col gap-1">
+          <span class="text-red-300 font-semibold flex items-center gap-2">
+            <AlertTriangle class="h-4 w-4 shrink-0" />
+            {$LL.flash.validationErrorsWarn()}
+          </span>
+          <span class="text-red-300">
+            {$LL.flash.validationFailedSummary({ failed: failedValidationKeys(p.validation).map((k) => validationLabel(k, $LL)).join(', ') })}
+          </span>
         </div>
       {/if}
 
@@ -447,6 +461,20 @@
       </div>
     </div>
   {/if}
+
+  <!-- Blocking write confirmation: dangerous writes (failed validation / verify
+       off) go through here instead of writing on click. Type-to-confirm text is
+       the console serial (fallback: locale word) so the operator confirms the
+       exact target, not just a checkbox. -->
+  <ConfirmDialog
+    bind:open={writeConfirmOpen}
+    title={writeConfirm.title}
+    message={writeConfirm.message}
+    confirmLabel={$LL.flash.writeNow()}
+    confirmDanger
+    typeToConfirm={writeConfirm.typeToConfirm}
+    onconfirm={() => void doWrite()}
+  />
 
   <!-- Result card -->
   {#if $flashResult}

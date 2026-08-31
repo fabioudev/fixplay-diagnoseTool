@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { flashResult, requestFlashWrite } from '$lib/stores/flash';
+  import { navigate } from '$lib/stores/app';
   import { archiveDeleteDump, openPath } from '$lib/api/tauri';
   import {
     archives,
@@ -62,6 +63,10 @@
 
   function handleLoad(entry: DumpEntry) {
     requestFlashWrite(entry.bin_path);
+    // The handoff used to arm a write with only a 2-second button highlight as
+    // feedback — navigate to the flash panel so the technician ends up next to
+    // the armed write request (its origin banner is shown there).
+    navigate('flash');
     loadedPath = entry.bin_path;
     setTimeout(() => { if (loadedPath === entry.bin_path) loadedPath = null; }, 2000);
   }

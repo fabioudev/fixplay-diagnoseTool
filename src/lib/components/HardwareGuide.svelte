@@ -190,7 +190,7 @@
             <g filter="url(#shadowFilter)">
               <rect x="110" y="36" width="120" height="7" rx="2" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
               <rect x="158" y="32" width="24" height="13" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
-              {#each [162, 166, 170, 174] as lx}
+              {#each [162, 166, 170, 174] as lx (lx)}
                 <line x1={lx} y1="34" x2={lx} y2="43" stroke="#9ca3af" stroke-width="0.5" />
               {/each}
             </g>

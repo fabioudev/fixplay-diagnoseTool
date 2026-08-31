@@ -17,7 +17,7 @@
   import Toaster from '$lib/components/Toaster.svelte';
   import { sidebarCollapsed } from '$lib/stores/ui';
   import { appSettings } from '$lib/stores/settings';
-  import { flashBusy } from '$lib/stores/flash';
+  import { flashBusy, flashProgress, initFlashListeners, nextFlashLogId, pushFlashLog } from '$lib/stores/flash';
   import { refreshUpdateContext, checkUpdates, currentVersion } from '$lib/stores/updater';
   import { activeView, navigate, SHORTCUT_VIEWS } from '$lib/stores/app';
   import { onMount } from 'svelte';
@@ -51,6 +51,16 @@
   onMount(() => {
     // First-run onboarding — show once per install.
     try { if (!localStorage.getItem('fixplay-onboarding-done')) onboardingOpen = true; } catch { /* ignored */ }
+
+    // flash:// listeners live at app level (not inside FlashPanel) so progress,
+    // status and final result survive panel switches during a multi-minute
+    // read/write — otherwise the result event would drop and flashBusy stay
+    // true forever. A failed registration must at least be visible in the
+    // flash log (the store resets its ready flag so a later retry is possible);
+    // swallowing it silently would strand flashBusy on the first operation.
+    initFlashListeners().catch((e: unknown) => {
+      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
+    });
 
     if (!__MOCK_MODE__) {
       refreshUpdateContext().then(() => checkUpdates());
@@ -112,6 +122,21 @@
     />
 
     <UpdateBanner onCheck={() => checkUpdates()} />
+
+    <!-- Persistent progress banner while a flash operation runs on a hidden
+         panel (see navigate()'s confirm gate — this is the visible counterpart
+         for the session where the technician chose to leave the panel). -->
+    {#if $flashBusy && $activeView !== 'flash'}
+      <div class="flex items-center justify-between gap-2 border-b border-yellow-700 bg-yellow-900/60 px-4 py-1.5 text-xs text-yellow-200">
+        <span>{$LL.flash.busyBanner({ percent: $flashProgress?.percent ?? 0 })}</span>
+        <button
+          onclick={() => navigate('flash')}
+          class="font-medium underline hover:text-yellow-100"
+        >
+          {$LL.flash.busyBannerGo()}
+        </button>
+      </div>
+    {/if}
 
     <main class="flex-1 min-h-0 overflow-hidden">
       {#if $activeView === 'home'}

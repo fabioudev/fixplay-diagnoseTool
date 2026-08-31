@@ -24,6 +24,7 @@
   } from '$lib/api/tauri';
   import { appSettings } from '$lib/stores/settings';
   import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
+  import { formatErrorCodeHex, formatHex8, uartLogMatches } from '$lib/utils/uartLog';
   import type { UartEntryEvent, ErrorSearchResult, UartPortInfo, UartLogEntry } from '$lib/api/types';
 
   let selectedPort    = $state('');
@@ -50,9 +51,12 @@
     rawInput = '';
   }
 
+  // Log filter: the box also feeds the live DB search, so both roles must
+  // agree on the canonical 0xXXXXXXXX form (a decimal string used to be
+  // inserted via result-click and never matched the hex log text).
   const filteredLog = $derived(
     dbQuery.trim()
-      ? $uartLog.filter((e) => e.raw.toLowerCase().includes(dbQuery.toLowerCase()))
+      ? $uartLog.filter((e) => uartLogMatches(e, dbQuery))
       : $uartLog
   );
 
@@ -109,10 +113,10 @@
 
   function formatEntry(e: UartEntryEvent): string {
     return [
-      e.entry.error_code.toString(16).toUpperCase().padStart(8, '0'),
-      e.entry.timestamp.toString(16).toUpperCase().padStart(8, '0'),
-      e.entry.power_states.toString(16).toUpperCase().padStart(8, '0'),
-      e.entry.up_cause.toString(16).toUpperCase().padStart(8, '0'),
+      formatHex8(e.entry.error_code),
+      formatHex8(e.entry.timestamp),
+      formatHex8(e.entry.power_states),
+      formatHex8(e.entry.up_cause),
       e.entry.temp_soc.toFixed(1) + '°C',
     ].join(', ');
   }
@@ -612,13 +616,13 @@
       <div class="bg-gray-800 rounded border border-gray-700 text-xs max-h-40 overflow-y-auto">
         {#each searchResults as r (r.code)}
           <button
-            onclick={() => { dbQuery = r.code.toString(); searchResults = []; }}
+            onclick={() => { dbQuery = formatErrorCodeHex(r.code); searchResults = []; }}
             title={$LL.uart.searchResultTitle()}
             class="w-full text-left px-2 py-1.5 hover:bg-gray-700 flex items-center gap-2 border-b
                    border-gray-700 last:border-0"
           >
             <span class="font-mono text-orange-400 shrink-0 w-24">
-              0x{r.code.toString(16).toUpperCase().padStart(8, '0')}
+              {formatErrorCodeHex(r.code)}
             </span>
             <span class="text-gray-200 truncate flex-1">{r.description}</span>
             <span class="text-gray-500 shrink-0 text-xs">{r.category}</span>
@@ -638,7 +642,7 @@
         >
           <div class="flex items-start justify-between gap-2">
             <span class="font-mono font-bold text-orange-400" title={$LL.uart.errorCodeTitle()}>
-              0x{entry.parsed.entry.error_code.toString(16).toUpperCase().padStart(8, '0')}
+              {formatErrorCodeHex(entry.parsed.entry.error_code)}
             </span>
             <span class="text-gray-500 shrink-0">
               {formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}
@@ -652,10 +656,10 @@
               {$LL.uart.temp()} <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span>
             </span>
             <span title={$LL.uart.powerStatesTitle()}>
-              {$LL.uart.powerStates()} {entry.parsed.entry.power_states.toString(16).toUpperCase().padStart(8, '0')}
+              {$LL.uart.powerStates()} {formatHex8(entry.parsed.entry.power_states)}
             </span>
             <span title={$LL.uart.upCauseTitle()}>
-              {$LL.uart.upCause()} {entry.parsed.entry.up_cause.toString(16).toUpperCase().padStart(8, '0')}
+              {$LL.uart.upCause()} {formatHex8(entry.parsed.entry.up_cause)}
             </span>
           </div>
         </div>
