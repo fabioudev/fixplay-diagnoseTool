@@ -3,7 +3,7 @@
 **Cross-platform desktop diagnostic tool for gaming console repair.**  
 Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. DualSense controller testing and calibration. Built with **Tauri v2** (Rust + Svelte 5).
 
-**UI languages:** ![Deutsch](https://img.shields.io/badge/UI-Deutsch-default-blue) ![English](https://img.shields.io/badge/UI-English-blue) — switchable live via the in-app language toggle; English is fully supported throughout the app.
+**UI languages:** ![Deutsch](https://img.shields.io/badge/UI-Deutsch-blue) ![English](https://img.shields.io/badge/UI-English-blue) — switchable live via the in-app language toggle; English is fully supported throughout the app.
 
 <p align="center">
   <img src="static/favicon.svg" alt="fixplay logo" width="128" />
