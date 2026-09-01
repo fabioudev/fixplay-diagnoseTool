@@ -1,10 +1,16 @@
-
 // Controller manager: manages the current controller instance and processes input.
 // Ported from dualshock-tools/js/controller-manager.js
 
 import { BaseController } from './base-controller';
 import { DS5Controller } from './ds5-controller';
-import type { InputConfig, BatteryStatus, NvStatus, AdaptiveTriggerConfig, HIDDeviceLike, HIDInputReportEvent } from './base-controller';
+import type {
+  InputConfig,
+  BatteryStatus,
+  NvStatus,
+  AdaptiveTriggerConfig,
+  HIDDeviceLike,
+  HIDInputReportEvent,
+} from './base-controller';
 import { sleep } from './utils';
 
 /** DualSense Bluetooth input report id (USB is 0x01). Used for transport detection. */
@@ -176,7 +182,9 @@ export class ControllerManager {
     this.hasChangesToWrite = hasChanges;
   }
 
-  async flash(progressCallback: ((p: number) => void) | null = null): Promise<{ success: boolean; message: string }> {
+  async flash(
+    progressCallback: ((p: number) => void) | null = null
+  ): Promise<{ success: boolean; message: string }> {
     if (!this.currentController) throw new Error('No controller connected');
     this.setHasChangesToWrite(false);
     return this.currentController.flash(progressCallback);
@@ -239,7 +247,10 @@ export class ControllerManager {
     this.setHasChangesToWrite(true);
   }
 
-  async setAdaptiveTrigger(left: AdaptiveTriggerConfig, right: AdaptiveTriggerConfig): Promise<void> {
+  async setAdaptiveTrigger(
+    left: AdaptiveTriggerConfig,
+    right: AdaptiveTriggerConfig
+  ): Promise<void> {
     if (!this.currentController) return;
     await this.currentController.setAdaptiveTrigger(left, right);
   }
@@ -249,7 +260,11 @@ export class ControllerManager {
     await this.currentController.setVibration(heavyLeft, lightRight);
   }
 
-  async setSpeakerTone(output: 'speaker' | 'headphones' = 'speaker', duration = 0, doneCb?: (r: { success: boolean }) => void): Promise<void> {
+  async setSpeakerTone(
+    output: 'speaker' | 'headphones' = 'speaker',
+    duration = 0,
+    doneCb?: (r: { success: boolean }) => void
+  ): Promise<void> {
     if (!this.currentController) return;
     await this.currentController.setSpeakerTone(output);
     if (duration > 0) {
@@ -317,10 +332,12 @@ export class ControllerManager {
       changes.sticks = newSticks;
     }
 
-    ([
-      ['l2', l2AnalogByte],
-      ['r2', r2AnalogByte],
-    ] as const).forEach(([name, byte]) => {
+    (
+      [
+        ['l2', l2AnalogByte],
+        ['r2', r2AnalogByte],
+      ] as const
+    ).forEach(([name, byte]) => {
       const val = data.getUint8(byte);
       const key = name + '_analog';
       if (val !== this.button_states[key]) {
@@ -378,7 +395,9 @@ export class ControllerManager {
     return `${info.charge_level}%${info.is_charging ? ' ⚡' : ''}`;
   }
 
-  private _parseBatteryStatus(data: DataView): BatteryStatus & { bat_txt: string; changed: boolean } {
+  private _parseBatteryStatus(
+    data: DataView
+  ): BatteryStatus & { bat_txt: string; changed: boolean } {
     const batteryInfo = this.currentController!.parseBatteryStatus(data);
     const batTxt = this._batteryPercentToText(batteryInfo);
     const changed = batTxt !== this._lastBatteryText;
@@ -407,7 +426,13 @@ export class ControllerManager {
     const inputConfig = this.currentController.getInputConfig();
     const { buttonMap, dpadByte, l2AnalogByte, r2AnalogByte, touchpadOffset } = inputConfig;
 
-    const changes = this._recordButtonStates(common, buttonMap, dpadByte, l2AnalogByte, r2AnalogByte);
+    const changes = this._recordButtonStates(
+      common,
+      buttonMap,
+      dpadByte,
+      l2AnalogByte,
+      r2AnalogByte
+    );
     if (touchpadOffset) this.touchPoints = this._parseTouchPoints(common, touchpadOffset);
     this.batteryStatus = this._parseBatteryStatus(common);
 

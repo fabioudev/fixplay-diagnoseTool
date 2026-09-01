@@ -1,7 +1,14 @@
-
-
 <script lang="ts">
-  import { PanelLeftClose, PanelLeftOpen, RefreshCw, Pin, PinOff, Sun, Moon, Languages } from 'lucide-svelte';
+  import {
+    PanelLeftClose,
+    PanelLeftOpen,
+    RefreshCw,
+    Pin,
+    PinOff,
+    Sun,
+    Moon,
+    Languages,
+  } from 'lucide-svelte';
   import { theme, toggleTheme } from '$lib/stores/theme';
   import LL, { locale } from '$lib/i18n/i18n-svelte';
   import { toggleLocale } from '$lib/i18n/init';
@@ -15,7 +22,9 @@
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window');
       await getCurrentWindow().setAlwaysOnTop(pinned);
-    } catch { /* not available in mock */ }
+    } catch {
+      /* not available in mock */
+    }
   }
   import { checkUpdates, updateAvailable, updateBusy } from '$lib/stores/updater';
 
@@ -32,18 +41,16 @@
   } = $props();
 
   const titleKey: Record<View, (ll: TranslationFunctions) => LocalizedString> = {
-    home:        (ll) => ll.header.home(),
-    flash:       (ll) => ll.header.flash(),
-    uart:        (ll) => ll.header.uart(),
-    i2c:         (ll) => ll.header.i2c(),
-    archive:     (ll) => ll.header.archive(),
-    controller:  (ll) => ll.header.controller(),
+    home: (ll) => ll.header.home(),
+    flash: (ll) => ll.header.flash(),
+    uart: (ll) => ll.header.uart(),
+    i2c: (ll) => ll.header.i2c(),
+    archive: (ll) => ll.header.archive(),
+    controller: (ll) => ll.header.controller(),
   };
 </script>
 
-<header
-  class="flex items-center gap-3 h-14 px-4 bg-gray-900 border-b border-gray-800 shrink-0"
->
+<header class="flex items-center gap-3 h-14 px-4 bg-gray-900 border-b border-gray-800 shrink-0">
   <button
     onclick={onToggleSidebar}
     class="text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg p-1.5 transition-colors shrink-0"
@@ -65,8 +72,8 @@
     onclick={() => checkUpdates()}
     class="relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0
            {$updateAvailable
-             ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/40'
-             : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border border-transparent'}"
+      ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/40'
+      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border border-transparent'}"
     title={$updateAvailable
       ? $LL.header.updateAvailable({ version: $updateAvailable.version })
       : $LL.header.checkUpdates()}
@@ -116,4 +123,3 @@
     {/if}
   </button>
 </header>
-

@@ -3,7 +3,16 @@
   import { get } from 'svelte/store';
   import LL from '$lib/i18n/i18n-svelte';
   import HardwareGuide from './HardwareGuide.svelte';
-  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from '$lib/stores/uart';
+  import {
+    uartConnected,
+    uartPorts,
+    uartLog,
+    autoPollEnabled,
+    nextLogId,
+    dbCodeCount,
+    dbLoading,
+    uartReconnecting,
+  } from '$lib/stores/uart';
   import {
     uartListPorts,
     uartConnect,
@@ -25,18 +34,23 @@
   import { appSettings } from '$lib/stores/settings';
   import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
   import { formatErrorCodeHex, formatHex8, uartLogMatches } from '$lib/utils/uartLog';
-  import type { UartEntryEvent, ErrorSearchResult, UartPortInfo, UartLogEntry } from '$lib/api/types';
+  import type {
+    UartEntryEvent,
+    ErrorSearchResult,
+    UartPortInfo,
+    UartLogEntry,
+  } from '$lib/api/types';
 
-  let selectedPort    = $state('');
-  let loading         = $state(false);
-  let dbUpdating      = $state(false);
-  let dbQuery         = $state('');
-  let searchResults   = $state<ErrorSearchResult[]>([]);
+  let selectedPort = $state('');
+  let loading = $state(false);
+  let dbUpdating = $state(false);
+  let dbQuery = $state('');
+  let searchResults = $state<ErrorSearchResult[]>([]);
   let loopbackPending = $state(false);
-  let autoReconnect   = $state(false);
+  let autoReconnect = $state(false);
 
   // Raw terminal mode (#45): free-form line send with a chosen line ending.
-  let rawInput      = $state('');
+  let rawInput = $state('');
   let rawLineEnding = $state<'none' | 'cr' | 'lf' | 'crlf'>('crlf');
 
   async function sendRaw() {
@@ -55,19 +69,17 @@
   // agree on the canonical 0xXXXXXXXX form (a decimal string used to be
   // inserted via result-click and never matched the hex log text).
   const filteredLog = $derived(
-    dbQuery.trim()
-      ? $uartLog.filter((e) => uartLogMatches(e, dbQuery))
-      : $uartLog
+    dbQuery.trim() ? $uartLog.filter((e) => uartLogMatches(e, dbQuery)) : $uartLog
   );
 
-  let debounceTimer:    ReturnType<typeof setTimeout>  | null = null;
-  let pollInterval:     ReturnType<typeof setInterval> | null = null;
-  let dbLoadingTimeout: ReturnType<typeof setTimeout>  | null = null;
-  let responseTimeout:  ReturnType<typeof setTimeout>  | null = null;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
+  let dbLoadingTimeout: ReturnType<typeof setTimeout> | null = null;
+  let responseTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Connection state as last seen by the poll — used to detect transitions
   // without depending on Tauri events (they are not reliably delivered).
-  let prevConnected    = false;
+  let prevConnected = false;
   let prevReconnecting = false;
   let gotDataSinceCommand = false;
 
@@ -82,10 +94,7 @@
     if (responseTimeout) clearTimeout(responseTimeout);
     responseTimeout = setTimeout(() => {
       if (!gotDataSinceCommand) {
-        pushLog(
-          get(LL).uart.noResponse({ label }),
-          'error'
-        );
+        pushLog(get(LL).uart.noResponse({ label }), 'error');
       }
     }, timeoutMs);
   }
@@ -130,9 +139,9 @@
     }
 
     // --- connection state transitions ---
-    const wasConnected    = prevConnected;
+    const wasConnected = prevConnected;
     const wasReconnecting = prevReconnecting;
-    prevConnected    = r.connected;
+    prevConnected = r.connected;
     prevReconnecting = r.reconnecting;
     uartConnected.set(r.connected);
     uartReconnecting.set(r.reconnecting);
@@ -164,7 +173,10 @@
       const items: UartLogEntry[] = [
         ...r.lines.map(interpretLine),
         ...r.entries.map((e): UartLogEntry => ({
-          id: nextLogId(), timestamp_ms: Date.now(), raw: formatEntry(e), parsed: e,
+          id: nextLogId(),
+          timestamp_ms: Date.now(),
+          raw: formatEntry(e),
+          parsed: e,
         })),
       ];
       // newest first in the log view
@@ -174,10 +186,7 @@
 
     // --- overflow warning: backend dropped lines at its buffer cap ---
     if (r.dropped_lines > 0) {
-      pushLog(
-        get(LL).uart.linesDropped({ count: r.dropped_lines }),
-        'error',
-      );
+      pushLog(get(LL).uart.linesDropped({ count: r.dropped_lines }), 'error');
     }
   }
 
@@ -197,11 +206,11 @@
   async function refreshPorts() {
     const ports = await uartListPorts().catch(() => [] as UartPortInfo[]);
     uartPorts.set(ports);
-    const bridge    = ports.find(p => p.is_bridge);
+    const bridge = ports.find((p) => p.is_bridge);
     const preferred = bridge ?? ports[0];
     if (!selectedPort && preferred) {
       selectedPort = preferred.name;
-    } else if (!ports.some(p => p.name === selectedPort)) {
+    } else if (!ports.some((p) => p.name === selectedPort)) {
       selectedPort = preferred?.name ?? '';
     }
   }
@@ -227,7 +236,7 @@
     loading = true;
     try {
       await uartDisconnect();
-      prevConnected    = false;
+      prevConnected = false;
       prevReconnecting = false;
       uartConnected.set(false);
       uartReconnecting.set(false);
@@ -347,17 +356,21 @@
   });
 
   onDestroy(() => {
-    if (debounceTimer)       clearTimeout(debounceTimer);
-    if (pollInterval)        clearInterval(pollInterval);
-    if (dbLoadingTimeout)    clearTimeout(dbLoadingTimeout);
-    if (responseTimeout)     clearTimeout(responseTimeout);
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (pollInterval) clearInterval(pollInterval);
+    if (dbLoadingTimeout) clearTimeout(dbLoadingTimeout);
+    if (responseTimeout) clearTimeout(responseTimeout);
     if (confirmClearTimeout) clearTimeout(confirmClearTimeout);
     dbLoading.set(false);
     uartReconnecting.set(false);
   });
 </script>
 
-<section class="flex flex-col gap-4 flex-1 bg-gray-900 rounded-lg p-4 min-h-0">
+<!-- overflow-y-auto: the expanded hardware guide is taller than the panel —
+     without a scroll container on the section, main's overflow-hidden cuts the
+     guide's bottom off with no way to reach it (same failure mode as the
+     flex-shrink clipping in FlashPanel). -->
+<section class="flex flex-col gap-4 flex-1 bg-gray-900 rounded-lg p-4 min-h-0 overflow-y-auto">
   <div>
     <h2 class="text-lg font-semibold text-gray-100">{$LL.header.uart()}</h2>
     <p class="text-xs text-gray-500 mt-0.5">
@@ -385,7 +398,10 @@
           <option value="">{$LL.uart.noPorts()}</option>
         {/each}
       </select>
-      <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+      <span
+        class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+        >▾</span
+      >
     </div>
 
     <button
@@ -407,12 +423,12 @@
           : $LL.uart.connectTitle()}
       class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
-               ? 'bg-red-700 hover:bg-red-600 text-white'
-               : $uartReconnecting
-                 ? 'bg-yellow-700 hover:bg-yellow-600 text-white'
-                 : loading
-                   ? 'bg-blue-800 text-white cursor-wait'
-                   : 'bg-green-700 hover:bg-green-600 text-white'}
+        ? 'bg-red-700 hover:bg-red-600 text-white'
+        : $uartReconnecting
+          ? 'bg-yellow-700 hover:bg-yellow-600 text-white'
+          : loading
+            ? 'bg-blue-800 text-white cursor-wait'
+            : 'bg-green-700 hover:bg-green-600 text-white'}
              disabled:opacity-40"
     >
       {#if $uartReconnecting}
@@ -467,9 +483,7 @@
       disabled={!$uartConnected}
       title={$LL.uart.clearTitle()}
       class="px-3 py-1 text-sm rounded text-white disabled:opacity-40
-             {confirmClear
-               ? 'bg-red-700 hover:bg-red-600'
-               : 'bg-gray-700 hover:bg-gray-600'}"
+             {confirmClear ? 'bg-red-700 hover:bg-red-600' : 'bg-gray-700 hover:bg-gray-600'}"
     >
       {confirmClear ? $LL.uart.confirmClear() : $LL.uart.clearHistory()}
     </button>
@@ -510,21 +524,19 @@
 
     <div class="flex items-center gap-2 ml-auto">
       {#if $dbLoading}
-        <span class="text-xs text-gray-500 flex items-center gap-1" title={$LL.uart.dbLoadingTitle()}>
-          <span class="inline-block animate-spin">⟳</span> {$LL.uart.loadingDb()}
+        <span
+          class="text-xs text-gray-500 flex items-center gap-1"
+          title={$LL.uart.dbLoadingTitle()}
+        >
+          <span class="inline-block animate-spin">⟳</span>
+          {$LL.uart.loadingDb()}
         </span>
       {:else if $dbCodeCount != null}
-        <span
-          class="text-xs text-green-400"
-          title={$LL.uart.codesTitle()}
-        >
+        <span class="text-xs text-green-400" title={$LL.uart.codesTitle()}>
           {$LL.uart.codes({ count: $dbCodeCount.toLocaleString() })}
         </span>
       {:else}
-        <span
-          class="text-xs text-red-400"
-          title={$LL.uart.dbNotLoadedTitle()}
-        >
+        <span class="text-xs text-red-400" title={$LL.uart.dbNotLoadedTitle()}>
           {$LL.uart.dbNotLoaded()}
         </span>
       {/if}
@@ -547,7 +559,12 @@
         type="text"
         placeholder={$LL.uart.rawPlaceholder()}
         bind:value={rawInput}
-        onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendRaw(); } }}
+        onkeydown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendRaw();
+          }
+        }}
         title={$LL.uart.rawTitle()}
         class="flex-1 bg-gray-800 text-gray-100 text-xs font-mono rounded px-2 py-1.5 border border-gray-700
                placeholder:text-gray-600 focus:outline-none focus:border-gray-500"
@@ -575,8 +592,14 @@
 
   <!-- Status indicator -->
   <div class="flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full
-      {$uartConnected ? 'bg-green-400' : $uartReconnecting ? 'bg-yellow-400 animate-pulse' : 'bg-gray-600'}">
+    <span
+      class="w-2 h-2 rounded-full
+      {$uartConnected
+        ? 'bg-green-400'
+        : $uartReconnecting
+          ? 'bg-yellow-400 animate-pulse'
+          : 'bg-gray-600'}"
+    >
     </span>
     <span class="text-xs text-gray-400">
       {#if $uartReconnecting}
@@ -603,7 +626,10 @@
       />
       {#if dbQuery}
         <button
-          onclick={() => { dbQuery = ''; searchResults = []; }}
+          onclick={() => {
+            dbQuery = '';
+            searchResults = [];
+          }}
           title={$LL.uart.searchResetTitle()}
           class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs"
         >
@@ -616,7 +642,10 @@
       <div class="bg-gray-800 rounded border border-gray-700 text-xs max-h-40 overflow-y-auto">
         {#each searchResults as r (r.code)}
           <button
-            onclick={() => { dbQuery = formatErrorCodeHex(r.code); searchResults = []; }}
+            onclick={() => {
+              dbQuery = formatErrorCodeHex(r.code);
+              searchResults = [];
+            }}
             title={$LL.uart.searchResultTitle()}
             class="w-full text-left px-2 py-1.5 hover:bg-gray-700 flex items-center gap-2 border-b
                    border-gray-700 last:border-0"
@@ -653,31 +682,37 @@
           {/if}
           <div class="mt-1 flex flex-wrap gap-3 text-gray-400 font-mono">
             <span title={$LL.uart.tempTitle()}>
-              {$LL.uart.temp()} <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span>
+              {$LL.uart.temp()}
+              <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span>
             </span>
             <span title={$LL.uart.powerStatesTitle()}>
-              {$LL.uart.powerStates()} {formatHex8(entry.parsed.entry.power_states)}
+              {$LL.uart.powerStates()}
+              {formatHex8(entry.parsed.entry.power_states)}
             </span>
             <span title={$LL.uart.upCauseTitle()}>
-              {$LL.uart.upCause()} {formatHex8(entry.parsed.entry.up_cause)}
+              {$LL.uart.upCause()}
+              {formatHex8(entry.parsed.entry.up_cause)}
             </span>
           </div>
         </div>
       {:else}
-        <div class="font-mono text-xs leading-relaxed {
-          entry.kind === 'status'              ? 'text-gray-500 italic' :
-          entry.kind === 'error'               ? 'text-red-400' :
-          entry.raw.startsWith('LOOPBACK:')    ? 'text-cyan-400 font-semibold' :
-                                                 'text-green-400'
-        }">
-          <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>{entry.raw.startsWith('LOOPBACK:') ? $LL.uart.echo({ raw: entry.raw }) : entry.raw}
+        <div
+          class="font-mono text-xs leading-relaxed {entry.kind === 'status'
+            ? 'text-gray-500 italic'
+            : entry.kind === 'error'
+              ? 'text-red-400'
+              : entry.raw.startsWith('LOOPBACK:')
+                ? 'text-cyan-400 font-semibold'
+                : 'text-green-400'}"
+        >
+          <span class="text-gray-600 mr-2"
+            >{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span
+          >{entry.raw.startsWith('LOOPBACK:') ? $LL.uart.echo({ raw: entry.raw }) : entry.raw}
         </div>
       {/if}
     {:else}
       <span class="text-gray-600 text-xs">
-        {dbQuery.trim()
-          ? $LL.uart.noMatches()
-          : $LL.uart.logEmpty()}
+        {dbQuery.trim() ? $LL.uart.noMatches() : $LL.uart.logEmpty()}
       </span>
     {/each}
   </div>

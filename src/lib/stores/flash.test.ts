@@ -1,8 +1,16 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { get } from 'svelte/store';
 import {
-  flashBusy, flashProgress, flashResult, flashLog, flashWritePreview, nextFlashLogId,
-  isValidationOk, failedValidationKeys, formatFlashDuration, computeEta,
+  flashBusy,
+  flashProgress,
+  flashResult,
+  flashLog,
+  flashWritePreview,
+  nextFlashLogId,
+  isValidationOk,
+  failedValidationKeys,
+  formatFlashDuration,
+  computeEta,
 } from './flash';
 import type { FlashLogEntry, FlashReadResult, NorValidation } from '$lib/api/types';
 
@@ -21,20 +29,40 @@ describe('nextFlashLogId', () => {
 });
 
 describe('flash log append contract', () => {
-  beforeEach(() => { flashLog.set([]); });
+  beforeEach(() => {
+    flashLog.set([]);
+  });
 
   it('prepends new entries (newest-first) using the id helper, matching the component pattern', () => {
-    const a: FlashLogEntry = { id: nextFlashLogId(), timestamp_ms: 1, message: 'first',  level: 'info' };
+    const a: FlashLogEntry = {
+      id: nextFlashLogId(),
+      timestamp_ms: 1,
+      message: 'first',
+      level: 'info',
+    };
     flashLog.update((l) => [a, ...l]);
-    const b: FlashLogEntry = { id: nextFlashLogId(), timestamp_ms: 2, message: 'second', level: 'info' };
+    const b: FlashLogEntry = {
+      id: nextFlashLogId(),
+      timestamp_ms: 2,
+      message: 'second',
+      level: 'info',
+    };
     flashLog.update((l) => [b, ...l]);
     expect(get(flashLog).map((e) => e.message)).toEqual(['second', 'first']);
   });
 
   it('caps the log at 200 entries via the slice(0,199) pattern components use', () => {
-    const big = Array.from({ length: 250 }, (_, i) => ({ id: nextFlashLogId(), timestamp_ms: i, message: `m${i}`, level: 'info' as const }));
+    const big = Array.from({ length: 250 }, (_, i) => ({
+      id: nextFlashLogId(),
+      timestamp_ms: i,
+      message: `m${i}`,
+      level: 'info' as const,
+    }));
     flashLog.update(() => big);
-    flashLog.update((l) => [{ id: nextFlashLogId(), timestamp_ms: 999, message: 'new', level: 'info' }, ...l.slice(0, 199)]);
+    flashLog.update((l) => [
+      { id: nextFlashLogId(), timestamp_ms: 999, message: 'new', level: 'info' },
+      ...l.slice(0, 199),
+    ]);
     expect(get(flashLog)).toHaveLength(200);
     expect(get(flashLog)[0].message).toBe('new');
   });
@@ -42,8 +70,14 @@ describe('flash log append contract', () => {
 
 // A fully valid NorValidation — every check the PS5 dump validator performs.
 const VALID_VALIDATION = {
-  size_ok: true, header_ok: true, mbr1_ok: true, mbr2_ok: true,
-  emc_ipl_a_ok: true, emc_ipl_b_ok: true, usb_pdc_a_ok: true, usb_pdc_b_ok: true,
+  size_ok: true,
+  header_ok: true,
+  mbr1_ok: true,
+  mbr2_ok: true,
+  emc_ipl_a_ok: true,
+  emc_ipl_b_ok: true,
+  usb_pdc_a_ok: true,
+  usb_pdc_b_ok: true,
 };
 
 describe('isValidationOk', () => {
@@ -53,7 +87,9 @@ describe('isValidationOk', () => {
 
   it('returns false when a single check fails or a key is missing', () => {
     expect(isValidationOk({ ...VALID_VALIDATION, mbr2_ok: false } as NorValidation)).toBe(false);
-    expect(isValidationOk({ ...VALID_VALIDATION, usb_pdc_a_ok: false } as NorValidation)).toBe(false);
+    expect(isValidationOk({ ...VALID_VALIDATION, usb_pdc_a_ok: false } as NorValidation)).toBe(
+      false
+    );
     // A missing key is not a pass — the write gate must fail closed.
     const partial = { ...VALID_VALIDATION };
     delete (partial as Partial<NorValidation>).emc_ipl_b_ok;
@@ -64,7 +100,11 @@ describe('isValidationOk', () => {
 describe('failedValidationKeys', () => {
   it('lists only failing keys, in stable checklist order', () => {
     expect(
-      failedValidationKeys({ ...VALID_VALIDATION, mbr2_ok: false, usb_pdc_b_ok: false } as NorValidation),
+      failedValidationKeys({
+        ...VALID_VALIDATION,
+        mbr2_ok: false,
+        usb_pdc_b_ok: false,
+      } as NorValidation)
     ).toEqual(['mbr2_ok', 'usb_pdc_b_ok']);
   });
 
@@ -146,7 +186,12 @@ describe('flashBusy / flashProgress / flashResult / flashWritePreview', () => {
   it('is idle again after result clears progress and busy (the completion transition)', () => {
     flashBusy.set(true);
     flashProgress.set({ phase: 'verify', percent: 100 });
-    flashResult.set({ dumps_match: true, validation: {} as FlashReadResult['validation'], nvs: null, archive_path: '/x' } as FlashReadResult);
+    flashResult.set({
+      dumps_match: true,
+      validation: {} as FlashReadResult['validation'],
+      nvs: null,
+      archive_path: '/x',
+    } as FlashReadResult);
     flashBusy.set(false);
     flashProgress.set(null);
     expect(get(flashBusy)).toBe(false);

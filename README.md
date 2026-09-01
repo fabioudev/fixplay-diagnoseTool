@@ -14,6 +14,7 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 ## Features
 
 ### NOR Flash
+
 - Read NOR flash chips via **flashrom** (CH341A, FT2232, serprog, and 180+ other programmers)
 - Automatic two-pass read with progress events
 - **Hardware guide:** see [`docs/CH341A_GUIDE.md`](docs/CH341A_GUIDE.md) — pinout, jumpers, and the critical 5 V vs 3.3 V issue (default CH341A boards output 5 V on data lines and can damage 3.3 V NOR flash like the PS5 NOR)
@@ -23,6 +24,7 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 - Write back validated dumps with verify pass
 
 ### UART Diagnostics
+
 - Connect to PS5 UART via USB-serial adapters (CP2105, FT232R, etc.)
 - Live error-log streaming with parsed error-code descriptions
 - Offline error-code database (~1,280 entries) with local cache
@@ -31,12 +33,14 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 - Loopback test for UART cable verification
 
 ### I2C / Pico Bridge
+
 - Connect to Xbox consoles via Raspberry Pi Pico I2C bridge
 - Read Xbox error logs with parsed descriptions
 - Xbox error-code database (~960 entries) with search
 - I2C bus scan, EEPROM read, device info query
 
 ### Controller (DualSense)
+
 - **Live graphical visualization** — see every button, stick, and trigger in real time on a DualSense silhouette
 - **Manual testers** for lightbar, player LEDs, mute LED, vibration motors, and adaptive triggers
 - **One-click test patterns** — automated sequences for lights, vibration, and triggers
@@ -52,6 +56,7 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 - NVS read/write for persistent settings
 
 ### General
+
 - **Start screen** with quick-access cards for all tools
 - **Mock mode** (`MOCK=1`) — full browser-based preview without hardware or Tauri backend, including a gesture-replay simulator
 - **In-app updater** with signed bundles and automatic update checks
@@ -65,19 +70,21 @@ Read, validate, and archive NOR flash dumps. Live UART error-code diagnostics. D
 ## Installation
 
 ### Prebuilt Downloads
+
 Download the latest release from [GitHub Releases](https://github.com/fabioudev/fixplay-diagnoseTool/releases):
 
-| Platform | Package |
-|----------|---------|
-| Windows (x64) | `.msi` installer or `.exe` setup |
-| Windows (ARM64) | `.msi` installer or `.exe` setup |
-| Linux x64 (Ubuntu/Debian) | `.deb` |
-| Linux x64 (Fedora/RHEL) | `.rpm` |
-| Linux x64 (universal) | `.AppImage` |
-| Linux ARM64 | `.deb` / `.rpm` |
-| macOS | `.dmg` |
+| Platform                  | Package                          |
+| ------------------------- | -------------------------------- |
+| Windows (x64)             | `.msi` installer or `.exe` setup |
+| Windows (ARM64)           | `.msi` installer or `.exe` setup |
+| Linux x64 (Ubuntu/Debian) | `.deb`                           |
+| Linux x64 (Fedora/RHEL)   | `.rpm`                           |
+| Linux x64 (universal)     | `.AppImage`                      |
+| Linux ARM64               | `.deb` / `.rpm`                  |
+| macOS                     | `.dmg`                           |
 
 ### Arch Linux (AUR)
+
 Two packages are auto-published per release:
 
 ```bash
@@ -91,6 +98,7 @@ paru -S fixplay-diagnosetool-bin
 > **Note:** The `-bin` package ships the AppImage which bundles an Ubuntu-built WebKit. On some Arch GPU/driver combos this may show a blank window. Prefer the source package.
 
 ### Build from Source
+
 **Prerequisites:** Rust (stable), Node.js ≥ 20, system dependencies for Tauri.
 
 ```bash
@@ -114,6 +122,7 @@ The bundled `flashrom` binary is included in `src-tauri/binaries/`. On Windows, 
 ## Development
 
 ### Quick Start (Mock Mode)
+
 Run the UI in a browser without any hardware or Rust backend:
 
 ```bash
@@ -124,6 +133,7 @@ MOCK=1 npm run dev
 The mock layer simulates all Tauri commands with reactive state — edit values in the MockPanel drawer and see the UI respond live.
 
 ### Full Dev Environment
+
 ```bash
 npm run tauri dev     # Full app with hot-reload (needs Rust + system deps)
 npm run dev           # Frontend-only Vite dev server
@@ -150,6 +160,7 @@ To add or change a string:
 Component tests that render `$LL`-based components must call `initI18n()` (from `$lib/i18n/init`) in their setup, since `LL` is otherwise only initialized in `+layout.svelte` at runtime.
 
 ### Project Structure
+
 ```
 fixplay-diagnoseTool/
 ├── src/                    # Svelte 5 frontend (TypeScript)
@@ -178,13 +189,14 @@ fixplay-diagnoseTool/
 ```
 
 ### Tech Stack
-| Layer | Technology |
-|-------|-----------|
+
+| Layer    | Technology                                          |
+| -------- | --------------------------------------------------- |
 | Frontend | Svelte 5 (runes), TypeScript, Tailwind CSS v4, Vite |
-| Backend | Rust 2021, Tauri v2, hidapi, serialport, reqwest |
-| Testing | Vitest (frontend), cargo test (Rust) |
-| CI/CD | GitHub Actions (build + release on tag push) |
-| Updater | Tauri updater plugin with signed bundles |
+| Backend  | Rust 2021, Tauri v2, hidapi, serialport, reqwest    |
+| Testing  | Vitest (frontend), cargo test (Rust)                |
+| CI/CD    | GitHub Actions (build + release on tag push)        |
+| Updater  | Tauri updater plugin with signed bundles            |
 
 ---
 
@@ -198,6 +210,7 @@ git push origin v0.2.0
 ```
 
 The workflow builds:
+
 - **Linux (x64):** AppImage, `.deb`, `.rpm` (with libwayland-client stripped from AppImage)
 - **Linux (ARM64):** `.deb`, `.rpm` (native `ubuntu-24.04-arm` runner; no AppImage — linuxdeploy is x86_64-only)
 - **Windows (x64):** `.msi`, `.exe` (with flashrom.exe built from source)

@@ -38,13 +38,26 @@
   }
 </script>
 
-<svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') close(); }} />
+<svelte:window
+  onkeydown={(e) => {
+    if (open && e.key === 'Escape') close();
+  }}
+/>
 
 {#if open}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" transition:fade={{ duration: 150 }}>
-    <div class="w-full max-w-sm rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700" use:trapFocus transition:scale={{ duration: 150, start: 0.96 }}>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    transition:fade={{ duration: 150 }}
+  >
+    <div
+      class="w-full max-w-sm rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700"
+      use:trapFocus
+      transition:scale={{ duration: 150, start: 0.96 }}
+    >
       <div class="mb-4 flex items-start gap-3">
-        <AlertTriangle class="h-6 w-6 shrink-0 mt-0.5 {confirmDanger ? 'text-red-400' : 'text-amber-400'}" />
+        <AlertTriangle
+          class="h-6 w-6 shrink-0 mt-0.5 {confirmDanger ? 'text-red-400' : 'text-amber-400'}"
+        />
         <div>
           <h3 class="text-base font-semibold text-gray-100">{title}</h3>
           <p class="mt-1 text-sm text-gray-400">{message}</p>
@@ -54,7 +67,9 @@
       {#if typeToConfirm}
         <div class="mb-4">
           <p class="text-xs text-gray-500 mb-1.5">
-            {$LL.common.confirmTypePrefix()} <code class="text-amber-400 bg-gray-700 px-1 rounded">{typeToConfirm}</code> {$LL.common.confirmTypeSuffix()}
+            {$LL.common.confirmTypePrefix()}
+            <code class="text-amber-400 bg-gray-700 px-1 rounded">{typeToConfirm}</code>
+            {$LL.common.confirmTypeSuffix()}
           </p>
           <input
             type="text"
@@ -66,11 +81,16 @@
       {/if}
 
       <div class="flex justify-end gap-2">
-        <button class="rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={close}>
+        <button
+          class="rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+          onclick={close}
+        >
           {$LL.common.confirmCancel()}
         </button>
         <button
-          class="rounded-lg px-4 py-2 text-sm text-white disabled:opacity-40 {confirmDanger ? 'bg-red-600 hover:bg-red-700' : 'bg-teal-600 hover:bg-teal-700'}"
+          class="rounded-lg px-4 py-2 text-sm text-white disabled:opacity-40 {confirmDanger
+            ? 'bg-red-600 hover:bg-red-700'
+            : 'bg-teal-600 hover:bg-teal-700'}"
           onclick={handleConfirm}
           disabled={typeToConfirm ? typed !== typeToConfirm : false}
         >

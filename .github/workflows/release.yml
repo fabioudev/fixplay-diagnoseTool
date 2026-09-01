@@ -3,11 +3,11 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing git tag to release (for example v0.1.0)"
+        description: 'Existing git tag to release (for example v0.1.0)'
         required: true
         type: string
 
@@ -64,7 +64,7 @@ jobs:
               target/release/bundle/rpm/*.rpm
           - os: windows-latest
             artifact_name: windows-bundles
-            build_args: ""
+            build_args: ''
             artifact_glob: |
               target/release/bundle/msi/*.msi
               target/release/bundle/msi/*.msi.zip
@@ -329,7 +329,7 @@ jobs:
               target/release/bundle/rpm/*.rpm
           - os: windows-11-arm
             artifact_name: windows-arm64-bundles
-            build_args: ""
+            build_args: ''
             artifact_glob: |
               target/release/bundle/msi/*.msi
               target/release/bundle/msi/*.msi.zip
@@ -515,7 +515,7 @@ jobs:
         with:
           name: arch-bundles
           if-no-files-found: error
-          path: "*.pkg.tar.zst"
+          path: '*.pkg.tar.zst'
 
   release:
     needs:
@@ -668,4 +668,3 @@ jobs:
           else
             echo "## AUR publish attempt finished (see previous step)."
           fi
-

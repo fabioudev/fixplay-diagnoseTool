@@ -6,7 +6,9 @@ export interface Update {
   currentVersion: string;
   date?: string;
   body?: string;
-  downloadAndInstall: (onEvent?: (event: { event: string; data: unknown }) => void) => Promise<void>;
+  downloadAndInstall: (
+    onEvent?: (event: { event: string; data: unknown }) => void
+  ) => Promise<void>;
   download: (onEvent?: (event: { event: string; data: unknown }) => void) => Promise<void>;
   install: () => Promise<void>;
 }

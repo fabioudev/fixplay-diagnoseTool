@@ -1,6 +1,15 @@
 import { get } from 'svelte/store';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from './uart';
+import {
+  uartLog,
+  uartConnected,
+  uartPorts,
+  autoPollEnabled,
+  nextLogId,
+  dbCodeCount,
+  dbLoading,
+  uartReconnecting,
+} from './uart';
 import type { UartLogEntry } from '$lib/api/types';
 
 // The uart stores are thin writables; the interesting store-level behaviour
@@ -17,7 +26,9 @@ describe('nextLogId', () => {
 });
 
 describe('uart log contract', () => {
-  beforeEach(() => { uartLog.set([]); });
+  beforeEach(() => {
+    uartLog.set([]);
+  });
 
   it('prepends new entries newest-first', () => {
     const a: UartLogEntry = { id: nextLogId(), timestamp_ms: 1, raw: 'first' };
@@ -52,7 +63,7 @@ describe('uart log contract', () => {
 
   it('distinguishes status vs error entries via the kind discriminator', () => {
     const status: UartLogEntry = { id: 0, timestamp_ms: 0, raw: '[Verbunden]', kind: 'status' };
-    const error:  UartLogEntry = { id: 1, timestamp_ms: 0, raw: 'Verbindungsfehler', kind: 'error' };
+    const error: UartLogEntry = { id: 1, timestamp_ms: 0, raw: 'Verbindungsfehler', kind: 'error' };
     uartLog.set([status, error]);
     expect(get(uartLog).filter((e) => e.kind === 'error')).toHaveLength(1);
     expect(get(uartLog).filter((e) => e.kind === 'status')).toHaveLength(1);
@@ -60,12 +71,14 @@ describe('uart log contract', () => {
 });
 
 describe('dbCodeCount nullable semantic', () => {
-  beforeEach(() => { dbCodeCount.set(null); });
+  beforeEach(() => {
+    dbCodeCount.set(null);
+  });
 
   it('null means "no DB loaded" and a number means "DB loaded"', () => {
-    expect(get(dbCodeCount) === null).toBe(true);            // no DB
+    expect(get(dbCodeCount) === null).toBe(true); // no DB
     dbCodeCount.set(1280);
-    expect(get(dbCodeCount) === null).toBe(false);            // DB loaded
+    expect(get(dbCodeCount) === null).toBe(false); // DB loaded
     expect(get(dbCodeCount)).toBe(1280);
   });
 

@@ -88,7 +88,9 @@ const manifest = {
 const json = JSON.stringify(manifest, null, 2);
 if (outputPath) {
   writeFileSync(outputPath, json + '\n', 'utf8');
-  console.log(`[latest.json] written to ${outputPath} — platforms: ${Object.keys(platforms).join(', ') || '(none)'}`);
+  console.log(
+    `[latest.json] written to ${outputPath} — platforms: ${Object.keys(platforms).join(', ') || '(none)'}`
+  );
 } else {
   console.log(json);
 }

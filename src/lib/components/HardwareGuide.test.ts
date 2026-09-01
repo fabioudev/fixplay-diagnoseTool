@@ -57,18 +57,32 @@ describe('HardwareGuide', () => {
     expect(screen.getAllByText(/gesteckt = Programmer-Modus/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('uart variant: expands and shows the crossed TX/RX wiring + pads', async () => {
+  it('uart variant: expands and shows board, wiring, locations + header pinout', async () => {
     render(HardwareGuide, { props: { variant: 'uart' } });
 
     const toggle = screen.getByRole('button', { name: /UART/ });
     await fireEvent.click(toggle);
 
-    expect(screen.getByText('Verkabelung (TX/RX gekreuzt)')).toBeTruthy();
+    // 3.3V TTL warning (own danger block inside the guide).
+    expect(screen.getByText('3,3V TTL — niemals 5V')).toBeTruthy();
+    // Shared CH341A board top-view in USB-TTL mode + the 2-entry legend.
+    expect(screen.getByText('CH341A als UART-Adapter (USB-TTL)')).toBeTruthy();
+    expect(screen.getByText('UART-Header')).toBeTruthy();
+    expect(screen.getByText('Jumper auf 2↔3 stecken (USB-TTL-Modus, NICHT 1↔2 = Programmer)')).toBeTruthy();
+    // 5V divider warning (Spannungsteiler 1k/2k on the CH341A TX line).
+    expect(screen.getAllByText(/Spannungsteiler setzen/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Verkabelung (TX/RX gekreuzt + Spannungsteiler)')).toBeTruthy();
     expect(screen.getByText('Baudrate: 115200 (EMC-UART)')).toBeTruthy();
     // EDM-010 pad labels.
     expect(screen.getByText('Pin 4')).toBeTruthy();
     expect(screen.getByText('Pin 7')).toBeTruthy();
-    // 3.3V TTL warning.
-    expect(screen.getByText('3,3V TTL — niemals 5V')).toBeTruthy();
+    // Motherboard locations + 24-pin header pinout sections.
+    expect(screen.getByText('PS5-Mainboard — UART-Locations (EDM-010)')).toBeTruthy();
+    expect(screen.getByText('24-Pin EMC-Header — Pinout')).toBeTruthy();
+    expect(screen.getAllByText('T0-TX').length).toBeGreaterThan(0); // Titania pins in the header SVG
+    expect(screen.getByText('24-Pin Header')).toBeTruthy(); // location SVG label (in SVG)
+    // Procedure with the USB-TTL jumper step + fuse.
+    expect(screen.getByText(/Jumper auf 2↔3, Adapter per USB/)).toBeTruthy();
+    expect(screen.getByText(/Fuse F7003/)).toBeTruthy();
   });
 });

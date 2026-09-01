@@ -36,12 +36,13 @@ function tableInstance(): Uint32Array {
 export function crc32(
   data: Uint8Array | DataView,
   prefix: number[] = [],
-  suffix: number[] = [],
+  suffix: number[] = []
 ): number {
   const t = tableInstance();
   let crc = 0xffffffff;
   for (const b of prefix) crc = (crc >>> 8) ^ t[(crc ^ b) & 0xff];
-  const view = data instanceof DataView ? data : new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const view =
+    data instanceof DataView ? data : new DataView(data.buffer, data.byteOffset, data.byteLength);
   for (let i = 0; i < view.byteLength; i++) {
     crc = (crc >>> 8) ^ t[(crc ^ view.getUint8(i)) & 0xff];
   }

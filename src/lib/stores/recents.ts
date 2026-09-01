@@ -26,7 +26,11 @@ function read(): RecentView[] {
 
 function write(views: RecentView[]) {
   if (!browser) return;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(views)); } catch { /* ignored */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(views));
+  } catch {
+    /* ignored */
+  }
 }
 
 export const recentViews = writable<RecentView[]>(read());

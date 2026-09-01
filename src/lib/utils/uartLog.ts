@@ -30,6 +30,8 @@ export function uartLogMatches(entry: UartLogEntry, query: string): boolean {
   if (!parsed) return false;
   if (formatErrorCodeHex(parsed.entry.error_code).toLowerCase().includes(q)) return true;
   if (parsed.description?.toLowerCase().includes(q)) return true;
-  return formatErrorCodeHex(parsed.entry.up_cause).toLowerCase().includes(q)
-      || formatErrorCodeHex(parsed.entry.power_states).toLowerCase().includes(q);
+  return (
+    formatErrorCodeHex(parsed.entry.up_cause).toLowerCase().includes(q) ||
+    formatErrorCodeHex(parsed.entry.power_states).toLowerCase().includes(q)
+  );
 }

@@ -1,26 +1,26 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/src-tauri/"
+      interval: 'weekly'
+  - package-ecosystem: 'cargo'
+    directory: '/src-tauri/'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/crates/fixplay-core/"
+      interval: 'weekly'
+  - package-ecosystem: 'cargo'
+    directory: '/crates/fixplay-core/'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/crates/fixplay-flashrom/"
+      interval: 'weekly'
+  - package-ecosystem: 'cargo'
+    directory: '/crates/fixplay-flashrom/'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/crates/fixplay-uart/"
+      interval: 'weekly'
+  - package-ecosystem: 'cargo'
+    directory: '/crates/fixplay-uart/'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/crates/fixplay-i2c/"
+      interval: 'weekly'
+  - package-ecosystem: 'cargo'
+    directory: '/crates/fixplay-i2c/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'

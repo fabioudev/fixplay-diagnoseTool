@@ -43,9 +43,11 @@ describe('applyProcessedInput', () => {
   });
 
   it('sets stick state when sticks change is present', () => {
-    applyProcessedInput(makeInput({
-      changes: { sticks: { left: { x: 0.5, y: -0.25 }, right: { x: 0, y: 0 } } },
-    }));
+    applyProcessedInput(
+      makeInput({
+        changes: { sticks: { left: { x: 0.5, y: -0.25 }, right: { x: 0, y: 0 } } },
+      })
+    );
     expect(get(stickState).left).toEqual({ x: 0.5, y: -0.25 });
   });
 
@@ -62,31 +64,45 @@ describe('applyProcessedInput', () => {
   });
 
   it('ignores non-boolean change entries (sticks/triggers) when collecting buttons', () => {
-    applyProcessedInput(makeInput({
-      changes: {
-        sticks: { left: { x: 1, y: 1 }, right: { x: 0, y: 0 } },
-        l2_analog: 99,
-        triangle: true,
-      },
-    }));
+    applyProcessedInput(
+      makeInput({
+        changes: {
+          sticks: { left: { x: 1, y: 1 }, right: { x: 0, y: 0 } },
+          l2_analog: 99,
+          triangle: true,
+        },
+      })
+    );
     // Only `triangle` should land in buttonState, not sticks/l2_analog.
     expect(get(buttonState)).toEqual({ triangle: true });
   });
 
   it('only writes battery status when changed: true', () => {
-    applyProcessedInput(makeInput({
-      batteryStatus: {
-        charge_level: 5, cable_connected: true, is_charging: true, is_error: false,
-        bat_txt: 'High', changed: false,
-      },
-    }));
+    applyProcessedInput(
+      makeInput({
+        batteryStatus: {
+          charge_level: 5,
+          cable_connected: true,
+          is_charging: true,
+          is_error: false,
+          bat_txt: 'High',
+          changed: false,
+        },
+      })
+    );
     expect(get(batteryStatus).bat_txt).toBe('');
-    applyProcessedInput(makeInput({
-      batteryStatus: {
-        charge_level: 5, cable_connected: true, is_charging: true, is_error: false,
-        bat_txt: 'High', changed: true,
-      },
-    }));
+    applyProcessedInput(
+      makeInput({
+        batteryStatus: {
+          charge_level: 5,
+          cable_connected: true,
+          is_charging: true,
+          is_error: false,
+          bat_txt: 'High',
+          changed: true,
+        },
+      })
+    );
     expect(get(batteryStatus).bat_txt).toBe('High');
     expect(get(batteryStatus).is_charging).toBe(true);
   });

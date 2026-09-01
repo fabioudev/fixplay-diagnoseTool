@@ -16,7 +16,9 @@ function read(): LogTimestampFormat {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
     if (v && ALLOWED.includes(v as LogTimestampFormat)) return v as LogTimestampFormat;
-  } catch { /* ignored */ }
+  } catch {
+    /* ignored */
+  }
   return 'local';
 }
 
@@ -24,7 +26,13 @@ export const logTimestampFormat = writable<LogTimestampFormat>(read());
 
 export function setLogTimestampFormat(f: LogTimestampFormat) {
   logTimestampFormat.set(f);
-  if (browser) { try { localStorage.setItem(STORAGE_KEY, f); } catch { /* ignored */ } }
+  if (browser) {
+    try {
+      localStorage.setItem(STORAGE_KEY, f);
+    } catch {
+      /* ignored */
+    }
+  }
 }
 
 /**

@@ -9,7 +9,7 @@
   // accel ±4 g; we display ±2000 °/s and ±2 g so typical hand motion fills the
   // bars instead of barely moving them.
   const GYRO_FS = 2000; // °/s
-  const ACC_FS = 2;     // g
+  const ACC_FS = 2; // g
 
   function barPct(v: number, fs: number): number {
     return Math.max(-100, Math.min(100, (v / fs) * 100));
@@ -35,13 +35,17 @@
             <!-- center origin line -->
             <div class="absolute top-0 bottom-0 left-1/2 w-px bg-gray-600"></div>
             <div
-              class="absolute top-0 bottom-0 rounded-full {pct >= 0 ? 'bg-teal-500' : 'bg-amber-500'}"
+              class="absolute top-0 bottom-0 rounded-full {pct >= 0
+                ? 'bg-teal-500'
+                : 'bg-amber-500'}"
               style={pct >= 0
                 ? `left: 50%; width: ${pct / 2}%;`
                 : `right: 50%; width: ${-pct / 2}%;`}
             ></div>
           </div>
-          <span class="text-[10px] font-mono text-gray-400 w-14 text-right tabular-nums">{v.toFixed(0)}</span>
+          <span class="text-[10px] font-mono text-gray-400 w-14 text-right tabular-nums"
+            >{v.toFixed(0)}</span
+          >
         </div>
       {/each}
     </div>
@@ -62,13 +66,17 @@
           <div class="relative flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
             <div class="absolute top-0 bottom-0 left-1/2 w-px bg-gray-600"></div>
             <div
-              class="absolute top-0 bottom-0 rounded-full {pct >= 0 ? 'bg-blue-500' : 'bg-purple-500'}"
+              class="absolute top-0 bottom-0 rounded-full {pct >= 0
+                ? 'bg-blue-500'
+                : 'bg-purple-500'}"
               style={pct >= 0
                 ? `left: 50%; width: ${pct / 2}%;`
                 : `right: 50%; width: ${-pct / 2}%;`}
             ></div>
           </div>
-          <span class="text-[10px] font-mono text-gray-400 w-14 text-right tabular-nums">{v.toFixed(2)}</span>
+          <span class="text-[10px] font-mono text-gray-400 w-14 text-right tabular-nums"
+            >{v.toFixed(2)}</span
+          >
         </div>
       {/each}
     </div>
@@ -80,12 +88,16 @@
     <div class="flex items-center justify-between mb-1">
       <span class="text-xs text-gray-400">Neigung (X/Y)</span>
     </div>
-    <div class="relative mx-auto w-24 h-24 rounded-full border border-gray-700 bg-gray-800 overflow-hidden">
+    <div
+      class="relative mx-auto w-24 h-24 rounded-full border border-gray-700 bg-gray-800 overflow-hidden"
+    >
       <div class="absolute top-1/2 left-0 right-0 h-px bg-gray-700"></div>
       <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gray-700"></div>
       <div
         class="absolute w-2.5 h-2.5 rounded-full bg-teal-400 -translate-x-1/2 -translate-y-1/2 transition-[left,top] duration-75"
-        style="left: {50 + Math.max(-50, Math.min(50, ($imuState.accel.x / ACC_FS) * 50))}%; top: {50 - Math.max(-50, Math.min(50, ($imuState.accel.y / ACC_FS) * 50))}%;"
+        style="left: {50 +
+          Math.max(-50, Math.min(50, ($imuState.accel.x / ACC_FS) * 50))}%; top: {50 -
+          Math.max(-50, Math.min(50, ($imuState.accel.y / ACC_FS) * 50))}%;"
       ></div>
     </div>
   </div>

@@ -1,4 +1,3 @@
-
 // Utility functions for DualSense controller operations, ported from dualshock-tools.
 
 export function sleep(ms: number): Promise<void> {

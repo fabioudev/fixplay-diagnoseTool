@@ -59,7 +59,12 @@ function buildDs5InputReport(input: MockControllerInput): number[] {
   else if (right) hat = 2;
   else if (down) hat = 4;
   else if (left) hat = 6;
-  r[7] = hat | (b.square ? 0x10 : 0) | (b.cross ? 0x20 : 0) | (b.circle ? 0x40 : 0) | (b.triangle ? 0x80 : 0);
+  r[7] =
+    hat |
+    (b.square ? 0x10 : 0) |
+    (b.cross ? 0x20 : 0) |
+    (b.circle ? 0x40 : 0) |
+    (b.triangle ? 0x80 : 0);
 
   r[8] =
     (b.l1 ? 0x01 : 0) |
@@ -122,7 +127,10 @@ async function flashReadSequence(): Promise<FlashReadResult> {
     nvs: { ...s.flash.nvs },
     archive_path: `/mock/archive/${serial}/2026-07-01_read.bin`,
   };
-  emitLocal('flash://status', { message: 'NOR-Dump erfolgreich gelesen und archiviert.', level: 'info' });
+  emitLocal('flash://status', {
+    message: 'NOR-Dump erfolgreich gelesen und archiviert.',
+    level: 'info',
+  });
   emitLocal('flash://result', result);
   return result;
 }
@@ -133,12 +141,18 @@ async function flashWriteSequence(): Promise<void> {
     emitLocal('flash://progress', { phase: 'write', percent: pct });
     await delay(s.flash.write_step_ms);
   }
-  emitLocal('flash://status', { message: 'Schreiben abgeschlossen, starte Verify …', level: 'info' });
+  emitLocal('flash://status', {
+    message: 'Schreiben abgeschlossen, starte Verify …',
+    level: 'info',
+  });
   for (let pct = 0; pct <= 100; pct += 10) {
     emitLocal('flash://progress', { phase: 'verify', percent: pct });
     await delay(s.flash.verify_step_ms);
   }
-  emitLocal('flash://status', { message: 'Verify OK — NOR erfolgreich beschrieben.', level: 'info' });
+  emitLocal('flash://status', {
+    message: 'Verify OK — NOR erfolgreich beschrieben.',
+    level: 'info',
+  });
 }
 
 const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknown> | unknown> = {

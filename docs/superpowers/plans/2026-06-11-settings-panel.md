@@ -12,26 +12,27 @@
 
 ## File Map
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Create | `src-tauri/src/settings.rs` | `AppSettings` struct, file I/O helpers, path resolvers |
-| Create | `src-tauri/src/commands/settings.rs` | `settings_get` / `settings_save` Tauri commands |
-| Modify | `src-tauri/src/commands/mod.rs` | expose `pub mod settings` |
-| Modify | `src-tauri/src/commands/flash.rs` | use `resolve_flashrom_path` + `resolve_archive_base` |
-| Modify | `src-tauri/src/commands/uart.rs` | use `settings.baud_rate` in `uart_connect` |
-| Modify | `src-tauri/src/lib.rs` | register `settings_get`, `settings_save` in invoke_handler |
-| Modify | `src/lib/api/types.ts` | add `AppSettings` interface |
-| Modify | `src/lib/api/tauri.ts` | add `settingsGet` / `settingsSave` wrappers |
-| Create | `src/lib/stores/settings.ts` | `appSettings` writable store |
-| Create | `src/lib/stores/settings.test.ts` | store unit tests |
-| Create | `src/lib/components/SettingsPanel.svelte` | slide-in panel UI |
-| Modify | `src/routes/+page.svelte` | gear button + `<SettingsPanel>` |
+| Action | Path                                      | Responsibility                                             |
+| ------ | ----------------------------------------- | ---------------------------------------------------------- |
+| Create | `src-tauri/src/settings.rs`               | `AppSettings` struct, file I/O helpers, path resolvers     |
+| Create | `src-tauri/src/commands/settings.rs`      | `settings_get` / `settings_save` Tauri commands            |
+| Modify | `src-tauri/src/commands/mod.rs`           | expose `pub mod settings`                                  |
+| Modify | `src-tauri/src/commands/flash.rs`         | use `resolve_flashrom_path` + `resolve_archive_base`       |
+| Modify | `src-tauri/src/commands/uart.rs`          | use `settings.baud_rate` in `uart_connect`                 |
+| Modify | `src-tauri/src/lib.rs`                    | register `settings_get`, `settings_save` in invoke_handler |
+| Modify | `src/lib/api/types.ts`                    | add `AppSettings` interface                                |
+| Modify | `src/lib/api/tauri.ts`                    | add `settingsGet` / `settingsSave` wrappers                |
+| Create | `src/lib/stores/settings.ts`              | `appSettings` writable store                               |
+| Create | `src/lib/stores/settings.test.ts`         | store unit tests                                           |
+| Create | `src/lib/components/SettingsPanel.svelte` | slide-in panel UI                                          |
+| Modify | `src/routes/+page.svelte`                 | gear button + `<SettingsPanel>`                            |
 
 ---
 
 ## Task 1: Rust settings module + commands
 
 **Files:**
+
 - Create: `src-tauri/src/settings.rs`
 - Create: `src-tauri/src/commands/settings.rs`
 - Modify: `src-tauri/src/commands/mod.rs`
@@ -265,6 +266,7 @@ git commit -m "feat(tauri): add settings module with get/save commands and path 
 ## Task 2: Integrate settings into flash and uart commands
 
 **Files:**
+
 - Modify: `src-tauri/src/commands/flash.rs`
 - Modify: `src-tauri/src/commands/uart.rs`
 
@@ -296,6 +298,7 @@ Replace with:
 - [ ] **Step 2: Update `archive_dump` in `src-tauri/src/commands/flash.rs` to use configurable archive dir**
 
 `archive_dump` currently does:
+
 ```rust
     let base = app
         .path()
@@ -423,6 +426,7 @@ git commit -m "feat(tauri): wire settings into flash and uart commands"
 ## Task 3: Frontend — types, API wrappers, store, tests
 
 **Files:**
+
 - Modify: `src/lib/api/types.ts`
 - Modify: `src/lib/api/tauri.ts`
 - Create: `src/lib/stores/settings.ts`
@@ -448,12 +452,12 @@ describe('appSettings store', () => {
   });
 
   it('can update baud_rate', () => {
-    appSettings.update(s => ({ ...s, baud_rate: 9600 }));
+    appSettings.update((s) => ({ ...s, baud_rate: 9600 }));
     expect(get(appSettings).baud_rate).toBe(9600);
   });
 
   it('can update flashrom_path', () => {
-    appSettings.update(s => ({ ...s, flashrom_path: '/usr/bin/flashrom' }));
+    appSettings.update((s) => ({ ...s, flashrom_path: '/usr/bin/flashrom' }));
     expect(get(appSettings).flashrom_path).toBe('/usr/bin/flashrom');
   });
 });
@@ -474,8 +478,8 @@ Append to the end of the file:
 ```ts
 export interface AppSettings {
   flashrom_path: string | null;
-  archive_dir:   string | null;
-  baud_rate:     number;
+  archive_dir: string | null;
+  baud_rate: number;
 }
 ```
 
@@ -484,14 +488,21 @@ export interface AppSettings {
 Add the import of `AppSettings` in the existing import line at the top:
 
 ```ts
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult, AppSettings } from './types';
+import type {
+  DeviceInfo,
+  FlashReadResult,
+  SerialArchive,
+  ErrorSearchResult,
+  FlashPreviewResult,
+  AppSettings,
+} from './types';
 ```
 
 Append to the end of the file:
 
 ```ts
-export const settingsGet  = ()                       => invoke<AppSettings>('settings_get');
-export const settingsSave = (settings: AppSettings)  => invoke<void>('settings_save', { settings });
+export const settingsGet = () => invoke<AppSettings>('settings_get');
+export const settingsSave = (settings: AppSettings) => invoke<void>('settings_save', { settings });
 ```
 
 - [ ] **Step 5: Create `src/lib/stores/settings.ts`**
@@ -502,8 +513,8 @@ import type { AppSettings } from '$lib/api/types';
 
 export const appSettings = writable<AppSettings>({
   flashrom_path: null,
-  archive_dir:   null,
-  baud_rate:     115200,
+  archive_dir: null,
+  baud_rate: 115200,
 });
 ```
 
@@ -534,6 +545,7 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
 ## Task 4: SettingsPanel component + page integration
 
 **Files:**
+
 - Create: `src/lib/components/SettingsPanel.svelte`
 - Modify: `src/routes/+page.svelte`
 
@@ -562,7 +574,7 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
   async function browseFlashrom() {
     const result = await openDialog({ title: 'Flashrom Binary wählen' });
     if (result && typeof result === 'string') {
-      appSettings.update(s => ({ ...s, flashrom_path: result }));
+      appSettings.update((s) => ({ ...s, flashrom_path: result }));
       await save();
     }
   }
@@ -570,7 +582,7 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
   async function browseArchiveDir() {
     const result = await openDialog({ title: 'Archiv-Verzeichnis wählen', directory: true });
     if (result && typeof result === 'string') {
-      appSettings.update(s => ({ ...s, archive_dir: result }));
+      appSettings.update((s) => ({ ...s, archive_dir: result }));
       await save();
     }
   }
@@ -578,25 +590,21 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
 
 {#if open}
   <!-- Backdrop -->
-  <div
-    class="fixed inset-0 bg-black/50 z-40"
-    role="presentation"
-    onclick={onclose}
-  ></div>
+  <div class="fixed inset-0 bg-black/50 z-40" role="presentation" onclick={onclose}></div>
 
   <!-- Panel -->
-  <div class="fixed top-0 right-0 h-full w-80 bg-gray-900 border-l border-gray-700
-              shadow-xl z-50 flex flex-col">
+  <div
+    class="fixed top-0 right-0 h-full w-80 bg-gray-900 border-l border-gray-700
+              shadow-xl z-50 flex flex-col"
+  >
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
       <h2 class="text-sm font-semibold text-gray-100">Einstellungen</h2>
-      <button
-        onclick={onclose}
-        class="text-gray-400 hover:text-gray-200 text-lg leading-none"
-      >✕</button>
+      <button onclick={onclose} class="text-gray-400 hover:text-gray-200 text-lg leading-none"
+        >✕</button
+      >
     </div>
 
     <div class="flex flex-col gap-6 p-4 overflow-y-auto flex-1">
-
       <!-- Flashrom Binary -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-medium text-gray-400">Flashrom Binary</label>
@@ -605,7 +613,11 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
             type="text"
             placeholder="(gebundelt)"
             value={$appSettings.flashrom_path ?? ''}
-            oninput={(e) => appSettings.update(s => ({ ...s, flashrom_path: (e.target as HTMLInputElement).value || null }))}
+            oninput={(e) =>
+              appSettings.update((s) => ({
+                ...s,
+                flashrom_path: (e.target as HTMLInputElement).value || null,
+              }))}
             onblur={save}
             class="flex-1 bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
@@ -614,7 +626,8 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
           <button
             onclick={browseFlashrom}
             class="px-2 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 shrink-0"
-          >…</button>
+            >…</button
+          >
         </div>
         <p class="text-xs text-gray-600">Leer lassen für die mitgelieferte Binary.</p>
       </div>
@@ -627,7 +640,11 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
             type="text"
             placeholder="(Standard-App-Datenordner)"
             value={$appSettings.archive_dir ?? ''}
-            oninput={(e) => appSettings.update(s => ({ ...s, archive_dir: (e.target as HTMLInputElement).value || null }))}
+            oninput={(e) =>
+              appSettings.update((s) => ({
+                ...s,
+                archive_dir: (e.target as HTMLInputElement).value || null,
+              }))}
             onblur={save}
             class="flex-1 bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
                    border border-gray-700 placeholder:text-gray-600
@@ -636,7 +653,8 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
           <button
             onclick={browseArchiveDir}
             class="px-2 py-1.5 text-xs rounded bg-gray-700 hover:bg-gray-600 text-gray-200 shrink-0"
-          >…</button>
+            >…</button
+          >
         </div>
         <p class="text-xs text-gray-600">Leer lassen für den Standard-Speicherort des OS.</p>
       </div>
@@ -647,7 +665,10 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
         <select
           value={$appSettings.baud_rate}
           onchange={async (e) => {
-            appSettings.update(s => ({ ...s, baud_rate: Number((e.target as HTMLSelectElement).value) }));
+            appSettings.update((s) => ({
+              ...s,
+              baud_rate: Number((e.target as HTMLSelectElement).value),
+            }));
             await save();
           }}
           class="bg-gray-800 text-gray-100 text-xs rounded px-2 py-1.5
@@ -659,7 +680,6 @@ git commit -m "feat(frontend): add AppSettings type, settingsGet/Save API, and a
         </select>
         <p class="text-xs text-gray-600">Wirkt beim nächsten UART-Verbindungsaufbau.</p>
       </div>
-
     </div>
   </div>
 {/if}
@@ -676,12 +696,12 @@ Replace the entire file with:
   import UartPanel from '$lib/components/UartPanel.svelte';
   import SettingsPanel from '$lib/components/SettingsPanel.svelte';
 
-  let activeTab     = $state<'flash' | 'uart'>('flash');
-  let settingsOpen  = $state(false);
+  let activeTab = $state<'flash' | 'uart'>('flash');
+  let settingsOpen = $state(false);
 
   const tabs = [
     { id: 'flash' as const, label: 'NOR Flash' },
-    { id: 'uart'  as const, label: 'UART' },
+    { id: 'uart' as const, label: 'UART' },
   ];
 </script>
 
@@ -694,11 +714,9 @@ Replace the entire file with:
     {#each tabs as tab (tab.id)}
       <button
         onclick={() => (activeTab = tab.id)}
-        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {
-          activeTab === tab.id
-            ? 'border-b-2 border-blue-500 text-white bg-gray-950'
-            : 'text-gray-400 hover:text-gray-200'
-        }"
+        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {activeTab === tab.id
+          ? 'border-b-2 border-blue-500 text-white bg-gray-950'
+          : 'text-gray-400 hover:text-gray-200'}"
       >
         {tab.label}
       </button>
@@ -707,8 +725,8 @@ Replace the entire file with:
     <button
       onclick={() => (settingsOpen = true)}
       class="ml-auto mb-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-base leading-none"
-      title="Einstellungen"
-    >⚙</button>
+      title="Einstellungen">⚙</button
+    >
   </nav>
 
   <div class="flex-1 min-h-0 overflow-hidden">
@@ -718,7 +736,7 @@ Replace the entire file with:
         <ArchiveSection />
       </div>
     {/if}
-    <div class="{activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}">
+    <div class={activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}>
       <UartPanel />
     </div>
   </div>

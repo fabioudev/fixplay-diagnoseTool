@@ -1,8 +1,12 @@
 import { get } from 'svelte/store';
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  xboxDbCount, xboxDbLoading,
-  i2cScanResults, i2cErrlogEntries, i2cLog, nextI2cLogId,
+  xboxDbCount,
+  xboxDbLoading,
+  i2cScanResults,
+  i2cErrlogEntries,
+  i2cLog,
+  nextI2cLogId,
 } from './i2c';
 import type { I2cLogEntry } from './i2c';
 import type { I2cErrlogEntry } from '$lib/api/types';
@@ -21,7 +25,9 @@ describe('nextI2cLogId', () => {
 });
 
 describe('i2c log contract', () => {
-  beforeEach(() => { i2cLog.set([]); });
+  beforeEach(() => {
+    i2cLog.set([]);
+  });
 
   it('prepends new entries newest-first', () => {
     const a: I2cLogEntry = { id: nextI2cLogId(), timestamp_ms: 1, raw: 'first' };
@@ -32,8 +38,8 @@ describe('i2c log contract', () => {
   });
 
   it('distinguishes error entries via the kind discriminator', () => {
-    const ok:    I2cLogEntry = { id: 0, timestamp_ms: 0, raw: 'scan ok' };
-    const err:   I2cLogEntry = { id: 1, timestamp_ms: 0, raw: 'NACK', kind: 'error' };
+    const ok: I2cLogEntry = { id: 0, timestamp_ms: 0, raw: 'scan ok' };
+    const err: I2cLogEntry = { id: 1, timestamp_ms: 0, raw: 'NACK', kind: 'error' };
     i2cLog.set([ok, err]);
     expect(get(i2cLog).filter((e) => e.kind === 'error')).toHaveLength(1);
     expect(get(i2cLog).filter((e) => e.kind === undefined)).toHaveLength(1);
@@ -41,20 +47,27 @@ describe('i2c log contract', () => {
 });
 
 describe('i2c errlog entries', () => {
-  beforeEach(() => { i2cErrlogEntries.set([]); });
+  beforeEach(() => {
+    i2cErrlogEntries.set([]);
+  });
 
   it('store Xbox errlog entries verbatim with their string codes', () => {
     const e: I2cErrlogEntry = {
-      code: 'E74', timestamp: 123, source: 'SMC', description: 'AV cable / scaler error',
+      code: 'E74',
+      timestamp: 123,
+      source: 'SMC',
+      description: 'AV cable / scaler error',
     };
     i2cErrlogEntries.set([e]);
     expect(get(i2cErrlogEntries)[0]).toEqual(e);
-    expect(get(i2cErrlogEntries)[0].code).toBe('E74');   // string-keyed, unlike PS5 numeric
+    expect(get(i2cErrlogEntries)[0].code).toBe('E74'); // string-keyed, unlike PS5 numeric
   });
 });
 
 describe('i2c scan results', () => {
-  beforeEach(() => { i2cScanResults.set([]); });
+  beforeEach(() => {
+    i2cScanResults.set([]);
+  });
 
   it('hold the raw 7-bit I2C addresses from a bus scan', () => {
     i2cScanResults.set([0x48, 0x50, 0x68]);
@@ -65,7 +78,10 @@ describe('i2c scan results', () => {
 });
 
 describe('xboxDbCount nullable semantic', () => {
-  beforeEach(() => { xboxDbCount.set(null); xboxDbLoading.set(false); });
+  beforeEach(() => {
+    xboxDbCount.set(null);
+    xboxDbLoading.set(false);
+  });
 
   it('null means "no Xbox DB loaded"; a count means loaded', () => {
     expect(get(xboxDbCount)).toBeNull();

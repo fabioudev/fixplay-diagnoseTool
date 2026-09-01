@@ -8,10 +8,10 @@ const _i2cConnection = createConnectionStore();
 export const i2cConnected = _i2cConnection.connected;
 /** Unified I2C connection status (coarse lifecycle + booleans). */
 export const i2cConnection = _i2cConnection.status;
-export const i2cPorts     = writable<I2cPortInfo[]>([]);
+export const i2cPorts = writable<I2cPortInfo[]>([]);
 
 /** Xbox error-code DB status. */
-export const xboxDbCount  = writable<number | null>(null);
+export const xboxDbCount = writable<number | null>(null);
 export const xboxDbLoading = writable<boolean>(false);
 
 /** Most recent scan results (7-bit addresses). */

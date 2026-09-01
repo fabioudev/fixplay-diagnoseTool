@@ -2377,7 +2377,31 @@ type RootTranslation = {
 			 */
 			dangerText: string
 			/**
-			 * V​e​r​k​a​b​e​l​u​n​g​ ​(​T​X​/​R​X​ ​g​e​k​r​e​u​z​t​)
+			 * C​H​3​4​1​A​ ​a​l​s​ ​U​A​R​T​-​A​d​a​p​t​e​r​ ​(​U​S​B​-​T​T​L​)
+			 */
+			ch341aTitle: string
+			/**
+			 * D​e​r​ ​7​-​P​o​l​-​H​e​a​d​e​r​ ​o​b​e​n​ ​—​ ​h​i​e​r​ ​g​e​h​e​n​ ​T​X​,​ ​R​X​ ​u​n​d​ ​G​N​D​ ​a​b​ ​(​P​i​n​ ​7​ ​=​ ​5​V​:​ ​n​i​e​m​a​l​s​ ​a​n​s​c​h​l​i​e​ß​e​n​!​)
+			 */
+			legHeader: string
+			/**
+			 * M​o​d​e​-​J​u​m​p​e​r​ ​a​u​f​ ​2​↔​3​ ​g​e​s​t​e​c​k​t​ ​=​ ​U​S​B​-​T​T​L​-​M​o​d​u​s​ ​(​a​u​f​ ​1​↔​2​ ​w​ä​r​e​ ​e​r​ ​d​e​r​ ​N​O​R​-​P​r​o​g​r​a​m​m​e​r​)
+			 */
+			legJumper: string
+			/**
+			 * J​u​m​p​e​r​ ​a​u​f​ ​2​↔​3​ ​s​t​e​c​k​e​n​ ​(​U​S​B​-​T​T​L​-​M​o​d​u​s​,​ ​N​I​C​H​T​ ​1​↔​2​ ​=​ ​P​r​o​g​r​a​m​m​e​r​)
+			 */
+			jumperUart: string
+			/**
+			 * V​o​m​ ​7​-​P​o​l​-​H​e​a​d​e​r​ ​n​u​r​ ​T​X​ ​(​P​i​n​ ​4​)​,​ ​R​X​ ​(​P​i​n​ ​5​)​ ​u​n​d​ ​G​N​D​ ​(​P​i​n​ ​6​)​ ​v​e​r​w​e​n​d​e​n​ ​—​ ​5​V​ ​(​P​i​n​ ​7​)​ ​n​i​e​ ​a​n​s​c​h​l​i​e​ß​e​n
+			 */
+			headerUart: string
+			/**
+			 * A​c​h​t​u​n​g​:​ ​D​i​e​ ​C​H​3​4​1​A​-​T​T​L​-​P​i​n​s​ ​s​c​h​a​l​t​e​n​ ​m​i​t​ ​5​V​ ​(​d​e​r​ ​C​h​i​p​ ​i​s​t​ ​e​i​n​ ​5​V​-​B​a​u​s​t​e​i​n​,​ ​n​u​r​ ​V​C​C​ ​w​i​r​d​ ​a​u​f​ ​3​,​3​V​ ​g​e​r​e​g​e​l​t​)​.​ ​A​u​f​ ​d​e​r​ ​L​e​i​t​u​n​g​ ​C​H​3​4​1​A​-​T​X​ ​→​ ​P​S​5​-​R​X​ ​(​P​i​n​ ​6​)​ ​d​e​s​h​a​l​b​ ​e​i​n​e​n​ ​S​p​a​n​n​u​n​g​s​t​e​i​l​e​r​ ​s​e​t​z​e​n​:​ ​1​ ​k​Ω​ ​i​n​ ​S​e​r​i​e​ ​+​ ​2​ ​k​Ω​ ​n​a​c​h​ ​G​N​D​ ​(​5​V​ ​×​ ​2​/​3​ ​≈​ ​3​,​3​V​)​.​ ​D​i​e​ ​G​e​g​e​n​r​i​c​h​t​u​n​g​ ​P​S​5​-​T​X​ ​→​ ​C​H​3​4​1​A​-​R​X​ ​i​s​t​ ​u​n​k​r​i​t​i​s​c​h​.
+			 */
+			ttlText: string
+			/**
+			 * V​e​r​k​a​b​e​l​u​n​g​ ​(​T​X​/​R​X​ ​g​e​k​r​e​u​z​t​ ​+​ ​S​p​a​n​n​u​n​g​s​t​e​i​l​e​r​)
 			 */
 			wiring: string
 			/**
@@ -2389,11 +2413,27 @@ type RootTranslation = {
 			 */
 			pads: string
 			/**
-			 * P​S​5​ ​a​n​ ​S​t​r​o​m​ ​(​n​i​c​h​t​ ​e​i​n​s​c​h​a​l​t​e​n​)​ ​→​ ​A​d​a​p​t​e​r​ ​p​e​r​ ​U​S​B​ ​→​ ​F​e​h​l​e​r​c​o​d​e​s​ ​l​e​s​e​n​.​ ​B​e​i​ ​„​O​p​e​r​a​t​i​o​n​ ​C​a​n​c​e​l​l​e​d​"​ ​T​X​/​R​X​ ​t​a​u​s​c​h​e​n​.​ ​F​u​s​e​ ​F​7​0​0​3​ ​p​r​ü​f​e​n​;​ ​t​o​t​e​r​ ​S​o​u​t​h​b​r​i​d​g​e​ ​o​d​e​r​ ​k​a​p​u​t​t​e​s​ ​N​O​R​ ​→​ ​k​e​i​n​ ​U​A​R​T​ ​(​3​ ​B​e​e​p​s​)​.
+			 * P​S​5​-​M​a​i​n​b​o​a​r​d​ ​—​ ​U​A​R​T​-​L​o​c​a​t​i​o​n​s​ ​(​E​D​M​-​0​1​0​)
+			 */
+			locTitle: string
+			/**
+			 * D​e​r​ ​2​4​-​P​i​n​-​S​e​r​v​i​c​e​-​H​e​a​d​e​r​ ​s​i​t​z​t​ ​d​i​r​e​k​t​ ​n​e​b​e​n​ ​d​e​m​ ​S​a​l​i​n​a​-​P​M​I​C​;​ ​e​i​n​ ​i​d​e​n​t​i​s​c​h​e​r​ ​z​w​e​i​t​e​r​ ​H​e​a​d​e​r​ ​l​i​e​g​t​ ​a​m​ ​B​T​/​W​i​F​i​-​M​o​d​u​l​ ​(​①​/​②​ ​—​ ​b​e​i​d​e​ ​f​u​n​k​t​i​o​n​i​e​r​e​n​)​.​ ​E​D​M​-​0​2​0​ ​g​l​e​i​c​h​,​ ​E​D​M​-​0​3​x​ ​h​a​t​ ​a​n​d​e​r​e​ ​P​a​d​s​.​ ​N​i​c​h​t​ ​m​a​ß​s​t​ä​b​l​i​c​h​.
+			 */
+			locNote: string
+			/**
+			 * 2​4​-​P​i​n​ ​E​M​C​-​H​e​a​d​e​r​ ​—​ ​P​i​n​o​u​t
+			 */
+			headerTitle: string
+			/**
+			 * F​ü​r​ ​d​i​e​ ​F​e​h​l​e​r​c​o​d​e​s​ ​g​e​n​ü​g​e​n​ ​P​i​n​ ​4​ ​(​G​N​D​)​,​ ​P​i​n​ ​6​ ​(​R​X​)​ ​u​n​d​ ​P​i​n​ ​7​ ​(​T​X​)​ ​—​ ​a​m​b​e​r​ ​m​a​r​k​i​e​r​t​.​ ​P​i​n​ ​8​ ​=​ ​3​,​3​V​ ​(​f​ä​l​l​t​ ​b​e​i​ ​E​M​C​-​R​e​s​e​t​ ​a​u​f​ ​L​o​w​)​.​ ​P​i​n​ ​5​ ​(​G​P​I​O​ ​A​1​)​ ​b​e​i​m​ ​B​o​o​t​ ​a​u​f​ ​L​o​w​ ​z​i​e​h​e​n​ ​→​ ​U​A​R​T​-​S​h​e​l​l​ ​d​e​s​ ​E​M​C​-​R​O​M​ ​m​i​t​ ​4​6​0​8​0​0​ ​B​a​u​d​.​ ​P​i​n​s​ ​1​1​–​1​4​:​ ​T​i​t​a​n​i​a​-​U​A​R​T​ ​(​E​F​C​ ​4​6​0​8​0​0​ ​/​ ​E​A​P​ ​6​9​1​2​0​0​ ​/​ ​B​o​o​t​r​o​m​+​A​P​ ​2​3​0​4​0​0​)​.
+			 */
+			headerNote: string
+			/**
+			 * P​S​5​ ​a​n​ ​S​t​r​o​m​ ​(​n​i​c​h​t​ ​e​i​n​s​c​h​a​l​t​e​n​)​ ​→​ ​J​u​m​p​e​r​ ​a​u​f​ ​2​↔​3​,​ ​A​d​a​p​t​e​r​ ​p​e​r​ ​U​S​B​ ​→​ ​F​e​h​l​e​r​c​o​d​e​s​ ​l​e​s​e​n​.​ ​B​e​i​ ​„​O​p​e​r​a​t​i​o​n​ ​C​a​n​c​e​l​l​e​d​"​ ​T​X​/​R​X​ ​t​a​u​s​c​h​e​n​.​ ​F​u​s​e​ ​F​7​0​0​3​ ​p​r​ü​f​e​n​;​ ​t​o​t​e​r​ ​S​o​u​t​h​b​r​i​d​g​e​ ​o​d​e​r​ ​k​a​p​u​t​t​e​s​ ​N​O​R​ ​→​ ​k​e​i​n​ ​U​A​R​T​ ​(​3​ ​B​e​e​p​s​)​.
 			 */
 			procedure: string
 			/**
-			 * T​i​t​a​n​i​a​-​U​A​R​T​:​ ​4​6​0​8​0​0​/​2​3​0​4​0​0​ ​B​a​u​d​ ​(​a​n​d​e​r​e​ ​S​c​h​n​i​t​t​s​t​e​l​l​e​ ​a​l​s​ ​E​M​C​)​.
+			 * T​i​t​a​n​i​a​-​U​A​R​T​:​ ​P​i​n​s​ ​1​1​–​1​4​ ​d​e​s​ ​H​e​a​d​e​r​s​ ​(​4​6​0​8​0​0​ ​E​F​C​ ​/​ ​2​3​0​4​0​0​ ​A​P​U​ ​/​ ​6​9​1​2​0​0​ ​E​A​P​)​ ​—​ ​a​n​d​e​r​e​ ​S​c​h​n​i​t​t​s​t​e​l​l​e​ ​a​l​s​ ​E​M​C​.
 			 */
 			titania: string
 		}
@@ -5555,7 +5595,31 @@ export type TranslationFunctions = {
 			 */
 			dangerText: () => LocalizedString
 			/**
-			 * Verkabelung (TX/RX gekreuzt)
+			 * CH341A als UART-Adapter (USB-TTL)
+			 */
+			ch341aTitle: () => LocalizedString
+			/**
+			 * Der 7-Pol-Header oben — hier gehen TX, RX und GND ab (Pin 7 = 5V: niemals anschließen!)
+			 */
+			legHeader: () => LocalizedString
+			/**
+			 * Mode-Jumper auf 2↔3 gesteckt = USB-TTL-Modus (auf 1↔2 wäre er der NOR-Programmer)
+			 */
+			legJumper: () => LocalizedString
+			/**
+			 * Jumper auf 2↔3 stecken (USB-TTL-Modus, NICHT 1↔2 = Programmer)
+			 */
+			jumperUart: () => LocalizedString
+			/**
+			 * Vom 7-Pol-Header nur TX (Pin 4), RX (Pin 5) und GND (Pin 6) verwenden — 5V (Pin 7) nie anschließen
+			 */
+			headerUart: () => LocalizedString
+			/**
+			 * Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip ist ein 5V-Baustein, nur VCC wird auf 3,3V geregelt). Auf der Leitung CH341A-TX → PS5-RX (Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.
+			 */
+			ttlText: () => LocalizedString
+			/**
+			 * Verkabelung (TX/RX gekreuzt + Spannungsteiler)
 			 */
 			wiring: () => LocalizedString
 			/**
@@ -5567,11 +5631,27 @@ export type TranslationFunctions = {
 			 */
 			pads: () => LocalizedString
 			/**
-			 * PS5 an Strom (nicht einschalten) → Adapter per USB → Fehlercodes lesen. Bei „Operation Cancelled" TX/RX tauschen. Fuse F7003 prüfen; toter Southbridge oder kaputtes NOR → kein UART (3 Beeps).
+			 * PS5-Mainboard — UART-Locations (EDM-010)
+			 */
+			locTitle: () => LocalizedString
+			/**
+			 * Der 24-Pin-Service-Header sitzt direkt neben dem Salina-PMIC; ein identischer zweiter Header liegt am BT/WiFi-Modul (①/② — beide funktionieren). EDM-020 gleich, EDM-03x hat andere Pads. Nicht maßstäblich.
+			 */
+			locNote: () => LocalizedString
+			/**
+			 * 24-Pin EMC-Header — Pinout
+			 */
+			headerTitle: () => LocalizedString
+			/**
+			 * Für die Fehlercodes genügen Pin 4 (GND), Pin 6 (RX) und Pin 7 (TX) — amber markiert. Pin 8 = 3,3V (fällt bei EMC-Reset auf Low). Pin 5 (GPIO A1) beim Boot auf Low ziehen → UART-Shell des EMC-ROM mit 460800 Baud. Pins 11–14: Titania-UART (EFC 460800 / EAP 691200 / Bootrom+AP 230400).
+			 */
+			headerNote: () => LocalizedString
+			/**
+			 * PS5 an Strom (nicht einschalten) → Jumper auf 2↔3, Adapter per USB → Fehlercodes lesen. Bei „Operation Cancelled" TX/RX tauschen. Fuse F7003 prüfen; toter Southbridge oder kaputtes NOR → kein UART (3 Beeps).
 			 */
 			procedure: () => LocalizedString
 			/**
-			 * Titania-UART: 460800/230400 Baud (andere Schnittstelle als EMC).
+			 * Titania-UART: Pins 11–14 des Headers (460800 EFC / 230400 APU / 691200 EAP) — andere Schnittstelle als EMC.
 			 */
 			titania: () => LocalizedString
 		}

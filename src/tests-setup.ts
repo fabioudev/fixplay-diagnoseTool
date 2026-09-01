@@ -15,7 +15,9 @@ if (typeof Element !== 'undefined' && !Element.prototype.animate) {
       finished: Promise.resolve(),
       cancel() {},
       finish() {},
-      get onfinish() { return onfinish; },
+      get onfinish() {
+        return onfinish;
+      },
       set onfinish(v: (() => void) | null) {
         onfinish = v;
         if (v) setTimeout(() => v.call(anim), 0);

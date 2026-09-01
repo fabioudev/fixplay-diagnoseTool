@@ -16,6 +16,7 @@ This guide explains how to publish `fixplay-diagnosetool-bin` to the Arch User R
 ## Step 1: Create the AUR Repository
 
 On the AUR web interface:
+
 1. Go to https://aur.archlinux.org/account/
 2. Click "New Package"
 3. Enter package name: `fixplay-diagnosetool-bin`
@@ -44,6 +45,7 @@ makepkg -si
 ```
 
 This will:
+
 - Download the AppImage from GitHub
 - Install it to `/opt/fixplay-diagnosetool-bin`
 - Create menu entries and wrapper scripts
@@ -119,4 +121,3 @@ bash -n PKGBUILD
 - DES Signing: If you want to sign packages, add your GPG key to the AUR account.
 - Notifications: Enable email notifications on your AUR account to be notified of comments.
 - Co-maintainers: You can add co-maintainers via the AUR web interface if needed.
-

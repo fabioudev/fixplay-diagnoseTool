@@ -52,7 +52,7 @@ export function notify(
   level: NotificationLevel,
   title: string,
   message?: string,
-  timeout_ms?: number,
+  timeout_ms?: number
 ): number {
   const id = _nextId++;
   const entry: AppNotification = {
@@ -68,10 +68,10 @@ export function notify(
 }
 
 /** Convenience wrappers for the common severities. */
-export const notifyInfo    = (title: string, message?: string) => notify('info', title, message);
+export const notifyInfo = (title: string, message?: string) => notify('info', title, message);
 export const notifySuccess = (title: string, message?: string) => notify('success', title, message);
-export const notifyWarn    = (title: string, message?: string) => notify('warn', title, message);
-export const notifyError   = (title: string, message?: string) => notify('error', title, message);
+export const notifyWarn = (title: string, message?: string) => notify('warn', title, message);
+export const notifyError = (title: string, message?: string) => notify('error', title, message);
 
 /** Dismiss a single toast by id (no-op if it's already gone). */
 export function dismissNotification(id: number): void {

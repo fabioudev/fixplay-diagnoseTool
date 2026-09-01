@@ -32,7 +32,7 @@
           d.kind === 'audioinput' &&
           (d.label.includes('DualSense') ||
             d.label.includes('Wireless Controller') ||
-            d.label.includes('PS5')),
+            d.label.includes('PS5'))
       );
       if (!mic) {
         deviceFound = false;
@@ -106,9 +106,18 @@
   }
 
   function stop(): void {
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
-    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+    }
+    if (audioCtx) {
+      audioCtx.close();
+      audioCtx = null;
+    }
     analyser = null;
     peaks = [];
     deviceFound = false;
@@ -121,7 +130,8 @@
   }
 
   $effect(() => {
-    if (active) start(); else stop();
+    if (active) start();
+    else stop();
   });
 
   onDestroy(() => stop());
@@ -132,19 +142,29 @@
     <div class="text-xs text-red-400 bg-red-900/20 rounded p-2">{errorMsg}</div>
   {:else if active && deviceFound}
     <div class="relative">
-      <canvas bind:this={canvas} width={520} height={120} class="w-full rounded-lg bg-gray-900 border border-gray-700" style="height:120px"></canvas>
+      <canvas
+        bind:this={canvas}
+        width={520}
+        height={120}
+        class="w-full rounded-lg bg-gray-900 border border-gray-700"
+        style="height:120px"
+      ></canvas>
       <!-- frequency axis -->
       <div class="flex justify-between text-[9px] text-gray-600 mt-0.5 px-0.5">
-        <span>0 Hz</span><span>1,3 kHz</span><span>2,7 kHz</span><span>4 kHz</span><span>5,4 kHz</span>
+        <span>0 Hz</span><span>1,3 kHz</span><span>2,7 kHz</span><span>4 kHz</span><span
+          >5,4 kHz</span
+        >
       </div>
     </div>
   {:else if active && !deviceFound}
     <div class="flex items-center gap-2 text-xs text-gray-500">
-      <MicOff class="h-4 w-4" /> {$LL.tester.micSearching()}
+      <MicOff class="h-4 w-4" />
+      {$LL.tester.micSearching()}
     </div>
   {:else}
     <div class="flex items-center gap-2 text-xs text-gray-600">
-      <MicOff class="h-4 w-4" /> {$LL.tester.spectrumInactive()}
+      <MicOff class="h-4 w-4" />
+      {$LL.tester.spectrumInactive()}
     </div>
   {/if}
 </div>

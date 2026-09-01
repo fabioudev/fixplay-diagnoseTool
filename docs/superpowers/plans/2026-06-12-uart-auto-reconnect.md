@@ -12,21 +12,22 @@
 
 ## File Map
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Modify | `src-tauri/src/state.rs` | Add 4 reconnect fields to AppState |
-| Modify | `src-tauri/src/commands/uart.rs` | ReconnectingPayload, reconnect_loop, spawn_reconnect_if_enabled, uart_set_auto_reconnect, modify uart_connect / uart_disconnect / reader_loop / poll_loop |
-| Modify | `src-tauri/src/lib.rs` | Register uart_set_auto_reconnect in invoke_handler |
-| Modify | `src/lib/stores/uart.ts` | Add uartReconnecting writable |
-| Modify | `src/lib/stores/uart.test.ts` | 2 new tests for uartReconnecting |
-| Modify | `src/lib/api/tauri.ts` | Add uartSetAutoReconnect wrapper |
-| Modify | `src/lib/components/UartPanel.svelte` | Checkbox, uart://reconnecting listener, button/status states |
+| Action | Path                                  | Responsibility                                                                                                                                            |
+| ------ | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Modify | `src-tauri/src/state.rs`              | Add 4 reconnect fields to AppState                                                                                                                        |
+| Modify | `src-tauri/src/commands/uart.rs`      | ReconnectingPayload, reconnect_loop, spawn_reconnect_if_enabled, uart_set_auto_reconnect, modify uart_connect / uart_disconnect / reader_loop / poll_loop |
+| Modify | `src-tauri/src/lib.rs`                | Register uart_set_auto_reconnect in invoke_handler                                                                                                        |
+| Modify | `src/lib/stores/uart.ts`              | Add uartReconnecting writable                                                                                                                             |
+| Modify | `src/lib/stores/uart.test.ts`         | 2 new tests for uartReconnecting                                                                                                                          |
+| Modify | `src/lib/api/tauri.ts`                | Add uartSetAutoReconnect wrapper                                                                                                                          |
+| Modify | `src/lib/components/UartPanel.svelte` | Checkbox, uart://reconnecting listener, button/status states                                                                                              |
 
 ---
 
 ## Task 1: Backend — reconnect state, thread, command
 
 **Files:**
+
 - Modify: `src-tauri/src/state.rs`
 - Modify: `src-tauri/src/commands/uart.rs`
 - Modify: `src-tauri/src/lib.rs`
@@ -416,6 +417,7 @@ git commit -m "feat(tauri): add UART auto-reconnect thread and command"
 ## Task 2: Frontend — uartReconnecting store, API wrapper, UartPanel UI
 
 **Files:**
+
 - Modify: `src/lib/stores/uart.ts`
 - Modify: `src/lib/stores/uart.test.ts`
 - Modify: `src/lib/api/tauri.ts`
@@ -426,26 +428,35 @@ git commit -m "feat(tauri): add UART auto-reconnect thread and command"
 Add `uartReconnecting` to the import (line 3):
 
 ```ts
-import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from './uart';
+import {
+  uartLog,
+  uartConnected,
+  uartPorts,
+  autoPollEnabled,
+  nextLogId,
+  dbCodeCount,
+  dbLoading,
+  uartReconnecting,
+} from './uart';
 ```
 
 Add to the `beforeEach` block (after `dbLoading.set(false)`):
 
 ```ts
-    uartReconnecting.set(false);
+uartReconnecting.set(false);
 ```
 
 Add two new tests at the end of the `describe` block (before the closing `}`):
 
 ```ts
-  it('uartReconnecting starts as false', () => {
-    expect(get(uartReconnecting)).toBe(false);
-  });
+it('uartReconnecting starts as false', () => {
+  expect(get(uartReconnecting)).toBe(false);
+});
 
-  it('uartReconnecting can be set to true', () => {
-    uartReconnecting.set(true);
-    expect(get(uartReconnecting)).toBe(true);
-  });
+it('uartReconnecting can be set to true', () => {
+  uartReconnecting.set(true);
+  expect(get(uartReconnecting)).toBe(true);
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -470,12 +481,12 @@ Full file after the change:
 import { writable } from 'svelte/store';
 import type { UartLogEntry } from '$lib/api/types';
 
-export const uartConnected   = writable<boolean>(false);
-export const uartPorts       = writable<string[]>([]);
-export const uartLog         = writable<UartLogEntry[]>([]);
+export const uartConnected = writable<boolean>(false);
+export const uartPorts = writable<string[]>([]);
+export const uartLog = writable<UartLogEntry[]>([]);
 export const autoPollEnabled = writable<boolean>(false);
-export const dbCodeCount     = writable<number | null>(null);
-export const dbLoading       = writable<boolean>(false);
+export const dbCodeCount = writable<number | null>(null);
+export const dbLoading = writable<boolean>(false);
 export const uartReconnecting = writable<boolean>(false);
 
 let _nextId = 0;
@@ -514,7 +525,16 @@ Read the full file first, then apply all changes:
 **6a — Update imports** (script top):
 
 ```ts
-import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from '$lib/stores/uart';
+import {
+  uartConnected,
+  uartPorts,
+  uartLog,
+  autoPollEnabled,
+  nextLogId,
+  dbCodeCount,
+  dbLoading,
+  uartReconnecting,
+} from '$lib/stores/uart';
 import {
   uartListPorts,
   uartConnect,
@@ -531,6 +551,7 @@ import {
 **6b — Replace `toggleConnect` with `connect` + `disconnect` + `autoReconnect` state**
 
 Remove:
+
 ```ts
 async function toggleConnect() {
   loading = true;
@@ -549,46 +570,51 @@ async function toggleConnect() {
 ```
 
 Add in its place:
+
 ```ts
-  let autoReconnect = $state(false);
+let autoReconnect = $state(false);
 
-  async function connect() {
-    loading = true;
-    try {
-      await uartConnect(selectedPort);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      loading = false;
-    }
+async function connect() {
+  loading = true;
+  try {
+    await uartConnect(selectedPort);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading = false;
   }
+}
 
-  async function disconnect() {
-    autoReconnect = false;
-    await uartSetAutoReconnect(false).catch(console.error);
-    loading = true;
-    try {
-      await uartDisconnect();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      loading = false;
-    }
+async function disconnect() {
+  autoReconnect = false;
+  await uartSetAutoReconnect(false).catch(console.error);
+  loading = true;
+  try {
+    await uartDisconnect();
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading = false;
   }
+}
 ```
 
 **6c — Add `u5` listener for `uart://reconnecting` in `onMount`**
 
 Change:
+
 ```ts
     const [u1, u2, u3, u4] = await Promise.all([
 ```
+
 to:
+
 ```ts
     const [u1, u2, u3, u4, u5] = await Promise.all([
 ```
 
 Add the fifth listener at the end of the Promise.all array (after the `uart://db-status` listener):
+
 ```ts
       listen<{ active: boolean }>('uart://reconnecting', (e) => {
         uartReconnecting.set(e.payload.active);
@@ -598,6 +624,7 @@ Add the fifth listener at the end of the Promise.all array (after the `uart://db
 Change `unlisten.push(u1, u2, u3, u4)` to `unlisten.push(u1, u2, u3, u4, u5)`.
 
 Also in the `uart://status` listener, add a safety reset for `uartReconnecting`:
+
 ```ts
       listen<UartStatusEvent>('uart://status', (e) => {
         uartConnected.set(e.payload.connected);
@@ -608,52 +635,54 @@ Also in the `uart://status` listener, add a safety reset for `uartReconnecting`:
 **6d — Add `uartReconnecting.set(false)` in `onDestroy`**
 
 ```ts
-  onDestroy(() => {
-    if (debounceTimer) clearTimeout(debounceTimer);
-    unlisten.forEach((fn) => fn());
-    dbLoading.set(false);
-    uartReconnecting.set(false);
-  });
+onDestroy(() => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  unlisten.forEach((fn) => fn());
+  dbLoading.set(false);
+  uartReconnecting.set(false);
+});
 ```
 
 **6e — Update the connect button in the template**
 
 Replace:
+
 ```svelte
-    <button
-      onclick={toggleConnect}
-      disabled={loading || (!$uartConnected && !selectedPort)}
-      class="px-3 py-1 text-sm rounded font-medium
+<button
+  onclick={toggleConnect}
+  disabled={loading || (!$uartConnected && !selectedPort)}
+  class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
-               ? 'bg-red-700 hover:bg-red-600 text-white'
-               : 'bg-green-700 hover:bg-green-600 text-white'}
+    ? 'bg-red-700 hover:bg-red-600 text-white'
+    : 'bg-green-700 hover:bg-green-600 text-white'}
              disabled:opacity-40"
-    >
-      {$uartConnected ? 'Trennen' : 'Verbinden'}
-    </button>
+>
+  {$uartConnected ? 'Trennen' : 'Verbinden'}
+</button>
 ```
 
 With:
+
 ```svelte
-    <button
-      onclick={$uartConnected || $uartReconnecting ? disconnect : connect}
-      disabled={loading || (!$uartConnected && !$uartReconnecting && !selectedPort)}
-      class="px-3 py-1 text-sm rounded font-medium
+<button
+  onclick={$uartConnected || $uartReconnecting ? disconnect : connect}
+  disabled={loading || (!$uartConnected && !$uartReconnecting && !selectedPort)}
+  class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
-               ? 'bg-red-700 hover:bg-red-600 text-white'
-               : $uartReconnecting
-                 ? 'bg-yellow-700 hover:bg-yellow-600 text-white'
-                 : 'bg-green-700 hover:bg-green-600 text-white'}
+    ? 'bg-red-700 hover:bg-red-600 text-white'
+    : $uartReconnecting
+      ? 'bg-yellow-700 hover:bg-yellow-600 text-white'
+      : 'bg-green-700 hover:bg-green-600 text-white'}
              disabled:opacity-40"
-    >
-      {#if $uartReconnecting}
-        ⟳ Reconnecting…
-      {:else if $uartConnected}
-        Trennen
-      {:else}
-        Verbinden
-      {/if}
-    </button>
+>
+  {#if $uartReconnecting}
+    ⟳ Reconnecting…
+  {:else if $uartConnected}
+    Trennen
+  {:else}
+    Verbinden
+  {/if}
+</button>
 ```
 
 **6f — Add Auto-Reconnect checkbox** (after the connect button, before the Errlog button):
@@ -696,31 +725,39 @@ With:
 **6h — Update the status indicator** to show reconnecting state:
 
 Replace:
+
 ```svelte
-  <div class="flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full {$uartConnected ? 'bg-green-400' : 'bg-gray-600'}"></span>
-    <span class="text-xs text-gray-400">
-      {$uartConnected ? `Verbunden — ${selectedPort}` : 'Getrennt'}
-    </span>
-  </div>
+<div class="flex items-center gap-2">
+  <span class="w-2 h-2 rounded-full {$uartConnected ? 'bg-green-400' : 'bg-gray-600'}"></span>
+  <span class="text-xs text-gray-400">
+    {$uartConnected ? `Verbunden — ${selectedPort}` : 'Getrennt'}
+  </span>
+</div>
 ```
 
 With:
+
 ```svelte
-  <div class="flex items-center gap-2">
-    <span class="w-2 h-2 rounded-full
-      {$uartConnected ? 'bg-green-400' : $uartReconnecting ? 'bg-yellow-400 animate-pulse' : 'bg-gray-600'}">
-    </span>
-    <span class="text-xs text-gray-400">
-      {#if $uartReconnecting}
-        Reconnecting…
-      {:else if $uartConnected}
-        Verbunden — {selectedPort}
-      {:else}
-        Getrennt
-      {/if}
-    </span>
-  </div>
+<div class="flex items-center gap-2">
+  <span
+    class="w-2 h-2 rounded-full
+      {$uartConnected
+      ? 'bg-green-400'
+      : $uartReconnecting
+        ? 'bg-yellow-400 animate-pulse'
+        : 'bg-gray-600'}"
+  >
+  </span>
+  <span class="text-xs text-gray-400">
+    {#if $uartReconnecting}
+      Reconnecting…
+    {:else if $uartConnected}
+      Verbunden — {selectedPort}
+    {:else}
+      Getrennt
+    {/if}
+  </span>
+</div>
 ```
 
 - [ ] **Step 7: Run full test suite**

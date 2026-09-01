@@ -1,6 +1,4 @@
-
 <script lang="ts">
-
   import { Cpu, Usb, Archive, Settings, Gamepad2, CircuitBoard, Home, Info } from 'lucide-svelte';
   import FixplayIcon from '$lib/components/FixplayIcon.svelte';
   import { flashProgrammers } from '$lib/stores/flash';
@@ -29,17 +27,22 @@
   // Each item carries a typed accessor into the translation functions rather
   // than a dotted string key — so the call site (`item.label($LL)`) is fully
   // type-checked and renames/missing keys surface as compile errors.
-  const items: { id: View; label: (ll: TranslationFunctions) => LocalizedString; icon: typeof Cpu; key: number }[] = [
-    { id: 'home',    label: (ll) => ll.nav.home(),    icon: Home,          key: 1 },
-    { id: 'flash',   label: (ll) => ll.nav.flash(),   icon: Cpu,           key: 2 },
-    { id: 'uart',    label: (ll) => ll.nav.uart(),    icon: Usb,           key: 3 },
-    { id: 'i2c',     label: (ll) => ll.nav.i2c(),     icon: CircuitBoard, key: 4 },
+  const items: {
+    id: View;
+    label: (ll: TranslationFunctions) => LocalizedString;
+    icon: typeof Cpu;
+    key: number;
+  }[] = [
+    { id: 'home', label: (ll) => ll.nav.home(), icon: Home, key: 1 },
+    { id: 'flash', label: (ll) => ll.nav.flash(), icon: Cpu, key: 2 },
+    { id: 'uart', label: (ll) => ll.nav.uart(), icon: Usb, key: 3 },
+    { id: 'i2c', label: (ll) => ll.nav.i2c(), icon: CircuitBoard, key: 4 },
     { id: 'controller', label: (ll) => ll.nav.controller(), icon: Gamepad2, key: 5 },
-    { id: 'archive', label: (ll) => ll.nav.archive(), icon: Archive,       key: 6 },
+    { id: 'archive', label: (ll) => ll.nav.archive(), icon: Archive, key: 6 },
   ];
 
   const programmerCount = $derived($flashProgrammers.length);
-  const tabletMode      = $derived($appSettings.tablet_mode);
+  const tabletMode = $derived($appSettings.tablet_mode);
 
   // Map a recent view id back to its label/icon so the quick-row reuses the
   // same visual identity as the main nav.
@@ -57,7 +60,11 @@
   data-tablet={tabletMode}
 >
   <!-- Brand -->
-  <div class="flex items-center justify-center gap-2.5 h-14 border-b border-gray-800 shrink-0 {collapsed ? 'px-2' : 'px-4'}">
+  <div
+    class="flex items-center justify-center gap-2.5 h-14 border-b border-gray-800 shrink-0 {collapsed
+      ? 'px-2'
+      : 'px-4'}"
+  >
     <div class="shrink-0">
       <FixplayIcon class="w-10 h-10" />
     </div>
@@ -78,8 +85,8 @@
                {collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-2.5 text-sm'}
                {tabletMode ? 'py-3.5' : ''}
                {active === item.id
-                 ? 'bg-blue-600/15 text-blue-300'
-                 : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'}"
+          ? 'bg-blue-600/15 text-blue-300'
+          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'}"
         aria-current={active === item.id ? 'page' : undefined}
         aria-label={item.label($LL)}
         title={`${item.label($LL)}  (Ctrl+${item.key})`}
@@ -101,8 +108,8 @@
           onclick={() => onnavigate(item.id)}
           class="flex items-center rounded-lg font-medium transition-colors text-left gap-2.5 px-3 py-1.5 text-xs
                  {active === item.id
-                   ? 'bg-blue-600/15 text-blue-300'
-                   : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/60'}"
+            ? 'bg-blue-600/15 text-blue-300'
+            : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/60'}"
           aria-current={active === item.id ? 'page' : undefined}
           title={item.label($LL)}
         >
@@ -123,9 +130,15 @@
         ? $LL.nav.programmerCountTitle({ count: programmerCount })
         : $LL.nav.programmerNoneTitle()}
     >
-      <span class="w-2 h-2 rounded-full shrink-0 {programmerCount > 0 ? 'bg-green-400' : 'bg-gray-600'}"></span>
+      <span
+        class="w-2 h-2 rounded-full shrink-0 {programmerCount > 0 ? 'bg-green-400' : 'bg-gray-600'}"
+      ></span>
       {#if !collapsed}
-        <span class="truncate">{programmerCount > 0 ? $LL.nav.programmerCount({ count: programmerCount }) : $LL.nav.programmerNone()}</span>
+        <span class="truncate"
+          >{programmerCount > 0
+            ? $LL.nav.programmerCount({ count: programmerCount })
+            : $LL.nav.programmerNone()}</span
+        >
       {/if}
     </div>
     <button

@@ -17,7 +17,13 @@
   import Toaster from '$lib/components/Toaster.svelte';
   import { sidebarCollapsed } from '$lib/stores/ui';
   import { appSettings } from '$lib/stores/settings';
-  import { flashBusy, flashProgress, initFlashListeners, nextFlashLogId, pushFlashLog } from '$lib/stores/flash';
+  import {
+    flashBusy,
+    flashProgress,
+    initFlashListeners,
+    nextFlashLogId,
+    pushFlashLog,
+  } from '$lib/stores/flash';
   import { refreshUpdateContext, checkUpdates, currentVersion } from '$lib/stores/updater';
   import { activeView, navigate, SHORTCUT_VIEWS } from '$lib/stores/app';
   import { onMount } from 'svelte';
@@ -25,9 +31,9 @@
   import LL from '$lib/i18n/i18n-svelte';
 
   let settingsOpen = $state(false);
-  let aboutOpen    = $state(false);
+  let aboutOpen = $state(false);
   let onboardingOpen = $state(false);
-  let whatsNewOpen    = $state(false);
+  let whatsNewOpen = $state(false);
 
   // Global keyboard shortcuts: Ctrl/Cmd+1..6 jump between panels, Ctrl/Cmd+, opens
   // settings. Skipped when focus is in a text/input/textarea field so we don't
@@ -40,7 +46,11 @@
   }
   function onKeydown(e: KeyboardEvent) {
     if (!e.ctrlKey && !e.metaKey) return;
-    if (e.key === ',') { e.preventDefault(); settingsOpen = true; return; }
+    if (e.key === ',') {
+      e.preventDefault();
+      settingsOpen = true;
+      return;
+    }
     const n = parseInt(e.key, 10);
     if (n >= 1 && n <= SHORTCUT_VIEWS.length && !isTypingTarget(e.target)) {
       e.preventDefault();
@@ -50,7 +60,11 @@
 
   onMount(() => {
     // First-run onboarding — show once per install.
-    try { if (!localStorage.getItem('fixplay-onboarding-done')) onboardingOpen = true; } catch { /* ignored */ }
+    try {
+      if (!localStorage.getItem('fixplay-onboarding-done')) onboardingOpen = true;
+    } catch {
+      /* ignored */
+    }
 
     // flash:// listeners live at app level (not inside FlashPanel) so progress,
     // status and final result survive panel switches during a multi-minute
@@ -59,7 +73,12 @@
     // flash log (the store resets its ready flag so a later retry is possible);
     // swallowing it silently would strand flashBusy on the first operation.
     initFlashListeners().catch((e: unknown) => {
-      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
+      pushFlashLog({
+        id: nextFlashLogId(),
+        timestamp_ms: Date.now(),
+        message: String(e),
+        level: 'error',
+      });
     });
 
     if (!__MOCK_MODE__) {
@@ -67,18 +86,20 @@
 
       // Prevent accidental window close during flash operations — closing the
       // app mid-write can brick the target chip.
-      import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
-        getCurrentWindow().onCloseRequested(async (e) => {
-          if ($flashBusy) {
-            // Tauri v2: prevent close by not calling e.preventDefault()? Actually
-            // we need to use the confirm dialog approach since onCloseRequested
-            // in Tauri v2 uses async prevention via the event.
-            if (!confirm(get(LL).common.confirmCloseFlash())) {
-              e.preventDefault();
+      import('@tauri-apps/api/window')
+        .then(({ getCurrentWindow }) => {
+          getCurrentWindow().onCloseRequested(async (e) => {
+            if ($flashBusy) {
+              // Tauri v2: prevent close by not calling e.preventDefault()? Actually
+              // we need to use the confirm dialog approach since onCloseRequested
+              // in Tauri v2 uses async prevention via the event.
+              if (!confirm(get(LL).common.confirmCloseFlash())) {
+                e.preventDefault();
+              }
             }
-          }
-        });
-      }).catch(() => {}); // not available in mock mode
+          });
+        })
+        .catch(() => {}); // not available in mock mode
     }
   });
 
@@ -95,7 +116,9 @@
         if (last !== null) whatsNewOpen = true;
         localStorage.setItem('fixplay-last-version', v);
       }
-    } catch { /* ignored */ }
+    } catch {
+      /* ignored */
+    }
   });
 </script>
 
@@ -105,7 +128,10 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="flex h-screen bg-gray-950 text-gray-100 overflow-hidden" data-tablet={$appSettings.tablet_mode}>
+<div
+  class="flex h-screen bg-gray-950 text-gray-100 overflow-hidden"
+  data-tablet={$appSettings.tablet_mode}
+>
   <Sidebar
     active={$activeView}
     collapsed={$sidebarCollapsed}
@@ -118,7 +144,7 @@
     <Header
       view={$activeView}
       collapsed={$sidebarCollapsed}
-      onToggleSidebar={() => sidebarCollapsed.update(v => !v)}
+      onToggleSidebar={() => sidebarCollapsed.update((v) => !v)}
     />
 
     <UpdateBanner onCheck={() => checkUpdates()} />
@@ -127,7 +153,9 @@
          panel (see navigate()'s confirm gate — this is the visible counterpart
          for the session where the technician chose to leave the panel). -->
     {#if $flashBusy && $activeView !== 'flash'}
-      <div class="flex items-center justify-between gap-2 border-b border-yellow-700 bg-yellow-900/60 px-4 py-1.5 text-xs text-yellow-200">
+      <div
+        class="flex items-center justify-between gap-2 border-b border-yellow-700 bg-yellow-900/60 px-4 py-1.5 text-xs text-yellow-200"
+      >
         <span>{$LL.flash.busyBanner({ percent: $flashProgress?.percent ?? 0 })}</span>
         <button
           onclick={() => navigate('flash')}

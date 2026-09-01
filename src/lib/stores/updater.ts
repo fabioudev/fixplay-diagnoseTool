@@ -51,7 +51,9 @@ export async function checkUpdates(): Promise<void> {
       try {
         const remind = localStorage.getItem('fixplay-update-remind');
         if (remind) snoozed = Date.now() < parseInt(remind, 10);
-      } catch { /* ignored */ }
+      } catch {
+        /* ignored */
+      }
       if (!snoozed) updateDismissed.set(false);
     }
   } catch (e) {
@@ -84,7 +86,9 @@ export async function installUpdate(): Promise<void> {
           break;
         case 'Progress': {
           const chunk = Number((event.data as { chunkLength?: number }).chunkLength ?? 0);
-          updateProgress.update((p) => (total > 0 && p !== null ? Math.min(1, p + chunk / total) : p));
+          updateProgress.update((p) =>
+            total > 0 && p !== null ? Math.min(1, p + chunk / total) : p
+          );
           break;
         }
         case 'Finished':

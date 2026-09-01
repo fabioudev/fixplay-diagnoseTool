@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @layer base {
   :root {
@@ -27,8 +27,8 @@
    become the lightest, and the lightest text becomes the darkest. Colored
    accents (blue/red/teal/purple buttons with text-white) keep working in both
    themes. Unlayered so it wins over Tailwind's `@layer theme` :root defs. */
-[data-theme="light"] {
-  --color-gray-50:  #020617; /* was near-white text → near-black */
+[data-theme='light'] {
+  --color-gray-50: #020617; /* was near-white text → near-black */
   --color-gray-100: #0f172a;
   --color-gray-200: #1e293b;
   --color-gray-300: #334155;
@@ -42,16 +42,16 @@
 }
 
 /* Tablet / Touch Mode — larger touch targets */
-[data-tablet="true"] button {
+[data-tablet='true'] button {
   min-height: 2.5rem;
 }
-[data-tablet="true"] select,
-[data-tablet="true"] input[type="text"],
-[data-tablet="true"] input[type="number"] {
+[data-tablet='true'] select,
+[data-tablet='true'] input[type='text'],
+[data-tablet='true'] input[type='number'] {
   min-height: 2.5rem;
   font-size: 0.875rem;
 }
-[data-tablet="true"] input[type="checkbox"] {
+[data-tablet='true'] input[type='checkbox'] {
   width: 1.25rem;
   height: 1.25rem;
 }

@@ -86,8 +86,8 @@ Both registered in `src-tauri/src/lib.rs` invoke handler.
 ```ts
 export interface AppSettings {
   flashrom_path: string | null;
-  archive_dir:   string | null;
-  baud_rate:     number;
+  archive_dir: string | null;
+  baud_rate: number;
 }
 ```
 
@@ -98,7 +98,7 @@ export interface AppSettings {
 **File:** `src/lib/api/tauri.ts`
 
 ```ts
-export const settingsGet  = ()                      => invoke<AppSettings>('settings_get');
+export const settingsGet = () => invoke<AppSettings>('settings_get');
 export const settingsSave = (settings: AppSettings) => invoke<void>('settings_save', { settings });
 ```
 
@@ -114,8 +114,8 @@ import type { AppSettings } from '$lib/api/types';
 
 export const appSettings = writable<AppSettings>({
   flashrom_path: null,
-  archive_dir:   null,
-  baud_rate:     115200,
+  archive_dir: null,
+  baud_rate: 115200,
 });
 ```
 
@@ -137,11 +137,11 @@ Loaded once in `SettingsPanel.svelte` on mount via `settingsGet()`.
 
 ### Fields
 
-| Label | Input | Notes |
-|-------|-------|-------|
-| Flashrom Binary | `<input type="text">` + "Durchsuchen" file-dialog button | Placeholder: `(gebundelt)` |
-| Archiv-Verzeichnis | `<input type="text">` + "Durchsuchen" folder-dialog button | Placeholder: OS app_data_dir |
-| UART Baudrate | `<select>` | Options: 9600, 19200, 38400, 57600, 115200, 230400 |
+| Label              | Input                                                      | Notes                                              |
+| ------------------ | ---------------------------------------------------------- | -------------------------------------------------- |
+| Flashrom Binary    | `<input type="text">` + "Durchsuchen" file-dialog button   | Placeholder: `(gebundelt)`                         |
+| Archiv-Verzeichnis | `<input type="text">` + "Durchsuchen" folder-dialog button | Placeholder: OS app_data_dir                       |
+| UART Baudrate      | `<select>`                                                 | Options: 9600, 19200, 38400, 57600, 115200, 230400 |
 
 The "Durchsuchen" buttons use `@tauri-apps/plugin-dialog` (`open` for file, `open` with `directory: true` for folder). The selected path is written into the store and `settingsSave` is called immediately after selection (no blur needed).
 
@@ -161,16 +161,16 @@ Baud rate `<select>` calls `settingsSave` on `change` (not blur, since selects d
 
 ## Files Summary
 
-| Action | Path |
-|--------|------|
-| Create | `src-tauri/src/settings.rs` |
-| Create | `src-tauri/src/commands/settings.rs` |
-| Modify | `src-tauri/src/commands/mod.rs` |
-| Modify | `src-tauri/src/commands/flash.rs` |
-| Modify | `src-tauri/src/commands/uart.rs` |
-| Modify | `src-tauri/src/lib.rs` |
-| Modify | `src/lib/api/types.ts` |
-| Modify | `src/lib/api/tauri.ts` |
-| Create | `src/lib/stores/settings.ts` |
+| Action | Path                                      |
+| ------ | ----------------------------------------- |
+| Create | `src-tauri/src/settings.rs`               |
+| Create | `src-tauri/src/commands/settings.rs`      |
+| Modify | `src-tauri/src/commands/mod.rs`           |
+| Modify | `src-tauri/src/commands/flash.rs`         |
+| Modify | `src-tauri/src/commands/uart.rs`          |
+| Modify | `src-tauri/src/lib.rs`                    |
+| Modify | `src/lib/api/types.ts`                    |
+| Modify | `src/lib/api/tauri.ts`                    |
+| Create | `src/lib/stores/settings.ts`              |
 | Create | `src/lib/components/SettingsPanel.svelte` |
-| Modify | `src/routes/+page.svelte` |
+| Modify | `src/routes/+page.svelte`                 |

@@ -33,8 +33,8 @@
     <p class="text-xs text-gray-500 max-w-md">{error}</p>
     <button
       class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
-      onclick={retry}
-    ><RefreshCw class="h-4 w-4" /> {$LL.common.reload()}</button>
+      onclick={retry}><RefreshCw class="h-4 w-4" /> {$LL.common.reload()}</button
+    >
   </div>
 {:else}
   {#key key}

@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { flashBusy, flashProgrammers } from '$lib/stores/flash';
   import { uartConnected, uartReconnecting, dbCodeCount, dbLoading } from '$lib/stores/uart';
@@ -20,10 +19,7 @@
   let online = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
 </script>
 
-<svelte:window
-  ononline={() => (online = true)}
-  onoffline={() => (online = false)}
-/>
+<svelte:window ononline={() => (online = true)} onoffline={() => (online = false)} />
 
 <footer
   class="flex items-center gap-4 h-7 px-4 bg-gray-900 border-t border-gray-800 text-[11px] text-gray-500 shrink-0 select-none"
@@ -32,9 +28,19 @@
   <button class={btnCls} onclick={() => onnavigate?.('uart')} title={$LL.statusBar.uartTitle()}>
     <span
       class="w-1.5 h-1.5 rounded-full
-        {$uartConnected ? 'bg-green-400' : $uartReconnecting ? 'bg-yellow-400 animate-pulse' : 'bg-gray-600'}"
+        {$uartConnected
+        ? 'bg-green-400'
+        : $uartReconnecting
+          ? 'bg-yellow-400 animate-pulse'
+          : 'bg-gray-600'}"
     ></span>
-    <span>UART {$uartConnected ? $LL.statusBar.connected() : $uartReconnecting ? $LL.statusBar.reconnecting() : $LL.statusBar.disconnected()}</span>
+    <span
+      >UART {$uartConnected
+        ? $LL.statusBar.connected()
+        : $uartReconnecting
+          ? $LL.statusBar.reconnecting()
+          : $LL.statusBar.disconnected()}</span
+    >
   </button>
 
   <!-- I2C / Pico status -->
@@ -59,9 +65,15 @@
   <!-- Programmer status -->
   <button class={btnCls} onclick={() => onnavigate?.('flash')} title={$LL.statusBar.flashTitle()}>
     <span
-      class="w-1.5 h-1.5 rounded-full {$flashProgrammers.length > 0 ? 'bg-green-400' : 'bg-gray-600'}"
+      class="w-1.5 h-1.5 rounded-full {$flashProgrammers.length > 0
+        ? 'bg-green-400'
+        : 'bg-gray-600'}"
     ></span>
-    <span>{$flashProgrammers.length > 0 ? $LL.statusBar.programmerReady() : $LL.statusBar.noProgrammer()}</span>
+    <span
+      >{$flashProgrammers.length > 0
+        ? $LL.statusBar.programmerReady()
+        : $LL.statusBar.noProgrammer()}</span
+    >
   </button>
 
   <!-- Flash busy -->
@@ -88,7 +100,8 @@
 
   {#if !online}
     <span class="flex items-center gap-1 text-amber-400" title={$LL.statusBar.offlineTitle()}>
-      <WifiOff class="w-3 h-3" /> {$LL.statusBar.offline()}
+      <WifiOff class="w-3 h-3" />
+      {$LL.statusBar.offline()}
     </span>
   {/if}
 

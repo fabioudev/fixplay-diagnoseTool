@@ -13,12 +13,48 @@
 
   // Labels reuse the nav keys (same wording as the sidebar); descriptions are
   // home-specific. Both are typed accessors so renames surface as compile errors.
-  const cards: { id: View; label: (ll: TranslationFunctions) => LocalizedString; desc: (ll: TranslationFunctions) => LocalizedString; icon: typeof Cpu; color: string }[] = [
-    { id: 'flash', label: (ll) => ll.nav.flash(), desc: (ll) => ll.home.flashDesc(), icon: Cpu, color: 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20' },
-    { id: 'uart', label: (ll) => ll.nav.uart(), desc: (ll) => ll.home.uartDesc(), icon: Usb, color: 'bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20' },
-    { id: 'i2c', label: (ll) => ll.nav.i2c(), desc: (ll) => ll.home.i2cDesc(), icon: CircuitBoard, color: 'bg-purple-500/10 border-purple-500/30 text-purple-400 hover:bg-purple-500/20' },
-    { id: 'controller', label: (ll) => ll.nav.controller(), desc: (ll) => ll.home.controllerDesc(), icon: Gamepad2, color: 'bg-teal-500/10 border-teal-500/30 text-teal-400 hover:bg-teal-500/20' },
-    { id: 'archive', label: (ll) => ll.nav.archive(), desc: (ll) => ll.home.archiveDesc(), icon: Archive, color: 'bg-gray-500/10 border-gray-500/30 text-gray-400 hover:bg-gray-500/20' },
+  const cards: {
+    id: View;
+    label: (ll: TranslationFunctions) => LocalizedString;
+    desc: (ll: TranslationFunctions) => LocalizedString;
+    icon: typeof Cpu;
+    color: string;
+  }[] = [
+    {
+      id: 'flash',
+      label: (ll) => ll.nav.flash(),
+      desc: (ll) => ll.home.flashDesc(),
+      icon: Cpu,
+      color: 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20',
+    },
+    {
+      id: 'uart',
+      label: (ll) => ll.nav.uart(),
+      desc: (ll) => ll.home.uartDesc(),
+      icon: Usb,
+      color: 'bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20',
+    },
+    {
+      id: 'i2c',
+      label: (ll) => ll.nav.i2c(),
+      desc: (ll) => ll.home.i2cDesc(),
+      icon: CircuitBoard,
+      color: 'bg-purple-500/10 border-purple-500/30 text-purple-400 hover:bg-purple-500/20',
+    },
+    {
+      id: 'controller',
+      label: (ll) => ll.nav.controller(),
+      desc: (ll) => ll.home.controllerDesc(),
+      icon: Gamepad2,
+      color: 'bg-teal-500/10 border-teal-500/30 text-teal-400 hover:bg-teal-500/20',
+    },
+    {
+      id: 'archive',
+      label: (ll) => ll.nav.archive(),
+      desc: (ll) => ll.home.archiveDesc(),
+      icon: Archive,
+      color: 'bg-gray-500/10 border-gray-500/30 text-gray-400 hover:bg-gray-500/20',
+    },
   ];
 </script>
 

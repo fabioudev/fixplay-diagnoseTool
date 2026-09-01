@@ -16,7 +16,10 @@ beforeEach(() => {
   appState.update((s) => ({ ...s, view: 'home' }));
   // jsdom's default confirm() is a no-op; route it through a stub so we can
   // script the technician's answer.
-  vi.stubGlobal('confirm', vi.fn(() => false));
+  vi.stubGlobal(
+    'confirm',
+    vi.fn(() => false)
+  );
 });
 
 afterEach(() => {
@@ -41,7 +44,10 @@ describe('navigate flashBusy guard', () => {
   it('allows leaving flash while busy when the confirm is accepted', () => {
     setView('flash');
     flashBusy.set(true);
-    vi.stubGlobal('confirm', vi.fn(() => true));
+    vi.stubGlobal(
+      'confirm',
+      vi.fn(() => true)
+    );
 
     navigate('archive');
 

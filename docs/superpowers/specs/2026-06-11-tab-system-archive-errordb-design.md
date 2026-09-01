@@ -3,6 +3,7 @@
 ## Overview
 
 Three coordinated UI/backend improvements:
+
 1. **Tab system** — replace side-by-side layout with a top-level tab bar (`[NOR Flash]` / `[UART]`)
 2. **Dump Archive Browser** — collapsible section inside the Flash tab listing saved NOR dumps with actions
 3. **Error-DB UI** — count badge + search field inside the UART tab
@@ -51,6 +52,7 @@ Two new Tauri commands in `src-tauri/src/commands/flash.rs`:
 Reads `{app_data_dir}/dumps/`. For each subdirectory (= serial number), finds all `.json` metadata files, parses them, and returns the structured list sorted by timestamp descending.
 
 Return type (serialized to frontend):
+
 ```rust
 pub struct DumpEntry {
     pub bin_path:      String,
@@ -79,17 +81,17 @@ Added to `src/lib/api/types.ts`:
 
 ```ts
 export interface DumpEntry {
-  bin_path:      string;
-  timestamp:     number;
-  size_bytes:    number;
+  bin_path: string;
+  timestamp: number;
+  size_bytes: number;
   validation_ok: boolean;
-  fw_version:    string | null;
-  serial:        string;
+  fw_version: string | null;
+  serial: string;
 }
 
 export interface SerialArchive {
   serial: string;
-  dumps:  DumpEntry[];
+  dumps: DumpEntry[];
 }
 ```
 
@@ -110,7 +112,7 @@ When set, the "Schreiben" button in `FlashPanel` uses this path directly instead
 Added to `src/lib/api/tauri.ts`:
 
 ```ts
-export const archiveListDumps  = () => invoke<SerialArchive[]>('archive_list_dumps');
+export const archiveListDumps = () => invoke<SerialArchive[]>('archive_list_dumps');
 export const archiveDeleteDump = (binPath: string) =>
   invoke<void>('archive_delete_dump', { binPath });
 ```
@@ -120,6 +122,7 @@ export const archiveDeleteDump = (binPath: string) =>
 New file: `src/lib/components/ArchiveSection.svelte`
 
 **State:**
+
 - `open: boolean` — collapsed/expanded
 - `archives: SerialArchive[]` — loaded on mount and after delete
 - `loading: boolean`
@@ -127,6 +130,7 @@ New file: `src/lib/components/ArchiveSection.svelte`
 **Header:** "Archiv (N Dumps)" + chevron toggle. N = total dump count across all serials.
 
 **Body (when open):**
+
 - Groups by serial number (bold label + dump count)
 - Each dump entry: formatted date, firmware version (or "—"), green/red validation badge
 - Three action buttons per entry:
@@ -147,6 +151,7 @@ New file: `src/lib/components/ArchiveSection.svelte`
 **`uart_update_error_db`** — return type changed from `Result<(), String>` to `Result<usize, String>`. Returns `db.len()` after update.
 
 New method on `ErrorDb`:
+
 ```rust
 pub fn len(&self) -> usize { self.entries.len() }
 pub fn is_empty(&self) -> bool { self.entries.is_empty() }
@@ -167,6 +172,7 @@ pub struct ErrorSearchResult {
 ```
 
 Search logic:
+
 - If `query` parses as `u32` → exact lookup, returns 0 or 1 result
 - Otherwise → case-insensitive substring match on `description`, max 20 results
 
@@ -176,9 +182,9 @@ Added to `src/lib/api/types.ts`:
 
 ```ts
 export interface ErrorSearchResult {
-  code:        number;
+  code: number;
   description: string;
-  category:    string;
+  category: string;
 }
 ```
 
@@ -197,8 +203,8 @@ export const dbCodeCount = writable<number | null>(null);
 Added to `src/lib/api/tauri.ts`:
 
 ```ts
-export const uartGetDbInfo      = () => invoke<number | null>('uart_get_db_info');
-export const uartSearchErrorDb  = (query: string) =>
+export const uartGetDbInfo = () => invoke<number | null>('uart_get_db_info');
+export const uartSearchErrorDb = (query: string) =>
   invoke<ErrorSearchResult[]>('uart_search_error_db', { query });
 ```
 
@@ -207,12 +213,14 @@ export const uartSearchErrorDb  = (query: string) =>
 ### UartPanel changes
 
 **Count badge:** Next to "DB aktualisieren" button:
+
 - `$dbCodeCount === null` → `"Nicht geladen"` (gray)
 - `$dbCodeCount !== null` → `"${$dbCodeCount.toLocaleString()} Codes"` (green)
 
 On mount: calls `uartGetDbInfo()` and sets `dbCodeCount`. After `updateDb()` succeeds: sets `dbCodeCount` from return value.
 
 **Search field:** Input above the live log, placeholder `"Code oder Beschreibung…"`. Debounced 300ms. On change:
+
 - Calls `uartSearchErrorDb(query)`, shows results in a small dropdown/panel below the input
 - Also filters `$uartLog` — only entries whose `raw` string contains the query are shown (when query non-empty)
 - Clear button (×) resets query and filter
@@ -223,17 +231,17 @@ Search results panel shows up to 20 rows: `[code in hex] Description (Category)`
 
 ## Files Summary
 
-| Action | Path |
-|--------|------|
-| Rewrite | `src/routes/+page.svelte` |
-| Modify  | `src/lib/components/FlashPanel.svelte` |
-| Create  | `src/lib/components/ArchiveSection.svelte` |
-| Modify  | `src/lib/components/UartPanel.svelte` |
-| Modify  | `src/lib/stores/flash.ts` |
-| Modify  | `src/lib/stores/uart.ts` |
-| Modify  | `src/lib/api/types.ts` |
-| Modify  | `src/lib/api/tauri.ts` |
-| Modify  | `src-tauri/src/commands/flash.rs` |
-| Modify  | `src-tauri/src/commands/uart.rs` |
+| Action  | Path                                                                          |
+| ------- | ----------------------------------------------------------------------------- |
+| Rewrite | `src/routes/+page.svelte`                                                     |
+| Modify  | `src/lib/components/FlashPanel.svelte`                                        |
+| Create  | `src/lib/components/ArchiveSection.svelte`                                    |
+| Modify  | `src/lib/components/UartPanel.svelte`                                         |
+| Modify  | `src/lib/stores/flash.ts`                                                     |
+| Modify  | `src/lib/stores/uart.ts`                                                      |
+| Modify  | `src/lib/api/types.ts`                                                        |
+| Modify  | `src/lib/api/tauri.ts`                                                        |
+| Modify  | `src-tauri/src/commands/flash.rs`                                             |
+| Modify  | `src-tauri/src/commands/uart.rs`                                              |
 | Modify  | `crates/fixplay-core/src/error_db.rs` → `crates/fixplay-uart/src/error_db.rs` |
-| Modify  | `src-tauri/src/lib.rs` |
+| Modify  | `src-tauri/src/lib.rs`                                                        |

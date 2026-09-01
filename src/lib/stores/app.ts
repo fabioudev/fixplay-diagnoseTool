@@ -60,8 +60,12 @@ export const activeView = {
  */
 export function navigate(v: View): void {
   const current = get(appState).view;
-  if (current === 'flash' && v !== 'flash' && get(flashBusy)
-      && !confirm(get(LL).flash.leavePanelConfirm())) {
+  if (
+    current === 'flash' &&
+    v !== 'flash' &&
+    get(flashBusy) &&
+    !confirm(get(LL).flash.leavePanelConfirm())
+  ) {
     return;
   }
   appState.update((s) => ({ ...s, view: v }));
@@ -72,7 +76,9 @@ export function navigate(v: View): void {
 export function completeOnboarding(): void {
   try {
     if (typeof localStorage !== 'undefined') localStorage.setItem(ONBOARDING_KEY, '1');
-  } catch { /* ignored */ }
+  } catch {
+    /* ignored */
+  }
   appState.update((s) => ({ ...s, onboardingDone: true }));
 }
 

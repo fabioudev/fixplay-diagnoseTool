@@ -12,22 +12,23 @@
 
 ## File Map
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Create | `src-tauri/resources/error_codes.json` | Placeholder `[]` — CI overwrites with real DB |
-| Modify | `src-tauri/tauri.conf.json` | Add `resources/error_codes.json` to bundled resources |
-| Modify | `src-tauri/src/commands/uart.rs` | Add `DbStatusPayload`, emit `uart://db-status` from `uart_update_error_db` |
-| Modify | `src-tauri/src/lib.rs` | 3-step startup load + background fetch thread |
-| Modify | `src/lib/stores/uart.ts` | Add `dbLoading` writable |
-| Modify | `src/lib/stores/uart.test.ts` | Tests for `dbLoading` |
-| Modify | `src/lib/components/UartPanel.svelte` | New `uart://db-status` listener + status badge UX |
-| Modify | `.github/workflows/release.yml` | `curl` step to download latest DB before build |
+| Action | Path                                   | Responsibility                                                             |
+| ------ | -------------------------------------- | -------------------------------------------------------------------------- |
+| Create | `src-tauri/resources/error_codes.json` | Placeholder `[]` — CI overwrites with real DB                              |
+| Modify | `src-tauri/tauri.conf.json`            | Add `resources/error_codes.json` to bundled resources                      |
+| Modify | `src-tauri/src/commands/uart.rs`       | Add `DbStatusPayload`, emit `uart://db-status` from `uart_update_error_db` |
+| Modify | `src-tauri/src/lib.rs`                 | 3-step startup load + background fetch thread                              |
+| Modify | `src/lib/stores/uart.ts`               | Add `dbLoading` writable                                                   |
+| Modify | `src/lib/stores/uart.test.ts`          | Tests for `dbLoading`                                                      |
+| Modify | `src/lib/components/UartPanel.svelte`  | New `uart://db-status` listener + status badge UX                          |
+| Modify | `.github/workflows/release.yml`        | `curl` step to download latest DB before build                             |
 
 ---
 
 ## Task 1: Backend — bundled resource, db-status event, startup sequence
 
 **Files:**
+
 - Create: `src-tauri/resources/error_codes.json`
 - Modify: `src-tauri/tauri.conf.json`
 - Modify: `src-tauri/src/commands/uart.rs`
@@ -248,6 +249,7 @@ git commit -m "feat(tauri): add error DB bundled resource, db-status event, and 
 ## Task 2: Frontend — dbLoading store + UartPanel status badge
 
 **Files:**
+
 - Modify: `src/lib/stores/uart.ts`
 - Modify: `src/lib/stores/uart.test.ts`
 - Modify: `src/lib/components/UartPanel.svelte`
@@ -257,26 +259,34 @@ git commit -m "feat(tauri): add error DB bundled resource, db-status event, and 
 Add `dbLoading` to the import line (line 3):
 
 ```ts
-import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount, dbLoading } from './uart';
+import {
+  uartLog,
+  uartConnected,
+  uartPorts,
+  autoPollEnabled,
+  nextLogId,
+  dbCodeCount,
+  dbLoading,
+} from './uart';
 ```
 
 Add to the `beforeEach` block:
 
 ```ts
-    dbLoading.set(false);
+dbLoading.set(false);
 ```
 
 Add two new tests at the end of the `describe` block:
 
 ```ts
-  it('dbLoading starts as false', () => {
-    expect(get(dbLoading)).toBe(false);
-  });
+it('dbLoading starts as false', () => {
+  expect(get(dbLoading)).toBe(false);
+});
 
-  it('dbLoading can be set to true', () => {
-    dbLoading.set(true);
-    expect(get(dbLoading)).toBe(true);
-  });
+it('dbLoading can be set to true', () => {
+  dbLoading.set(true);
+  expect(get(dbLoading)).toBe(true);
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -301,12 +311,12 @@ Full file after change:
 import { writable } from 'svelte/store';
 import type { UartLogEntry } from '$lib/api/types';
 
-export const uartConnected  = writable<boolean>(false);
-export const uartPorts      = writable<string[]>([]);
-export const uartLog        = writable<UartLogEntry[]>([]);
+export const uartConnected = writable<boolean>(false);
+export const uartPorts = writable<string[]>([]);
+export const uartLog = writable<UartLogEntry[]>([]);
 export const autoPollEnabled = writable<boolean>(false);
-export const dbCodeCount    = writable<number | null>(null);
-export const dbLoading      = writable<boolean>(false);
+export const dbCodeCount = writable<number | null>(null);
+export const dbLoading = writable<boolean>(false);
 
 let _nextId = 0;
 export function nextLogId(): number {
@@ -333,7 +343,15 @@ Expected: full suite passes, no regressions.
 **5a — Update the import line** at the top of the script (line 4):
 
 ```ts
-import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount, dbLoading } from '$lib/stores/uart';
+import {
+  uartConnected,
+  uartPorts,
+  uartLog,
+  autoPollEnabled,
+  nextLogId,
+  dbCodeCount,
+  dbLoading,
+} from '$lib/stores/uart';
 ```
 
 **5b — Update `onMount`** to set `dbLoading` and listen for `uart://db-status`.
@@ -341,18 +359,18 @@ import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCo
 In the `onMount` block, replace:
 
 ```ts
-    const count = await uartGetDbInfo().catch(() => null);
-    dbCodeCount.set(count ?? null);
+const count = await uartGetDbInfo().catch(() => null);
+dbCodeCount.set(count ?? null);
 ```
 
 With:
 
 ```ts
-    const count = await uartGetDbInfo().catch(() => null);
-    dbCodeCount.set(count ?? null);
-    if (count === null) {
-      dbLoading.set(true);
-    }
+const count = await uartGetDbInfo().catch(() => null);
+dbCodeCount.set(count ?? null);
+if (count === null) {
+  dbLoading.set(true);
+}
 ```
 
 Add a fourth listener alongside `u1, u2, u3`. Change:
@@ -379,84 +397,84 @@ And add the fourth listener at the end of the `Promise.all` array (after the `ua
 Update the `unlisten.push` call:
 
 ```ts
-    unlisten.push(u1, u2, u3, u4);
+unlisten.push(u1, u2, u3, u4);
 ```
 
 **5c — Replace the DB status badge** in the template. Find the existing status section (the `<div class="flex items-center gap-2 ml-auto">` block containing `dbCodeCount` and `DB aktualisieren`):
 
 ```svelte
-    <div class="flex items-center gap-2 ml-auto">
-      <span class="text-xs {$dbCodeCount !== null ? 'text-green-400' : 'text-gray-600'}">
-        {$dbCodeCount !== null ? `${$dbCodeCount.toLocaleString()} Codes` : 'Nicht geladen'}
-      </span>
-      <button
-        onclick={updateDb}
-        disabled={dbUpdating}
-        class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
+<div class="flex items-center gap-2 ml-auto">
+  <span class="text-xs {$dbCodeCount !== null ? 'text-green-400' : 'text-gray-600'}">
+    {$dbCodeCount !== null ? `${$dbCodeCount.toLocaleString()} Codes` : 'Nicht geladen'}
+  </span>
+  <button
+    onclick={updateDb}
+    disabled={dbUpdating}
+    class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
                disabled:opacity-40"
-      >
-        {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
-      </button>
-    </div>
+  >
+    {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
+  </button>
+</div>
 ```
 
 Replace with:
 
 ```svelte
-    <div class="flex items-center gap-2 ml-auto">
-      {#if $dbLoading}
-        <span class="text-xs text-gray-500 flex items-center gap-1">
-          <span class="inline-block animate-spin">⟳</span> Lade DB…
-        </span>
-      {:else if $dbCodeCount !== null}
-        <span class="text-xs text-green-400">{$dbCodeCount.toLocaleString()} Codes</span>
-      {:else}
-        <span class="text-xs text-red-400">Nicht geladen</span>
-      {/if}
-      <button
-        onclick={updateDb}
-        disabled={dbUpdating}
-        class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
+<div class="flex items-center gap-2 ml-auto">
+  {#if $dbLoading}
+    <span class="text-xs text-gray-500 flex items-center gap-1">
+      <span class="inline-block animate-spin">⟳</span> Lade DB…
+    </span>
+  {:else if $dbCodeCount !== null}
+    <span class="text-xs text-green-400">{$dbCodeCount.toLocaleString()} Codes</span>
+  {:else}
+    <span class="text-xs text-red-400">Nicht geladen</span>
+  {/if}
+  <button
+    onclick={updateDb}
+    disabled={dbUpdating}
+    class="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200
                disabled:opacity-40"
-      >
-        {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
-      </button>
-    </div>
+  >
+    {dbUpdating ? 'Updating…' : 'DB aktualisieren'}
+  </button>
+</div>
 ```
 
 Also update `updateDb` to set `dbLoading` while fetching. Replace the current `updateDb` function:
 
 ```ts
-  async function updateDb() {
-    dbUpdating = true;
-    try {
-      const count = await uartUpdateDb();
-      dbCodeCount.set(count);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      dbUpdating = false;
-    }
+async function updateDb() {
+  dbUpdating = true;
+  try {
+    const count = await uartUpdateDb();
+    dbCodeCount.set(count);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    dbUpdating = false;
   }
+}
 ```
 
 With:
 
 ```ts
-  async function updateDb() {
-    dbUpdating = true;
-    dbLoading.set(true);
-    try {
-      const count = await uartUpdateDb();
-      dbCodeCount.set(count);
-      dbLoading.set(false);
-    } catch (e) {
-      console.error(e);
-      dbLoading.set(false);
-    } finally {
-      dbUpdating = false;
-    }
+async function updateDb() {
+  dbUpdating = true;
+  dbLoading.set(true);
+  try {
+    const count = await uartUpdateDb();
+    dbCodeCount.set(count);
+    dbLoading.set(false);
+  } catch (e) {
+    console.error(e);
+    dbLoading.set(false);
+  } finally {
+    dbUpdating = false;
   }
+}
 ```
 
 - [ ] **Step 6: Run full test suite**
@@ -488,6 +506,7 @@ git commit -m "feat(frontend): add dbLoading store and live db-status badge in U
 ## Task 3: CI — Bundle DB in release workflow
 
 **Files:**
+
 - Modify: `.github/workflows/release.yml`
 
 No automated test for YAML — verify by reading the diff after editing.
@@ -497,21 +516,21 @@ No automated test for YAML — verify by reading the diff after editing.
 Insert a new step between `Install dependencies` (line 112–113) and `Build Tauri bundles` (line 115–116):
 
 ```yaml
-      - name: Bundle latest Error DB
-        run: curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
+- name: Bundle latest Error DB
+  run: curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
 ```
 
 After the edit, the relevant section should look like:
 
 ```yaml
-      - name: Install dependencies
-        run: npm ci
+- name: Install dependencies
+  run: npm ci
 
-      - name: Bundle latest Error DB
-        run: curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
+- name: Bundle latest Error DB
+  run: curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
 
-      - name: Build Tauri bundles
-        run: npm run tauri build ${{ matrix.build_args }}
+- name: Build Tauri bundles
+  run: npm run tauri build ${{ matrix.build_args }}
 ```
 
 `-f` makes curl fail on HTTP errors, `-s` suppresses progress, `-L` follows redirects. If the download fails, the CI job fails loudly — no silent empty bundle.

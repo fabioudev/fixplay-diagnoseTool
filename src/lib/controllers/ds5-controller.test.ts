@@ -13,7 +13,12 @@ function makeFakeDevice(): HIDDeviceLike & {
   return {
     opened: true,
     collections: [
-      { featureReports: Array.from({ length: 256 }, (_, i) => ({ reportId: i, items: [{ reportCount: 64 }] })) },
+      {
+        featureReports: Array.from({ length: 256 }, (_, i) => ({
+          reportId: i,
+          items: [{ reportCount: 64 }],
+        })),
+      },
     ],
     oninputreport: null,
     async sendFeatureReport(_id: number, _data: BufferSource) {},
@@ -21,13 +26,17 @@ function makeFakeDevice(): HIDDeviceLike & {
       return new DataView(new ArrayBuffer(64));
     },
     async sendReport(reportId: number, data: BufferSource) {
-      const u8 = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data as Uint8Array);
+      const u8 =
+        data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data as Uint8Array);
       sent.push({ reportId, data: u8 });
     },
     async close() {},
     sent,
     lastOut: () => sent[sent.length - 1],
-  } as unknown as HIDDeviceLike & { sent: typeof sent; lastOut: () => (typeof sent)[number] | undefined };
+  } as unknown as HIDDeviceLike & {
+    sent: typeof sent;
+    lastOut: () => (typeof sent)[number] | undefined;
+  };
 }
 
 describe('crc32', () => {
@@ -53,7 +62,7 @@ describe('fillOutputReportCrc (BT 0x31 frame)', () => {
     fillOutputReportCrc(frame);
     const expected = crc32(frame.subarray(0, 73), [0xa2, 0x31]);
     const got = frame[73] | (frame[74] << 8) | (frame[75] << 16) | (frame[76] << 24);
-    expect((got >>> 0)).toBe(expected);
+    expect(got >>> 0).toBe(expected);
     expect(frame[1]).toBe(0x10);
   });
 });
@@ -66,7 +75,7 @@ describe('fillFeatureReportCrc (BT feature report)', () => {
     fillFeatureReportCrc(0x80, report);
     const expected = crc32(report.subarray(0, 60), [0x53, 0x80]);
     const got = report[60] | (report[61] << 8) | (report[62] << 16) | (report[63] << 24);
-    expect((got >>> 0)).toBe(expected);
+    expect(got >>> 0).toBe(expected);
   });
 });
 
@@ -104,7 +113,7 @@ describe('DS5Controller output framing', () => {
     // CRC self-consistency: crc32([0xA2,0x31] ++ frame[0..72]) === frame[73..76] LE.
     const expected = crc32(out.data.subarray(0, 73), [0xa2, 0x31]);
     const got = out.data[73] | (out.data[74] << 8) | (out.data[75] << 16) | (out.data[76] << 24);
-    expect((got >>> 0)).toBe(expected);
+    expect(got >>> 0).toBe(expected);
   });
 
   it('BT: increments the sequence tag nibble across reports', async () => {
@@ -140,7 +149,14 @@ describe('ControllerManager input parsing (transport-aware)', () => {
     const ctrl = new DS5Controller(dev);
     const mgr = new ControllerManager();
     mgr.setControllerInstance(ctrl);
-    let captured: { sticks: unknown; l2: number; r2: number; cross: boolean; l1: boolean; ps: boolean } | null = null;
+    let captured: {
+      sticks: unknown;
+      l2: number;
+      r2: number;
+      cross: boolean;
+      l1: boolean;
+      ps: boolean;
+    } | null = null;
     mgr.setInputHandler((input) => {
       const c = input.changes;
       captured = {
@@ -155,7 +171,10 @@ describe('ControllerManager input parsing (transport-aware)', () => {
     // Rust strips the report-id byte, so the frontend receives the 63-byte body
     // starting at common[0]. Simulate that by passing the body without report id.
     const body = buildUsbReport().subarray(0, 63);
-    mgr.processControllerInput({ data: new DataView(body.buffer, body.byteOffset, body.byteLength), reportId: 0x01 });
+    mgr.processControllerInput({
+      data: new DataView(body.buffer, body.byteOffset, body.byteLength),
+      reportId: 0x01,
+    });
     expect(ctrl.transport).toBe('usb');
     expect(captured!.sticks).toEqual({ left: { x: -1, y: 1 }, right: { x: -1, y: 1 } });
     expect(captured!.l2).toBe(200);
@@ -170,7 +189,14 @@ describe('ControllerManager input parsing (transport-aware)', () => {
     const ctrl = new DS5Controller(dev);
     const mgr = new ControllerManager();
     mgr.setControllerInstance(ctrl);
-    let captured: { sticks: unknown; l2: number; r2: number; cross: boolean; l1: boolean; ps: boolean } | null = null;
+    let captured: {
+      sticks: unknown;
+      l2: number;
+      r2: number;
+      cross: boolean;
+      l1: boolean;
+      ps: boolean;
+    } | null = null;
     mgr.setInputHandler((input) => {
       const c = input.changes;
       captured = {
@@ -205,7 +231,9 @@ describe('createControllerForDevice', () => {
     // cast (they aren't part of HIDDeviceLike), so the test object carries them
     // as extra fields and we cast to satisfy the param type.
     const withIds = (vendorId: number, productId: number) =>
-      ({ ...dev, vendorId, productId } as unknown as Parameters<typeof createControllerForDevice>[0]);
+      ({ ...dev, vendorId, productId }) as unknown as Parameters<
+        typeof createControllerForDevice
+      >[0];
     expect(createControllerForDevice(withIds(0x054c, 0x0ce6))).toBeInstanceOf(DS5Controller);
     expect(createControllerForDevice(withIds(0x054c, 0x0df2))).toBeInstanceOf(DS5Controller);
     expect(createControllerForDevice(withIds(0x1234, 0x0ce6))).toBeNull();
@@ -227,15 +255,15 @@ describe('_getInfo feature-report parsing', () => {
     // buildTime "10:30:00" (8 bytes at offset 12)
     const bt = new TextEncoder().encode('10:30:00');
     new Uint8Array(buf, 12, 8).set(bt);
-    v.setUint16(20, 2, true);   // fwType
-    v.setUint16(22, 1, true);   // swSeries
-    v.setUint32(24, 0xABCD, true); // hwInfo
+    v.setUint16(20, 2, true); // fwType
+    v.setUint16(22, 1, true); // swSeries
+    v.setUint32(24, 0xabcd, true); // hwInfo
     v.setUint32(28, 0x15010400, true); // fwVersion → "21.01.04.00"
     v.setUint16(44, 0x200, true); // updateVersion
-    v.setUint8(46, 0x42);       // updateImageInfo
+    v.setUint8(46, 0x42); // updateImageInfo
     v.setUint32(48, 0x01020304, true); // sblFwVersion
     v.setUint32(52, 0x05060708, true); // dspFwVersion
-    v.setUint32(56, 0x090A0B0C, true); // spiderDspFwVersion
+    v.setUint32(56, 0x090a0b0c, true); // spiderDspFwVersion
     return buf;
   }
 

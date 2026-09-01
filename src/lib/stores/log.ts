@@ -14,9 +14,9 @@ export interface LogStore<T extends LogEntry> {
   /** The underlying log store (newest-first). */
   entries: Writable<T[]>;
   /** Next monotonic id for a new entry. */
-  nextId:  () => number;
+  nextId: () => number;
   /** Prepend `entry` (newest-first) and cap history at `cap` (default 200). */
-  push:    (entry: T) => void;
+  push: (entry: T) => void;
 }
 
 /**
@@ -29,6 +29,6 @@ export function createLogStore<T extends LogEntry>(cap = 200): LogStore<T> {
   return {
     entries,
     nextId: () => _nextId++,
-    push:   (entry) => entries.update((log) => [entry, ...log].slice(0, cap)),
+    push: (entry) => entries.update((log) => [entry, ...log].slice(0, cap)),
   };
 }

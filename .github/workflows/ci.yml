@@ -31,7 +31,7 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
-    continue-on-error: true  # advisory only — transitive dep vulns are out of our control
+    continue-on-error: true # advisory only — transitive dep vulns are out of our control
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable

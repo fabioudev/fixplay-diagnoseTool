@@ -23,12 +23,12 @@ fixplay-tauri (binary)
 
 ### Crate Responsibilities
 
-| Crate | Purpose |
-|---|---|
-| `fixplay-core` | Domain types (`FlashInfo`, `UartMessage`), error enum (`AppError`), hardware traits (for mocking in tests) |
-| `fixplay-ch341` | CH341B USB communication via `rusb`; implements core traits |
-| `fixplay-uart` | Serial port communication via `serialport`; implements core traits |
-| `src-tauri` | Tauri app, command handlers, app state, logging setup |
+| Crate           | Purpose                                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| `fixplay-core`  | Domain types (`FlashInfo`, `UartMessage`), error enum (`AppError`), hardware traits (for mocking in tests) |
+| `fixplay-ch341` | CH341B USB communication via `rusb`; implements core traits                                                |
+| `fixplay-uart`  | Serial port communication via `serialport`; implements core traits                                         |
+| `src-tauri`     | Tauri app, command handlers, app state, logging setup                                                      |
 
 ### Directory Layout
 
@@ -145,22 +145,22 @@ This allows unit tests in `src-tauri` to use mock implementations without real h
 
 ### Rust
 
-| Crate | Dependency | Purpose |
-|---|---|---|
-| `fixplay-core` | `thiserror`, `serde`, `tracing` | Errors, serialization, logging |
-| `fixplay-ch341` | `rusb`, `thiserror`, `tracing` | USB communication |
-| `fixplay-uart` | `serialport`, `thiserror`, `tracing` | Serial port |
-| `src-tauri` | `tauri`, `tokio`, `tracing-subscriber`, `anyhow` | App runtime |
+| Crate           | Dependency                                       | Purpose                        |
+| --------------- | ------------------------------------------------ | ------------------------------ |
+| `fixplay-core`  | `thiserror`, `serde`, `tracing`                  | Errors, serialization, logging |
+| `fixplay-ch341` | `rusb`, `thiserror`, `tracing`                   | USB communication              |
+| `fixplay-uart`  | `serialport`, `thiserror`, `tracing`             | Serial port                    |
+| `src-tauri`     | `tauri`, `tokio`, `tracing-subscriber`, `anyhow` | App runtime                    |
 
 ### Frontend
 
-| Package | Purpose |
-|---|---|
-| SvelteKit + TypeScript | Framework |
-| Tailwind CSS | Styling |
-| shadcn-svelte | Component library (dark-mode-first) |
-| Vitest | Unit testing |
-| ESLint + Prettier | Linting and formatting |
+| Package                | Purpose                             |
+| ---------------------- | ----------------------------------- |
+| SvelteKit + TypeScript | Framework                           |
+| Tailwind CSS           | Styling                             |
+| shadcn-svelte          | Component library (dark-mode-first) |
+| Vitest                 | Unit testing                        |
+| ESLint + Prettier      | Linting and formatting              |
 
 ## Testing Strategy
 

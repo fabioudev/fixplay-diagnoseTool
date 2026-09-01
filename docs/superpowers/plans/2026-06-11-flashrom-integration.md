@@ -12,33 +12,34 @@
 
 ## File Map
 
-| Action | Path |
-|--------|------|
-| Rename dir | `crates/fixplay-ch341/` → `crates/fixplay-flashrom/` |
+| Action      | Path                                                    |
+| ----------- | ------------------------------------------------------- |
+| Rename dir  | `crates/fixplay-ch341/` → `crates/fixplay-flashrom/`    |
 | Rename file | `crates/fixplay-flashrom/src/device.rs` → `flashrom.rs` |
-| Modify | `crates/fixplay-flashrom/Cargo.toml` |
-| Modify | `crates/fixplay-flashrom/src/lib.rs` |
-| Modify | `crates/fixplay-core/src/error.rs` |
-| Modify | `crates/fixplay-core/src/types.rs` |
-| Create | `crates/fixplay-core/src/nor.rs` |
-| Modify | `crates/fixplay-core/src/lib.rs` |
-| Modify | `Cargo.toml` (workspace) |
-| Modify | `src-tauri/Cargo.toml` |
-| Modify | `src-tauri/src/state.rs` |
-| Rewrite | `src-tauri/src/commands/flash.rs` |
-| Modify | `src-tauri/src/lib.rs` |
-| Modify | `src-tauri/tauri.conf.json` |
-| Modify | `src/lib/api/types.ts` |
-| Create | `src/lib/stores/flash.ts` |
-| Create | `src/lib/stores/flash.test.ts` |
-| Modify | `src/lib/api/tauri.ts` |
-| Rewrite | `src/lib/components/FlashPanel.svelte` |
+| Modify      | `crates/fixplay-flashrom/Cargo.toml`                    |
+| Modify      | `crates/fixplay-flashrom/src/lib.rs`                    |
+| Modify      | `crates/fixplay-core/src/error.rs`                      |
+| Modify      | `crates/fixplay-core/src/types.rs`                      |
+| Create      | `crates/fixplay-core/src/nor.rs`                        |
+| Modify      | `crates/fixplay-core/src/lib.rs`                        |
+| Modify      | `Cargo.toml` (workspace)                                |
+| Modify      | `src-tauri/Cargo.toml`                                  |
+| Modify      | `src-tauri/src/state.rs`                                |
+| Rewrite     | `src-tauri/src/commands/flash.rs`                       |
+| Modify      | `src-tauri/src/lib.rs`                                  |
+| Modify      | `src-tauri/tauri.conf.json`                             |
+| Modify      | `src/lib/api/types.ts`                                  |
+| Create      | `src/lib/stores/flash.ts`                               |
+| Create      | `src/lib/stores/flash.test.ts`                          |
+| Modify      | `src/lib/api/tauri.ts`                                  |
+| Rewrite     | `src/lib/components/FlashPanel.svelte`                  |
 
 ---
 
 ## Task 1: Rename `fixplay-ch341` → `fixplay-flashrom` + refactor error types
 
 **Files:**
+
 - Rename dir: `crates/fixplay-ch341/` → `crates/fixplay-flashrom/`
 - Rename file: `crates/fixplay-flashrom/src/device.rs` → `crates/fixplay-flashrom/src/flashrom.rs`
 - Modify: `crates/fixplay-flashrom/Cargo.toml`
@@ -236,6 +237,7 @@ Add to `nor.rs`:
 - [ ] **Step 7: Update workspace `Cargo.toml`**
 
 Change:
+
 ```toml
 members = [
     "crates/fixplay-core",
@@ -246,6 +248,7 @@ members = [
 ```
 
 To:
+
 ```toml
 members = [
     "crates/fixplay-core",
@@ -325,6 +328,7 @@ git commit -m "refactor: rename fixplay-ch341 to fixplay-flashrom, Ch341Error to
 ## Task 2: PS5 NOR types + parser/validator
 
 **Files:**
+
 - Modify: `crates/fixplay-core/src/types.rs`
 - Rewrite: `crates/fixplay-core/src/nor.rs`
 
@@ -605,6 +609,7 @@ git commit -m "feat(core): add PS5 NOR validator, NVS parser, and flash result t
 ## Task 3: `FlashromDevice` subprocess implementation
 
 **Files:**
+
 - Rewrite: `crates/fixplay-flashrom/src/flashrom.rs`
 
 - [ ] **Step 1: Write failing tests for progress parsing**
@@ -851,6 +856,7 @@ git commit -m "feat(flashrom): implement FlashromDevice with subprocess I/O and 
 ## Task 4: Tauri flash commands
 
 **Files:**
+
 - Rewrite: `src-tauri/src/commands/flash.rs`
 - Modify: `src-tauri/Cargo.toml`
 - Modify: `src-tauri/src/lib.rs`
@@ -1190,6 +1196,7 @@ git commit -m "feat(tauri): add flash_read, flash_write, flash_list_programmers,
 ## Task 5: Frontend types, stores, API, and tests
 
 **Files:**
+
 - Modify: `src/lib/api/types.ts`
 - Create: `src/lib/stores/flash.ts`
 - Create: `src/lib/stores/flash.test.ts`
@@ -1254,47 +1261,47 @@ Add after the last existing type:
 
 ```ts
 export interface NorValidation {
-  size_ok:       boolean;
-  header_ok:     boolean;
-  mbr1_ok:       boolean;
-  mbr2_ok:       boolean;
-  emc_ipl_a_ok:  boolean;
-  emc_ipl_b_ok:  boolean;
-  usb_pdc_a_ok:  boolean;
-  usb_pdc_b_ok:  boolean;
+  size_ok: boolean;
+  header_ok: boolean;
+  mbr1_ok: boolean;
+  mbr2_ok: boolean;
+  emc_ipl_a_ok: boolean;
+  emc_ipl_b_ok: boolean;
+  usb_pdc_a_ok: boolean;
+  usb_pdc_b_ok: boolean;
 }
 
 export interface NvsData {
-  serial:       string;
-  mac_address:  string;
-  sku:          string;
-  board_id:     string;
+  serial: string;
+  mac_address: string;
+  sku: string;
+  board_id: string;
   console_type: number;
-  fw_version:   string;
+  fw_version: string;
 }
 
 export interface FlashReadResult {
-  dumps_match:  boolean;
-  validation:   NorValidation;
-  nvs:          NvsData | null;
+  dumps_match: boolean;
+  validation: NorValidation;
+  nvs: NvsData | null;
   archive_path: string;
 }
 
 export interface FlashProgressEvent {
-  phase:   'read1' | 'read2' | 'write' | 'verify';
+  phase: 'read1' | 'read2' | 'write' | 'verify';
   percent: number;
 }
 
 export interface FlashStatusEvent {
   message: string;
-  level:   'info' | 'warn' | 'error';
+  level: 'info' | 'warn' | 'error';
 }
 
 export interface FlashLogEntry {
-  id:           number;
+  id: number;
   timestamp_ms: number;
-  message:      string;
-  level:        'info' | 'warn' | 'error';
+  message: string;
+  level: 'info' | 'warn' | 'error';
 }
 ```
 
@@ -1304,14 +1311,16 @@ export interface FlashLogEntry {
 import { writable } from 'svelte/store';
 import type { FlashReadResult, FlashLogEntry } from '$lib/api/types';
 
-export const flashBusy      = writable<boolean>(false);
-export const flashProgress  = writable<{ phase: string; percent: number } | null>(null);
-export const flashResult    = writable<FlashReadResult | null>(null);
-export const flashLog       = writable<FlashLogEntry[]>([]);
+export const flashBusy = writable<boolean>(false);
+export const flashProgress = writable<{ phase: string; percent: number } | null>(null);
+export const flashResult = writable<FlashReadResult | null>(null);
+export const flashLog = writable<FlashLogEntry[]>([]);
 export const flashProgrammer = writable<string>('ch341a_spi');
 
 let _nextId = 0;
-export function nextFlashLogId(): number { return _nextId++; }
+export function nextFlashLogId(): number {
+  return _nextId++;
+}
 ```
 
 - [ ] **Step 5: Add flash wrappers to `src/lib/api/tauri.ts`**
@@ -1323,11 +1332,11 @@ Find the existing `import type { ... } from './types'` line at the top of the fi
 // import type { UartEntryEvent, UartLogEntry, UartStatusEvent, FlashReadResult } from './types';
 
 export const flashListProgrammers = () => invoke<string[]>('flash_list_programmers');
-export const flashRead  = (programmer: string) =>
+export const flashRead = (programmer: string) =>
   invoke<FlashReadResult>('flash_read', { programmer });
 export const flashWrite = (path: string, programmer: string) =>
   invoke<void>('flash_write', { path, programmer });
-export const openPath   = (path: string) => invoke<void>('open_path', { path });
+export const openPath = (path: string) => invoke<void>('open_path', { path });
 ```
 
 `invoke` is already imported at the top — do not duplicate it.
@@ -1366,6 +1375,7 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
 ## Task 6: FlashPanel.svelte rewrite
 
 **Files:**
+
 - Rewrite: `src/lib/components/FlashPanel.svelte`
 
 - [ ] **Step 1: Rewrite `src/lib/components/FlashPanel.svelte`**
@@ -1376,19 +1386,23 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
   import { listen } from '@tauri-apps/api/event';
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
-    flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, nextFlashLogId,
+    flashBusy,
+    flashProgress,
+    flashResult,
+    flashLog,
+    flashProgrammer,
+    nextFlashLogId,
   } from '$lib/stores/flash';
   import { flashListProgrammers, flashRead, flashWrite, openPath } from '$lib/api/tauri';
   import type { FlashProgressEvent, FlashStatusEvent, FlashReadResult } from '$lib/api/types';
 
   let programmers = $state<string[]>([]);
-  let phaseLabel  = $state('');
+  let phaseLabel = $state('');
 
   const PHASE_LABELS: Record<string, string> = {
-    read1:  'Lesen 1/2…',
-    read2:  'Lesen 2/2…',
-    write:  'Schreiben…',
+    read1: 'Lesen 1/2…',
+    read2: 'Lesen 2/2…',
+    write: 'Schreiben…',
     verify: 'Verifizieren…',
   };
 
@@ -1408,10 +1422,10 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
       listen<FlashStatusEvent>('flash://status', (e) => {
         flashLog.update((log) => [
           {
-            id:           nextFlashLogId(),
+            id: nextFlashLogId(),
             timestamp_ms: Date.now(),
-            message:      e.payload.message,
-            level:        e.payload.level as 'info' | 'warn' | 'error',
+            message: e.payload.message,
+            level: e.payload.level as 'info' | 'warn' | 'error',
           },
           ...log.slice(0, 199),
         ]);
@@ -1444,7 +1458,7 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
 
   async function handleWrite() {
     const selected = await openDialog({
-      title:   'NOR-Datei wählen',
+      title: 'NOR-Datei wählen',
       filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
     });
     if (!selected || typeof selected !== 'string') return;
@@ -1523,11 +1537,10 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
   {#if $flashResult}
     {@const r = $flashResult}
     <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
-
       <!-- Dump match badge -->
       <div class="flex items-center gap-2">
         <span class="text-gray-400 font-semibold">Dump-Vergleich:</span>
-        <span class="{r.dumps_match ? 'text-green-400' : 'text-yellow-400'}">
+        <span class={r.dumps_match ? 'text-green-400' : 'text-yellow-400'}>
           {r.dumps_match ? '✓ Identisch' : '⚠ Abweichung erkannt'}
         </span>
       </div>
@@ -1536,18 +1549,9 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
       <div>
         <p class="text-gray-400 font-semibold mb-1">Validierung:</p>
         <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 font-mono">
-          {#each [
-            { label: 'NOR Header',    ok: r.validation.header_ok },
-            { label: 'MBR 1',         ok: r.validation.mbr1_ok },
-            { label: 'MBR 2',         ok: r.validation.mbr2_ok },
-            { label: 'EmcIpl A',      ok: r.validation.emc_ipl_a_ok },
-            { label: 'EmcIpl B',      ok: r.validation.emc_ipl_b_ok },
-            { label: 'USB PDC A',     ok: r.validation.usb_pdc_a_ok },
-            { label: 'USB PDC B',     ok: r.validation.usb_pdc_b_ok },
-            { label: 'Größe (2 MB)',  ok: r.validation.size_ok },
-          ] as item}
+          {#each [{ label: 'NOR Header', ok: r.validation.header_ok }, { label: 'MBR 1', ok: r.validation.mbr1_ok }, { label: 'MBR 2', ok: r.validation.mbr2_ok }, { label: 'EmcIpl A', ok: r.validation.emc_ipl_a_ok }, { label: 'EmcIpl B', ok: r.validation.emc_ipl_b_ok }, { label: 'USB PDC A', ok: r.validation.usb_pdc_a_ok }, { label: 'USB PDC B', ok: r.validation.usb_pdc_b_ok }, { label: 'Größe (2 MB)', ok: r.validation.size_ok }] as item}
             <div class="flex items-center gap-1">
-              <span class="{item.ok ? 'text-green-400' : 'text-red-400'}">{item.ok ? '✓' : '✗'}</span>
+              <span class={item.ok ? 'text-green-400' : 'text-red-400'}>{item.ok ? '✓' : '✗'}</span>
               <span class="text-gray-300">{item.label}</span>
             </div>
           {/each}
@@ -1590,11 +1594,13 @@ git commit -m "feat(frontend): add flash types, stores, API wrappers, and tests"
   <!-- Status log -->
   <div class="flex-1 min-h-32 overflow-y-auto bg-gray-950 rounded p-3 flex flex-col gap-1">
     {#each $flashLog as entry (entry.id)}
-      <div class="font-mono text-xs leading-relaxed {
-        entry.level === 'error' ? 'text-red-400' :
-        entry.level === 'warn'  ? 'text-yellow-400' :
-                                  'text-green-400'
-      }">
+      <div
+        class="font-mono text-xs leading-relaxed {entry.level === 'error'
+          ? 'text-red-400'
+          : entry.level === 'warn'
+            ? 'text-yellow-400'
+            : 'text-green-400'}"
+      >
         <span class="text-gray-600 mr-2">{new Date(entry.timestamp_ms).toLocaleTimeString()}</span>
         {entry.message}
       </div>

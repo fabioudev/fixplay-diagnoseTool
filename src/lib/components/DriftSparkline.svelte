@@ -57,7 +57,8 @@
     for (let i = 0; i < buf.length; i++) {
       const x = (i / (buf.length - 1)) * width;
       const y = height - buf[i] * height;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
@@ -74,4 +75,9 @@
   onMount(render);
 </script>
 
-<canvas bind:this={canvas} style="width:{width}px; height:{height}px;" class="rounded bg-gray-900/60" title="Drift-Verlauf (letzte {samples} Samples)"></canvas>
+<canvas
+  bind:this={canvas}
+  style="width:{width}px; height:{height}px;"
+  class="rounded bg-gray-900/60"
+  title="Drift-Verlauf (letzte {samples} Samples)"
+></canvas>

@@ -247,7 +247,12 @@ export const DEFAULT_MOCK_STATE: MockState = {
   i2c: {
     ports: [
       { name: '/dev/i2c-1', is_pico: true, is_bridge: true, description: 'Pico I2C Bridge (Mock)' },
-      { name: '/dev/i2c-0', is_pico: false, is_bridge: false, description: 'On-board I2C bus (Mock)' },
+      {
+        name: '/dev/i2c-0',
+        is_pico: false,
+        is_bridge: false,
+        description: 'On-board I2C bus (Mock)',
+      },
     ],
     connected: true,
     db_count: 960,

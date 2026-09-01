@@ -1,13 +1,33 @@
-
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import LL from '$lib/i18n/i18n-svelte';
-  import { Gamepad2, Usb, Battery, Activity, Wrench, Zap, Lightbulb, RefreshCw, Power, Crosshair, Copy, WrapText, Download, Clock, Undo2 } from 'lucide-svelte';
+  import {
+    Gamepad2,
+    Usb,
+    Battery,
+    Activity,
+    Wrench,
+    Zap,
+    Lightbulb,
+    RefreshCw,
+    Power,
+    Crosshair,
+    Copy,
+    WrapText,
+    Download,
+    Clock,
+    Undo2,
+  } from 'lucide-svelte';
   import { copyToClipboard } from '$lib/utils/clipboard';
   import { save as saveDialog } from '@tauri-apps/plugin-dialog';
   import { saveTextFile } from '$lib/api/tauri';
-  import { logTimestampFormat, formatLogTimestamp, setLogTimestampFormat, type LogTimestampFormat } from '$lib/utils/time';
+  import {
+    logTimestampFormat,
+    formatLogTimestamp,
+    setLogTimestampFormat,
+    type LogTimestampFormat,
+  } from '$lib/utils/time';
   import StickVisualizer from './StickVisualizer.svelte';
   import DriftSparkline from './DriftSparkline.svelte';
   import ControllerVisualizer from './ControllerVisualizer.svelte';
@@ -54,28 +74,43 @@
   let calibSnapshot = $state<number[] | null>(null);
 
   async function snapshotCalibration(): Promise<void> {
-    if (!manager) { calibSnapshot = null; return; }
-    try { calibSnapshot = await manager.getInMemoryModuleData(); }
-    catch { calibSnapshot = null; }
+    if (!manager) {
+      calibSnapshot = null;
+      return;
+    }
+    try {
+      calibSnapshot = await manager.getInMemoryModuleData();
+    } catch {
+      calibSnapshot = null;
+    }
   }
   const driftLeft = $derived(Math.sqrt($stickState.left.x ** 2 + $stickState.left.y ** 2));
   const driftRight = $derived(Math.sqrt($stickState.right.x ** 2 + $stickState.right.y ** 2));
 
   async function doCopy(text: string, label: string) {
     await copyToClipboard(text, (ok) => {
-      if (ok) { copied = label; setTimeout(() => (copied = null), 1500); }
+      if (ok) {
+        copied = label;
+        setTimeout(() => (copied = null), 1500);
+      }
     });
   }
 
   function logToText(): string {
     return $controllerLog
-      .map((e) => `${formatLogTimestamp(e.timestamp_ms, $logTimestampFormat)} [${e.level}] ${e.message}`)
+      .map(
+        (e) =>
+          `${formatLogTimestamp(e.timestamp_ms, $logTimestampFormat)} [${e.level}] ${e.message}`
+      )
       .join('\n');
   }
 
   async function copyLog() {
     await copyToClipboard(logToText(), (ok) => {
-      if (ok) { copied = get(LL).controller.copyLog(); setTimeout(() => (copied = null), 1500); }
+      if (ok) {
+        copied = get(LL).controller.copyLog();
+        setTimeout(() => (copied = null), 1500);
+      }
     });
   }
 
@@ -87,7 +122,8 @@
     }).catch(() => null);
     if (path && typeof path === 'string') {
       await saveTextFile(path, logToText()).catch(console.error);
-      copied = get(LL).controller.copyLogSaved(); setTimeout(() => (copied = null), 1500);
+      copied = get(LL).controller.copyLogSaved();
+      setTimeout(() => (copied = null), 1500);
     }
   }
   let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -146,7 +182,7 @@
 
       const info = await ctrl.getInfo();
       controllerInfo.set(info);
-      fwVersion  = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
+      fwVersion = info.infoItems?.find((i) => i.key === 'FW Version')?.value ?? '—';
       macAddress = info.infoItems?.find((i) => i.key === 'Bluetooth Address')?.value ?? '—';
       pushControllerLog(get(LL).controller.connectedLog({ model: ctrl.getModel() }), 'info');
       // Snapshot the in-memory finetune data so "Verwerfen" can undo calibration
@@ -187,7 +223,10 @@
       // Persisting the in-memory changes makes them the new undo baseline.
       if (res.success) await snapshotCalibration();
     } catch (e) {
-      pushControllerLog(get(LL).controller.flashFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
+      pushControllerLog(
+        get(LL).controller.flashFailedLog({ error: e instanceof Error ? e.message : String(e) }),
+        'error'
+      );
     }
   }
 
@@ -197,7 +236,10 @@
       await manager.writeFinetuneData(calibSnapshot);
       pushControllerLog(get(LL).controller.undoLog(), 'info');
     } catch (e) {
-      pushControllerLog(get(LL).controller.undoFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
+      pushControllerLog(
+        get(LL).controller.undoFailedLog({ error: e instanceof Error ? e.message : String(e) }),
+        'error'
+      );
     }
   }
 
@@ -207,7 +249,10 @@
       await manager.reset();
       pushControllerLog(get(LL).controller.resetLog(), 'info');
     } catch (e) {
-      pushControllerLog(get(LL).controller.resetFailedLog({ error: e instanceof Error ? e.message : String(e) }), 'error');
+      pushControllerLog(
+        get(LL).controller.resetFailedLog({ error: e instanceof Error ? e.message : String(e) }),
+        'error'
+      );
     }
   }
 
@@ -228,12 +273,21 @@
     </div>
     <div class="flex items-center gap-2">
       {#if $controllerConnected}
-        <button class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-2 text-sm text-red-400 hover:bg-red-600/30" onclick={disconnect}>
-          <Power class="h-4 w-4" /> {$LL.controller.disconnectBtn()}
+        <button
+          class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-3 py-2 text-sm text-red-400 hover:bg-red-600/30"
+          onclick={disconnect}
+        >
+          <Power class="h-4 w-4" />
+          {$LL.controller.disconnectBtn()}
         </button>
       {:else}
-        <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50" onclick={connect} disabled={connecting}>
-          <Usb class="h-4 w-4" /> {connecting ? $LL.controller.connecting() : $LL.controller.connectBtn()}
+        <button
+          class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+          onclick={connect}
+          disabled={connecting}
+        >
+          <Usb class="h-4 w-4" />
+          {connecting ? $LL.controller.connecting() : $LL.controller.connectBtn()}
         </button>
       {/if}
     </div>
@@ -261,14 +315,19 @@
       <div class="rounded-lg bg-gray-800/60 p-3" title={$LL.controller.batteryTitle()}>
         <div class="text-xs text-gray-500">{$LL.controller.battery()}</div>
         <div class="flex items-center gap-1.5 text-sm font-medium text-gray-200">
-          <Battery class="h-4 w-4" /> {$batteryStatus.bat_txt || '—'}
+          <Battery class="h-4 w-4" />
+          {$batteryStatus.bat_txt || '—'}
         </div>
       </div>
       <div class="rounded-lg bg-gray-800/60 p-3" title={$LL.controller.macTitle()}>
         <div class="text-xs text-gray-500">{$LL.controller.mac()}</div>
         <div class="flex items-center justify-between gap-1">
           <div class="text-sm font-medium text-gray-200 truncate">{macAddress}</div>
-          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(macAddress, $LL.controller.copyMac())} title={$LL.controller.copyMacTitle()}>
+          <button
+            class="text-gray-600 hover:text-gray-300 shrink-0"
+            onclick={() => doCopy(macAddress, $LL.controller.copyMac())}
+            title={$LL.controller.copyMacTitle()}
+          >
             <Copy class="h-3 w-3" />
           </button>
         </div>
@@ -277,7 +336,11 @@
         <div class="text-xs text-gray-500">{$LL.controller.firmware()}</div>
         <div class="flex items-center justify-between gap-1">
           <div class="text-sm font-medium text-gray-200 truncate">{fwVersion}</div>
-          <button class="text-gray-600 hover:text-gray-300 shrink-0" onclick={() => doCopy(fwVersion, $LL.controller.copyFw())} title={$LL.controller.copyFwTitle()}>
+          <button
+            class="text-gray-600 hover:text-gray-300 shrink-0"
+            onclick={() => doCopy(fwVersion, $LL.controller.copyFw())}
+            title={$LL.controller.copyFwTitle()}
+          >
             <Copy class="h-3 w-3" />
           </button>
         </div>
@@ -286,30 +349,60 @@
 
     <!-- Quick actions — calibration, circularity test, quick test (most important, at top) -->
     <div class="flex flex-wrap gap-2">
-      <button class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700" onclick={() => (calibOpen = true)}>
-        <Wrench class="h-4 w-4" /> {$LL.controller.calibration()}
+      <button
+        class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+        onclick={() => (calibOpen = true)}
+      >
+        <Wrench class="h-4 w-4" />
+        {$LL.controller.calibration()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700" onclick={() => (circOpen = true)}>
-        <Crosshair class="h-4 w-4" /> {$LL.controller.circularity()}
+      <button
+        class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700"
+        onclick={() => (circOpen = true)}
+      >
+        <Crosshair class="h-4 w-4" />
+        {$LL.controller.circularity()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700" onclick={() => (quickTestOpen = true)}>
-        <Zap class="h-4 w-4" /> {$LL.controller.quickTest()}
+      <button
+        class="flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700"
+        onclick={() => (quickTestOpen = true)}
+      >
+        <Zap class="h-4 w-4" />
+        {$LL.controller.quickTest()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30" onclick={flashController} title={$LL.controller.saveTitle()}>
-        <Lightbulb class="h-4 w-4" /> {$LL.controller.save()}
+      <button
+        class="flex items-center gap-1.5 rounded-lg bg-amber-600/20 px-4 py-2 text-sm text-amber-400 hover:bg-amber-600/30"
+        onclick={flashController}
+        title={$LL.controller.saveTitle()}
+      >
+        <Lightbulb class="h-4 w-4" />
+        {$LL.controller.save()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed" onclick={undoCalibration} disabled={!calibSnapshot} title={calibSnapshot ? $LL.controller.discardTitleAvail() : $LL.controller.discardTitleNone()}>
-        <Undo2 class="h-4 w-4" /> {$LL.controller.discard()}
+      <button
+        class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed"
+        onclick={undoCalibration}
+        disabled={!calibSnapshot}
+        title={calibSnapshot
+          ? $LL.controller.discardTitleAvail()
+          : $LL.controller.discardTitleNone()}
+      >
+        <Undo2 class="h-4 w-4" />
+        {$LL.controller.discard()}
       </button>
-      <button class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" onclick={resetController}>
-        <RefreshCw class="h-4 w-4" /> {$LL.controller.reset()}
+      <button
+        class="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+        onclick={resetController}
+      >
+        <RefreshCw class="h-4 w-4" />
+        {$LL.controller.reset()}
       </button>
     </div>
 
     <!-- Live controller graphic — buttons/sticks/triggers highlight as pressed -->
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-2 flex items-center gap-2 text-sm font-medium text-gray-300">
-        <Gamepad2 class="h-4 w-4" /> {$LL.controller.liveController()}
+        <Gamepad2 class="h-4 w-4" />
+        {$LL.controller.liveController()}
       </div>
       <div class="flex justify-center">
         <ControllerVisualizer size={460} />
@@ -322,7 +415,8 @@
     <!-- Sticks -->
     <div class="rounded-xl bg-gray-800/40 p-4">
       <div class="mb-3 flex items-center gap-2 text-sm font-medium text-gray-300">
-        <Activity class="h-4 w-4" /> {$LL.controller.sticks()}
+        <Activity class="h-4 w-4" />
+        {$LL.controller.sticks()}
       </div>
       <div class="flex justify-center gap-6">
         <div class="flex flex-col items-center gap-2">
@@ -334,7 +428,13 @@
             circularityData={$stickCircularity.left}
           />
           <span class="text-xs text-gray-500">{$LL.controller.stickLeft()}</span>
-          <span class="text-[10px] {driftLeft < 0.05 ? 'text-green-500' : driftLeft < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+          <span
+            class="text-[10px] {driftLeft < 0.05
+              ? 'text-green-500'
+              : driftLeft < 0.15
+                ? 'text-amber-400'
+                : 'text-red-400'}"
+          >
             {$LL.controller.drift({ value: (driftLeft * 100).toFixed(1) })}
           </span>
           <DriftSparkline side="left" />
@@ -348,7 +448,13 @@
             circularityData={$stickCircularity.right}
           />
           <span class="text-xs text-gray-500">{$LL.controller.stickRight()}</span>
-          <span class="text-[10px] {driftRight < 0.05 ? 'text-green-500' : driftRight < 0.15 ? 'text-amber-400' : 'text-red-400'}">
+          <span
+            class="text-[10px] {driftRight < 0.05
+              ? 'text-green-500'
+              : driftRight < 0.15
+                ? 'text-amber-400'
+                : 'text-red-400'}"
+          >
             {$LL.controller.drift({ value: (driftRight * 100).toFixed(1) })}
           </span>
           <DriftSparkline side="right" />
@@ -361,15 +467,25 @@
       <div class="mb-3 text-sm font-medium text-gray-300">{$LL.controller.triggers()}</div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <div class="mb-1 flex justify-between text-xs text-gray-500"><span>L2</span><span>{$triggerState.l2}</span></div>
+          <div class="mb-1 flex justify-between text-xs text-gray-500">
+            <span>L2</span><span>{$triggerState.l2}</span>
+          </div>
           <div class="h-3 overflow-hidden rounded-full bg-gray-700">
-            <div class="h-full bg-blue-500 transition-all" style="width: {($triggerState.l2 / 255) * 100}%"></div>
+            <div
+              class="h-full bg-blue-500 transition-all"
+              style="width: {($triggerState.l2 / 255) * 100}%"
+            ></div>
           </div>
         </div>
         <div>
-          <div class="mb-1 flex justify-between text-xs text-gray-500"><span>R2</span><span>{$triggerState.r2}</span></div>
+          <div class="mb-1 flex justify-between text-xs text-gray-500">
+            <span>R2</span><span>{$triggerState.r2}</span>
+          </div>
           <div class="h-3 overflow-hidden rounded-full bg-gray-700">
-            <div class="h-full bg-blue-500 transition-all" style="width: {($triggerState.r2 / 255) * 100}%"></div>
+            <div
+              class="h-full bg-blue-500 transition-all"
+              style="width: {($triggerState.r2 / 255) * 100}%"
+            ></div>
           </div>
         </div>
       </div>
@@ -380,37 +496,72 @@
       <div class="mb-2 flex items-center justify-between">
         <span class="text-xs font-medium text-gray-500">{$LL.controller.log()}</span>
         <div class="flex items-center gap-1">
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={copyLog} title={$LL.controller.copyLogTitle()}>
+          <button
+            class="text-gray-600 hover:text-gray-300 p-0.5"
+            onclick={copyLog}
+            title={$LL.controller.copyLogTitle()}
+          >
             <Copy class="h-3 w-3" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={exportLog} title={$LL.controller.saveLogTitle()}>
+          <button
+            class="text-gray-600 hover:text-gray-300 p-0.5"
+            onclick={exportLog}
+            title={$LL.controller.saveLogTitle()}
+          >
             <Download class="h-3 w-3" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => {
-            const order: LogTimestampFormat[] = ['local', 'iso', 'seconds'];
-            const cur = $logTimestampFormat;
-            setLogTimestampFormat(order[(order.indexOf(cur) + 1) % order.length]);
-          }} title={$LL.controller.timestampTitle({ format: $logTimestampFormat })}>
+          <button
+            class="text-gray-600 hover:text-gray-300 p-0.5"
+            onclick={() => {
+              const order: LogTimestampFormat[] = ['local', 'iso', 'seconds'];
+              const cur = $logTimestampFormat;
+              setLogTimestampFormat(order[(order.indexOf(cur) + 1) % order.length]);
+            }}
+            title={$LL.controller.timestampTitle({ format: $logTimestampFormat })}
+          >
             <Clock class="h-3 w-3" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => (wrapLog = !wrapLog)} title={wrapLog ? $LL.controller.wrapOff() : $LL.controller.wrapOn()}>
+          <button
+            class="text-gray-600 hover:text-gray-300 p-0.5"
+            onclick={() => (wrapLog = !wrapLog)}
+            title={wrapLog ? $LL.controller.wrapOff() : $LL.controller.wrapOn()}
+          >
             <WrapText class="h-3 w-3 {wrapLog ? 'text-teal-400' : ''}" />
           </button>
-          <button class="text-gray-600 hover:text-gray-300 p-0.5" onclick={() => controllerLog.set([])} title={$LL.controller.clearLogTitle()}>
+          <button
+            class="text-gray-600 hover:text-gray-300 p-0.5"
+            onclick={() => controllerLog.set([])}
+            title={$LL.controller.clearLogTitle()}
+          >
             <RefreshCw class="h-3 w-3" />
           </button>
         </div>
       </div>
-      <div class="max-h-40 space-y-1 overflow-y-auto text-xs font-mono {wrapLog ? 'break-words' : 'whitespace-nowrap'}">
+      <div
+        class="max-h-40 space-y-1 overflow-y-auto text-xs font-mono {wrapLog
+          ? 'break-words'
+          : 'whitespace-nowrap'}"
+      >
         {#each $controllerLog as entry (entry.id)}
-          <div class="{entry.level === 'error' ? 'text-red-400' : entry.level === 'warn' ? 'text-amber-400' : 'text-gray-400'}">
-            <span class="text-gray-600">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span> {entry.message}
+          <div
+            class={entry.level === 'error'
+              ? 'text-red-400'
+              : entry.level === 'warn'
+                ? 'text-amber-400'
+                : 'text-gray-400'}
+          >
+            <span class="text-gray-600"
+              >{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span
+            >
+            {entry.message}
           </div>
         {/each}
       </div>
     </div>
     {#if copied}
-      <div class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-teal-600 px-4 py-2 text-xs text-white shadow-lg z-50 transition-opacity">
+      <div
+        class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-teal-600 px-4 py-2 text-xs text-white shadow-lg z-50 transition-opacity"
+      >
         {$LL.controller.copiedToast({ label: copied })}
       </div>
     {/if}
@@ -420,4 +571,3 @@
 <CalibrationModal bind:open={calibOpen} {manager} />
 <CalibrationModal bind:open={circOpen} {manager} initialMode="range" />
 <QuickTestModal bind:open={quickTestOpen} {manager} />
-

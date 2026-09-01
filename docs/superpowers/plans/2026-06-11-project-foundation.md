@@ -12,49 +12,50 @@
 
 ## File Map
 
-| File | Responsibility |
-|---|---|
-| `Cargo.toml` | Workspace root; shared dependency versions |
-| `crates/fixplay-core/src/error.rs` | `AppError`, `Ch341Error`, `UartError` enums |
-| `crates/fixplay-core/src/types.rs` | Shared domain types (`DeviceInfo`, `FlashInfo`, `UartMessage`, etc.) |
-| `crates/fixplay-core/src/traits.rs` | `FlashDevice` + `UartDevice` traits (enables mocking) |
-| `crates/fixplay-core/src/lib.rs` | Re-exports all core modules |
-| `crates/fixplay-ch341/src/device.rs` | `Ch341Device` stub + `FlashDevice` impl (returns errors) |
-| `crates/fixplay-ch341/src/lib.rs` | Re-exports |
-| `crates/fixplay-uart/src/port.rs` | `UartPort` stub + `UartDevice` impl (returns errors) |
-| `crates/fixplay-uart/src/lib.rs` | Re-exports |
-| `src-tauri/src/state.rs` | `AppState` with `Mutex<Option<…>>` device handles |
-| `src-tauri/src/commands/flash.rs` | `scan_devices` Tauri command stub |
-| `src-tauri/src/commands/uart.rs` | `list_ports` Tauri command stub |
-| `src-tauri/src/commands/mod.rs` | Pub re-export of command modules |
-| `src-tauri/src/lib.rs` | `run()` entrypoint; Tauri builder + logging init |
-| `src-tauri/src/main.rs` | Binary main; calls `lib::run()` |
-| `src/app.html` | SvelteKit HTML shell (dark class on `<html>`) |
-| `src/app.css` | Tailwind directives |
-| `src/routes/+layout.ts` | SPA mode: `ssr = false`, `prerender = true` |
-| `src/routes/+layout.svelte` | Global CSS import + slot |
-| `src/routes/+page.svelte` | Main page; renders FlashPanel + UartPanel |
-| `src/lib/api/types.ts` | TypeScript mirrors of Rust domain types |
-| `src/lib/api/tauri.ts` | Typed `invoke()` wrappers |
-| `src/lib/stores/flash.ts` | `flashDevices`, `flashBusy`, `flashProgress` stores |
-| `src/lib/stores/uart.ts` | `uartLog`, `uartConnected` stores |
-| `src/lib/stores/flash.test.ts` | Vitest tests for flash store |
-| `src/lib/stores/uart.test.ts` | Vitest tests for uart store |
-| `src/lib/utils.ts` | `cn()` helper (clsx + tailwind-merge) used by shadcn components |
-| `components.json` | shadcn-svelte project config |
-| `src/lib/components/ui/` | shadcn-svelte primitive components (populated per-component on demand) |
-| `src/lib/components/FlashPanel.svelte` | Flash section UI scaffold |
-| `src/lib/components/UartPanel.svelte` | UART log section UI scaffold |
-| `Makefile` | `dev`, `build`, `test`, `lint`, `fmt` targets |
-| `.editorconfig` | Consistent formatting (4-space Rust, 2-space everything else) |
-| `eslint.config.js` | ESLint flat config for TS + Svelte |
-| `.prettierrc` | Prettier config with svelte plugin |
+| File                                   | Responsibility                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------- |
+| `Cargo.toml`                           | Workspace root; shared dependency versions                             |
+| `crates/fixplay-core/src/error.rs`     | `AppError`, `Ch341Error`, `UartError` enums                            |
+| `crates/fixplay-core/src/types.rs`     | Shared domain types (`DeviceInfo`, `FlashInfo`, `UartMessage`, etc.)   |
+| `crates/fixplay-core/src/traits.rs`    | `FlashDevice` + `UartDevice` traits (enables mocking)                  |
+| `crates/fixplay-core/src/lib.rs`       | Re-exports all core modules                                            |
+| `crates/fixplay-ch341/src/device.rs`   | `Ch341Device` stub + `FlashDevice` impl (returns errors)               |
+| `crates/fixplay-ch341/src/lib.rs`      | Re-exports                                                             |
+| `crates/fixplay-uart/src/port.rs`      | `UartPort` stub + `UartDevice` impl (returns errors)                   |
+| `crates/fixplay-uart/src/lib.rs`       | Re-exports                                                             |
+| `src-tauri/src/state.rs`               | `AppState` with `Mutex<Option<…>>` device handles                      |
+| `src-tauri/src/commands/flash.rs`      | `scan_devices` Tauri command stub                                      |
+| `src-tauri/src/commands/uart.rs`       | `list_ports` Tauri command stub                                        |
+| `src-tauri/src/commands/mod.rs`        | Pub re-export of command modules                                       |
+| `src-tauri/src/lib.rs`                 | `run()` entrypoint; Tauri builder + logging init                       |
+| `src-tauri/src/main.rs`                | Binary main; calls `lib::run()`                                        |
+| `src/app.html`                         | SvelteKit HTML shell (dark class on `<html>`)                          |
+| `src/app.css`                          | Tailwind directives                                                    |
+| `src/routes/+layout.ts`                | SPA mode: `ssr = false`, `prerender = true`                            |
+| `src/routes/+layout.svelte`            | Global CSS import + slot                                               |
+| `src/routes/+page.svelte`              | Main page; renders FlashPanel + UartPanel                              |
+| `src/lib/api/types.ts`                 | TypeScript mirrors of Rust domain types                                |
+| `src/lib/api/tauri.ts`                 | Typed `invoke()` wrappers                                              |
+| `src/lib/stores/flash.ts`              | `flashDevices`, `flashBusy`, `flashProgress` stores                    |
+| `src/lib/stores/uart.ts`               | `uartLog`, `uartConnected` stores                                      |
+| `src/lib/stores/flash.test.ts`         | Vitest tests for flash store                                           |
+| `src/lib/stores/uart.test.ts`          | Vitest tests for uart store                                            |
+| `src/lib/utils.ts`                     | `cn()` helper (clsx + tailwind-merge) used by shadcn components        |
+| `components.json`                      | shadcn-svelte project config                                           |
+| `src/lib/components/ui/`               | shadcn-svelte primitive components (populated per-component on demand) |
+| `src/lib/components/FlashPanel.svelte` | Flash section UI scaffold                                              |
+| `src/lib/components/UartPanel.svelte`  | UART log section UI scaffold                                           |
+| `Makefile`                             | `dev`, `build`, `test`, `lint`, `fmt` targets                          |
+| `.editorconfig`                        | Consistent formatting (4-space Rust, 2-space everything else)          |
+| `eslint.config.js`                     | ESLint flat config for TS + Svelte                                     |
+| `.prettierrc`                          | Prettier config with svelte plugin                                     |
 
 ---
 
 ## Task 1: Cargo Workspace Root
 
 **Files:**
+
 - Create: `Cargo.toml`
 
 - [ ] **Create workspace `Cargo.toml`**
@@ -91,6 +92,7 @@ Expected: no output, exit code 0. (The member crates don't exist yet — that's 
 ## Task 2: fixplay-core — Error Types
 
 **Files:**
+
 - Create: `crates/fixplay-core/Cargo.toml`
 - Create: `crates/fixplay-core/src/lib.rs`
 - Create: `crates/fixplay-core/src/error.rs`
@@ -257,6 +259,7 @@ git commit -m "feat(core): add AppError, Ch341Error, UartError with thiserror"
 ## Task 3: fixplay-core — Domain Types and Traits
 
 **Files:**
+
 - Create: `crates/fixplay-core/src/types.rs`
 - Create: `crates/fixplay-core/src/traits.rs`
 - Modify: `crates/fixplay-core/src/lib.rs`
@@ -437,6 +440,7 @@ git commit -m "feat(core): add domain types, FlashDevice and UartDevice traits"
 ## Task 4: fixplay-ch341 Stub Crate
 
 **Files:**
+
 - Create: `crates/fixplay-ch341/Cargo.toml`
 - Create: `crates/fixplay-ch341/src/lib.rs`
 - Create: `crates/fixplay-ch341/src/device.rs`
@@ -548,6 +552,7 @@ git commit -m "feat(ch341): add Ch341Device stub with FlashDevice impl"
 ## Task 5: fixplay-uart Stub Crate
 
 **Files:**
+
 - Create: `crates/fixplay-uart/Cargo.toml`
 - Create: `crates/fixplay-uart/src/lib.rs`
 - Create: `crates/fixplay-uart/src/port.rs`
@@ -665,6 +670,7 @@ git commit -m "feat(uart): add UartPort stub with UartDevice impl"
 ## Task 6: src-tauri — State, Commands, and Entry Point
 
 **Files:**
+
 - Create: `src-tauri/Cargo.toml`
 - Create: `src-tauri/build.rs`
 - Create: `src-tauri/src/main.rs`
@@ -867,6 +873,7 @@ git commit -m "feat(tauri): add app state, command stubs, and Tauri builder"
 ## Task 7: Frontend Scaffold (SvelteKit + Tailwind)
 
 **Files:**
+
 - Create: `package.json`
 - Create: `svelte.config.js`
 - Create: `vite.config.ts`
@@ -961,17 +968,14 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     host: host || false,
-    hmr: host
-      ? { protocol: 'ws', host, port: 5183 }
-      : undefined,
+    hmr: host ? { protocol: 'ws', host, port: 5183 } : undefined,
     watch: {
       ignored: ['**/src-tauri/**'],
     },
   },
   envPrefix: ['VITE_', 'TAURI_ENV_*'],
   build: {
-    target:
-      process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
+    target: process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
   },
@@ -1086,6 +1090,7 @@ git commit -m "feat(frontend): add SvelteKit + Tailwind + Tauri scaffold"
 ## Task 8: Frontend API Layer
 
 **Files:**
+
 - Create: `src/lib/api/types.ts`
 - Create: `src/lib/api/tauri.ts`
 
@@ -1126,11 +1131,9 @@ export interface UartMessage {
 import { invoke } from '@tauri-apps/api/core';
 import type { DeviceInfo } from './types';
 
-export const scanDevices = (): Promise<DeviceInfo[]> =>
-  invoke<DeviceInfo[]>('scan_devices');
+export const scanDevices = (): Promise<DeviceInfo[]> => invoke<DeviceInfo[]>('scan_devices');
 
-export const listPorts = (): Promise<DeviceInfo[]> =>
-  invoke<DeviceInfo[]>('list_ports');
+export const listPorts = (): Promise<DeviceInfo[]> => invoke<DeviceInfo[]>('list_ports');
 ```
 
 - [ ] **Type-check**
@@ -1153,6 +1156,7 @@ git commit -m "feat(frontend): add typed API layer and domain types"
 ## Task 9: Frontend Stores + Tests (TDD)
 
 **Files:**
+
 - Create: `src/lib/stores/flash.ts`
 - Create: `src/lib/stores/uart.ts`
 - Create: `src/lib/stores/flash.test.ts`
@@ -1279,6 +1283,7 @@ git commit -m "feat(frontend): add flash and uart stores with tests"
 ## Task 10: Frontend Components and Main Route
 
 **Files:**
+
 - Create: `src/lib/components/FlashPanel.svelte`
 - Create: `src/lib/components/UartPanel.svelte`
 - Create: `src/routes/+page.svelte`
@@ -1340,9 +1345,7 @@ git commit -m "feat(frontend): add flash and uart stores with tests"
   <h2 class="text-lg font-semibold text-gray-100">UART</h2>
 
   <div class="flex items-center gap-2">
-    <span
-      class="w-2 h-2 rounded-full {$uartConnected ? 'bg-green-400' : 'bg-gray-600'}"
-    ></span>
+    <span class="w-2 h-2 rounded-full {$uartConnected ? 'bg-green-400' : 'bg-gray-600'}"></span>
     <span class="text-sm text-gray-400">
       {$uartConnected ? 'Connected' : 'Disconnected'}
     </span>
@@ -1401,6 +1404,7 @@ git commit -m "feat(frontend): add FlashPanel, UartPanel components and main rou
 ## Task 11: Tooling — Makefile, .editorconfig, ESLint, Prettier
 
 **Files:**
+
 - Create: `Makefile`
 - Create: `.editorconfig`
 - Create: `eslint.config.js`

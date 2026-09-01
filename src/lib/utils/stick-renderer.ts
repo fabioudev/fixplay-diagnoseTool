@@ -1,5 +1,3 @@
-
-
 // Canvas stick rendering utilities, ported from dualshock-tools/js/stick-renderer.js
 
 export const CIRCULARITY_DATA_SIZE = 48;
@@ -29,7 +27,10 @@ function ccToColor(cc: number): number {
 }
 
 export function calculateCircularityError(data: number[]): number {
-  const sumSquaredDeviations = data.reduce((acc, val) => (val > 0.2 ? acc + Math.pow(val - 1, 2) : acc), 0);
+  const sumSquaredDeviations = data.reduce(
+    (acc, val) => (val > 0.2 ? acc + Math.pow(val - 1, 2) : acc),
+    0
+  );
   const validDataCount = data.filter((val) => val > 0.2).length;
   return validDataCount > 0 ? Math.sqrt(sumSquaredDeviations / validDataCount) * 100 : 0;
 }
@@ -43,7 +44,12 @@ export function drawStickDial(
   stickY: number,
   opts: DrawStickOpts = {}
 ): void {
-  const { circularity_data = null, enable_zoom_center = false, highlight = false, deadzone = 0 } = opts;
+  const {
+    circularity_data = null,
+    enable_zoom_center = false,
+    highlight = false,
+    deadzone = 0,
+  } = opts;
 
   // Base circle
   ctx.lineWidth = 1;
@@ -173,4 +179,3 @@ export function drawStickDial(
   ctx.fillStyle = highlight ? '#2989f7ff' : '#030b84ff';
   ctx.fill();
 }
-

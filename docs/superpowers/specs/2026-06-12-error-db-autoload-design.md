@@ -43,6 +43,7 @@ struct DbStatusPayload {
 ```
 
 Wird emittiert von:
+
 - `setup()` nach jedem Ladeversuch (Stufe 1, 2, 3)
 - `uart_update_error_db` nach erfolgreichem manuellen Update (source: "fetched")
 
@@ -58,6 +59,7 @@ Lokal: leere `[]` als Platzhalter (kompiliert ohne Fehler, DB hat 0 Einträge).
 Im Release-Build: CI überschreibt mit der neuesten DB vor dem Tauri-Build.
 
 **`src-tauri/tauri.conf.json`** — resources-Liste erweitern:
+
 ```json
 "resources": ["binaries/flashrom", "binaries/flashrom.exe", "resources/error_codes.json"]
 ```
@@ -90,6 +92,7 @@ export const dbLoading = writable<boolean>(false);
 ### UartPanel.svelte — Änderungen
 
 **Neuer Listener in `onMount`:**
+
 ```ts
 listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-status', (e) => {
   dbCodeCount.set(e.payload.loaded ? (e.payload.count ?? null) : null);
@@ -98,23 +101,25 @@ listen<{ loaded: boolean; count: number | null; source: string }>('uart://db-sta
 ```
 
 **`onMount`-Logik für `dbLoading`:**
+
 ```ts
 const count = await uartGetDbInfo().catch(() => null);
 dbCodeCount.set(count ?? null);
 if (count === null) {
-  dbLoading.set(true);  // Hintergrund-Fetch könnte laufen
+  dbLoading.set(true); // Hintergrund-Fetch könnte laufen
 }
 ```
 
 **Zustandsanzeige** (DB-Statuszeile, obere rechte Ecke):
 
-| Zustand | Anzeige |
-|---------|---------|
-| `$dbLoading` | `⟳ Lade DB…` (grau, `animate-spin` auf dem Icon) |
-| `$dbCodeCount === null && !$dbLoading` | `Nicht geladen` (rot-grau) |
-| `$dbCodeCount !== null` | `{count.toLocaleString()} Codes` (grün) |
+| Zustand                                | Anzeige                                          |
+| -------------------------------------- | ------------------------------------------------ |
+| `$dbLoading`                           | `⟳ Lade DB…` (grau, `animate-spin` auf dem Icon) |
+| `$dbCodeCount === null && !$dbLoading` | `Nicht geladen` (rot-grau)                       |
+| `$dbCodeCount !== null`                | `{count.toLocaleString()} Codes` (grün)          |
 
 Der `DB aktualisieren`-Button:
+
 - setzt `dbLoading.set(true)` beim Klick (während `updateDb()` läuft)
 - bleibt immer sichtbar (auch bei geladenem Count — für manuelle Updates)
 
@@ -134,13 +139,13 @@ it('dbLoading can be set to true', () => {
 
 ## Dateien-Übersicht
 
-| Aktion | Pfad |
-|--------|------|
-| Modify | `src-tauri/src/lib.rs` |
-| Modify | `src-tauri/src/commands/uart.rs` |
-| Modify | `src-tauri/tauri.conf.json` |
+| Aktion | Pfad                                                      |
+| ------ | --------------------------------------------------------- |
+| Modify | `src-tauri/src/lib.rs`                                    |
+| Modify | `src-tauri/src/commands/uart.rs`                          |
+| Modify | `src-tauri/tauri.conf.json`                               |
 | Create | `src-tauri/resources/error_codes.json` (Platzhalter `[]`) |
-| Modify | `src/lib/stores/uart.ts` |
-| Modify | `src/lib/stores/uart.test.ts` |
-| Modify | `src/lib/components/UartPanel.svelte` |
-| Modify | `.github/workflows/release.yml` |
+| Modify | `src/lib/stores/uart.ts`                                  |
+| Modify | `src/lib/stores/uart.test.ts`                             |
+| Modify | `src/lib/components/UartPanel.svelte`                     |
+| Modify | `.github/workflows/release.yml`                           |

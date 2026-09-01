@@ -15,11 +15,11 @@ sonst den Flash-Chip (oder das Target-Board) kostet.
 Der CH341A (WCH) ist ein USB-Interface-Chip, der u.a. SPI spricht. Die
 verbreitete „Mini Programmer"-Platine gibt es in zwei relevanten Varianten:
 
-| Variante | Erkennen | Socket | 5V/3,3V |
-|---|---|---|---|
-| **Black board** (klassisch, mit IC-Sockel) | schwarze PCB, 16-Pin-ZIF-Sockel, zwei 7-Pin-Header | ja | **kritisch — siehe §3** |
-| **Blue board** (ohne Sockel) | blaue PCB, Header zum Außenverdrahten | nein | korrekt gepuffert, per Jumper 3,3 V / 5 V wählbar |
-| **Color Light v1.5+** / neuere schwarze (ab ~2025, goldene Kanten) | Schalter K1, J1-Header | 16-Pin-Rastschloss | oft ab Werk 3,3 V auf den Datenleitungen — **trotzdem messen** |
+| Variante                                                           | Erkennen                                           | Socket             | 5V/3,3V                                                        |
+| ------------------------------------------------------------------ | -------------------------------------------------- | ------------------ | -------------------------------------------------------------- |
+| **Black board** (klassisch, mit IC-Sockel)                         | schwarze PCB, 16-Pin-ZIF-Sockel, zwei 7-Pin-Header | ja                 | **kritisch — siehe §3**                                        |
+| **Blue board** (ohne Sockel)                                       | blaue PCB, Header zum Außenverdrahten              | nein               | korrekt gepuffert, per Jumper 3,3 V / 5 V wählbar              |
+| **Color Light v1.5+** / neuere schwarze (ab ~2025, goldene Kanten) | Schalter K1, J1-Header                             | 16-Pin-Rastschloss | oft ab Werk 3,3 V auf den Datenleitungen — **trotzdem messen** |
 
 Die folgenden Abschnitte beziehen sich primär auf das **black board**,
 weil es am häufigsten verbaut wird und die bekannte Schwachstelle trägt.
@@ -62,11 +62,11 @@ Nie blind vertrauen, auch nicht bei „neuen" Boards:
 
 ## 4. 3,3-V-Fix (black board)
 
-Drei gängige Varianten, alle führen zum selben Ergebnis: CH341A-VCC (Pin
-28) und V3 (Pin 9) werden vom 3,3-V-Regler statt von 5 V gespeist. Danach
+Drei gängige Varianten, alle führen zum selben Ergebnis: CH341A-VCC (Pin 28) und V3 (Pin 9) werden vom 3,3-V-Regler statt von 5 V gespeist. Danach
 liegen **alle** SPI-Leitungen bei 3,3 V.
 
 ### Variante A — Pin 28 heben (am verbreitetsten)
+
 1. **Pin 28 (VCC)** des CH341A ca. 1 mm anheben: Lötkolben erhitzen,
    Klinge/Pick darunterschieben.
 2. **Isolieren**: Kapton-/Isolierband zwischen angehobenen Pin und Pad,
@@ -77,11 +77,13 @@ liegen **alle** SPI-Leitungen bei 3,3 V.
 5. **Messen**: GND gegen jede Signalleitung → jetzt 3,3 V.
 
 ### Variante B — Leiterbahn trennen (ohne Pin-Heben)
+
 5-V-Leiterbahn auf der **Platinenunterseite** zum Pin 28 mit Cutter
 trennen, dann 3,3 V vom Regler per Bodge-Wire auf Pin 28 + Pin 9 führen.
 Kein Risiko des Pin-Abreißens.
 
 ### Variante C — Spannungswahl-Schalter
+
 Wie B, aber Pin 28 an einen **SPDT-Schalter**, der zwischen 5 V (C2) und
 3,3 V (C1) umschaltet. Ermöglicht Betrieb für alte 5-V-Chips **und**
 3,3-V-NOR. Empfohlen, wenn man beide Welten bedient.
@@ -98,16 +100,16 @@ Wie B, aber Pin 28 an einen **SPDT-Schalter**, der zwischen 5 V (C2) und
 Standard-Belegung eines 8-poligen SPI-NOR (W25Q, MX25L, EN25Q, …). Pin 1
 ist am Chip meist mit Punkt/Kerbe markiert.
 
-| Pin | Name | Funktion | ZIF-Position |
-|----:|------|----------|--------------|
-| 1 | #CS | Chip Select | 5 |
-| 2 | DO | MISO (Data Out) | 6 |
-| 3 | #WP | Write Protect (Sockel: 3,3 V) | 7 |
-| 4 | GND | Masse | 8 |
-| 5 | DI | MOSI (Data In) | 9 |
-| 6 | CLK | Serial Clock | 10 |
-| 7 | #HOLD | Hold (Sockel: 3,3 V) | 11 |
-| 8 | VCC | +3,3 V | 12 |
+| Pin | Name  | Funktion                      | ZIF-Position |
+| --: | ----- | ----------------------------- | ------------ |
+|   1 | #CS   | Chip Select                   | 5            |
+|   2 | DO    | MISO (Data Out)               | 6            |
+|   3 | #WP   | Write Protect (Sockel: 3,3 V) | 7            |
+|   4 | GND   | Masse                         | 8            |
+|   5 | DI    | MOSI (Data In)                | 9            |
+|   6 | CLK   | Serial Clock                  | 10           |
+|   7 | #HOLD | Hold (Sockel: 3,3 V)          | 11           |
+|   8 | VCC   | +3,3 V                        | 12           |
 
 Im **16-Pin-ZIF-Sockel** des black board sitzt der 8-polige Chip in der
 **hinteren Hälfte auf den ZIF-Positionen 5–12** (Aufdruck „25 SPI", fern
@@ -118,6 +120,7 @@ Im Sockel liegen #WP/#HOLD fest auf 3,3 V (ZIF 7/11). **Vor dem Schließen
 des ZIF-Hebels Lage prüfen** — falschrum ist ein Klassiker.
 
 ### 16-polige SPI-NOR
+
 Pinbelegung entspricht der 8-Pin-Variante auf der unteren Reihe; obere
 Reihe größtenteils NC. Datenblatt des konkreten Chips konsultieren
 (PS5-NOR ist je nach Revision 8-Pin SOP oder WSON — ggf.
@@ -143,11 +146,11 @@ USB-Stecker):
 
 ### Jumper-Übersicht
 
-| Jumper | Funktion | Einstellung |
-|---|---|---|
-| Mode-Jumper (UART-Header 1↔2) | Programmer-Modus (ACT#) | **gesetzt** — 2↔3 = nur USB-Seriell |
-| Voltage-Jumper (nur blue board, 2× blau) | Sockel-VCC | **3,3 V** (grün) — 5 V nur für alte 5-V-EEPROMs |
-| K1-Schalter (Color Light v1.5+) | VCC-Level | **3,3 V** für PS5-NOR |
+| Jumper                                   | Funktion                | Einstellung                                     |
+| ---------------------------------------- | ----------------------- | ----------------------------------------------- |
+| Mode-Jumper (UART-Header 1↔2)            | Programmer-Modus (ACT#) | **gesetzt** — 2↔3 = nur USB-Seriell             |
+| Voltage-Jumper (nur blue board, 2× blau) | Sockel-VCC              | **3,3 V** (grün) — 5 V nur für alte 5-V-EEPROMs |
+| K1-Schalter (Color Light v1.5+)          | VCC-Level               | **3,3 V** für PS5-NOR                           |
 
 > Die Jumper-Belegung kann je nach Revision abweichen. Aufdruck auf der
 > PCB geht vor. Wenn ein Board **keinen** Spannungswahl-Jumper hat, ist

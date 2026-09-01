@@ -12,14 +12,14 @@
 
 ## File Map
 
-| Action | Path |
-|--------|------|
-| Modify | `src-tauri/src/commands/flash.rs` |
-| Modify | `src-tauri/src/lib.rs` |
-| Modify | `src/lib/api/types.ts` |
-| Modify | `src/lib/stores/flash.ts` |
-| Modify | `src/lib/stores/flash.test.ts` |
-| Modify | `src/lib/api/tauri.ts` |
+| Action | Path                                   |
+| ------ | -------------------------------------- |
+| Modify | `src-tauri/src/commands/flash.rs`      |
+| Modify | `src-tauri/src/lib.rs`                 |
+| Modify | `src/lib/api/types.ts`                 |
+| Modify | `src/lib/stores/flash.ts`              |
+| Modify | `src/lib/stores/flash.test.ts`         |
+| Modify | `src/lib/api/tauri.ts`                 |
 | Modify | `src/lib/components/FlashPanel.svelte` |
 
 ---
@@ -27,6 +27,7 @@
 ## Task 1: Rust — `flash_validate_file` command
 
 **Files:**
+
 - Modify: `src-tauri/src/commands/flash.rs`
 - Modify: `src-tauri/src/lib.rs`
 
@@ -146,6 +147,7 @@ git commit -m "feat(tauri): add flash_validate_file command for pre-write NOR va
 ## Task 2: Frontend — types, store, API wrapper
 
 **Files:**
+
 - Modify: `src/lib/api/types.ts`
 - Modify: `src/lib/stores/flash.ts`
 - Modify: `src/lib/stores/flash.test.ts`
@@ -156,26 +158,29 @@ git commit -m "feat(tauri): add flash_validate_file command for pre-write NOR va
 Read `src/lib/stores/flash.test.ts`. Make two changes:
 
 **1a** — Update the import to add `flashWritePreview`:
+
 ```ts
 import { flashBusy, flashProgress, flashResult, flashLog, flashWritePreview } from './flash';
 ```
 
 **1b** — Add `flashWritePreview.set(null)` to `beforeEach`:
+
 ```ts
-  beforeEach(() => {
-    flashBusy.set(false);
-    flashProgress.set(null);
-    flashResult.set(null);
-    flashLog.set([]);
-    flashWritePreview.set(null);
-  });
+beforeEach(() => {
+  flashBusy.set(false);
+  flashProgress.set(null);
+  flashResult.set(null);
+  flashLog.set([]);
+  flashWritePreview.set(null);
+});
 ```
 
 **1c** — Add one test inside the `describe` block after the last existing test:
+
 ```ts
-  it('flashWritePreview starts as null', () => {
-    expect(get(flashWritePreview)).toBeNull();
-  });
+it('flashWritePreview starts as null', () => {
+  expect(get(flashWritePreview)).toBeNull();
+});
 ```
 
 - [ ] **Step 2: Run tests to verify the new test fails**
@@ -192,26 +197,34 @@ Read the current file. Append after the last line:
 
 ```ts
 export interface FlashPreviewResult {
-  path:       string;
+  path: string;
   size_bytes: number;
   validation: NorValidation;
-  nvs:        NvsData | null;
+  nvs: NvsData | null;
 }
 ```
 
 - [ ] **Step 4: Add `flashWritePreview` store to `src/lib/stores/flash.ts`**
 
 Read the current file. The import at the top currently reads:
+
 ```ts
 import type { FlashReadResult, FlashLogEntry, FlashProgressEvent } from '$lib/api/types';
 ```
 
 Change it to:
+
 ```ts
-import type { FlashReadResult, FlashLogEntry, FlashProgressEvent, FlashPreviewResult } from '$lib/api/types';
+import type {
+  FlashReadResult,
+  FlashLogEntry,
+  FlashProgressEvent,
+  FlashPreviewResult,
+} from '$lib/api/types';
 ```
 
 Then append after the `flashWritePath` line:
+
 ```ts
 export const flashWritePreview = writable<FlashPreviewResult | null>(null);
 ```
@@ -219,16 +232,25 @@ export const flashWritePreview = writable<FlashPreviewResult | null>(null);
 - [ ] **Step 5: Add `flashValidateFile` to `src/lib/api/tauri.ts`**
 
 Read the current file. The import type line currently reads:
+
 ```ts
 import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult } from './types';
 ```
 
 Change it to:
+
 ```ts
-import type { DeviceInfo, FlashReadResult, SerialArchive, ErrorSearchResult, FlashPreviewResult } from './types';
+import type {
+  DeviceInfo,
+  FlashReadResult,
+  SerialArchive,
+  ErrorSearchResult,
+  FlashPreviewResult,
+} from './types';
 ```
 
 Then append after the `openPath` line and before the archive wrappers:
+
 ```ts
 export const flashValidateFile = (path: string) =>
   invoke<FlashPreviewResult>('flash_validate_file', { path });
@@ -263,6 +285,7 @@ git commit -m "feat(frontend): add FlashPreviewResult type, flashWritePreview st
 ## Task 3: FlashPanel — two-step write flow
 
 **Files:**
+
 - Modify: `src/lib/components/FlashPanel.svelte`
 
 - [ ] **Step 1: Read the current file**
@@ -272,6 +295,7 @@ cat -n /home/fabiom/IdeaProjects/fixplay-diagnoseTool/src/lib/components/FlashPa
 ```
 
 Identify:
+
 - The imports line from `$lib/stores/flash` (currently imports `flashBusy`, `flashProgress`, `flashResult`, `flashLog`, `flashProgrammer`, `flashWritePath`, `nextFlashLogId`)
 - The imports line from `$lib/api/tauri` (currently imports `flashListProgrammers`, `flashRead`, `flashWrite`, `openPath`)
 - The `handleWrite` function (currently around lines 72–93)
@@ -280,89 +304,113 @@ Identify:
 - [ ] **Step 2: Update the stores import**
 
 Change the stores import from:
+
 ```ts
-  import {
-    flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, flashWritePath, nextFlashLogId,
-  } from '$lib/stores/flash';
+import {
+  flashBusy,
+  flashProgress,
+  flashResult,
+  flashLog,
+  flashProgrammer,
+  flashWritePath,
+  nextFlashLogId,
+} from '$lib/stores/flash';
 ```
+
 To:
+
 ```ts
-  import {
-    flashBusy, flashProgress, flashResult, flashLog,
-    flashProgrammer, flashWritePath, flashWritePreview, nextFlashLogId,
-  } from '$lib/stores/flash';
+import {
+  flashBusy,
+  flashProgress,
+  flashResult,
+  flashLog,
+  flashProgrammer,
+  flashWritePath,
+  flashWritePreview,
+  nextFlashLogId,
+} from '$lib/stores/flash';
 ```
 
 - [ ] **Step 3: Update the API import**
 
 Change the API import from:
+
 ```ts
-  import { flashListProgrammers, flashRead, flashWrite, openPath } from '$lib/api/tauri';
+import { flashListProgrammers, flashRead, flashWrite, openPath } from '$lib/api/tauri';
 ```
+
 To:
+
 ```ts
-  import { flashListProgrammers, flashRead, flashWrite, flashValidateFile, openPath } from '$lib/api/tauri';
+import {
+  flashListProgrammers,
+  flashRead,
+  flashWrite,
+  flashValidateFile,
+  openPath,
+} from '$lib/api/tauri';
 ```
 
 - [ ] **Step 4: Replace `handleWrite` and add `confirmWrite` / `cancelWrite`**
 
 Replace the entire `handleWrite` function with:
+
 ```ts
-  async function handleWrite() {
-    const storedPath = $flashWritePath;
-    let selected: string;
+async function handleWrite() {
+  const storedPath = $flashWritePath;
+  let selected: string;
 
-    if (storedPath) {
-      selected = storedPath;
-      flashWritePath.set(null);
-    } else {
-      const result = await openDialog({
-        title:   'NOR-Datei wählen',
-        filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
-      });
-      if (!result || typeof result !== 'string') return;
-      selected = result;
-    }
-
-    flashBusy.set(true);
-    try {
-      const preview = await flashValidateFile(selected);
-      flashWritePreview.set(preview);
-    } catch (e: unknown) {
-      flashLog.update((log) => [
-        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
-        ...log,
-      ]);
-    } finally {
-      flashBusy.set(false);
-    }
+  if (storedPath) {
+    selected = storedPath;
+    flashWritePath.set(null);
+  } else {
+    const result = await openDialog({
+      title: 'NOR-Datei wählen',
+      filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
+    });
+    if (!result || typeof result !== 'string') return;
+    selected = result;
   }
 
-  async function confirmWrite() {
-    const preview = $flashWritePreview;
-    if (!preview) return;
+  flashBusy.set(true);
+  try {
+    const preview = await flashValidateFile(selected);
+    flashWritePreview.set(preview);
+  } catch (e: unknown) {
+    flashLog.update((log) => [
+      { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
+      ...log,
+    ]);
+  } finally {
+    flashBusy.set(false);
+  }
+}
 
-    flashWritePreview.set(null);
-    flashBusy.set(true);
-    flashLog.set([]);
+async function confirmWrite() {
+  const preview = $flashWritePreview;
+  if (!preview) return;
+
+  flashWritePreview.set(null);
+  flashBusy.set(true);
+  flashLog.set([]);
+  flashProgress.set(null);
+  try {
+    await flashWrite(preview.path, $flashProgrammer);
+  } catch (e: unknown) {
+    flashLog.update((log) => [
+      { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
+      ...log,
+    ]);
+  } finally {
+    flashBusy.set(false);
     flashProgress.set(null);
-    try {
-      await flashWrite(preview.path, $flashProgrammer);
-    } catch (e: unknown) {
-      flashLog.update((log) => [
-        { id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' },
-        ...log,
-      ]);
-    } finally {
-      flashBusy.set(false);
-      flashProgress.set(null);
-    }
   }
+}
 
-  function cancelWrite() {
-    flashWritePreview.set(null);
-  }
+function cancelWrite() {
+  flashWritePreview.set(null);
+}
 ```
 
 - [ ] **Step 5: Update the "Schreiben" button to disable when preview is showing**
@@ -370,14 +418,14 @@ Replace the entire `handleWrite` function with:
 Find the "Schreiben" button. It currently has `disabled={$flashBusy || !$flashProgrammer}`. Change it to:
 
 ```svelte
-    <button
-      onclick={handleWrite}
-      disabled={$flashBusy || !$flashProgrammer || $flashWritePreview !== null}
-      class="px-3 py-1 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white
+<button
+  onclick={handleWrite}
+  disabled={$flashBusy || !$flashProgrammer || $flashWritePreview !== null}
+  class="px-3 py-1 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white
              disabled:opacity-40"
-    >
-      Schreiben
-    </button>
+>
+  Schreiben
+</button>
 ```
 
 - [ ] **Step 6: Add the preview card**
@@ -385,84 +433,85 @@ Find the "Schreiben" button. It currently has `disabled={$flashBusy || !$flashPr
 In the template, after the `{/if}` that closes the progress bar block and before the `{#if $flashResult}` result card block, add:
 
 ```svelte
-  <!-- Write preview card -->
-  {#if $flashWritePreview}
-    {@const p = $flashWritePreview}
-    <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
-      {@const validationOk = p.validation.size_ok && p.validation.header_ok && p.validation.mbr1_ok && p.validation.mbr2_ok && p.validation.emc_ipl_a_ok && p.validation.emc_ipl_b_ok && p.validation.usb_pdc_a_ok && p.validation.usb_pdc_b_ok}
+<!-- Write preview card -->
+{#if $flashWritePreview}
+  {@const p = $flashWritePreview}
+  <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
+    {@const validationOk =
+      p.validation.size_ok &&
+      p.validation.header_ok &&
+      p.validation.mbr1_ok &&
+      p.validation.mbr2_ok &&
+      p.validation.emc_ipl_a_ok &&
+      p.validation.emc_ipl_b_ok &&
+      p.validation.usb_pdc_a_ok &&
+      p.validation.usb_pdc_b_ok}
 
-      <!-- Warning banner (only when validation fails) -->
-      {#if !validationOk}
-        <div class="flex items-center gap-2 rounded bg-yellow-900 border border-yellow-700 px-3 py-2">
-          <span class="text-yellow-400 font-semibold">⚠ Validierungsfehler erkannt — Fortfahren auf eigene Gefahr</span>
-        </div>
-      {/if}
-
-      <!-- Validation checklist -->
-      <div>
-        <p class="text-gray-400 font-semibold mb-1">Validierung:</p>
-        <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 font-mono">
-          {#each [
-            { label: 'NOR Header',    ok: p.validation.header_ok },
-            { label: 'MBR 1',         ok: p.validation.mbr1_ok },
-            { label: 'MBR 2',         ok: p.validation.mbr2_ok },
-            { label: 'EmcIpl A',      ok: p.validation.emc_ipl_a_ok },
-            { label: 'EmcIpl B',      ok: p.validation.emc_ipl_b_ok },
-            { label: 'USB PDC A',     ok: p.validation.usb_pdc_a_ok },
-            { label: 'USB PDC B',     ok: p.validation.usb_pdc_b_ok },
-            { label: 'Größe (2 MB)',  ok: p.validation.size_ok },
-          ] as item (item.label)}
-            <div class="flex items-center gap-1">
-              <span class="{item.ok ? 'text-green-400' : 'text-red-400'}">{item.ok ? '✓' : '✗'}</span>
-              <span class="text-gray-300">{item.label}</span>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <!-- NVS info -->
-      {#if p.nvs}
-        <div>
-          <p class="text-gray-400 font-semibold mb-1">Konsoleninfo:</p>
-          <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
-            <dt class="text-gray-500">Serial:</dt>
-            <dd class="text-gray-200 font-mono">{p.nvs.serial || '—'}</dd>
-            <dt class="text-gray-500">MAC:</dt>
-            <dd class="text-gray-200 font-mono">{p.nvs.mac_address}</dd>
-            <dt class="text-gray-500">SKU:</dt>
-            <dd class="text-gray-200">{p.nvs.sku || '—'}</dd>
-            <dt class="text-gray-500">Board ID:</dt>
-            <dd class="text-gray-200 font-mono">{p.nvs.board_id || '—'}</dd>
-            <dt class="text-gray-500">Firmware:</dt>
-            <dd class="text-gray-200 font-mono">{p.nvs.fw_version}</dd>
-          </dl>
-        </div>
-      {/if}
-
-      <!-- File info -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-500 shrink-0">Datei:</span>
-        <span class="text-gray-300 font-mono truncate flex-1">{p.path}</span>
-        <span class="text-gray-500 shrink-0">{(p.size_bytes / 1024 / 1024).toFixed(2)} MB</span>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="flex items-center gap-2 pt-1">
-        <button
-          onclick={confirmWrite}
-          class="px-3 py-1.5 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white font-medium"
+    <!-- Warning banner (only when validation fails) -->
+    {#if !validationOk}
+      <div class="flex items-center gap-2 rounded bg-yellow-900 border border-yellow-700 px-3 py-2">
+        <span class="text-yellow-400 font-semibold"
+          >⚠ Validierungsfehler erkannt — Fortfahren auf eigene Gefahr</span
         >
-          Jetzt schreiben
-        </button>
-        <button
-          onclick={cancelWrite}
-          class="px-3 py-1.5 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
-        >
-          Abbrechen
-        </button>
+      </div>
+    {/if}
+
+    <!-- Validation checklist -->
+    <div>
+      <p class="text-gray-400 font-semibold mb-1">Validierung:</p>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 font-mono">
+        {#each [{ label: 'NOR Header', ok: p.validation.header_ok }, { label: 'MBR 1', ok: p.validation.mbr1_ok }, { label: 'MBR 2', ok: p.validation.mbr2_ok }, { label: 'EmcIpl A', ok: p.validation.emc_ipl_a_ok }, { label: 'EmcIpl B', ok: p.validation.emc_ipl_b_ok }, { label: 'USB PDC A', ok: p.validation.usb_pdc_a_ok }, { label: 'USB PDC B', ok: p.validation.usb_pdc_b_ok }, { label: 'Größe (2 MB)', ok: p.validation.size_ok }] as item (item.label)}
+          <div class="flex items-center gap-1">
+            <span class={item.ok ? 'text-green-400' : 'text-red-400'}>{item.ok ? '✓' : '✗'}</span>
+            <span class="text-gray-300">{item.label}</span>
+          </div>
+        {/each}
       </div>
     </div>
-  {/if}
+
+    <!-- NVS info -->
+    {#if p.nvs}
+      <div>
+        <p class="text-gray-400 font-semibold mb-1">Konsoleninfo:</p>
+        <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
+          <dt class="text-gray-500">Serial:</dt>
+          <dd class="text-gray-200 font-mono">{p.nvs.serial || '—'}</dd>
+          <dt class="text-gray-500">MAC:</dt>
+          <dd class="text-gray-200 font-mono">{p.nvs.mac_address}</dd>
+          <dt class="text-gray-500">SKU:</dt>
+          <dd class="text-gray-200">{p.nvs.sku || '—'}</dd>
+          <dt class="text-gray-500">Board ID:</dt>
+          <dd class="text-gray-200 font-mono">{p.nvs.board_id || '—'}</dd>
+          <dt class="text-gray-500">Firmware:</dt>
+          <dd class="text-gray-200 font-mono">{p.nvs.fw_version}</dd>
+        </dl>
+      </div>
+    {/if}
+
+    <!-- File info -->
+    <div class="flex items-center gap-2">
+      <span class="text-gray-500 shrink-0">Datei:</span>
+      <span class="text-gray-300 font-mono truncate flex-1">{p.path}</span>
+      <span class="text-gray-500 shrink-0">{(p.size_bytes / 1024 / 1024).toFixed(2)} MB</span>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex items-center gap-2 pt-1">
+      <button
+        onclick={confirmWrite}
+        class="px-3 py-1.5 text-sm rounded bg-orange-700 hover:bg-orange-600 text-white font-medium"
+      >
+        Jetzt schreiben
+      </button>
+      <button
+        onclick={cancelWrite}
+        class="px-3 py-1.5 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200"
+      >
+        Abbrechen
+      </button>
+    </div>
+  </div>
+{/if}
 ```
 
 - [ ] **Step 7: Run type check**

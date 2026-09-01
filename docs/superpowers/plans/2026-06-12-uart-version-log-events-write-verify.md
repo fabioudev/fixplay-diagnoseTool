@@ -12,13 +12,13 @@
 
 ## File Map
 
-| File | Change |
-|------|--------|
-| `src/lib/api/types.ts` | Add `kind?: 'status'` to `UartLogEntry` |
-| `src/lib/stores/uart.test.ts` | Add test for `kind: 'status'` entry |
-| `src/lib/components/UartPanel.svelte` | Version button + status log entries in `uart://status` listener + template |
-| `src-tauri/src/commands/flash.rs` | `flash_write` gets `verify: bool`, read-back logic + Rust test |
-| `src/lib/api/tauri.ts` | `flashWrite` signature: add `verify: boolean` |
+| File                                   | Change                                                                             |
+| -------------------------------------- | ---------------------------------------------------------------------------------- |
+| `src/lib/api/types.ts`                 | Add `kind?: 'status'` to `UartLogEntry`                                            |
+| `src/lib/stores/uart.test.ts`          | Add test for `kind: 'status'` entry                                                |
+| `src/lib/components/UartPanel.svelte`  | Version button + status log entries in `uart://status` listener + template         |
+| `src-tauri/src/commands/flash.rs`      | `flash_write` gets `verify: bool`, read-back logic + Rust test                     |
+| `src/lib/api/tauri.ts`                 | `flashWrite` signature: add `verify: boolean`                                      |
 | `src/lib/components/FlashPanel.svelte` | `let writeVerify = $state(true)`, checkbox in write dialog, pass to `confirmWrite` |
 
 ---
@@ -26,6 +26,7 @@
 ## Task 1: UartLogEntry `kind` field
 
 **Files:**
+
 - Modify: `src/lib/api/types.ts`
 - Modify: `src/lib/stores/uart.test.ts`
 
@@ -36,18 +37,28 @@ In `src/lib/stores/uart.test.ts`, add this test inside the `describe('uart store
 ```ts
 it('UartLogEntry accepts kind status', () => {
   const entry: UartLogEntry = {
-    id:           0,
+    id: 0,
     timestamp_ms: Date.now(),
-    raw:          '[Verbunden — /dev/ttyUSB0]',
-    kind:         'status',
+    raw: '[Verbunden — /dev/ttyUSB0]',
+    kind: 'status',
   };
   expect(entry.kind).toBe('status');
 });
 ```
 
 Also add the import for `UartLogEntry` to the import line at the top (it's already imported — check the existing import):
+
 ```ts
-import { uartLog, uartConnected, uartPorts, autoPollEnabled, nextLogId, dbCodeCount, dbLoading, uartReconnecting } from './uart';
+import {
+  uartLog,
+  uartConnected,
+  uartPorts,
+  autoPollEnabled,
+  nextLogId,
+  dbCodeCount,
+  dbLoading,
+  uartReconnecting,
+} from './uart';
 import type { UartLogEntry } from '$lib/api/types';
 ```
 
@@ -65,11 +76,11 @@ In `src/lib/api/types.ts`, find `UartLogEntry` (line 42) and add the optional fi
 
 ```ts
 export interface UartLogEntry {
-  id:           number;
+  id: number;
   timestamp_ms: number;
-  raw:          string;
-  parsed?:      UartEntryEvent;
-  kind?:        'status';
+  raw: string;
+  parsed?: UartEntryEvent;
+  kind?: 'status';
 }
 ```
 
@@ -93,6 +104,7 @@ git commit -m "feat(types): add optional kind status field to UartLogEntry"
 ## Task 2: UartPanel — Version button + status log entries
 
 **Files:**
+
 - Modify: `src/lib/components/UartPanel.svelte`
 
 No unit tests are possible for Svelte component interactions with Tauri. Verification is by TypeScript compile check (`npm run test`) and visual inspection.
@@ -231,6 +243,7 @@ git commit -m "feat(uart): add Version button and connect/disconnect log entries
 ## Task 3: Backend flash_write verify parameter
 
 **Files:**
+
 - Modify: `src-tauri/src/commands/flash.rs`
 
 - [ ] **Step 1: Write the failing Rust test**
@@ -356,6 +369,7 @@ git commit -m "feat(tauri): add optional verify read-back to flash_write command
 ## Task 4: Frontend flash write verify checkbox
 
 **Files:**
+
 - Modify: `src/lib/api/tauri.ts`
 - Modify: `src/lib/components/FlashPanel.svelte`
 
@@ -391,7 +405,7 @@ In `src/lib/components/FlashPanel.svelte`, find the existing local state declara
 
 ```ts
 let programmers = $state<string[]>([]);
-let phaseLabel  = $state('');
+let phaseLabel = $state('');
 ```
 
 Add below them:
@@ -428,11 +442,7 @@ Replace with:
 <!-- Verify option + action buttons -->
 <div class="flex flex-col gap-2 pt-1">
   <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-    <input
-      type="checkbox"
-      bind:checked={writeVerify}
-      class="accent-blue-500"
-    />
+    <input type="checkbox" bind:checked={writeVerify} class="accent-blue-500" />
     Nach dem Schreiben verifizieren
   </label>
   <div class="flex items-center gap-2">

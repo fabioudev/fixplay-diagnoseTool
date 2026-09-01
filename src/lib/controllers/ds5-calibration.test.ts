@@ -16,11 +16,17 @@ function makeCalibDevice(opts: { receive?: (id: number) => Promise<DataView> } =
   return {
     opened: true,
     collections: [
-      { featureReports: Array.from({ length: 256 }, (_, i) => ({ reportId: i, items: [{ reportCount: 64 }] })) },
+      {
+        featureReports: Array.from({ length: 256 }, (_, i) => ({
+          reportId: i,
+          items: [{ reportCount: 64 }],
+        })),
+      },
     ],
     oninputreport: null,
     async sendFeatureReport(reportId: number, data: BufferSource) {
-      const u8 = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data as Uint8Array);
+      const u8 =
+        data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data as Uint8Array);
       sent.push({ reportId, data: u8 });
     },
     receiveFeatureReport:
@@ -71,7 +77,11 @@ describe('DS5Controller NVS lock/unlock', () => {
   });
 
   it('nvsLock returns ok:false (not a throw) when the HID read fails', async () => {
-    const dev = makeCalibDevice({ receive: async () => { throw new Error('hid'); } });
+    const dev = makeCalibDevice({
+      receive: async () => {
+        throw new Error('hid');
+      },
+    });
     const ctrl = new DS5Controller(dev);
     const res = await ctrl.nvsLock();
     expect(res.ok).toBe(false);
@@ -89,7 +99,11 @@ describe('DS5Controller NVS lock/unlock', () => {
   it('nvsUnlock throws "NVS Unlock failed" after the retry delay when the HID read fails', async () => {
     vi.useFakeTimers();
     try {
-      const dev = makeCalibDevice({ receive: async () => { throw new Error('hid'); } });
+      const dev = makeCalibDevice({
+        receive: async () => {
+          throw new Error('hid');
+        },
+      });
       const ctrl = new DS5Controller(dev);
       const p = ctrl.nvsUnlock();
       // Pre-attach a handler so the rejection is never "unhandled" while the
@@ -230,7 +244,11 @@ describe('DS5Controller queryNvStatus decode table', () => {
   });
 
   it('HID read error → status "error" (code 2)', async () => {
-    const dev = makeCalibDevice({ receive: async () => { throw new Error('hid'); } });
+    const dev = makeCalibDevice({
+      receive: async () => {
+        throw new Error('hid');
+      },
+    });
     const ctrl = new DS5Controller(dev);
     const nv = await ctrl.queryNvStatus();
     expect(nv.status).toBe('error');

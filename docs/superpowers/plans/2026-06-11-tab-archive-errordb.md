@@ -12,27 +12,28 @@
 
 ## File Map
 
-| Action | Path |
-|--------|------|
-| Rewrite | `src/routes/+page.svelte` |
+| Action  | Path                                                              |
+| ------- | ----------------------------------------------------------------- |
+| Rewrite | `src/routes/+page.svelte`                                         |
 | Modify  | `src/routes/+page.svelte` (again in Task 3 to add ArchiveSection) |
-| Modify  | `src-tauri/src/commands/flash.rs` |
-| Modify  | `src-tauri/src/lib.rs` |
-| Modify  | `src/lib/api/types.ts` |
-| Modify  | `src/lib/stores/flash.ts` |
-| Modify  | `src/lib/api/tauri.ts` |
-| Create  | `src/lib/components/ArchiveSection.svelte` |
-| Modify  | `src/lib/components/FlashPanel.svelte` |
-| Modify  | `crates/fixplay-uart/src/error_db.rs` |
-| Modify  | `src-tauri/src/commands/uart.rs` |
-| Modify  | `src/lib/stores/uart.ts` |
-| Modify  | `src/lib/components/UartPanel.svelte` |
+| Modify  | `src-tauri/src/commands/flash.rs`                                 |
+| Modify  | `src-tauri/src/lib.rs`                                            |
+| Modify  | `src/lib/api/types.ts`                                            |
+| Modify  | `src/lib/stores/flash.ts`                                         |
+| Modify  | `src/lib/api/tauri.ts`                                            |
+| Create  | `src/lib/components/ArchiveSection.svelte`                        |
+| Modify  | `src/lib/components/FlashPanel.svelte`                            |
+| Modify  | `crates/fixplay-uart/src/error_db.rs`                             |
+| Modify  | `src-tauri/src/commands/uart.rs`                                  |
+| Modify  | `src/lib/stores/uart.ts`                                          |
+| Modify  | `src/lib/components/UartPanel.svelte`                             |
 
 ---
 
 ## Task 1: Tab system
 
 **Files:**
+
 - Rewrite: `src/routes/+page.svelte`
 
 - [ ] **Step 1: Rewrite `src/routes/+page.svelte`**
@@ -48,7 +49,7 @@ Replace the entire file:
 
   const tabs = [
     { id: 'flash' as const, label: 'NOR Flash' },
-    { id: 'uart'  as const, label: 'UART' },
+    { id: 'uart' as const, label: 'UART' },
   ];
 </script>
 
@@ -61,11 +62,9 @@ Replace the entire file:
     {#each tabs as tab}
       <button
         onclick={() => (activeTab = tab.id)}
-        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {
-          activeTab === tab.id
-            ? 'border-b-2 border-blue-500 text-white bg-gray-950'
-            : 'text-gray-400 hover:text-gray-200'
-        }"
+        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {activeTab === tab.id
+          ? 'border-b-2 border-blue-500 text-white bg-gray-950'
+          : 'text-gray-400 hover:text-gray-200'}"
       >
         {tab.label}
       </button>
@@ -78,7 +77,7 @@ Replace the entire file:
         <FlashPanel />
       </div>
     {/if}
-    <div class="{activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}">
+    <div class={activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}>
       <UartPanel />
     </div>
   </div>
@@ -113,6 +112,7 @@ git commit -m "feat(ui): replace side-by-side layout with NOR Flash / UART tab s
 ## Task 2: Archive Rust backend
 
 **Files:**
+
 - Modify: `src-tauri/src/commands/flash.rs`
 - Modify: `src-tauri/src/lib.rs`
 
@@ -340,6 +340,7 @@ git commit -m "feat(tauri): add archive_list_dumps and archive_delete_dump comma
 ## Task 3: Archive frontend
 
 **Files:**
+
 - Modify: `src/lib/api/types.ts`
 - Modify: `src/lib/stores/flash.ts`
 - Modify: `src/lib/api/tauri.ts`
@@ -353,17 +354,17 @@ Read the current file. Append after the last line:
 
 ```ts
 export interface DumpEntry {
-  bin_path:      string;
-  timestamp:     number;
-  size_bytes:    number;
+  bin_path: string;
+  timestamp: number;
+  size_bytes: number;
   validation_ok: boolean;
-  fw_version:    string | null;
-  serial:        string;
+  fw_version: string | null;
+  serial: string;
 }
 
 export interface SerialArchive {
   serial: string;
-  dumps:  DumpEntry[];
+  dumps: DumpEntry[];
 }
 ```
 
@@ -380,13 +381,13 @@ export const flashWritePath = writable<string | null>(null);
 Read the current file. Add `SerialArchive` to the existing import type line (it currently imports `DeviceInfo` and `FlashReadResult`). Then append at the bottom:
 
 ```ts
-export const archiveListDumps  = () =>
-  invoke<SerialArchive[]>('archive_list_dumps');
+export const archiveListDumps = () => invoke<SerialArchive[]>('archive_list_dumps');
 export const archiveDeleteDump = (binPath: string) =>
   invoke<void>('archive_delete_dump', { binPath });
 ```
 
 The import type line should become:
+
 ```ts
 import type { DeviceInfo, FlashReadResult, SerialArchive } from './types';
 ```
@@ -400,11 +401,11 @@ import type { DeviceInfo, FlashReadResult, SerialArchive } from './types';
   import { archiveListDumps, archiveDeleteDump, openPath } from '$lib/api/tauri';
   import type { SerialArchive, DumpEntry } from '$lib/api/types';
 
-  let open          = $state(false);
-  let archives      = $state<SerialArchive[]>([]);
-  let loading       = $state(false);
+  let open = $state(false);
+  let archives = $state<SerialArchive[]>([]);
+  let loading = $state(false);
   let confirmDelete = $state<string | null>(null);
-  let loadedPath    = $state<string | null>(null);
+  let loadedPath = $state<string | null>(null);
 
   const totalDumps = $derived(archives.reduce((n, a) => n + a.dumps.length, 0));
 
@@ -432,7 +433,9 @@ import type { DeviceInfo, FlashReadResult, SerialArchive } from './types';
   function handleLoad(entry: DumpEntry) {
     flashWritePath.set(entry.bin_path);
     loadedPath = entry.bin_path;
-    setTimeout(() => { if (loadedPath === entry.bin_path) loadedPath = null; }, 2000);
+    setTimeout(() => {
+      if (loadedPath === entry.bin_path) loadedPath = null;
+    }, 2000);
   }
 
   function folderPath(binPath: string): string {
@@ -463,7 +466,9 @@ import type { DeviceInfo, FlashReadResult, SerialArchive } from './types';
           <p class="text-xs font-semibold text-gray-400 mb-2 font-mono">{archive.serial}</p>
           <div class="flex flex-col gap-1.5">
             {#each archive.dumps as dump (dump.bin_path)}
-              <div class="flex items-center gap-2 text-xs bg-gray-800 rounded px-2 py-1.5 flex-wrap">
+              <div
+                class="flex items-center gap-2 text-xs bg-gray-800 rounded px-2 py-1.5 flex-wrap"
+              >
                 <span class="font-mono text-gray-500 shrink-0">
                   {new Date(dump.timestamp * 1000).toLocaleString()}
                 </span>
@@ -474,11 +479,9 @@ import type { DeviceInfo, FlashReadResult, SerialArchive } from './types';
                 <div class="flex items-center gap-1 ml-auto shrink-0">
                   <button
                     onclick={() => handleLoad(dump)}
-                    class="px-2 py-0.5 rounded text-blue-100 {
-                      loadedPath === dump.bin_path
-                        ? 'bg-green-700'
-                        : 'bg-blue-800 hover:bg-blue-700'
-                    }"
+                    class="px-2 py-0.5 rounded text-blue-100 {loadedPath === dump.bin_path
+                      ? 'bg-green-700'
+                      : 'bg-blue-800 hover:bg-blue-700'}"
                   >
                     {loadedPath === dump.bin_path ? 'Geladen ✓' : 'Laden'}
                   </button>
@@ -536,7 +539,7 @@ async function handleWrite() {
     flashWritePath.set(null);
   } else {
     const result = await openDialog({
-      title:   'NOR-Datei wählen',
+      title: 'NOR-Datei wählen',
       filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
     });
     if (!result || typeof result !== 'string') return;
@@ -561,12 +564,30 @@ async function handleWrite() {
 ```
 
 Also update the imports line in the `<script>` tag. Change:
+
 ```ts
-import { flashBusy, flashProgress, flashResult, flashLog, flashProgrammer, nextFlashLogId } from '$lib/stores/flash';
+import {
+  flashBusy,
+  flashProgress,
+  flashResult,
+  flashLog,
+  flashProgrammer,
+  nextFlashLogId,
+} from '$lib/stores/flash';
 ```
+
 to:
+
 ```ts
-import { flashBusy, flashProgress, flashResult, flashLog, flashProgrammer, flashWritePath, nextFlashLogId } from '$lib/stores/flash';
+import {
+  flashBusy,
+  flashProgress,
+  flashResult,
+  flashLog,
+  flashProgrammer,
+  flashWritePath,
+  nextFlashLogId,
+} from '$lib/stores/flash';
 ```
 
 - [ ] **Step 6: Update `src/routes/+page.svelte` to add ArchiveSection**
@@ -583,7 +604,7 @@ Read the current file. Replace the entire file:
 
   const tabs = [
     { id: 'flash' as const, label: 'NOR Flash' },
-    { id: 'uart'  as const, label: 'UART' },
+    { id: 'uart' as const, label: 'UART' },
   ];
 </script>
 
@@ -596,11 +617,9 @@ Read the current file. Replace the entire file:
     {#each tabs as tab}
       <button
         onclick={() => (activeTab = tab.id)}
-        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {
-          activeTab === tab.id
-            ? 'border-b-2 border-blue-500 text-white bg-gray-950'
-            : 'text-gray-400 hover:text-gray-200'
-        }"
+        class="px-4 py-2 text-sm font-medium rounded-t transition-colors {activeTab === tab.id
+          ? 'border-b-2 border-blue-500 text-white bg-gray-950'
+          : 'text-gray-400 hover:text-gray-200'}"
       >
         {tab.label}
       </button>
@@ -614,7 +633,7 @@ Read the current file. Replace the entire file:
         <ArchiveSection />
       </div>
     {/if}
-    <div class="{activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}">
+    <div class={activeTab === 'uart' ? 'flex h-full p-4' : 'hidden'}>
       <UartPanel />
     </div>
   </div>
@@ -651,6 +670,7 @@ git commit -m "feat(frontend): add ArchiveSection with load/open/delete, flashWr
 ## Task 4: Error DB Rust
 
 **Files:**
+
 - Modify: `crates/fixplay-uart/src/error_db.rs`
 - Modify: `src-tauri/src/commands/uart.rs`
 - Modify: `src-tauri/src/lib.rs`
@@ -872,6 +892,7 @@ git commit -m "feat(uart): add ErrorDb::len/search, uart_get_db_info, uart_searc
 ## Task 5: Error DB frontend
 
 **Files:**
+
 - Modify: `src/lib/api/types.ts`
 - Modify: `src/lib/stores/uart.ts`
 - Modify: `src/lib/api/tauri.ts`
@@ -919,9 +940,9 @@ Append after the last line:
 
 ```ts
 export interface ErrorSearchResult {
-  code:        number;
+  code: number;
   description: string;
-  category:    string;
+  category: string;
 }
 ```
 
@@ -950,7 +971,7 @@ export const uartUpdateDb = (): Promise<number> => invoke<number>('uart_update_e
 Append at the bottom:
 
 ```ts
-export const uartGetDbInfo     = () => invoke<number | null>('uart_get_db_info');
+export const uartGetDbInfo = () => invoke<number | null>('uart_get_db_info');
 export const uartSearchErrorDb = (query: string) =>
   invoke<ErrorSearchResult[]>('uart_search_error_db', { query });
 ```
@@ -971,7 +992,14 @@ Replace the entire file:
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
-  import { uartConnected, uartPorts, uartLog, autoPollEnabled, nextLogId, dbCodeCount } from '$lib/stores/uart';
+  import {
+    uartConnected,
+    uartPorts,
+    uartLog,
+    autoPollEnabled,
+    nextLogId,
+    dbCodeCount,
+  } from '$lib/stores/uart';
   import {
     uartListPorts,
     uartConnect,
@@ -984,10 +1012,10 @@ Replace the entire file:
   } from '$lib/api/tauri';
   import type { UartEntryEvent, UartStatusEvent, ErrorSearchResult } from '$lib/api/types';
 
-  let selectedPort  = $state('');
-  let loading       = $state(false);
-  let dbUpdating    = $state(false);
-  let dbQuery       = $state('');
+  let selectedPort = $state('');
+  let loading = $state(false);
+  let dbUpdating = $state(false);
+  let dbQuery = $state('');
   let searchResults = $state<ErrorSearchResult[]>([]);
 
   const filteredLog = $derived(
@@ -1136,8 +1164,8 @@ Replace the entire file:
       disabled={loading || (!$uartConnected && !selectedPort)}
       class="px-3 py-1 text-sm rounded font-medium
              {$uartConnected
-               ? 'bg-red-700 hover:bg-red-600 text-white'
-               : 'bg-green-700 hover:bg-green-600 text-white'}
+        ? 'bg-red-700 hover:bg-red-600 text-white'
+        : 'bg-green-700 hover:bg-green-600 text-white'}
              disabled:opacity-40"
     >
       {$uartConnected ? 'Trennen' : 'Verbinden'}
@@ -1199,7 +1227,10 @@ Replace the entire file:
       />
       {#if dbQuery}
         <button
-          onclick={() => { dbQuery = ''; searchResults = []; }}
+          onclick={() => {
+            dbQuery = '';
+            searchResults = [];
+          }}
           class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs"
         >
           ✕
@@ -1211,7 +1242,10 @@ Replace the entire file:
       <div class="bg-gray-800 rounded border border-gray-700 text-xs max-h-40 overflow-y-auto">
         {#each searchResults as r (r.code)}
           <button
-            onclick={() => { dbQuery = r.code.toString(); searchResults = []; }}
+            onclick={() => {
+              dbQuery = r.code.toString();
+              searchResults = [];
+            }}
             class="w-full text-left px-2 py-1.5 hover:bg-gray-700 flex items-center gap-2 border-b
                    border-gray-700 last:border-0"
           >
@@ -1243,9 +1277,22 @@ Replace the entire file:
             <p class="text-gray-200 mt-1">{entry.parsed.description}</p>
           {/if}
           <div class="mt-1 flex flex-wrap gap-3 text-gray-400 font-mono">
-            <span>Temp: <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span></span>
-            <span>PowerStates: {entry.parsed.entry.power_states.toString(16).toUpperCase().padStart(8, '0')}</span>
-            <span>UpCause: {entry.parsed.entry.up_cause.toString(16).toUpperCase().padStart(8, '0')}</span>
+            <span
+              >Temp: <span class="text-cyan-400">{entry.parsed.entry.temp_soc.toFixed(1)} °C</span
+              ></span
+            >
+            <span
+              >PowerStates: {entry.parsed.entry.power_states
+                .toString(16)
+                .toUpperCase()
+                .padStart(8, '0')}</span
+            >
+            <span
+              >UpCause: {entry.parsed.entry.up_cause
+                .toString(16)
+                .toUpperCase()
+                .padStart(8, '0')}</span
+            >
           </div>
         </div>
       {:else}

@@ -54,7 +54,10 @@
     const _d = deadzone;
     const _c = circularityData;
     const _z = size;
-    void _s; void _d; void _c; void _z;
+    void _s;
+    void _d;
+    void _c;
+    void _z;
     render();
   });
 
@@ -63,4 +66,5 @@
   });
 </script>
 
-<canvas bind:this={canvas} style="width:{size}px; height:{size}px;" class="rounded-lg bg-white"></canvas>
+<canvas bind:this={canvas} style="width:{size}px; height:{size}px;" class="rounded-lg bg-white"
+></canvas>

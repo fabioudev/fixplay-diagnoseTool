@@ -14,31 +14,54 @@
 
   const STORAGE_KEY = 'fixplay-onboarding-done';
 
-  const tools: { icon: typeof Cpu; title: string; desc: (ll: TranslationFunctions) => LocalizedString }[] = [
-    { icon: Cpu,          title: 'NOR Flash',  desc: (ll) => ll.onboarding.toolFlashDesc() },
-    { icon: Usb,          title: 'UART',       desc: (ll) => ll.onboarding.toolUartDesc() },
+  const tools: {
+    icon: typeof Cpu;
+    title: string;
+    desc: (ll: TranslationFunctions) => LocalizedString;
+  }[] = [
+    { icon: Cpu, title: 'NOR Flash', desc: (ll) => ll.onboarding.toolFlashDesc() },
+    { icon: Usb, title: 'UART', desc: (ll) => ll.onboarding.toolUartDesc() },
     { icon: CircuitBoard, title: 'I2C / Pico', desc: (ll) => ll.onboarding.toolI2cDesc() },
-    { icon: Gamepad2,     title: 'Controller', desc: (ll) => ll.onboarding.toolControllerDesc() },
+    { icon: Gamepad2, title: 'Controller', desc: (ll) => ll.onboarding.toolControllerDesc() },
   ];
 
   function dismiss() {
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch { /* ignored */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, '1');
+    } catch {
+      /* ignored */
+    }
     completeOnboarding();
     open = false;
   }
 
   function skip() {
-    try { localStorage.setItem(STORAGE_KEY, '1'); } catch { /* ignored */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, '1');
+    } catch {
+      /* ignored */
+    }
     completeOnboarding();
     open = false;
   }
 </script>
 
-<svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') dismiss(); }} />
+<svelte:window
+  onkeydown={(e) => {
+    if (open && e.key === 'Escape') dismiss();
+  }}
+/>
 
 {#if open}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" transition:fade={{ duration: 150 }}>
-    <div class="w-full max-w-md rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700" use:trapFocus transition:scale={{ duration: 150, start: 0.96 }}>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    transition:fade={{ duration: 150 }}
+  >
+    <div
+      class="w-full max-w-md rounded-2xl bg-gray-800 p-6 shadow-2xl border border-gray-700"
+      use:trapFocus
+      transition:scale={{ duration: 150, start: 0.96 }}
+    >
       <h2 class="text-lg font-semibold text-gray-100">{$LL.onboarding.title()}</h2>
       <p class="mt-1 text-sm text-gray-400">
         {$LL.onboarding.intro()}
@@ -59,16 +82,21 @@
       </div>
 
       <p class="mt-4 text-xs text-gray-600">
-        {$LL.onboarding.shortcutPrefix()} <kbd class="px-1 rounded bg-gray-700">Ctrl</kbd>+<kbd class="px-1 rounded bg-gray-700">1</kbd>–<kbd class="px-1 rounded bg-gray-700">6</kbd>. {$LL.onboarding.shortcutSuffix()}
+        {$LL.onboarding.shortcutPrefix()} <kbd class="px-1 rounded bg-gray-700">Ctrl</kbd>+<kbd
+          class="px-1 rounded bg-gray-700">1</kbd
+        >–<kbd class="px-1 rounded bg-gray-700">6</kbd>. {$LL.onboarding.shortcutSuffix()}
       </p>
 
       <div class="mt-5 flex justify-between items-center gap-2">
-        <button class="text-xs text-gray-500 hover:text-gray-300" onclick={skip}>{$LL.onboarding.skip()}</button>
+        <button class="text-xs text-gray-500 hover:text-gray-300" onclick={skip}
+          >{$LL.onboarding.skip()}</button
+        >
         <button
           class="flex items-center gap-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 px-4 py-2 text-sm text-white"
           onclick={dismiss}
         >
-          {$LL.onboarding.start()} <ArrowRight class="w-4 h-4" />
+          {$LL.onboarding.start()}
+          <ArrowRight class="w-4 h-4" />
         </button>
       </div>
     </div>

@@ -1,5 +1,3 @@
-
-
 // Svelte stores for controller state (connection, sticks, buttons, battery).
 import { writable } from 'svelte/store';
 import type { SticksState, TouchPoint, ProcessedInput } from '$lib/controllers/controller-manager';
@@ -44,7 +42,10 @@ export const headphoneConnected = writable<boolean>(false);
  * Latest IMU sample (#56): gyro (°/s) + accel (g) from the DualSense input
  * report. Updated on every processed input; consumed by the IMU visualizer.
  */
-export const imuState = writable<{ gyro: { x: number; y: number; z: number }; accel: { x: number; y: number; z: number } }>({
+export const imuState = writable<{
+  gyro: { x: number; y: number; z: number };
+  accel: { x: number; y: number; z: number };
+}>({
   gyro: { x: 0, y: 0, z: 0 },
   accel: { x: 0, y: 0, z: 0 },
 });
@@ -82,7 +83,10 @@ const _controllerLog = createLogStore<TextLogEntry>();
 export const controllerLog = _controllerLog.entries;
 export const nextControllerLogId = _controllerLog.nextId;
 
-export function pushControllerLog(message: string, level: 'info' | 'warn' | 'error' = 'info'): void {
+export function pushControllerLog(
+  message: string,
+  level: 'info' | 'warn' | 'error' = 'info'
+): void {
   _controllerLog.push({ id: nextControllerLogId(), timestamp_ms: Date.now(), message, level });
 }
 
@@ -110,4 +114,3 @@ export function applyProcessedInput(input: ProcessedInput): void {
   headphoneConnected.set(input.headphoneConnected);
   imuState.set(input.imu);
 }
-

@@ -18,12 +18,14 @@ const FULL: AppSettings = {
 };
 
 describe('appSettings partial-update contract', () => {
-  beforeEach(() => { appSettings.set({ ...FULL }); });
+  beforeEach(() => {
+    appSettings.set({ ...FULL });
+  });
 
   it('updating one field preserves all the others', () => {
     appSettings.update((s) => ({ ...s, baud_rate: 115200 }));
     const s = get(appSettings);
-    expect(s.baud_rate).toBe(115200);          // changed
+    expect(s.baud_rate).toBe(115200); // changed
     expect(s.flashrom_path).toBe(FULL.flashrom_path);
     expect(s.archive_dir).toBe(FULL.archive_dir);
     expect(s.i2c_baud_rate).toBe(FULL.i2c_baud_rate);
@@ -51,7 +53,14 @@ describe('appSettings partial-update contract', () => {
   it('always exposes the full AppSettings shape after any edit', () => {
     appSettings.update((s) => ({ ...s, auto_reconnect: false }));
     const s = get(appSettings);
-    const keys: (keyof AppSettings)[] = ['flashrom_path', 'archive_dir', 'baud_rate', 'i2c_baud_rate', 'auto_reconnect', 'tablet_mode'];
+    const keys: (keyof AppSettings)[] = [
+      'flashrom_path',
+      'archive_dir',
+      'baud_rate',
+      'i2c_baud_rate',
+      'auto_reconnect',
+      'tablet_mode',
+    ];
     for (const k of keys) expect(s).toHaveProperty(k);
   });
 });

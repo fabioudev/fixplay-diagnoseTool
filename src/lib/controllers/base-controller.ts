@@ -1,4 +1,3 @@
-
 // Base controller class providing common functionality for all controller types.
 // Ported from dualshock-tools/js/controllers/base-controller.js
 
@@ -118,7 +117,8 @@ export abstract class BaseController {
   abstract getInputConfig(): InputConfig;
 
   getFinetuneMaxValue(): number {
-    if (!this.finetuneMaxValue) throw new Error('getFinetuneMaxValue() must be implemented by subclass');
+    if (!this.finetuneMaxValue)
+      throw new Error('getFinetuneMaxValue() must be implemented by subclass');
     return this.finetuneMaxValue;
   }
 
@@ -140,7 +140,10 @@ export abstract class BaseController {
     return out;
   }
 
-  async sendFeatureReport(reportId: number, data: ArrayBuffer | number[] | Uint8Array): Promise<void> {
+  async sendFeatureReport(
+    reportId: number,
+    data: ArrayBuffer | number[] | Uint8Array
+  ): Promise<void> {
     let buf: Uint8Array;
     if (Array.isArray(data)) {
       buf = this.allocReq(reportId, data);
@@ -160,7 +163,9 @@ export abstract class BaseController {
     try {
       await this.device.sendFeatureReport(reportId, buf as BufferSource);
     } catch (error) {
-      throw new Error(error instanceof Error ? error.stack ?? error.message : String(error), { cause: error });
+      throw new Error(error instanceof Error ? (error.stack ?? error.message) : String(error), {
+        cause: error,
+      });
     }
   }
 
@@ -176,7 +181,9 @@ export abstract class BaseController {
 
   abstract getSerialNumber(): Promise<string>;
   abstract getInfo(): Promise<ControllerInfo>;
-  abstract flash(progressCallback?: ((p: number) => void) | null): Promise<{ success: boolean; message: string }>;
+  abstract flash(
+    progressCallback?: ((p: number) => void) | null
+  ): Promise<{ success: boolean; message: string }>;
   abstract reset(): Promise<void>;
   abstract nvsLock(): Promise<CalibResult>;
   abstract nvsUnlock(): Promise<void>;
@@ -190,11 +197,17 @@ export abstract class BaseController {
   abstract getInMemoryModuleData(): Promise<number[] | null>;
   abstract writeFinetuneData(data: number[]): Promise<void>;
 
-  async setAdaptiveTrigger(_left: AdaptiveTriggerConfig, _right: AdaptiveTriggerConfig): Promise<{ success: boolean; message: string }> {
+  async setAdaptiveTrigger(
+    _left: AdaptiveTriggerConfig,
+    _right: AdaptiveTriggerConfig
+  ): Promise<{ success: boolean; message: string }> {
     return { success: true, message: 'This controller does not support adaptive triggers' };
   }
 
-  async setVibration(_heavyLeft = 0, _lightRight = 0): Promise<{ success: boolean; message: string }> {
+  async setVibration(
+    _heavyLeft = 0,
+    _lightRight = 0
+  ): Promise<{ success: boolean; message: string }> {
     return { success: true, message: 'This controller does not support vibration' };
   }
 
@@ -212,7 +225,11 @@ export abstract class BaseController {
     return { success: true, message: 'This controller does not support mute LED' };
   }
 
-  async setLightbarColor(_r: number, _g: number, _b: number): Promise<{ success: boolean; message: string }> {
+  async setLightbarColor(
+    _r: number,
+    _g: number,
+    _b: number
+  ): Promise<{ success: boolean; message: string }> {
     return { success: true, message: 'This controller does not support lightbar colors' };
   }
 

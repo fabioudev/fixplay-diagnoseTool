@@ -33,7 +33,9 @@ const mockDefine = { __MOCK_MODE__: JSON.stringify(useMock) };
 // server build for SSG prerender) is unaffected. Use an exact-match regex so
 // subpath imports like `svelte/transition` and `svelte/internal/client` keep
 // resolving normally.
-const svelteClientEntry = fileURLToPath(new URL('./node_modules/svelte/src/index-client.js', import.meta.url));
+const svelteClientEntry = fileURLToPath(
+  new URL('./node_modules/svelte/src/index-client.js', import.meta.url)
+);
 const aliasEntries: Array<{ find: string | RegExp; replacement: string }> = [
   ...Object.entries(mockAlias).map(([find, replacement]) => ({ find, replacement })),
   ...(process.env.VITEST ? [{ find: /^svelte$/, replacement: svelteClientEntry }] : []),

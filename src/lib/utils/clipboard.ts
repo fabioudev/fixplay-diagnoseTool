@@ -11,7 +11,12 @@ export async function copyToClipboard(text: string, onDone?: (ok: boolean) => vo
     ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); onDone?.(true); } catch { onDone?.(false); }
+    try {
+      document.execCommand('copy');
+      onDone?.(true);
+    } catch {
+      onDone?.(false);
+    }
     document.body.removeChild(ta);
   }
 }

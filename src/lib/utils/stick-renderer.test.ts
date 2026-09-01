@@ -31,8 +31,8 @@ describe('calculateCircularityError', () => {
 
   it('grows as the sweep deviates further from the unit circle', () => {
     const perfect = new Array(48).fill(1.0);
-    const slight  = new Array(48).fill(0.9);
-    const heavy   = new Array(48).fill(0.5);
+    const slight = new Array(48).fill(0.9);
+    const heavy = new Array(48).fill(0.5);
     expect(calculateCircularityError(perfect)).toBeLessThan(calculateCircularityError(slight));
     expect(calculateCircularityError(slight)).toBeLessThan(calculateCircularityError(heavy));
   });

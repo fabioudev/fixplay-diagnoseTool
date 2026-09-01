@@ -62,10 +62,10 @@ Registered in `src-tauri/src/lib.rs` invoke handler.
 
 ```ts
 export interface FlashPreviewResult {
-  path:       string;
+  path: string;
   size_bytes: number;
   validation: NorValidation;
-  nvs:        NvsData | null;
+  nvs: NvsData | null;
 }
 ```
 
@@ -110,7 +110,7 @@ async function handleWrite() {
     flashWritePath.set(null);
   } else {
     const result = await openDialog({
-      title:   'NOR-Datei wählen',
+      title: 'NOR-Datei wählen',
       filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
     });
     if (!result || typeof result !== 'string') return;
@@ -166,7 +166,7 @@ function cancelWrite() {
 - Validation checklist (same layout as read result card)
 - NVS info block (same layout as read result card): Serial, MAC, SKU, Board ID, Firmware
 - File path + size in bytes
-- Yellow warning banner if `!$flashWritePreview.validation.is_valid()`: *"Validierungsfehler erkannt — Fortfahren auf eigene Gefahr"*
+- Yellow warning banner if `!$flashWritePreview.validation.is_valid()`: _"Validierungsfehler erkannt — Fortfahren auf eigene Gefahr"_
 - Two action buttons:
   - **"Jetzt schreiben"** — orange (`bg-orange-700`), always enabled, calls `confirmWrite()`
   - **"Abbrechen"** — gray (`bg-gray-700`), calls `cancelWrite()`
@@ -177,11 +177,11 @@ The "Schreiben" button in the controls bar is disabled while `$flashWritePreview
 
 ## Files Summary
 
-| Action | Path |
-|--------|------|
-| Modify | `src-tauri/src/commands/flash.rs` |
-| Modify | `src-tauri/src/lib.rs` |
-| Modify | `src/lib/api/types.ts` |
-| Modify | `src/lib/stores/flash.ts` |
-| Modify | `src/lib/api/tauri.ts` |
+| Action | Path                                   |
+| ------ | -------------------------------------- |
+| Modify | `src-tauri/src/commands/flash.rs`      |
+| Modify | `src-tauri/src/lib.rs`                 |
+| Modify | `src/lib/api/types.ts`                 |
+| Modify | `src/lib/stores/flash.ts`              |
+| Modify | `src/lib/api/tauri.ts`                 |
 | Modify | `src/lib/components/FlashPanel.svelte` |

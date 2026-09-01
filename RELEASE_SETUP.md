@@ -36,6 +36,7 @@ Dann macht GitHub Actions automatisch:
 Folge genau dieser Anleitung: **`docs/AUR_SSH_SETUP.md`**
 
 Kurz:
+
 ```bash
 # 1. SSH-Key erstellen
 ssh-keygen -t ed25519 -f ~/.ssh/aur_deploy -N ""
@@ -102,11 +103,13 @@ git push origin v0.1.0
 ## 💡 Was passiert wenn Secrets fehlen?
 
 **`AUR_SSH_PRIVATE_KEY` nicht gesetzt:**
+
 - GitHub Actions baut trotzdem alles + published GitHub Release
 - AUR wird nicht auto-gepushed → der `update-aur`-Job zeigt einen Hinweis
 - Du kannst AUR manuell updaten (PKGBUILD in `packaging/aur/` + `makepkg --printsrcinfo`)
 
 **`TAURI_SIGNING_PRIVATE_KEY` nicht gesetzt:**
+
 - Bundles werden normal gebaut, aber **ohne `.sig`-Dateien**
 - `latest.json` enthält dann keine Plattform-Einträge → die In-App-Update-Prüfung
   findet kein Update. AUR-Updates funktionieren weiterhin (via `yay -Syu`),
@@ -117,12 +120,14 @@ git push origin v0.1.0
 ## 🔍 Debugging
 
 **Workflow-Status ansehen:**
+
 1. Gehe zu: https://github.com/fabioudev/fixplay-diagnoseTool/actions
 2. Wähle das Release-Workflow
 3. Klicke auf den Build
 4. Siehe "update-aur" Job für Details
 
 **SSH-Connection testen (lokal):**
+
 ```bash
 ssh -i ~/.ssh/aur_deploy aur@aur.archlinux.org
 # Sollte antworten: "Hi <username>, you successfully authenticated,..."
@@ -156,4 +161,3 @@ Nach allen Häkchen: **Alle zukünftigen Releases sind vollständig automatisier
 ## Fragen?
 
 Wenn etwas unklar ist, lese: `docs/AUR_SSH_SETUP.md` oder sag Bescheid!
-

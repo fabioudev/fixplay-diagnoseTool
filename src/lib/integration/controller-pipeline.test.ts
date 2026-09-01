@@ -8,7 +8,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { invoke } from '$lib/mock/core';
 import { mockState, resetMockState } from '$lib/mock/state';
-import { createControllerForDevice, createControllerManager } from '$lib/controllers/controller-manager';
+import {
+  createControllerForDevice,
+  createControllerManager,
+} from '$lib/controllers/controller-manager';
 import type { HIDDeviceLike } from '$lib/controllers/base-controller';
 import type { HidPollResult } from '$lib/controllers/tauri-hid-device';
 import {
@@ -27,11 +30,18 @@ function makeFakeDevice(): HIDDeviceLike {
   return {
     opened: true,
     collections: [
-      { featureReports: Array.from({ length: 256 }, (_, i) => ({ reportId: i, items: [{ reportCount: 64 }] })) },
+      {
+        featureReports: Array.from({ length: 256 }, (_, i) => ({
+          reportId: i,
+          items: [{ reportCount: 64 }],
+        })),
+      },
     ],
     oninputreport: null,
     async sendFeatureReport() {},
-    async receiveFeatureReport() { return new DataView(new ArrayBuffer(64)); },
+    async receiveFeatureReport() {
+      return new DataView(new ArrayBuffer(64));
+    },
     async sendReport() {},
     async close() {},
   } as unknown as HIDDeviceLike;
@@ -58,9 +68,12 @@ describe('controller input pipeline (integration, #73)', () => {
         connected: true,
         input: {
           ...s.hid.input,
-          lx: 0, ly: 0,
-          rx: 0.8, ry: -0.6,
-          l2: 128, r2: 0,
+          lx: 0,
+          ly: 0,
+          rx: 0.8,
+          ry: -0.6,
+          l2: 128,
+          r2: 0,
           buttons: { cross: true, r1: true },
           battery: 50,
           charging: true,
@@ -155,12 +168,18 @@ describe('controller input pipeline (integration, #73)', () => {
     }
 
     // Frame 1: cross pressed.
-    mockState.update((s) => ({ ...s, hid: { ...s.hid, input: { ...s.hid.input, buttons: { cross: true } } } }));
+    mockState.update((s) => ({
+      ...s,
+      hid: { ...s.hid, input: { ...s.hid.input, buttons: { cross: true } } },
+    }));
     await pollOnce();
     expect(cur(buttonState).cross).toBe(true);
 
     // Frame 2: cross released, circle pressed.
-    mockState.update((s) => ({ ...s, hid: { ...s.hid, input: { ...s.hid.input, buttons: { circle: true } } } }));
+    mockState.update((s) => ({
+      ...s,
+      hid: { ...s.hid, input: { ...s.hid.input, buttons: { circle: true } } },
+    }));
     await pollOnce();
     expect(cur(buttonState).cross).toBe(false);
     expect(cur(buttonState).circle).toBe(true);

@@ -12,8 +12,8 @@
 
   let { active = false }: { active?: boolean } = $props();
 
-  let level = $state(0);        // 0..100
-  let peak = $state(0);         // peak hold, decays over 2s
+  let level = $state(0); // 0..100
+  let peak = $state(0); // peak hold, decays over 2s
   let deviceFound = $state(false);
   let errorMsg = $state<string | null>(null);
 
@@ -33,7 +33,7 @@
           d.kind === 'audioinput' &&
           (d.label.includes('DualSense') ||
             d.label.includes('Wireless Controller') ||
-            d.label.includes('PS5')),
+            d.label.includes('PS5'))
       );
       if (!mic) {
         deviceFound = false;
@@ -58,7 +58,9 @@
       analyser.smoothingTimeConstant = 0.4;
       source.connect(analyser);
 
-      peakDecay = setInterval(() => { peak = Math.max(0, peak - 2); }, 100);
+      peakDecay = setInterval(() => {
+        peak = Math.max(0, peak - 2);
+      }, 100);
 
       const data = new Uint8Array(analyser.frequencyBinCount);
       const tick = () => {
@@ -85,10 +87,22 @@
   }
 
   function stop(): void {
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    if (peakDecay) { clearInterval(peakDecay); peakDecay = null; }
-    if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
-    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    if (peakDecay) {
+      clearInterval(peakDecay);
+      peakDecay = null;
+    }
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+    }
+    if (audioCtx) {
+      audioCtx.close();
+      audioCtx = null;
+    }
     analyser = null;
     level = 0;
     peak = 0;
@@ -97,7 +111,8 @@
   }
 
   $effect(() => {
-    if (active) start(); else stop();
+    if (active) start();
+    else stop();
   });
 
   onDestroy(() => stop());
@@ -113,7 +128,11 @@
       <div class="flex-1 h-3 bg-gray-800 rounded-full overflow-hidden">
         <div
           class="h-full rounded-full transition-all duration-75"
-          style="width:{level}%; background: {level > 80 ? '#ef4444' : level > 50 ? '#f59e0b' : '#009688'}"
+          style="width:{level}%; background: {level > 80
+            ? '#ef4444'
+            : level > 50
+              ? '#f59e0b'
+              : '#009688'}"
         ></div>
       </div>
       <span class="text-xs text-gray-500 w-8 text-right tabular-nums">{level}%</span>
@@ -121,11 +140,13 @@
     </div>
   {:else if active && !deviceFound}
     <div class="flex items-center gap-2 text-xs text-gray-500">
-      <MicOff class="h-4 w-4" /> {$LL.tester.micSearching()}
+      <MicOff class="h-4 w-4" />
+      {$LL.tester.micSearching()}
     </div>
   {:else}
     <div class="flex items-center gap-2 text-xs text-gray-600">
-      <MicOff class="h-4 w-4" /> {$LL.tester.micLevelInactive()}
+      <MicOff class="h-4 w-4" />
+      {$LL.tester.micLevelInactive()}
     </div>
   {/if}
 </div>

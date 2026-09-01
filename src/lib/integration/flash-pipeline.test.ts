@@ -33,7 +33,9 @@ describe('flash-read pipeline (integration, #73)', () => {
 
     const progress: FlashProgressEvent[] = [];
     let resultEvent: FlashReadResult | null = null;
-    const offProgress = on('flash://progress', (e) => progress.push(e.payload as FlashProgressEvent));
+    const offProgress = on('flash://progress', (e) =>
+      progress.push(e.payload as FlashProgressEvent)
+    );
     const offResult = on('flash://result', (e) => (resultEvent = e.payload as FlashReadResult));
 
     const result = await invoke<FlashReadResult>('flash_read');
@@ -60,7 +62,10 @@ describe('flash-read pipeline (integration, #73)', () => {
   });
 
   it('honours an armed error (error-injection interplay with the pipeline)', async () => {
-    mockState.update((s) => ({ ...s, errors: { ...s.errors, flash_read: 'Programmer nicht gefunden' } }));
+    mockState.update((s) => ({
+      ...s,
+      errors: { ...s.errors, flash_read: 'Programmer nicht gefunden' },
+    }));
     await expect(invoke('flash_read')).rejects.toThrow('Programmer nicht gefunden');
   });
 });

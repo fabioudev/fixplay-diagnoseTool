@@ -20,26 +20,45 @@ beforeEach(() => {
   // minimal 2D context (with the methods StickVisualizer actually calls) so
   // the test output stays clean.
   const stubCtx = {
-    setTransform() {}, clearRect() {}, save() {}, restore() {},
-    translate() {}, scale() {}, rotate() {},
-    beginPath() {}, arc() {}, ellipse() {}, moveTo() {}, lineTo() {},
-    closePath() {}, stroke() {}, fill() {}, fillRect() {}, strokeRect() {},
-    fillText() {}, strokeText() {}, measureText: () => ({ width: 0 }),
+    setTransform() {},
+    clearRect() {},
+    save() {},
+    restore() {},
+    translate() {},
+    scale() {},
+    rotate() {},
+    beginPath() {},
+    arc() {},
+    ellipse() {},
+    moveTo() {},
+    lineTo() {},
+    closePath() {},
+    stroke() {},
+    fill() {},
+    fillRect() {},
+    strokeRect() {},
+    fillText() {},
+    strokeText() {},
+    measureText: () => ({ width: 0 }),
     createLinearGradient: () => ({ addColorStop() {} }),
-    fillStyle: '', strokeStyle: '', lineWidth: 1, font: '', textAlign: '',
+    fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 1,
+    font: '',
+    textAlign: '',
   } as unknown as CanvasRenderingContext2D;
-  HTMLCanvasElement.prototype.getContext = (() => stubCtx) as unknown as
-    typeof HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = (() =>
+    stubCtx) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 });
 
 function makeManager(before: number[], after: number[]) {
   let calls = 0;
   return {
-    calibrateSticksBegin:  vi.fn(async () => {}),
+    calibrateSticksBegin: vi.fn(async () => {}),
     calibrateSticksSample: vi.fn(async () => {}),
-    calibrateSticksEnd:    vi.fn(async () => {}),
-    calibrateRangeBegin:   vi.fn(async () => {}),
-    calibrateRangeEnd:     vi.fn(async () => {}),
+    calibrateSticksEnd: vi.fn(async () => {}),
+    calibrateRangeBegin: vi.fn(async () => {}),
+    calibrateRangeEnd: vi.fn(async () => {}),
     getInMemoryModuleData: vi.fn(async () => {
       calls += 1;
       return calls === 1 ? before : after;
@@ -53,7 +72,7 @@ describe('CalibrationModal before/after comparison (#48)', () => {
     try {
       // 12 u16 finetune values; index 1 changes 200 → 210 (+10), rest unchanged.
       const before = [100, 200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
-      const after  = [100, 210, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+      const after = [100, 210, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
       const manager = makeManager(before, after);
       render(CalibrationModal, { props: { open: true, manager } });
 
@@ -77,11 +96,11 @@ describe('CalibrationModal before/after comparison (#48)', () => {
     vi.useFakeTimers();
     try {
       const manager = {
-        calibrateSticksBegin:  async () => {},
+        calibrateSticksBegin: async () => {},
         calibrateSticksSample: async () => {},
-        calibrateSticksEnd:    async () => {},
-        calibrateRangeBegin:   async () => {},
-        calibrateRangeEnd:     async () => {},
+        calibrateSticksEnd: async () => {},
+        calibrateRangeBegin: async () => {},
+        calibrateRangeEnd: async () => {},
         getInMemoryModuleData: async () => null,
       };
       render(CalibrationModal, { props: { open: true, manager } });
@@ -93,4 +112,6 @@ describe('CalibrationModal before/after comparison (#48)', () => {
   });
 });
 
-afterEach(() => { vi.useRealTimers(); });
+afterEach(() => {
+  vi.useRealTimers();
+});

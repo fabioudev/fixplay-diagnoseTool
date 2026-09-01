@@ -3,12 +3,33 @@
   import { AlertTriangle } from 'lucide-svelte';
   import { open as openDialog } from '@tauri-apps/plugin-dialog';
   import {
-    flashBusy, flashProgress, flashResult, flashLog, flashPhase, flashEtaRemainingMs,
-    FLASH_PHASE_LABELS, formatFlashDuration,
-    flashProgrammer, flashProgrammers, flashWriteRequest, flashWritePreview, nextFlashLogId,
-    pushFlashLog, isValidationOk, failedValidationKeys,
+    flashBusy,
+    flashProgress,
+    flashResult,
+    flashLog,
+    flashPhase,
+    flashEtaRemainingMs,
+    FLASH_PHASE_LABELS,
+    formatFlashDuration,
+    flashProgrammer,
+    flashProgrammers,
+    flashWriteRequest,
+    flashWritePreview,
+    nextFlashLogId,
+    pushFlashLog,
+    isValidationOk,
+    failedValidationKeys,
   } from '$lib/stores/flash';
-  import { flashListProgrammers, flashGetBinaryStatus, flashReadId, flashRead, flashWrite, flashValidateFile, flashFreeDiskSpace, openPath } from '$lib/api/tauri';
+  import {
+    flashListProgrammers,
+    flashGetBinaryStatus,
+    flashReadId,
+    flashRead,
+    flashWrite,
+    flashValidateFile,
+    flashFreeDiskSpace,
+    openPath,
+  } from '$lib/api/tauri';
   import type { ChipId, DiskSpace, FlashReadResult } from '$lib/api/types';
   import { logTimestampFormat, formatLogTimestamp } from '$lib/utils/time';
   import LL from '$lib/i18n/i18n-svelte';
@@ -20,9 +41,9 @@
 
   let programmers = $state<string[]>([]);
   let writeVerify = $state(true);
-  let chipId      = $state<ChipId | null>(null);
-  let chipIdBusy  = $state(false);
-  let diskSpace   = $state<DiskSpace | null>(null);
+  let chipId = $state<ChipId | null>(null);
+  let chipIdBusy = $state(false);
+  let diskSpace = $state<DiskSpace | null>(null);
 
   // Write confirmation dialog: opens instead of writing straight away whenever
   // the dump failed validation or verify is off. The backend re-validates too
@@ -38,7 +59,10 @@
     const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
     let v = bytes;
     let i = 0;
-    while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+    while (v >= 1024 && i < units.length - 1) {
+      v /= 1024;
+      i++;
+    }
     return `${v >= 100 || i === 0 ? Math.round(v) : v.toFixed(1)} ${units[i]}`;
   }
 
@@ -46,15 +70,51 @@
     diskSpace = await flashFreeDiskSpace().catch(() => null);
   }
 
-  const VALIDATION_ITEMS: { key: string; label: (ll: TranslationFunctions) => LocalizedString; tip: (ll: TranslationFunctions) => LocalizedString }[] = [
-    { key: 'header_ok',     label: (ll) => ll.flash.validation.headerOk.label(), tip: (ll) => ll.flash.validation.headerOk.tip() },
-    { key: 'mbr1_ok',       label: (ll) => ll.flash.validation.mbr1.label(),     tip: (ll) => ll.flash.validation.mbr1.tip() },
-    { key: 'mbr2_ok',       label: (ll) => ll.flash.validation.mbr2.label(),     tip: (ll) => ll.flash.validation.mbr2.tip() },
-    { key: 'emc_ipl_a_ok',  label: (ll) => ll.flash.validation.emcIplA.label(),  tip: (ll) => ll.flash.validation.emcIplA.tip() },
-    { key: 'emc_ipl_b_ok',  label: (ll) => ll.flash.validation.emcIplB.label(),  tip: (ll) => ll.flash.validation.emcIplB.tip() },
-    { key: 'usb_pdc_a_ok',  label: (ll) => ll.flash.validation.usbPdcA.label(),  tip: (ll) => ll.flash.validation.usbPdcA.tip() },
-    { key: 'usb_pdc_b_ok',  label: (ll) => ll.flash.validation.usbPdcB.label(),  tip: (ll) => ll.flash.validation.usbPdcB.tip() },
-    { key: 'size_ok',       label: (ll) => ll.flash.validation.size.label(),     tip: (ll) => ll.flash.validation.size.tip() },
+  const VALIDATION_ITEMS: {
+    key: string;
+    label: (ll: TranslationFunctions) => LocalizedString;
+    tip: (ll: TranslationFunctions) => LocalizedString;
+  }[] = [
+    {
+      key: 'header_ok',
+      label: (ll) => ll.flash.validation.headerOk.label(),
+      tip: (ll) => ll.flash.validation.headerOk.tip(),
+    },
+    {
+      key: 'mbr1_ok',
+      label: (ll) => ll.flash.validation.mbr1.label(),
+      tip: (ll) => ll.flash.validation.mbr1.tip(),
+    },
+    {
+      key: 'mbr2_ok',
+      label: (ll) => ll.flash.validation.mbr2.label(),
+      tip: (ll) => ll.flash.validation.mbr2.tip(),
+    },
+    {
+      key: 'emc_ipl_a_ok',
+      label: (ll) => ll.flash.validation.emcIplA.label(),
+      tip: (ll) => ll.flash.validation.emcIplA.tip(),
+    },
+    {
+      key: 'emc_ipl_b_ok',
+      label: (ll) => ll.flash.validation.emcIplB.label(),
+      tip: (ll) => ll.flash.validation.emcIplB.tip(),
+    },
+    {
+      key: 'usb_pdc_a_ok',
+      label: (ll) => ll.flash.validation.usbPdcA.label(),
+      tip: (ll) => ll.flash.validation.usbPdcA.tip(),
+    },
+    {
+      key: 'usb_pdc_b_ok',
+      label: (ll) => ll.flash.validation.usbPdcB.label(),
+      tip: (ll) => ll.flash.validation.usbPdcB.tip(),
+    },
+    {
+      key: 'size_ok',
+      label: (ll) => ll.flash.validation.size.label(),
+      tip: (ll) => ll.flash.validation.size.tip(),
+    },
   ];
 
   function validationLabel(key: string, ll: TranslationFunctions): LocalizedString {
@@ -97,7 +157,11 @@
     return fn ? fn($LL) : phase;
   });
 
-  const etaLabel = $derived($flashEtaRemainingMs === null ? '' : $LL.flash.eta({ time: formatFlashDuration($flashEtaRemainingMs) }));
+  const etaLabel = $derived(
+    $flashEtaRemainingMs === null
+      ? ''
+      : $LL.flash.eta({ time: formatFlashDuration($flashEtaRemainingMs) })
+  );
 
   onMount(async () => {
     programmers = await flashListProgrammers().catch(() => []);
@@ -114,7 +178,10 @@
       pushFlashLog({
         id: nextFlashLogId(),
         timestamp_ms: Date.now(),
-        message: get(LL).flash.binaryProblem({ reason: binaryStatus.reason ?? get(LL).common.unknown(), path: binaryStatus.path }),
+        message: get(LL).flash.binaryProblem({
+          reason: binaryStatus.reason ?? get(LL).common.unknown(),
+          path: binaryStatus.path,
+        }),
         level: 'error',
       });
     }
@@ -144,7 +211,12 @@
       chipId = await flashReadId($flashProgrammer);
     } catch (e: unknown) {
       chipId = null;
-      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: get(LL).flash.chipIdError({ error: String(e) }), level: 'error' });
+      pushFlashLog({
+        id: nextFlashLogId(),
+        timestamp_ms: Date.now(),
+        message: get(LL).flash.chipIdError({ error: String(e) }),
+        level: 'error',
+      });
     } finally {
       chipIdBusy = false;
     }
@@ -156,7 +228,12 @@
     flashLog.set([]);
     flashProgress.set(null);
     await flashRead($flashProgrammer).catch((e: unknown) => {
-      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
+      pushFlashLog({
+        id: nextFlashLogId(),
+        timestamp_ms: Date.now(),
+        message: String(e),
+        level: 'error',
+      });
       flashBusy.set(false);
       flashProgress.set(null);
     });
@@ -171,7 +248,7 @@
       flashWriteRequest.set(null);
     } else {
       const result = await openDialog({
-        title:   get(LL).flash.selectNorFile(),
+        title: get(LL).flash.selectNorFile(),
         filters: [{ name: 'NOR Binary', extensions: ['bin'] }],
       });
       if (!result || typeof result !== 'string') return;
@@ -183,7 +260,12 @@
       const preview = await flashValidateFile(selected);
       flashWritePreview.set(preview);
     } catch (e: unknown) {
-      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
+      pushFlashLog({
+        id: nextFlashLogId(),
+        timestamp_ms: Date.now(),
+        message: String(e),
+        level: 'error',
+      });
     } finally {
       flashBusy.set(false);
     }
@@ -217,7 +299,12 @@
       const allowInvalid = !isValidationOk(preview.validation);
       await flashWrite(preview.path, $flashProgrammer, writeVerify, allowInvalid);
     } catch (e: unknown) {
-      pushFlashLog({ id: nextFlashLogId(), timestamp_ms: Date.now(), message: String(e), level: 'error' });
+      pushFlashLog({
+        id: nextFlashLogId(),
+        timestamp_ms: Date.now(),
+        message: String(e),
+        level: 'error',
+      });
     } finally {
       flashBusy.set(false);
       flashProgress.set(null);
@@ -241,7 +328,9 @@
   <!-- Persistent 5V danger strip: the single most destructive hardware mistake
        here is a classic black CH341A on a 3.3 V NOR — never only inside the
        collapsed guide. -->
-  <div class="flex items-center gap-2 rounded border border-red-700 bg-red-950 px-3 py-2 text-xs text-red-300">
+  <div
+    class="flex items-center gap-2 rounded border border-red-700 bg-red-950 px-3 py-2 text-xs text-red-300"
+  >
     <AlertTriangle class="h-4 w-4 shrink-0" />
     <span>{$LL.hwGuide.ch341a.dangerShort()}</span>
   </div>
@@ -251,7 +340,10 @@
   {#if $flashWriteRequest}
     <!-- Archive handoff: a dump is armed for the next "Schreiben" click — keep
          the origin visible until the request is consumed. -->
-    <div class="rounded border border-blue-800 bg-blue-950/50 px-3 py-2 text-xs text-blue-200" title={$LL.flash.writeTitle()}>
+    <div
+      class="rounded border border-blue-800 bg-blue-950/50 px-3 py-2 text-xs text-blue-200"
+      title={$LL.flash.writeTitle()}
+    >
       {$LL.flash.armedFromArchive({ file: $flashWriteRequest })}
     </div>
   {/if}
@@ -272,7 +364,10 @@
           <option value="">{$LL.flash.noProgrammers()}</option>
         {/each}
       </select>
-      <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+      <span
+        class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+        >▾</span
+      >
     </div>
 
     <button
@@ -318,7 +413,8 @@
       class="text-xs flex items-center gap-1.5 {low ? 'text-red-400' : 'text-gray-500'}"
       title={$LL.flash.diskSpaceTitle()}
     >
-      {#if low}⚠ {/if}
+      {#if low}⚠
+      {/if}
       {$LL.flash.storage()} <span class="font-mono">{formatBytes(diskSpace.free_bytes)}</span>
       {$LL.flash.freeOf()} <span class="font-mono">{formatBytes(diskSpace.total_bytes)}</span>
       {#if low}{$LL.flash.diskSpaceLow()}{/if}
@@ -327,13 +423,25 @@
 
   <!-- Chip identification (from flash_read_id / JEDEC ID) -->
   {#if chipId}
-    <div class="rounded bg-gray-800 border border-gray-700 px-3 py-2 text-xs flex flex-wrap items-center gap-x-4 gap-y-1">
+    <div
+      class="rounded bg-gray-800 border border-gray-700 px-3 py-2 text-xs flex flex-wrap items-center gap-x-4 gap-y-1"
+    >
       <span class="text-gray-500 font-semibold">{$LL.flash.chip()}</span>
       <span class="text-gray-100">{chipId.description}</span>
-      <span class="text-gray-500">{$LL.flash.manufacturer()} <span class="text-gray-200 font-mono">0x{chipId.manufacturer.toString(16).padStart(2, '0')}</span></span>
-      <span class="text-gray-500">{$LL.flash.device()} <span class="text-gray-200 font-mono">0x{chipId.device.toString(16).padStart(4, '0')}</span></span>
+      <span class="text-gray-500"
+        >{$LL.flash.manufacturer()}
+        <span class="text-gray-200 font-mono"
+          >0x{chipId.manufacturer.toString(16).padStart(2, '0')}</span
+        ></span
+      >
+      <span class="text-gray-500"
+        >{$LL.flash.device()}
+        <span class="text-gray-200 font-mono">0x{chipId.device.toString(16).padStart(4, '0')}</span
+        ></span
+      >
       {#if chipId.manufacturer === 0 && chipId.device === 0}
-        <span class="text-gray-500" title={$LL.flash.noJedecIdTitle()}>{$LL.flash.noJedecId()}</span>
+        <span class="text-gray-500" title={$LL.flash.noJedecIdTitle()}>{$LL.flash.noJedecId()}</span
+        >
       {/if}
     </div>
   {/if}
@@ -364,7 +472,6 @@
     {@const p = $flashWritePreview}
     {@const validationOk = isValidationOk(p.validation)}
     <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
-
       {#if !validationOk}
         <!-- Full-width red block: the backend refuses invalid images unless
              allow_invalid is passed — this banner plus the confirm dialog are
@@ -375,7 +482,11 @@
             {$LL.flash.validationErrorsWarn()}
           </span>
           <span class="text-red-300">
-            {$LL.flash.validationFailedSummary({ failed: failedValidationKeys(p.validation).map((k) => validationLabel(k, $LL)).join(', ') })}
+            {$LL.flash.validationFailedSummary({
+              failed: failedValidationKeys(p.validation)
+                .map((k) => validationLabel(k, $LL))
+                .join(', '),
+            })}
           </span>
         </div>
       {/if}
@@ -386,7 +497,11 @@
         <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 font-mono">
           {#each VALIDATION_ITEMS as item (item.key)}
             <div class="flex items-center gap-1" title={item.tip($LL)}>
-              <span class="{(p.validation as unknown as Record<string, boolean>)[item.key] ? 'text-green-400' : 'text-red-400'}">
+              <span
+                class={(p.validation as unknown as Record<string, boolean>)[item.key]
+                  ? 'text-green-400'
+                  : 'text-red-400'}
+              >
                 {(p.validation as unknown as Record<string, boolean>)[item.key] ? '✓' : '✗'}
               </span>
               <span class="text-gray-300">{item.label($LL)}</span>
@@ -427,11 +542,7 @@
           class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none"
           title={$LL.flash.verifyTitle()}
         >
-          <input
-            type="checkbox"
-            bind:checked={writeVerify}
-            class="accent-blue-500"
-          />
+          <input type="checkbox" bind:checked={writeVerify} class="accent-blue-500" />
           {$LL.flash.verifyAfterWrite()}
         </label>
         {#if !writeVerify}
@@ -480,16 +591,13 @@
   {#if $flashResult}
     {@const r = $flashResult}
     <div class="rounded bg-gray-800 border border-gray-700 p-3 text-xs flex flex-col gap-3">
-
       <!-- Dump match badge -->
       <div
         class="flex items-center gap-2"
-        title={r.dumps_match
-          ? $LL.flash.dumpsMatchTitle()
-          : $LL.flash.dumpsDifferTitle()}
+        title={r.dumps_match ? $LL.flash.dumpsMatchTitle() : $LL.flash.dumpsDifferTitle()}
       >
         <span class="text-gray-400 font-semibold">{$LL.flash.dumpCompare()}</span>
-        <span class="{r.dumps_match ? 'text-green-400' : 'text-yellow-400'}">
+        <span class={r.dumps_match ? 'text-green-400' : 'text-yellow-400'}>
           {r.dumps_match ? $LL.flash.dumpsIdentical() : $LL.flash.dumpsDiffer()}
         </span>
       </div>
@@ -500,7 +608,11 @@
         <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 font-mono">
           {#each VALIDATION_ITEMS as item (item.key)}
             <div class="flex items-center gap-1" title={item.tip($LL)}>
-              <span class="{(r.validation as unknown as Record<string, boolean>)[item.key] ? 'text-green-400' : 'text-red-400'}">
+              <span
+                class={(r.validation as unknown as Record<string, boolean>)[item.key]
+                  ? 'text-green-400'
+                  : 'text-red-400'}
+              >
                 {(r.validation as unknown as Record<string, boolean>)[item.key] ? '✓' : '✗'}
               </span>
               <span class="text-gray-300">{item.label($LL)}</span>
@@ -546,12 +658,16 @@
   <!-- Status log -->
   <div class="flex-1 min-h-32 overflow-y-auto bg-gray-950 rounded p-3 flex flex-col gap-1">
     {#each $flashLog as entry (entry.id)}
-      <div class="font-mono text-xs leading-relaxed {
-        entry.level === 'error' ? 'text-red-400' :
-        entry.level === 'warn'  ? 'text-yellow-400' :
-                                  'text-green-400'
-      }">
-        <span class="text-gray-600 mr-2">{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span>
+      <div
+        class="font-mono text-xs leading-relaxed {entry.level === 'error'
+          ? 'text-red-400'
+          : entry.level === 'warn'
+            ? 'text-yellow-400'
+            : 'text-green-400'}"
+      >
+        <span class="text-gray-600 mr-2"
+          >{formatLogTimestamp(entry.timestamp_ms, $logTimestampFormat)}</span
+        >
         {entry.message}
       </div>
     {:else}

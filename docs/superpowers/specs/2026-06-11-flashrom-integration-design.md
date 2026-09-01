@@ -34,24 +34,29 @@ pub struct FlashromDevice {
 ```
 
 **`flashrom_path(resource_dir: &Path) -> PathBuf`** — returns bundled binary:
+
 - Linux: `{resource_dir}/flashrom`
 - Windows: `{resource_dir}/flashrom.exe`
 
 **`impl FlashDevice for FlashromDevice`:**
 
 `read_flash(on_progress)`:
+
 - Spawns `flashrom -p {programmer} --read {path}` with `stderr: Piped`
 - Reads stderr line-by-line, parses `"Writing at 0x..."  (XX %)"` → calls `on_progress`
 - Returns file bytes on success
 
 `write_flash(data, on_progress)`:
+
 - Writes data to temp file, spawns `flashrom -p {programmer} --write {path}`
 - Same progress parsing
 
 `erase_flash()`:
+
 - Spawns `flashrom -p {programmer} --erase`
 
 `read_id()`:
+
 - Spawns `flashrom -p {programmer} --flash-name`
 - Parses stdout for chip name → returns `ChipId`
 
@@ -63,26 +68,28 @@ Regex: `\((\d+)%\)` → extract integer percent.
 
 **PS5 NOR layout (2 MB = 0x200000 bytes):**
 
-| Offset | Size | Name |
-|--------|------|------|
-| 0x00000 | 0x1000 | NorHeader |
-| 0x01000 | 0x1000 | ActiveSlot |
-| 0x02000 | 0x1000 | NorMbr1 |
-| 0x03000 | 0x1000 | NorMbr2 |
-| 0x04000 | 0x7E000 | EmcIplA (Slb2) |
-| 0x82000 | 0x7E000 | EmcIplB (Slb2) |
+| Offset   | Size    | Name           |
+| -------- | ------- | -------------- |
+| 0x00000  | 0x1000  | NorHeader      |
+| 0x01000  | 0x1000  | ActiveSlot     |
+| 0x02000  | 0x1000  | NorMbr1        |
+| 0x03000  | 0x1000  | NorMbr2        |
+| 0x04000  | 0x7E000 | EmcIplA (Slb2) |
+| 0x82000  | 0x7E000 | EmcIplB (Slb2) |
 | 0x100000 | 0x10000 | UsbPdcA (Slb2) |
 | 0x110000 | 0x10000 | UsbPdcB (Slb2) |
-| 0x120000 | 0xA4000 | Unknown |
-| 0x1C4000 | 0xB000 | NVS |
-| 0x1CF000 | 0x30000 | Reserved |
+| 0x120000 | 0xA4000 | Unknown        |
+| 0x1C4000 | 0xB000  | NVS            |
+| 0x1CF000 | 0x30000 | Reserved       |
 
 **Magic bytes:**
+
 - `NorHeader` at 0x00: `SONY COMPUTER ENTERTAINMENT INC.` (32 bytes: `53 4F 4E 59 20 43 4F 4D 50 55 54 45 52 20 45 4E 54 45 52 54 41 49 4E 4D 45 4E 54 20 49 4E 43 2E`)
 - `NorMbr` at 0x2000 / 0x3000: `Sony Computer Entertainment Inc.` (32 bytes: `53 6F 6E 79 20 43 6F 6D 70 75 74 65 72 20 45 6E 74 65 72 74 61 69 6E 6D 65 6E 74 20 49 6E 63 2E`)
 - `Slb2` header at each Slb2 start: `SLB2` (4 bytes: `53 4C 42 32`)
 
 **NVS offsets (relative to start of NVS at 0x1C4000):**
+
 - `+0x0020`: MAC address (6 bytes)
 - `+0x3010`: ConsoleType (u32 big-endian)
 - `+0x3200`: MotherboardSerial (16 bytes, null-terminated)
@@ -157,6 +164,7 @@ pub struct FlashReadResult {
 ### 1.5 `fixplay-core/src/error.rs` changes
 
 Rename `Ch341Error` → `FlashError`:
+
 ```rust
 #[derive(Debug, Error)]
 pub enum FlashError {
@@ -176,13 +184,16 @@ Update `AppError::Ch341` → `AppError::Flash`.
 **Four commands:**
 
 `open_path(path: String) -> Result<(), String>`:
+
 - Calls `opener::open(&path)` or `std::process::Command::new("xdg-open").arg(&path)` on Linux, `explorer` on Windows
 - Used by the frontend to open the archive folder in the file manager
 
 `flash_list_programmers() -> Vec<String>`:
+
 - Returns static list: `["ch341a_spi", "rt809h_spi", "serprog", "buspirate_spi", "ft2232_spi"]`
 
 `flash_read(programmer: String, state: State<AppState>, app: AppHandle) -> Result<FlashReadResult, String>`:
+
 1. Get resource dir from `app.path().resource_dir()`
 2. Create `FlashromDevice { programmer, binary_path }`
 3. Emit `flash://status { message: "Erster Lesevorgang...", level: "info" }`
@@ -196,6 +207,7 @@ Update `AppError::Ch341` → `AppError::Flash`.
 11. Return `Ok(FlashReadResult)`
 
 `flash_write(path: String, programmer: String, state: State<AppState>, app: AppHandle) -> Result<(), String>`:
+
 1. Read file bytes from `path`
 2. Emit status "Schreibe NOR..."
 3. Run `flashrom -p {programmer} --write {path}` — flashrom performs erase + write + built-in verify internally
@@ -204,13 +216,16 @@ Update `AppError::Ch341` → `AppError::Flash`.
 6. Return `Ok(())`
 
 **Progress streaming pattern** (same as UART reader):
+
 - `on_progress` callback runs in flashrom thread
 - Uses `app_handle.emit("flash://progress", ...)` directly (no separate thread needed — flashrom is synchronous)
 
 **Archive helper `archive_dump`:**
+
 ```rust
 fn archive_dump(app: &AppHandle, bytes: &[u8], nvs: &Option<NvsData>, validation: &NorValidation) -> Result<String, String>
 ```
+
 - `serial_dir = nvs.as_ref().map(|n| n.serial.clone()).unwrap_or_else(|| format!("unknown_{}", timestamp))`
 - `base = app.path().app_data_dir() / "dumps" / serial_dir`
 - `std::fs::create_dir_all(&base)`
@@ -219,15 +234,16 @@ fn archive_dump(app: &AppHandle, bytes: &[u8], nvs: &Option<NvsData>, validation
 
 ### 1.7 Tauri Events
 
-| Event | Payload type | When |
-|-------|-------------|------|
-| `flash://progress` | `{ phase: String, percent: u8 }` | Each parsed flashrom progress line |
-| `flash://status` | `{ message: String, level: String }` | Phase transitions and errors |
-| `flash://result` | `FlashReadResult` | After successful `flash_read` |
+| Event              | Payload type                         | When                               |
+| ------------------ | ------------------------------------ | ---------------------------------- |
+| `flash://progress` | `{ phase: String, percent: u8 }`     | Each parsed flashrom progress line |
+| `flash://status`   | `{ message: String, level: String }` | Phase transitions and errors       |
+| `flash://result`   | `FlashReadResult`                    | After successful `flash_read`      |
 
 ### 1.8 Bundled flashrom binary
 
 `tauri.conf.json`:
+
 ```json
 "bundle": {
   "resources": {
@@ -294,43 +310,51 @@ export interface FlashLogEntry {
 ### 2.2 `src/lib/stores/flash.ts` (new file)
 
 ```ts
-export const flashBusy      = writable<boolean>(false);
-export const flashProgress  = writable<{ phase: string; percent: number } | null>(null);
-export const flashResult    = writable<FlashReadResult | null>(null);
-export const flashLog       = writable<FlashLogEntry[]>([]);
+export const flashBusy = writable<boolean>(false);
+export const flashProgress = writable<{ phase: string; percent: number } | null>(null);
+export const flashResult = writable<FlashReadResult | null>(null);
+export const flashLog = writable<FlashLogEntry[]>([]);
 export const flashProgrammer = writable<string>('ch341a_spi');
 let _nextId = 0;
-export function nextFlashLogId(): number { return _nextId++; }
+export function nextFlashLogId(): number {
+  return _nextId++;
+}
 ```
 
 ### 2.3 `src/lib/api/tauri.ts` additions
 
 ```ts
 export const flashListProgrammers = () => invoke<string[]>('flash_list_programmers');
-export const flashRead  = (programmer: string) => invoke<FlashReadResult>('flash_read', { programmer });
-export const flashWrite = (path: string, programmer: string) => invoke<void>('flash_write', { path, programmer });
-export const openPath   = (path: string) => invoke<void>('open_path', { path });
+export const flashRead = (programmer: string) =>
+  invoke<FlashReadResult>('flash_read', { programmer });
+export const flashWrite = (path: string, programmer: string) =>
+  invoke<void>('flash_write', { path, programmer });
+export const openPath = (path: string) => invoke<void>('open_path', { path });
 ```
 
 ### 2.4 `src/lib/components/FlashPanel.svelte` (rewrite)
 
 **Controls bar:**
+
 - Programmer `<select>` populated from `flash_list_programmers()` (loaded on mount)
 - "Lesen" button — calls `flashRead`, disabled while `$flashBusy`
 - "Schreiben" button — opens Tauri file dialog (`.bin` filter), calls `flashWrite`, disabled while `$flashBusy`
 - Fortschrittsbalken: `<progress value={$flashProgress?.percent ?? 0} max={100}>` with phase label
 
 **Ergebnis-Card** (shown when `$flashResult !== null`):
+
 - `dumps_match` badge (✓ Dumps identisch / ⚠ Dumps weichen ab)
 - Validation checklist: 8 rows with ✓/✗ icons
 - NVS info table: Serial, MAC, SKU, Board-ID, Firmware, Console-Type
 - Archive path with "Ordner öffnen" button (`invoke('open_path', { path })`)
 
 **Status-Log:**
+
 - Scrollable list, newest first, max 200 entries
 - Color coded: `text-green-400` info, `text-yellow-400` warn, `text-red-400` error
 
 **Event listeners (on mount, cleaned up on destroy):**
+
 - `listen('flash://progress', ...)` → updates `flashProgress` store
 - `listen('flash://status', ...)` → prepends to `flashLog`
 - `listen('flash://result', ...)` → sets `flashResult`, clears `flashBusy`
@@ -352,6 +376,7 @@ export const openPath   = (path: string) => invoke<void>('open_path', { path });
 ## 4. Testing
 
 **`fixplay-core` NOR tests (`nor.rs`):**
+
 - `validate` on buffer of correct size with valid magics → all fields true
 - `validate` on buffer with corrupted NorHeader magic → `header_ok = false`
 - `validate` on buffer shorter than 2MB → `size_ok = false`
@@ -359,11 +384,13 @@ export const openPath   = (path: string) => invoke<void>('open_path', { path });
 - `is_valid()` returns false when any field is false
 
 **`fixplay-flashrom` tests:**
+
 - `flashrom_path` returns correct platform-specific path
 - Progress line parsing: `"Writing at 0x001000...  (  5%)"` → `5u8`
 - Progress line parsing: `"Reading flash... done."` → `None`
 
 **Frontend store tests (`flash.test.ts`):**
+
 - `flashBusy` starts as `false`
 - `flashProgress` starts as `null`
 - `flashResult` starts as `null`

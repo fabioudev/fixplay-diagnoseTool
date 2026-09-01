@@ -15,9 +15,9 @@
   import { Search, ArrowUpDown } from 'lucide-svelte';
   import LL from '$lib/i18n/i18n-svelte';
 
-  let open          = $state(false);
+  let open = $state(false);
   let confirmDelete = $state<string | null>(null);
-  let loadedPath    = $state<string | null>(null);
+  let loadedPath = $state<string | null>(null);
 
   let { standalone = false }: { standalone?: boolean } = $props();
 
@@ -31,8 +31,8 @@
         .map((a) => ({
           ...a,
           dumps: a.dumps.filter(
-            (d) => a.serial.toLowerCase().includes(q)
-              || (d.fw_version ?? '').toLowerCase().includes(q),
+            (d) =>
+              a.serial.toLowerCase().includes(q) || (d.fw_version ?? '').toLowerCase().includes(q)
           ),
         }))
         .filter((a) => a.dumps.length > 0);
@@ -68,7 +68,9 @@
     // the armed write request (its origin banner is shown there).
     navigate('flash');
     loadedPath = entry.bin_path;
-    setTimeout(() => { if (loadedPath === entry.bin_path) loadedPath = null; }, 2000);
+    setTimeout(() => {
+      if (loadedPath === entry.bin_path) loadedPath = null;
+    }, 2000);
   }
 
   function folderPath(binPath: string): string {
@@ -121,10 +123,13 @@
           />
         </div>
         <div class="relative">
-          <ArrowUpDown class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+          <ArrowUpDown
+            class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none"
+          />
           <select
             value={$archiveSortMode}
-            onchange={(e) => archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
+            onchange={(e) =>
+              archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
             title={$LL.archive.sortTitle()}
             class="appearance-none bg-gray-800 text-gray-200 text-xs rounded pl-7 pr-6 py-1.5
                    border border-gray-700 focus:outline-none focus:border-gray-500"
@@ -133,7 +138,10 @@
             <option value="oldest">{$LL.archive.sortOldest()}</option>
             <option value="serial">{$LL.archive.sortSerial()}</option>
           </select>
-          <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+          <span
+            class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+            >▾</span
+          >
         </div>
       </div>
 
@@ -148,17 +156,16 @@
             </p>
             <div class="flex flex-col gap-1.5">
               {#each archive.dumps as dump (dump.bin_path)}
-                <div class="flex items-center gap-2 text-xs bg-gray-900 rounded px-2 py-1.5 flex-wrap">
+                <div
+                  class="flex items-center gap-2 text-xs bg-gray-900 rounded px-2 py-1.5 flex-wrap"
+                >
                   <span
                     class="font-mono text-gray-500 shrink-0"
                     title={$LL.archive.timestampTitle()}
                   >
                     {new Date(dump.timestamp * 1000).toLocaleString()}
                   </span>
-                  <span
-                    class="font-mono text-gray-300 shrink-0"
-                    title={$LL.archive.fwTitle()}
-                  >
+                  <span class="font-mono text-gray-300 shrink-0" title={$LL.archive.fwTitle()}>
                     {dump.fw_version ?? '—'}
                   </span>
                   <span
@@ -171,11 +178,9 @@
                     <button
                       onclick={() => handleLoad(dump)}
                       title={$LL.archive.loadTitle()}
-                      class="px-2 py-0.5 rounded text-blue-100 {
-                        loadedPath === dump.bin_path
-                          ? 'bg-green-700'
-                          : 'bg-blue-800 hover:bg-blue-700'
-                      }"
+                      class="px-2 py-0.5 rounded text-blue-100 {loadedPath === dump.bin_path
+                        ? 'bg-green-700'
+                        : 'bg-blue-800 hover:bg-blue-700'}"
                     >
                       {loadedPath === dump.bin_path ? $LL.archive.loaded() : $LL.archive.load()}
                     </button>
@@ -232,7 +237,8 @@
              text-gray-300 hover:text-gray-100 transition-colors"
     >
       <span>
-        {$LL.archive.collapsedLabel()} {$archiveLoading ? '…' : `(${$LL.archive.dumpsLabel({ count: $archiveDumpCount })})`}
+        {$LL.archive.collapsedLabel()}
+        {$archiveLoading ? '…' : `(${$LL.archive.dumpsLabel({ count: $archiveDumpCount })})`}
       </span>
       <span class="text-gray-500 text-xs">{open ? '▲' : '▼'}</span>
     </button>
@@ -254,7 +260,8 @@
           </div>
           <select
             value={$archiveSortMode}
-            onchange={(e) => archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
+            onchange={(e) =>
+              archiveSortMode.set((e.target as HTMLSelectElement).value as typeof $archiveSortMode)}
             title={$LL.archive.sortTitleShort()}
             class="appearance-none bg-gray-800 text-gray-200 text-xs rounded px-2 py-1.5
                    border border-gray-700 focus:outline-none focus:border-gray-500"
@@ -274,17 +281,16 @@
             </p>
             <div class="flex flex-col gap-1.5">
               {#each archive.dumps as dump (dump.bin_path)}
-                <div class="flex items-center gap-2 text-xs bg-gray-800 rounded px-2 py-1.5 flex-wrap">
+                <div
+                  class="flex items-center gap-2 text-xs bg-gray-800 rounded px-2 py-1.5 flex-wrap"
+                >
                   <span
                     class="font-mono text-gray-500 shrink-0"
                     title={$LL.archive.timestampTitle()}
                   >
                     {new Date(dump.timestamp * 1000).toLocaleString()}
                   </span>
-                  <span
-                    class="font-mono text-gray-300 shrink-0"
-                    title={$LL.archive.fwTitle()}
-                  >
+                  <span class="font-mono text-gray-300 shrink-0" title={$LL.archive.fwTitle()}>
                     {dump.fw_version ?? '—'}
                   </span>
                   <span
@@ -297,11 +303,9 @@
                     <button
                       onclick={() => handleLoad(dump)}
                       title={$LL.archive.loadTitle()}
-                      class="px-2 py-0.5 rounded text-blue-100 {
-                        loadedPath === dump.bin_path
-                          ? 'bg-green-700'
-                          : 'bg-blue-800 hover:bg-blue-700'
-                      }"
+                      class="px-2 py-0.5 rounded text-blue-100 {loadedPath === dump.bin_path
+                        ? 'bg-green-700'
+                        : 'bg-blue-800 hover:bg-blue-700'}"
                     >
                       {loadedPath === dump.bin_path ? $LL.archive.loaded() : $LL.archive.load()}
                     </button>
@@ -343,9 +347,7 @@
           </div>
         {:else}
           <p class="text-gray-600 text-xs p-4">
-            {$archives.length === 0
-              ? $LL.archive.emptyCollapsed()
-              : $LL.archive.noMatch()}
+            {$archives.length === 0 ? $LL.archive.emptyCollapsed() : $LL.archive.noMatch()}
           </p>
         {/each}
       </div>

@@ -2,23 +2,23 @@ import { invoke } from '@tauri-apps/api/core';
 import type { HIDDeviceLike } from './base-controller';
 
 export interface HidDeviceInfo {
-  vendor_id:     number;
-  product_id:    number;
-  manufacturer:  string | null;
-  product:       string | null;
+  vendor_id: number;
+  product_id: number;
+  manufacturer: string | null;
+  product: string | null;
   serial_number: string | null;
-  usage_page:    number;
-  usage:         number;
+  usage_page: number;
+  usage: number;
 }
 
 export interface HidReport {
   report_id: number;
-  data:      number[];
+  data: number[];
 }
 
 export interface HidPollResult {
-  connected:       boolean;
-  reports:         HidReport[];
+  connected: boolean;
+  reports: HidReport[];
   dropped_reports: number;
 }
 
@@ -28,7 +28,7 @@ export interface HidPollResult {
  * works without modification.
  */
 export class TauriHIDDevice implements HIDDeviceLike {
-  readonly vendorId:  number;
+  readonly vendorId: number;
   readonly productId: number;
 
   opened = true;
@@ -38,20 +38,21 @@ export class TauriHIDDevice implements HIDDeviceLike {
     {
       featureReports: Array.from({ length: 256 }, (_, i) => ({
         reportId: i,
-        items:    [{ reportCount: 64 }],
+        items: [{ reportCount: 64 }],
       })),
     },
   ];
 
-  oninputreport: ((event: { device: HIDDeviceLike; reportId: number; data: DataView }) => void) | null = null;
+  oninputreport:
+    ((event: { device: HIDDeviceLike; reportId: number; data: DataView }) => void) | null = null;
 
   constructor(vendorId: number, productId: number) {
-    this.vendorId  = vendorId;
+    this.vendorId = vendorId;
     this.productId = productId;
   }
 
   async sendFeatureReport(reportId: number, data: BufferSource): Promise<void> {
-    const buf  = data instanceof ArrayBuffer ? data : (data as ArrayBufferView).buffer;
+    const buf = data instanceof ArrayBuffer ? data : (data as ArrayBufferView).buffer;
     const bytes = Array.from(new Uint8Array(buf));
     await invoke<void>('hid_send_feature_report', { reportId, data: bytes });
   }
@@ -62,8 +63,8 @@ export class TauriHIDDevice implements HIDDeviceLike {
   }
 
   async sendReport(reportId: number, data: BufferSource): Promise<void> {
-    const buf    = data instanceof ArrayBuffer ? data : (data as ArrayBufferView).buffer;
-    const bytes  = [reportId, ...Array.from(new Uint8Array(buf))];
+    const buf = data instanceof ArrayBuffer ? data : (data as ArrayBufferView).buffer;
+    const bytes = [reportId, ...Array.from(new Uint8Array(buf))];
     await invoke<void>('hid_send_output_report', { data: bytes });
   }
 

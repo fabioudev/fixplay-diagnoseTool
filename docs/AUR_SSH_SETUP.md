@@ -63,17 +63,19 @@ anlegen.
 ## Troubleshooting
 
 **Test der SSH-Konfiguration (lokal)**:
+
 ```bash
 ssh -i ~/.ssh/aur_deploy aur@aur.archlinux.org
 ```
 
 Sollte antworten:
+
 ```
 Hi <your-username>, you successfully authenticated,...
 ```
 
 Falls das fehlschlägt, überprüfe:
+
 - Public Key wurde korrekt zu AUR hinzugefügt
 - Private Key wurden korrekt kopiert
 - Passphrase ist leer
-

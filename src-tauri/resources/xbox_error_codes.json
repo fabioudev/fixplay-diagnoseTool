@@ -11,14 +11,22 @@
       { "Code": "0012", "Message": "CPU - overheating (CPU regulator)", "Category": "CPU" },
       { "Code": "0013", "Message": "Southbridge - overheating", "Category": "Southbridge" },
       { "Code": "0020", "Message": "GPU - unknown GPU malfunction (general)", "Category": "GPU" },
-      { "Code": "0021", "Message": "Southbridge - unknown / SMC related", "Category": "Southbridge" },
+      {
+        "Code": "0021",
+        "Message": "Southbridge - unknown / SMC related",
+        "Category": "Southbridge"
+      },
       { "Code": "0022", "Message": "GPU - GPU error", "Category": "GPU" },
       { "Code": "0023", "Message": "GPU - GPU error", "Category": "GPU" },
       { "Code": "0030", "Message": "GPU - malfunction", "Category": "GPU" },
       { "Code": "0031", "Message": "GPU - malfunction", "Category": "GPU" },
       { "Code": "0032", "Message": "GPU - malfunction", "Category": "GPU" },
       { "Code": "0033", "Message": "GPU - malfunction", "Category": "GPU" },
-      { "Code": "0100", "Message": "SMC - System Management Controller error (general)", "Category": "SMC" },
+      {
+        "Code": "0100",
+        "Message": "SMC - System Management Controller error (general)",
+        "Category": "SMC"
+      },
       { "Code": "0101", "Message": "GPU - GPU / HANA / ANA chip error", "Category": "GPU" },
       { "Code": "0102", "Message": "General - unknown hardware failure", "Category": "General" },
       { "Code": "0103", "Message": "GPU - GPU error", "Category": "GPU" },
@@ -27,7 +35,11 @@
       { "Code": "0112", "Message": "RAM - memory error", "Category": "RAM" },
       { "Code": "0113", "Message": "RAM - memory error", "Category": "RAM" },
       { "Code": "0200", "Message": "General - unknown error", "Category": "General" },
-      { "Code": "0201", "Message": "Southbridge - unknown / southbridge related", "Category": "Southbridge" },
+      {
+        "Code": "0201",
+        "Message": "Southbridge - unknown / southbridge related",
+        "Category": "Southbridge"
+      },
       { "Code": "0202", "Message": "General - unknown error", "Category": "General" },
       { "Code": "0300", "Message": "General - unknown error", "Category": "General" },
       { "Code": "0301", "Message": "General - unknown error", "Category": "General" },
@@ -67,10 +79,22 @@
       { "Code": "E68", "Message": "Storage - hard drive error", "Category": "Storage" },
       { "Code": "E69", "Message": "Storage - hard drive error", "Category": "Storage" },
       { "Code": "E70", "Message": "Storage - hard drive error", "Category": "Storage" },
-      { "Code": "E71", "Message": "Dashboard - corrupt NAND / dashboard update", "Category": "Dashboard" },
+      {
+        "Code": "E71",
+        "Message": "Dashboard - corrupt NAND / dashboard update",
+        "Category": "Dashboard"
+      },
       { "Code": "E72", "Message": "Dashboard - dashboard update error", "Category": "Dashboard" },
-      { "Code": "E73", "Message": "Southbridge - Ethernet / southbridge issue", "Category": "Southbridge" },
-      { "Code": "E74", "Message": "Video - AV cable / HANA scaler (HDMI) error", "Category": "Video" },
+      {
+        "Code": "E73",
+        "Message": "Southbridge - Ethernet / southbridge issue",
+        "Category": "Southbridge"
+      },
+      {
+        "Code": "E74",
+        "Message": "Video - AV cable / HANA scaler (HDMI) error",
+        "Category": "Video"
+      },
       { "Code": "E75", "Message": "Network - Ethernet issue", "Category": "Network" },
       { "Code": "E76", "Message": "Network - Ethernet / southbridge issue", "Category": "Network" },
       { "Code": "E77", "Message": "Network - Ethernet issue", "Category": "Network" },

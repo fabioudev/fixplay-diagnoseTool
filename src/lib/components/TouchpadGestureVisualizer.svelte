@@ -16,8 +16,12 @@
   const tracker = new TouchGestureTracker();
 
   // Normalize raw pad coords (x: 0..1919, y: 0..941) to 0..1 for rendering.
-  function nx(p: { x: number }): number { return p.x / 1919; }
-  function ny(p: { y: number }): number { return p.y / 941; }
+  function nx(p: { x: number }): number {
+    return p.x / 1919;
+  }
+  function ny(p: { y: number }): number {
+    return p.y / 941;
+  }
 
   // Live state mirrored from the tracker on each report.
   let label = $state<TouchContactLabel>('idle');
@@ -35,11 +39,16 @@
   function eventText(ev: TouchGestureEvent): LocalizedString {
     const ll = get(LL);
     switch (ev.type) {
-      case 'tap': return ll.tester.gestureTap({ ms: ev.durationMs });
-      case 'hold': return ll.tester.gestureHoldEvent({ ms: ev.durationMs });
-      case 'swipe': return ll.tester.gestureSwipe({ dir: ev.direction, disp: Math.round(ev.displacement) });
-      case 'two-finger': return ll.tester.gestureTwoFingerEvent();
-      default: return ev.type as LocalizedString;
+      case 'tap':
+        return ll.tester.gestureTap({ ms: ev.durationMs });
+      case 'hold':
+        return ll.tester.gestureHoldEvent({ ms: ev.durationMs });
+      case 'swipe':
+        return ll.tester.gestureSwipe({ dir: ev.direction, disp: Math.round(ev.displacement) });
+      case 'two-finger':
+        return ll.tester.gestureTwoFingerEvent();
+      default:
+        return ev.type as LocalizedString;
     }
   }
 
@@ -63,14 +72,21 @@
   </div>
 
   <!-- Touchpad surface with finger dots + fading trails. -->
-  <div class="relative mx-auto w-full max-w-[260px] aspect-[2/1] rounded-lg border border-gray-600 bg-gray-800 overflow-hidden">
+  <div
+    class="relative mx-auto w-full max-w-[260px] aspect-[2/1] rounded-lg border border-gray-600 bg-gray-800 overflow-hidden"
+  >
     <!-- subtle grid -->
-    <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(#374151 1px,transparent 1px),linear-gradient(90deg,#374151 1px,transparent 1px); background-size: 25% 25%;"></div>
+    <div
+      class="absolute inset-0 opacity-30"
+      style="background-image: linear-gradient(#374151 1px,transparent 1px),linear-gradient(90deg,#374151 1px,transparent 1px); background-size: 25% 25%;"
+    ></div>
     {#each trails as trail, fi (fi)}
       {#if trail.length > 1}
         <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 50" preserveAspectRatio="none">
           <polyline
-            points={trail.map((p) => `${(p.x * 100).toFixed(2)},${(p.y * 50).toFixed(2)}`).join(' ')}
+            points={trail
+              .map((p) => `${(p.x * 100).toFixed(2)},${(p.y * 50).toFixed(2)}`)
+              .join(' ')}
             fill="none"
             stroke={fi === 0 ? '#5eecd9' : '#f59e0b'}
             stroke-width="0.8"
@@ -85,7 +101,9 @@
       {#if p.active}
         <div
           class="absolute w-3 h-3 rounded-full -translate-x-1/2 -translate-y-1/2 border border-white/40 transition-[left,top] duration-75"
-          style="left: {nx(p) * 100}%; top: {ny(p) * 100}%; background: {p.id === 0 ? '#5eecd9' : '#f59e0b'};"
+          style="left: {nx(p) * 100}%; top: {ny(p) * 100}%; background: {p.id === 0
+            ? '#5eecd9'
+            : '#f59e0b'};"
         ></div>
       {/if}
     {/each}
@@ -100,7 +118,8 @@
       <ul class="flex flex-col gap-0.5 max-h-32 overflow-y-auto">
         {#each events as ev, i (i)}
           <li class="text-xs font-mono text-gray-400">
-            <span class="text-gray-600">›</span> {eventText(ev)}
+            <span class="text-gray-600">›</span>
+            {eventText(ev)}
           </li>
         {/each}
       </ul>

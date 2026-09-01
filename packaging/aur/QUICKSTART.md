@@ -5,6 +5,7 @@ Your `fixplay-diagnoseTool` project is now fully prepared for AUR distribution.
 ## 📦 What's Ready
 
 ### AUR Package Files
+
 ```
 packaging/aur/
 ├── .gitignore
@@ -18,12 +19,14 @@ packaging/aur/
 ```
 
 ### GitHub Release Setup
+
 - `.github/workflows/release.yml` builds:
   - **Linux**: AppImage, .deb, .rpm
   - **Windows**: .msi, .exe via NSIS
   - All artifacts include SHA256 checksums
 
 ### Documentation
+
 - `README.md` mentions both GitHub Releases and AUR
 - All release files are published to GitHub Releases
 - AUR package downloads and wraps the AppImage
@@ -33,22 +36,27 @@ packaging/aur/
 ## 🚀 Quick Start for AUR
 
 ### Option 1: Read Full Guide
+
 1. Open: `packaging/aur/PUBLISHING.md`
 2. Follow step-by-step instructions
 3. Create AUR account if you don't have one
 
 ### Option 2: Quick Test (Arch/CachyOS)
+
 ```bash
 cd packaging/aur/fixplay-diagnosetool-bin
 makepkg -si
 ```
+
 This will:
+
 - Download the latest AppImage (v0.1.0)
 - Install it to `/opt/fixplay-diagnosetool-bin`
 - Create `/usr/bin/fixplay-diagnosetool` wrapper
 - Add desktop entry to your app menu
 
 ### Option 3: Update for New Release
+
 After pushing a new tag to GitHub:
 
 ```bash
@@ -73,6 +81,7 @@ git commit -m "Update AUR package to v<version>"
 ## 🔗 Publishing Workflow
 
 1. **Tag your release**:
+
    ```bash
    git tag v0.1.0
    git push origin v0.1.0
@@ -93,6 +102,7 @@ git commit -m "Update AUR package to v<version>"
 ## 🎯 For CachyOS Users
 
 With this setup:
+
 - **GitHub Releases**: Download directly (AppImage, .deb, .rpm)
 - **AUR**: Install via `yay -S fixplay-diagnosetool-bin` on CachyOS/Arch
 - **Both options work** - AUR just wraps the AppImage for convenience
@@ -132,6 +142,7 @@ With this setup:
 ## 📚 Reference Files
 
 For more details, see:
+
 - `packaging/aur/README.md` - Local building instructions
 - `packaging/aur/PUBLISHING.md` - Complete AUR submission guide
 - `packaging/aur/STRUCTURE.md` - File reference
@@ -140,4 +151,3 @@ For more details, see:
 ---
 
 **All set for AUR! 🎉**
-

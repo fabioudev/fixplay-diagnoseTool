@@ -12,8 +12,9 @@ export function trapFocus(node: HTMLElement) {
   const previouslyFocused = document.activeElement as HTMLElement | null;
 
   function focusables(): HTMLElement[] {
-    return Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE))
-      .filter((el) => el.offsetParent !== null || el === document.activeElement);
+    return Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      (el) => el.offsetParent !== null || el === document.activeElement
+    );
   }
 
   // Focus first element shortly after mount so the DOM is settled.
@@ -27,7 +28,7 @@ export function trapFocus(node: HTMLElement) {
     const items = focusables();
     if (items.length === 0) return;
     const first = items[0];
-    const last  = items[items.length - 1];
+    const last = items[items.length - 1];
     if (e.shiftKey) {
       if (document.activeElement === first) {
         e.preventDefault();

@@ -197,16 +197,19 @@ export const uartSetAutoReconnect = (enabled: boolean): Promise<void> =>
 **Imports:** `uartReconnecting` aus Store, `uartSetAutoReconnect` aus API.
 
 **Lokaler State:**
+
 ```ts
 let autoReconnect = $state(false);
 ```
 
 **Fünfter Listener in `onMount`** (nach `u4`):
+
 ```ts
 listen<{ active: boolean }>('uart://reconnecting', (e) => {
   uartReconnecting.set(e.payload.active);
 }),
 ```
+
 → `const [u1, u2, u3, u4, u5] = await Promise.all([...])` und `unlisten.push(u1, u2, u3, u4, u5)`.
 
 Außerdem in `uart://status`-Listener: wenn `connected: true`, auch `uartReconnecting.set(false)` (Sicherheits-Reset).
@@ -232,11 +235,11 @@ Außerdem in `uart://status`-Listener: wenn `connected: true`, auch `uartReconne
 
 **Connect-Button-State:** Der Button zeigt drei Zustände — ist immer klickbar (auch während Reconnecting, damit der User abbrechen kann):
 
-| Zustand | Text | Disabled |
-|---------|------|----------|
+| Zustand             | Text              | Disabled               |
+| ------------------- | ----------------- | ---------------------- |
 | `$uartReconnecting` | `⟳ Reconnecting…` | nein — Klick bricht ab |
-| `$uartConnected` | `Trennen` | nein |
-| sonst | `Verbinden` | nein |
+| `$uartConnected`    | `Trennen`         | nein                   |
+| sonst               | `Verbinden`       | nein                   |
 
 ```svelte
 <button
@@ -304,12 +307,12 @@ it('uartReconnecting can be set to true', () => {
 
 ## Dateien-Übersicht
 
-| Aktion | Pfad |
-|--------|------|
-| Modify | `src-tauri/src/state.rs` |
-| Modify | `src-tauri/src/commands/uart.rs` |
-| Modify | `src-tauri/src/lib.rs` |
-| Modify | `src/lib/stores/uart.ts` |
-| Modify | `src/lib/stores/uart.test.ts` |
-| Modify | `src/lib/api/tauri.ts` |
+| Aktion | Pfad                                  |
+| ------ | ------------------------------------- |
+| Modify | `src-tauri/src/state.rs`              |
+| Modify | `src-tauri/src/commands/uart.rs`      |
+| Modify | `src-tauri/src/lib.rs`                |
+| Modify | `src/lib/stores/uart.ts`              |
+| Modify | `src/lib/stores/uart.test.ts`         |
+| Modify | `src/lib/api/tauri.ts`                |
 | Modify | `src/lib/components/UartPanel.svelte` |

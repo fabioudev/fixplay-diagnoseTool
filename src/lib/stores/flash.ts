@@ -1,18 +1,25 @@
 import { writable } from 'svelte/store';
 import { listen } from '@tauri-apps/api/event';
-import type { FlashReadResult, FlashLogEntry, FlashProgressEvent, FlashPreviewResult, FlashStatusEvent, NorValidation } from '$lib/api/types';
+import type {
+  FlashReadResult,
+  FlashLogEntry,
+  FlashProgressEvent,
+  FlashPreviewResult,
+  FlashStatusEvent,
+  NorValidation,
+} from '$lib/api/types';
 import type { TranslationFunctions } from '$lib/i18n/i18n-types';
 import type { LocalizedString } from 'typesafe-i18n';
 import { createLogStore } from './log';
 
-export const flashBusy      = writable<boolean>(false);
-export const flashProgress  = writable<FlashProgressEvent | null>(null);
-export const flashResult    = writable<FlashReadResult | null>(null);
+export const flashBusy = writable<boolean>(false);
+export const flashProgress = writable<FlashProgressEvent | null>(null);
+export const flashResult = writable<FlashReadResult | null>(null);
 
 // Flash log: shared createLogStore backs the writable + monotonic id + capped
 // prepend (the contract every component relies on when appending flashrom output).
 const _flashLog = createLogStore<FlashLogEntry>();
-export const flashLog       = _flashLog.entries;
+export const flashLog = _flashLog.entries;
 export const nextFlashLogId = _flashLog.nextId;
 /** Prepend a flash log entry (newest-first), capped at 200. */
 export const pushFlashLog: (entry: FlashLogEntry) => void = _flashLog.push;
@@ -45,9 +52,13 @@ export const flashWritePreview = writable<FlashPreviewResult | null>(null);
  * the same sequence as the VALIDATION_ITEMS label list in FlashPanel.
  */
 const VALIDATION_KEY_ORDER: (keyof NorValidation)[] = [
-  'header_ok', 'mbr1_ok', 'mbr2_ok',
-  'emc_ipl_a_ok', 'emc_ipl_b_ok',
-  'usb_pdc_a_ok', 'usb_pdc_b_ok',
+  'header_ok',
+  'mbr1_ok',
+  'mbr2_ok',
+  'emc_ipl_a_ok',
+  'emc_ipl_b_ok',
+  'usb_pdc_a_ok',
+  'usb_pdc_b_ok',
   'size_ok',
 ];
 
@@ -62,8 +73,10 @@ const KNOWN_VALIDATION_KEYS = new Set<string>(VALIDATION_KEY_ORDER);
  * silently passing a check it never knew about.
  */
 export function isValidationOk(validation: NorValidation): boolean {
-  return failedValidationKeys(validation).length === 0
-    && Object.values(validation).every((v) => v === true);
+  return (
+    failedValidationKeys(validation).length === 0 &&
+    Object.values(validation).every((v) => v === true)
+  );
 }
 
 /**
@@ -106,7 +119,7 @@ export function computeEta(
   state: EtaState,
   phase: string,
   percent: number,
-  nowMs: number,
+  nowMs: number
 ): { state: EtaState; remainingMs: number | null } {
   if (state.phase !== phase) {
     return { state: { phase, start: nowMs }, remainingMs: null };
@@ -115,7 +128,7 @@ export function computeEta(
   if (percent <= 0 || percent >= 100 || elapsed <= 0 || percent < 20) {
     return { state, remainingMs: null };
   }
-  return { state, remainingMs: Math.round((100 - percent) * elapsed / percent) };
+  return { state, remainingMs: Math.round(((100 - percent) * elapsed) / percent) };
 }
 
 // --- Live phase/ETA state + panel-independent event wiring ---------------------
@@ -132,9 +145,9 @@ export const flashEtaRemainingMs = writable<number | null>(null);
 
 /** Localized label per flash phase (read1/read2/write/verify). */
 export const FLASH_PHASE_LABELS: Record<string, (ll: TranslationFunctions) => LocalizedString> = {
-  read1:  (ll) => ll.flash.phase.read1(),
-  read2:  (ll) => ll.flash.phase.read2(),
-  write:  (ll) => ll.flash.phase.write(),
+  read1: (ll) => ll.flash.phase.read1(),
+  read2: (ll) => ll.flash.phase.read2(),
+  write: (ll) => ll.flash.phase.write(),
   verify: (ll) => ll.flash.phase.verify(),
 };
 
@@ -163,7 +176,12 @@ export async function initFlashListeners(): Promise<void> {
         // rendered (FLASH_PHASE_LABELS) so a locale switch mid-operation keeps
         // showing the right text.
         flashPhase.set(e.payload.phase);
-        const { state, remainingMs } = computeEta(etaState, e.payload.phase, e.payload.percent, Date.now());
+        const { state, remainingMs } = computeEta(
+          etaState,
+          e.payload.phase,
+          e.payload.percent,
+          Date.now()
+        );
         etaState = state;
         flashEtaRemainingMs.set(remainingMs);
       }),

@@ -32,23 +32,25 @@
   });
 
   const accent: Record<string, string> = {
-    info:    'border-l-blue-500',
+    info: 'border-l-blue-500',
     success: 'border-l-green-500',
-    warn:    'border-l-amber-500',
-    error:   'border-l-red-500',
+    warn: 'border-l-amber-500',
+    error: 'border-l-red-500',
   };
   const iconColor: Record<string, string> = {
-    info:    'text-blue-400',
+    info: 'text-blue-400',
     success: 'text-green-400',
-    warn:    'text-amber-400',
-    error:   'text-red-400',
+    warn: 'text-amber-400',
+    error: 'text-red-400',
   };
 </script>
 
 <div class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 flex-col gap-2">
   {#each $notifications as n (n.id)}
     <div
-      class="pointer-events-auto flex items-start gap-3 rounded-lg border border-gray-700 border-l-4 bg-gray-800 p-3 shadow-2xl {accent[n.level]}"
+      class="pointer-events-auto flex items-start gap-3 rounded-lg border border-gray-700 border-l-4 bg-gray-800 p-3 shadow-2xl {accent[
+        n.level
+      ]}"
       in:fly={{ y: 12, duration: 150 }}
       out:fade={{ duration: 120 }}
       animate:flip={{ duration: 120 }}

@@ -23,11 +23,11 @@
   } = $props();
 
   type Result = 'idle' | 'ok' | 'fail' | 'error';
-  let running   = $state(false);
-  let result    = $state<Result>('idle');
-  let baseline  = $state(0); // mic RMS % peak during the silent pre-phase
-  let peakTone  = $state(0); // mic RMS % peak while the speaker tone plays
-  let errorMsg  = $state<string | null>(null);
+  let running = $state(false);
+  let result = $state<Result>('idle');
+  let baseline = $state(0); // mic RMS % peak during the silent pre-phase
+  let peakTone = $state(0); // mic RMS % peak while the speaker tone plays
+  let errorMsg = $state<string | null>(null);
 
   let audioCtx: AudioContext | null = null;
   let analyser: AnalyserNode | null = null;
@@ -59,7 +59,7 @@
           d.kind === 'audioinput' &&
           (d.label.includes('DualSense') ||
             d.label.includes('Wireless Controller') ||
-            d.label.includes('PS5')),
+            d.label.includes('PS5'))
       );
       if (!mic) return get(LL).tester.micNotFound();
       stream = await navigator.mediaDevices.getUserMedia({
@@ -86,8 +86,14 @@
   }
 
   function teardownMic(): void {
-    if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
-    if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+    }
+    if (audioCtx) {
+      audioCtx.close().catch(() => {});
+      audioCtx = null;
+    }
     analyser = null;
   }
 
@@ -112,14 +118,20 @@
     peakTone = 0;
     try {
       const micErr = await openMic();
-      if (micErr) { result = 'error'; errorMsg = micErr; return; }
+      if (micErr) {
+        result = 'error';
+        errorMsg = micErr;
+        return;
+      }
 
       // 1) Baseline: ~500 ms of silence before the tone.
       baseline = await maxLevelOver(500);
 
       // 2) Play the speaker tone and measure the mic peak while it plays.
       await manager.setSpeakerTone('speaker').catch((e: unknown) => {
-        throw new Error(get(LL).tester.speakerError({ error: e instanceof Error ? e.message : String(e) }));
+        throw new Error(
+          get(LL).tester.speakerError({ error: e instanceof Error ? e.message : String(e) })
+        );
       });
       peakTone = await maxLevelOver(1200);
 
@@ -136,7 +148,7 @@
         ok
           ? get(LL).tester.loopbackLogOk({ baseline, peak: peakTone })
           : get(LL).tester.loopbackLogFail({ baseline, peak: peakTone }),
-        ok ? 'info' : 'warn',
+        ok ? 'info' : 'warn'
       );
     } catch (e) {
       result = 'error';
@@ -168,11 +180,13 @@
 
     {#if result === 'ok'}
       <span class="flex items-center gap-1 text-xs text-green-400">
-        <CheckCircle2 class="h-4 w-4" /> {$LL.tester.loopbackOk()}
+        <CheckCircle2 class="h-4 w-4" />
+        {$LL.tester.loopbackOk()}
       </span>
     {:else if result === 'fail'}
       <span class="flex items-center gap-1 text-xs text-red-400">
-        <XCircle class="h-4 w-4" /> {$LL.tester.loopbackFail()}
+        <XCircle class="h-4 w-4" />
+        {$LL.tester.loopbackFail()}
       </span>
     {:else if result === 'error'}
       <span class="text-xs text-red-400">{errorMsg}</span>
@@ -182,7 +196,8 @@
   {#if result === 'ok' || result === 'fail'}
     <div class="text-[11px] text-gray-500 flex gap-4">
       <span>{$LL.tester.baseline()}: <span class="font-mono text-gray-300">{baseline}%</span></span>
-      <span>{$LL.tester.toneLevel()}: <span class="font-mono text-gray-300">{peakTone}%</span></span>
+      <span>{$LL.tester.toneLevel()}: <span class="font-mono text-gray-300">{peakTone}%</span></span
+      >
     </div>
   {/if}
 </div>

@@ -49,7 +49,7 @@ export function classifyLift(
   upX: number,
   upY: number,
   durationMs: number,
-  at: number,
+  at: number
 ): TouchGestureEvent {
   const dx = upX - downX;
   const dy = upY - downY;
@@ -62,13 +62,7 @@ export function classifyLift(
     return { type: 'hold', durationMs, displacement, at };
   }
   const direction: SwipeDirection =
-    Math.abs(dx) >= Math.abs(dy)
-      ? dx > 0
-        ? 'rechts'
-        : 'links'
-      : dy > 0
-        ? 'unten'
-        : 'oben';
+    Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'rechts' : 'links') : dy > 0 ? 'unten' : 'oben';
   return { type: 'swipe', direction, durationMs, displacement, at };
 }
 

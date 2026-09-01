@@ -18,8 +18,8 @@ Ein "Version"-Button wird neben dem bestehenden "Errlog"-Button in `UartPanel.sv
 
 ### Änderungen
 
-| Datei | Aktion |
-|-------|--------|
+| Datei                                 | Aktion                                         |
+| ------------------------------------- | ---------------------------------------------- |
 | `src/lib/components/UartPanel.svelte` | Button `"Version"` neben `"Errlog"` hinzufügen |
 
 ### Button-Markup
@@ -44,6 +44,7 @@ Ein "Version"-Button wird neben dem bestehenden "Errlog"-Button in `UartPanel.sv
 Wenn `uart://status` einen Zustandswechsel meldet, wird ein Eintrag in `uartLog` geschrieben. Diese Einträge sind visuell vom normalen UART-Output unterscheidbar (grau/kursiv statt grün). Dafür bekommt `UartLogEntry` ein optionales `kind?: 'status'`-Feld.
 
 Geloggte Ereignisse:
+
 - `connected: true` → `[Verbunden — <selectedPort>]`
 - `connected: false` → `[Getrennt]`
 
@@ -51,22 +52,22 @@ Reconnect-Events (`uart://reconnecting`) werden **nicht** geloggt — der Zustan
 
 ### Änderungen
 
-| Datei | Aktion |
-|-------|--------|
-| `src/lib/api/types.ts` | `kind?: 'status'` zu `UartLogEntry` hinzufügen |
-| `src/lib/components/UartPanel.svelte` | `uart://status`-Listener: Log-Eintrag pushen |
+| Datei                                 | Aktion                                                |
+| ------------------------------------- | ----------------------------------------------------- |
+| `src/lib/api/types.ts`                | `kind?: 'status'` zu `UartLogEntry` hinzufügen        |
+| `src/lib/components/UartPanel.svelte` | `uart://status`-Listener: Log-Eintrag pushen          |
 | `src/lib/components/UartPanel.svelte` | Log-Template: `kind === 'status'` grau/kursiv rendern |
-| `src/lib/stores/uart.test.ts` | Tests für `kind: 'status'` |
+| `src/lib/stores/uart.test.ts`         | Tests für `kind: 'status'`                            |
 
 ### Type-Änderung
 
 ```ts
 export interface UartLogEntry {
-  id:           number;
+  id: number;
   timestamp_ms: number;
-  raw:          string;
-  parsed?:      UartEntryEvent;
-  kind?:        'status';
+  raw: string;
+  parsed?: UartEntryEvent;
+  kind?: 'status';
 }
 ```
 
@@ -117,10 +118,10 @@ Bei Übereinstimmung emittiert es `flash://status { level: "info", message: "Ver
 
 ### Änderungen
 
-| Datei | Aktion |
-|-------|--------|
-| `src-tauri/src/commands/flash.rs` | `flash_write` bekommt `verify: bool` Parameter |
-| `src/lib/api/tauri.ts` | `flashWrite` Signatur: `verify: boolean` hinzufügen |
+| Datei                                  | Aktion                                                            |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| `src-tauri/src/commands/flash.rs`      | `flash_write` bekommt `verify: bool` Parameter                    |
+| `src/lib/api/tauri.ts`                 | `flashWrite` Signatur: `verify: boolean` hinzufügen               |
 | `src/lib/components/FlashPanel.svelte` | Verify-Checkbox im Write-Dialog; `let writeVerify = $state(true)` |
 
 ### Backend — flash_write Signatur
@@ -174,23 +175,22 @@ export const flashWrite = (path: string, programmer: string, verify: boolean): P
 ### Frontend — Write-Dialog
 
 Lokaler State in `FlashPanel.svelte`:
+
 ```ts
 let writeVerify = $state(true);
 ```
 
 Checkbox im Write-Dialog, zwischen NVS-Info und Action-Buttons:
+
 ```svelte
 <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-  <input
-    type="checkbox"
-    bind:checked={writeVerify}
-    class="accent-blue-500"
-  />
+  <input type="checkbox" bind:checked={writeVerify} class="accent-blue-500" />
   Nach dem Schreiben verifizieren
 </label>
 ```
 
 `confirmWrite` übergibt `writeVerify`:
+
 ```ts
 async function confirmWrite() {
   const preview = $flashWritePreview;
@@ -235,7 +235,10 @@ Da `flash_write` Hardware benötigt, werden keine Integrationstests geschrieben.
 ```ts
 it('uartLog status entry has kind status', () => {
   const entry: UartLogEntry = {
-    id: 0, timestamp_ms: Date.now(), raw: '[Verbunden — /dev/ttyUSB0]', kind: 'status',
+    id: 0,
+    timestamp_ms: Date.now(),
+    raw: '[Verbunden — /dev/ttyUSB0]',
+    kind: 'status',
   };
   expect(entry.kind).toBe('status');
 });
@@ -245,11 +248,11 @@ it('uartLog status entry has kind status', () => {
 
 ## Dateien-Übersicht
 
-| Aktion | Pfad |
-|--------|------|
-| Modify | `src-tauri/src/commands/flash.rs` |
-| Modify | `src/lib/api/tauri.ts` |
-| Modify | `src/lib/api/types.ts` |
-| Modify | `src/lib/components/UartPanel.svelte` |
+| Aktion | Pfad                                   |
+| ------ | -------------------------------------- |
+| Modify | `src-tauri/src/commands/flash.rs`      |
+| Modify | `src/lib/api/tauri.ts`                 |
+| Modify | `src/lib/api/types.ts`                 |
+| Modify | `src/lib/components/UartPanel.svelte`  |
 | Modify | `src/lib/components/FlashPanel.svelte` |
-| Modify | `src/lib/stores/uart.test.ts` |
+| Modify | `src/lib/stores/uart.test.ts`          |

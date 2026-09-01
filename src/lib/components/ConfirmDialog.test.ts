@@ -28,7 +28,12 @@ describe('ConfirmDialog', () => {
 
   it('renders title, message and the confirm label when open', () => {
     render(ConfirmDialog, {
-      props: { open: true, title: 'Wirklich?', message: 'Löschen nicht rückgängig', confirmLabel: 'Löschen' },
+      props: {
+        open: true,
+        title: 'Wirklich?',
+        message: 'Löschen nicht rückgängig',
+        confirmLabel: 'Löschen',
+      },
     });
     expect(screen.getByText('Wirklich?')).toBeInTheDocument();
     expect(screen.getByText('Löschen nicht rückgängig')).toBeInTheDocument();

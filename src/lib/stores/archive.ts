@@ -21,7 +21,7 @@ export const archiveSortMode = writable<ArchiveSortMode>('newest');
 
 /** Total number of dumps across all serial groups (derived from {@link archives}). */
 export const archiveDumpCount: Readable<number> = derived(archives, ($a) =>
-  $a.reduce((n, a) => n + a.dumps.length, 0),
+  $a.reduce((n, a) => n + a.dumps.length, 0)
 );
 
 /**
@@ -35,10 +35,7 @@ export async function refreshArchives(): Promise<void> {
     _archives.set(await archiveListDumps());
   } catch (e) {
     _archives.set([]);
-    notifyError(
-      'Archiv konnte nicht geladen werden',
-      e instanceof Error ? e.message : String(e),
-    );
+    notifyError('Archiv konnte nicht geladen werden', e instanceof Error ? e.message : String(e));
   } finally {
     archiveLoading.set(false);
   }
