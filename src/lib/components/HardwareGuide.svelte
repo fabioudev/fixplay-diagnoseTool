@@ -111,7 +111,11 @@
   const ZIF_BOTTOM = [...ZIF_SOCKET.filter((p) => p.n > 8)].reverse();
 </script>
 
-<div class="rounded-lg border border-gray-700/60 bg-gray-800/40 overflow-hidden">
+<!-- shrink-0: this guide lives in a height-constrained flex column
+     (FlashPanel/UartPanel sections). Without it, expanding the guide makes the
+     flex parent shrink this box below its content size and overflow-hidden
+     cuts the bottom off (half the SOIC-8 chip) instead of the page scrolling. -->
+<div class="shrink-0 rounded-lg border border-gray-700/60 bg-gray-800/40 overflow-hidden">
   <button
     class="w-full flex items-center gap-2 px-3 py-2 text-left text-sm font-medium text-gray-200 hover:bg-gray-700/40 transition-colors"
     onclick={() => (open = !open)}
