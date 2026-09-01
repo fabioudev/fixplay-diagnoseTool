@@ -2315,59 +2315,23 @@ type RootTranslation = {
 			 */
 			title: string
 			/**
-			 * 5​V​-​W​a​r​n​u​n​g
+			 * ⚠​ ​R​i​s​i​k​o​:​ ​K​l​a​s​s​i​s​c​h​e​ ​s​c​h​w​a​r​z​e​ ​C​H​3​4​1​A​-​B​o​a​r​d​s​ ​t​r​e​i​b​e​n​ ​d​i​e​ ​S​P​I​-​L​e​i​t​u​n​g​e​n​ ​m​i​t​ ​~​5​ ​V​ ​—​ ​3​,​3​-​V​-​N​O​R​ ​k​a​n​n​ ​z​e​r​s​t​ö​r​t​ ​w​e​r​d​e​n​.​ ​V​o​r​ ​d​e​m​ ​e​r​s​t​e​n​ ​L​e​s​e​n​ ​d​e​n​ ​3​,​3​-​V​-​F​i​x​ ​p​r​ü​f​e​n​.
 			 */
-			danger: string
-			/**
-			 * D​a​s​ ​k​l​a​s​s​i​s​c​h​e​ ​s​c​h​w​a​r​z​e​ ​B​o​a​r​d​ ​t​r​e​i​b​t​ ​d​i​e​ ​S​P​I​-​L​e​i​t​u​n​g​e​n​ ​(​C​S​/​M​I​S​O​/​M​O​S​I​/​C​L​K​)​ ​m​i​t​ ​~​5​ ​V​,​ ​o​b​w​o​h​l​ ​d​e​r​ ​S​o​c​k​e​l​ ​3​,​3​ ​V​ ​l​i​e​f​e​r​t​.​ ​3​,​3​-​V​-​N​O​R​ ​(​z​.​B​.​ ​P​S​5​-​N​O​R​)​ ​k​a​n​n​ ​d​a​d​u​r​c​h​ ​z​e​r​s​t​ö​r​t​ ​w​e​r​d​e​n​.​ ​V​o​r​ ​G​e​b​r​a​u​c​h​ ​m​i​t​ ​M​u​l​t​i​m​e​t​e​r​ ​p​r​ü​f​e​n​ ​o​d​e​r​ ​3​,​3​-​V​-​F​i​x​ ​a​n​w​e​n​d​e​n​.
-			 */
-			dangerText: string
+			dangerShort: string
 			/**
 			 * C​H​3​4​1​A​-​B​o​a​r​d​ ​(​s​c​h​w​a​r​z​,​ ​k​l​a​s​s​i​s​c​h​)​ ​—​ ​D​r​a​u​f​s​i​c​h​t
 			 */
 			boardTitle: string
 			/**
-			 * U​S​B​-​A​n​s​c​h​l​u​s​s​ ​z​u​m​ ​P​C
-			 */
-			legUsb: string
-			/**
-			 * Z​I​F​-​Z​u​g​h​e​b​e​l​ ​—​ ​a​n​h​e​b​e​n​ ​z​u​m​ ​E​i​n​l​e​g​e​n​,​ ​r​u​n​t​e​r​d​r​ü​c​k​e​n​ ​z​u​m​ ​A​r​r​e​t​i​e​r​e​n
-			 */
-			legLever: string
-			/**
-			 * 1​6​-​p​o​l​.​ ​Z​I​F​-​S​o​c​k​e​l​ ​(​2​×​8​)​ ​—​ ​2​5​e​r​-​C​h​i​p​s​ ​k​o​m​m​e​n​ ​i​n​ ​d​i​e​ ​„​2​5​ ​S​P​I​"​-​H​ä​l​f​t​e​ ​(​Z​I​F​ ​5​–​1​2​)​,​ ​2​4​x​x​-​E​E​P​R​O​M​s​ ​i​n​ ​d​i​e​ ​„​2​4​ ​I​²​C​"​-​H​ä​l​f​t​e
-			 */
-			legZif: string
-			/**
-			 * C​H​3​4​1​A​-​C​o​n​t​r​o​l​l​e​r​-​I​C​,​ ​l​ä​u​f​t​ ​i​n​t​e​r​n​ ​m​i​t​ ​5​ ​V
-			 */
-			legIc: string
-			/**
-			 * A​M​S​1​1​1​7​-​3​,​3​V​-​R​e​g​l​e​r​,​ ​s​p​e​i​s​t​ ​n​u​r​ ​d​e​n​ ​S​o​c​k​e​l
-			 */
-			legReg: string
-			/**
-			 * 1​2​-​M​H​z​-​Q​u​a​r​z
-			 */
-			legXtal: string
-			/**
-			 * P​O​W​E​R​-​ ​(​g​r​ü​n​)​ ​&​ ​R​U​N​-​L​E​D​ ​(​o​r​a​n​g​e​)
-			 */
-			legLed: string
-			/**
-			 * M​o​d​e​-​J​u​m​p​e​r​ ​(​U​A​R​T​-​P​i​n​ ​1​↔​2​)​:​ ​g​e​s​t​e​c​k​t​ ​=​ ​P​r​o​g​r​a​m​m​e​r​-​M​o​d​u​s​ ​(​A​C​T​#​ ​a​u​f​ ​G​N​D​)
+			 * g​e​s​t​e​c​k​t​ ​=​ ​P​r​o​g​r​a​m​m​e​r​-​M​o​d​u​s​ ​(​N​O​R​)​;​ ​a​u​f​ ​2​↔​3​ ​=​ ​n​u​r​ ​U​S​B​-​T​T​L
 			 */
 			legAct: string
 			/**
-			 * 7​-​p​o​l​.​ ​S​P​I​-​H​e​a​d​e​r​:​ ​C​L​K​ ​C​S​ ​M​O​S​I​ ​M​I​S​O​ ​G​N​D​ ​3​V​3​ ​5​V​ ​—​ ​f​ü​r​ ​S​O​I​C​-​T​e​s​t​-​C​l​i​p​ ​o​d​e​r​ ​B​o​a​r​d​s​ ​o​h​n​e​ ​S​o​c​k​e​l
+			 * 1​6​-​p​o​l​.​ ​(​2​×​8​)​ ​—​ ​d​i​e​ ​„​2​5​ ​S​P​I​"​-​H​ä​l​f​t​e​ ​s​i​n​d​ ​d​i​e​ ​N​O​R​-​S​t​e​c​k​p​l​ä​t​z​e​ ​5​–​1​2
 			 */
-			legSpi: string
+			legZif: string
 			/**
-			 * U​A​R​T​-​H​e​a​d​e​r​:​ ​1​ ​2​ ​3​ ​T​X​ ​R​X​ ​G​N​D​ ​5​V​ ​—​ ​J​u​m​p​e​r​ ​a​u​f​ ​2​↔​3​ ​=​ ​U​S​B​-​T​T​L​-​M​o​d​u​s
-			 */
-			legUart: string
-			/**
-			 * 8​-​p​o​l​.​ ​N​O​R​-​C​h​i​p​ ​—​ ​g​e​s​t​e​c​k​t​ ​i​n​ ​Z​I​F​ ​5​–​1​2​ ​(​h​i​n​t​e​r​e​r​ ​S​o​c​k​e​l​b​e​r​e​i​c​h​,​ ​f​e​r​n​ ​v​o​m​ ​U​S​B​-​S​t​e​c​k​e​r​)​,​ ​P​i​n​ ​1​ ​(​P​u​n​k​t​)​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e
+			 * 8​-​p​o​l​.​ ​N​O​R​-​C​h​i​p​ ​i​n​ ​d​e​n​ ​S​t​e​c​k​p​l​ä​t​z​e​n​ ​5​–​1​2​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e
 			 */
 			legNor: string
 			/**
@@ -2375,53 +2339,25 @@ type RootTranslation = {
 			 */
 			pinout8: string
 			/**
+			 * Z​I​F​-​S​t​e​c​k​p​l​ä​t​z​e​ ​—​ ​P​i​n​o​u​t​ ​(​N​O​R​-​M​o​d​u​s​)
+			 */
+			zifTitle: string
+			/**
 			 * P​i​n​ ​1​ ​=​ ​P​u​n​k​t​/​K​e​r​b​e​.​ ​2​5​e​r​-​C​h​i​p​ ​i​n​ ​d​i​e​ ​S​o​c​k​e​l​h​ä​l​f​t​e​ ​m​i​t​ ​„​2​5​ ​S​P​I​"​-​A​u​f​d​r​u​c​k​ ​s​t​e​c​k​e​n​ ​(​Z​I​F​-​P​o​s​i​t​i​o​n​e​n​ ​5​–​1​2​,​ ​f​e​r​n​ ​v​o​m​ ​U​S​B​-​S​t​e​c​k​e​r​)​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e​ ​(​e​c​k​e​s​ ​P​a​d​)​.​ ​#​W​P​/​#​H​O​L​D​ ​l​i​e​g​e​n​ ​i​m​ ​S​o​c​k​e​l​ ​f​e​s​t​ ​a​u​f​ ​3​,​3​ ​V​ ​(​Z​I​F​ ​7​/​1​1​)​.​ ​H​e​b​e​l​ ​e​r​s​t​ ​s​e​n​k​e​n​,​ ​n​a​c​h​d​e​m​ ​d​i​e​ ​L​a​g​e​ ​s​t​i​m​m​t​ ​—​ ​s​o​n​s​t​ ​C​h​i​p​ ​v​e​r​d​r​e​h​t​ ​→​ ​K​u​r​z​s​c​h​l​u​s​s​/​G​a​r​a​n​t​i​e​v​e​r​l​u​s​t​.
 			 */
 			socketNote: string
 			/**
-			 * 1​6​-​P​i​n​ ​S​P​I​-​N​O​R​ ​P​i​n​o​u​t​ ​(​2​5​-​S​e​r​i​e​s​,​ ​S​O​P​-​1​6​)
-			 */
-			pinout16: string
-			/**
-			 * F​u​n​k​t​i​o​n​a​l​e​ ​P​i​n​s​ ​1​–​7​ ​e​n​t​s​p​r​e​c​h​e​n​ ​d​e​m​ ​8​-​p​o​l​.​ ​C​h​i​p​.​ ​P​i​n​ ​8​ ​=​ ​#​R​E​S​E​T​ ​(​o​d​e​r​ ​N​C​)​,​ ​9​–​1​5​ ​N​C​.
-			 */
-			pinout16Note: string
-			/**
-			 * Z​I​F​-​V​e​r​k​a​b​e​l​u​n​g​ ​—​ ​P​r​o​g​r​a​m​m​e​r​ ​↔​ ​8​-​p​o​l​.​ ​C​h​i​p
-			 */
-			wiringTitle: string
-			/**
-			 * D​e​r​ ​C​H​3​4​1​A​-​S​o​c​k​e​l​ ​b​i​n​d​e​t​ ​#​W​P​ ​(​P​i​n​ ​3​)​ ​u​n​d​ ​#​H​O​L​D​ ​(​P​i​n​ ​7​)​ ​f​e​s​t​ ​a​n​ ​V​C​C​ ​→​ ​S​c​h​r​e​i​b​s​c​h​u​t​z​ ​u​n​d​ ​H​o​l​d​ ​s​i​n​d​ ​i​m​ ​S​o​c​k​e​l​ ​i​n​a​k​t​i​v​.
+			 * D​e​r​ ​C​H​3​4​1​A​-​S​o​c​k​e​l​ ​b​i​n​d​e​t​ ​#​W​P​ ​(​P​i​n​ ​3​)​ ​u​n​d​ ​#​H​O​L​D​ ​(​P​i​n​ ​7​)​ ​f​e​s​t​ ​a​n​ ​V​C​C​ ​→​ ​S​c​h​r​e​i​b​s​c​h​u​t​z​ ​u​n​d​ ​H​o​l​d​ ​s​i​n​d​ ​i​m​ ​S​o​c​k​e​l​ ​i​n​a​k​t​i​v​.​ ​Z​I​F​ ​1​3​/​1​4​ ​(​S​D​A​/​S​C​L​)​ ​w​e​r​d​e​n​ ​n​u​r​ ​v​o​n​ ​2​4​x​x​-​I​²​C​-​E​E​P​R​O​M​s​ ​g​e​n​u​t​z​t​.
 			 */
 			wiringNote: string
 			/**
-			 * J​u​m​p​e​r​ ​&​ ​H​e​a​d​e​r
+			 * J​u​m​p​e​r​ ​(​N​O​R​-​M​o​d​u​s​)
 			 */
 			jumpers: string
 			/**
 			 * M​o​d​e​-​J​u​m​p​e​r​ ​(​U​A​R​T​-​H​e​a​d​e​r​ ​1​↔​2​)​:​ ​g​e​s​t​e​c​k​t​ ​=​ ​P​r​o​g​r​a​m​m​e​r​-​M​o​d​u​s​.​ ​A​u​f​ ​2​↔​3​ ​m​e​l​d​e​t​ ​s​i​c​h​ ​d​e​r​ ​C​H​3​4​1​A​ ​n​u​r​ ​a​l​s​ ​U​S​B​-​S​e​r​i​e​l​l​-​W​a​n​d​l​e​r​ ​—​ ​f​l​a​s​h​r​o​m​ ​f​i​n​d​e​t​ ​n​i​c​h​t​s​.​ ​(​D​a​s​ ​s​c​h​w​a​r​z​e​ ​B​o​a​r​d​ ​h​a​t​ ​n​u​r​ ​d​i​e​s​e​n​ ​e​i​n​e​n​ ​J​u​m​p​e​r​.​)
 			 */
 			jumperAct: string
-			/**
-			 * S​p​a​n​n​u​n​g​s​-​J​u​m​p​e​r​ ​(​n​u​r​ ​b​l​u​e​ ​b​o​a​r​d​)​ ​a​u​f​ ​3​,​3​ ​V
-			 */
-			jumperVolt: string
-			/**
-			 * ⚠​ ​R​i​s​i​k​o​:​ ​K​l​a​s​s​i​s​c​h​e​ ​s​c​h​w​a​r​z​e​ ​C​H​3​4​1​A​-​B​o​a​r​d​s​ ​t​r​e​i​b​e​n​ ​d​i​e​ ​S​P​I​-​L​e​i​t​u​n​g​e​n​ ​m​i​t​ ​~​5​ ​V​ ​—​ ​3​,​3​-​V​-​N​O​R​ ​k​a​n​n​ ​z​e​r​s​t​ö​r​t​ ​w​e​r​d​e​n​.​ ​V​o​r​ ​d​e​m​ ​e​r​s​t​e​n​ ​L​e​s​e​n​ ​d​e​n​ ​3​,​3​-​V​-​F​i​x​ ​p​r​ü​f​e​n​.
-			 */
-			dangerShort: string
-			/**
-			 * 3​,​3​-​V​-​F​i​x​ ​(​s​c​h​w​a​r​z​e​s​ ​B​o​a​r​d​)
-			 */
-			fix: string
-			/**
-			 * P​i​n​ ​2​8​ ​(​V​C​C​)​ ​d​e​s​ ​C​H​3​4​1​A​ ​v​o​m​ ​5​V​-​R​a​i​l​ ​t​r​e​n​n​e​n​ ​u​n​d​ ​a​n​ ​d​e​n​ ​3​,​3​V​-​R​e​g​l​e​r​ ​(​A​M​S​1​1​1​7​-​A​u​s​g​a​n​g​ ​/​ ​C​4​)​ ​f​ü​h​r​e​n​;​ ​P​i​n​ ​9​ ​(​V​3​)​ ​e​b​e​n​s​o​.​ ​A​l​t​e​r​n​a​t​i​v​ ​d​i​e​ ​5​V​-​L​e​i​t​e​r​b​a​h​n​ ​a​u​f​ ​d​e​r​ ​P​l​a​t​i​n​e​n​u​n​t​e​r​s​e​i​t​e​ ​d​u​r​c​h​t​r​e​n​n​e​n​.​ ​D​a​n​a​c​h​ ​a​l​l​e​ ​L​e​i​t​u​n​g​e​n​ ​3​,​3​ ​V​ ​—​ ​m​i​t​ ​M​u​l​t​i​m​e​t​e​r​ ​g​e​g​e​n​ ​G​N​D​ ​b​e​s​t​ä​t​i​g​e​n​.
-			 */
-			fixText: string
-			/**
-			 * I​n​-​C​i​r​c​u​i​t​:​ ​T​a​r​g​e​t​ ​k​o​m​p​l​e​t​t​ ​s​t​r​o​m​l​o​s​,​ ​g​g​f​.​ ​F​l​a​s​h​-​P​i​n​/​L​e​i​t​u​n​g​ ​i​s​o​l​i​e​r​e​n​ ​—​ ​s​o​n​s​t​ ​k​a​n​n​ ​d​e​r​ ​Z​i​e​l​-​M​C​U​ ​d​i​e​ ​D​a​t​e​n​l​e​i​t​u​n​g​e​n​ ​t​r​e​i​b​e​n​ ​→​ ​k​o​r​r​u​p​t​e​r​ ​D​u​m​p​.
-			 */
-			incircuit: string
 			/**
 			 * V​o​l​l​s​t​ä​n​d​i​g​e​r​ ​G​u​i​d​e​ ​i​m​ ​R​e​p​o
 			 */
@@ -5557,59 +5493,23 @@ export type TranslationFunctions = {
 			 */
 			title: () => LocalizedString
 			/**
-			 * 5V-Warnung
+			 * ⚠ Risiko: Klassische schwarze CH341A-Boards treiben die SPI-Leitungen mit ~5 V — 3,3-V-NOR kann zerstört werden. Vor dem ersten Lesen den 3,3-V-Fix prüfen.
 			 */
-			danger: () => LocalizedString
-			/**
-			 * Das klassische schwarze Board treibt die SPI-Leitungen (CS/MISO/MOSI/CLK) mit ~5 V, obwohl der Sockel 3,3 V liefert. 3,3-V-NOR (z.B. PS5-NOR) kann dadurch zerstört werden. Vor Gebrauch mit Multimeter prüfen oder 3,3-V-Fix anwenden.
-			 */
-			dangerText: () => LocalizedString
+			dangerShort: () => LocalizedString
 			/**
 			 * CH341A-Board (schwarz, klassisch) — Draufsicht
 			 */
 			boardTitle: () => LocalizedString
 			/**
-			 * USB-Anschluss zum PC
-			 */
-			legUsb: () => LocalizedString
-			/**
-			 * ZIF-Zughebel — anheben zum Einlegen, runterdrücken zum Arretieren
-			 */
-			legLever: () => LocalizedString
-			/**
-			 * 16-pol. ZIF-Sockel (2×8) — 25er-Chips kommen in die „25 SPI"-Hälfte (ZIF 5–12), 24xx-EEPROMs in die „24 I²C"-Hälfte
-			 */
-			legZif: () => LocalizedString
-			/**
-			 * CH341A-Controller-IC, läuft intern mit 5 V
-			 */
-			legIc: () => LocalizedString
-			/**
-			 * AMS1117-3,3V-Regler, speist nur den Sockel
-			 */
-			legReg: () => LocalizedString
-			/**
-			 * 12-MHz-Quarz
-			 */
-			legXtal: () => LocalizedString
-			/**
-			 * POWER- (grün) & RUN-LED (orange)
-			 */
-			legLed: () => LocalizedString
-			/**
-			 * Mode-Jumper (UART-Pin 1↔2): gesteckt = Programmer-Modus (ACT# auf GND)
+			 * gesteckt = Programmer-Modus (NOR); auf 2↔3 = nur USB-TTL
 			 */
 			legAct: () => LocalizedString
 			/**
-			 * 7-pol. SPI-Header: CLK CS MOSI MISO GND 3V3 5V — für SOIC-Test-Clip oder Boards ohne Sockel
+			 * 16-pol. (2×8) — die „25 SPI"-Hälfte sind die NOR-Steckplätze 5–12
 			 */
-			legSpi: () => LocalizedString
+			legZif: () => LocalizedString
 			/**
-			 * UART-Header: 1 2 3 TX RX GND 5V — Jumper auf 2↔3 = USB-TTL-Modus
-			 */
-			legUart: () => LocalizedString
-			/**
-			 * 8-pol. NOR-Chip — gesteckt in ZIF 5–12 (hinterer Sockelbereich, fern vom USB-Stecker), Pin 1 (Punkt) an der markierten Ecke
+			 * 8-pol. NOR-Chip in den Steckplätzen 5–12, Pin 1 an der markierten Ecke
 			 */
 			legNor: () => LocalizedString
 			/**
@@ -5617,53 +5517,25 @@ export type TranslationFunctions = {
 			 */
 			pinout8: () => LocalizedString
 			/**
+			 * ZIF-Steckplätze — Pinout (NOR-Modus)
+			 */
+			zifTitle: () => LocalizedString
+			/**
 			 * Pin 1 = Punkt/Kerbe. 25er-Chip in die Sockelhälfte mit „25 SPI"-Aufdruck stecken (ZIF-Positionen 5–12, fern vom USB-Stecker), Pin 1 an der markierten Ecke (eckes Pad). #WP/#HOLD liegen im Sockel fest auf 3,3 V (ZIF 7/11). Hebel erst senken, nachdem die Lage stimmt — sonst Chip verdreht → Kurzschluss/Garantieverlust.
 			 */
 			socketNote: () => LocalizedString
 			/**
-			 * 16-Pin SPI-NOR Pinout (25-Series, SOP-16)
-			 */
-			pinout16: () => LocalizedString
-			/**
-			 * Funktionale Pins 1–7 entsprechen dem 8-pol. Chip. Pin 8 = #RESET (oder NC), 9–15 NC.
-			 */
-			pinout16Note: () => LocalizedString
-			/**
-			 * ZIF-Verkabelung — Programmer ↔ 8-pol. Chip
-			 */
-			wiringTitle: () => LocalizedString
-			/**
-			 * Der CH341A-Sockel bindet #WP (Pin 3) und #HOLD (Pin 7) fest an VCC → Schreibschutz und Hold sind im Sockel inaktiv.
+			 * Der CH341A-Sockel bindet #WP (Pin 3) und #HOLD (Pin 7) fest an VCC → Schreibschutz und Hold sind im Sockel inaktiv. ZIF 13/14 (SDA/SCL) werden nur von 24xx-I²C-EEPROMs genutzt.
 			 */
 			wiringNote: () => LocalizedString
 			/**
-			 * Jumper & Header
+			 * Jumper (NOR-Modus)
 			 */
 			jumpers: () => LocalizedString
 			/**
 			 * Mode-Jumper (UART-Header 1↔2): gesteckt = Programmer-Modus. Auf 2↔3 meldet sich der CH341A nur als USB-Seriell-Wandler — flashrom findet nichts. (Das schwarze Board hat nur diesen einen Jumper.)
 			 */
 			jumperAct: () => LocalizedString
-			/**
-			 * Spannungs-Jumper (nur blue board) auf 3,3 V
-			 */
-			jumperVolt: () => LocalizedString
-			/**
-			 * ⚠ Risiko: Klassische schwarze CH341A-Boards treiben die SPI-Leitungen mit ~5 V — 3,3-V-NOR kann zerstört werden. Vor dem ersten Lesen den 3,3-V-Fix prüfen.
-			 */
-			dangerShort: () => LocalizedString
-			/**
-			 * 3,3-V-Fix (schwarzes Board)
-			 */
-			fix: () => LocalizedString
-			/**
-			 * Pin 28 (VCC) des CH341A vom 5V-Rail trennen und an den 3,3V-Regler (AMS1117-Ausgang / C4) führen; Pin 9 (V3) ebenso. Alternativ die 5V-Leiterbahn auf der Platinenunterseite durchtrennen. Danach alle Leitungen 3,3 V — mit Multimeter gegen GND bestätigen.
-			 */
-			fixText: () => LocalizedString
-			/**
-			 * In-Circuit: Target komplett stromlos, ggf. Flash-Pin/Leitung isolieren — sonst kann der Ziel-MCU die Datenleitungen treiben → korrupter Dump.
-			 */
-			incircuit: () => LocalizedString
 			/**
 			 * Vollständiger Guide im Repo
 			 */

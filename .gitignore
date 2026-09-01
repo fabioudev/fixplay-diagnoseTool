@@ -25,6 +25,11 @@ src-tauri/gen_bak/
 # Tauri updater signing keypair (generated locally, NEVER commit the private key)
 .updater-keys/
 
+# typesafe-i18n generator temp dir (must live outside node_modules: TS 6 emits
+# ESM there and Node resolves package.json "type" only up to the nearest
+# node_modules boundary — see .typesafe-i18n.json "tempPath")
+.typesafe-i18n-temp/
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

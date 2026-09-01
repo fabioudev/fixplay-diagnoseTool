@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 
 describe('HardwareGuide', () => {
-  it('ch341a variant: expands and shows the board, 8-/16-pin pinouts + wiring', async () => {
+  it('ch341a variant: expands and shows the board, ZIF socket pinout, jumper + 8-pin pinout', async () => {
     render(HardwareGuide, { props: { variant: 'ch341a' } });
 
     // Collapsed by default — title is the toggle button.
@@ -25,14 +25,20 @@ describe('HardwareGuide', () => {
     await fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
-    // Board overview + legend (16-pin ZIF + real header labels after the
-    // realistic board redraw).
+    // Board overview + the reduced 3-entry legend (jumper / socket / chip).
     expect(screen.getByText('CH341A-Board (schwarz, klassisch) — Draufsicht')).toBeTruthy();
-    expect(screen.getByText('ZIF-Hebel')).toBeTruthy(); // legend span
-    expect(screen.getByText('SPI-Header')).toBeTruthy(); // legend span
-    expect(screen.getByText('UART-Header')).toBeTruthy(); // legend span
-    // 5V danger callout prose.
-    expect(screen.getByText('5V-Warnung')).toBeTruthy();
+    expect(screen.getByText('Mode-Jumper')).toBeTruthy(); // legend span
+    expect(screen.getByText('ZIF-Sockel')).toBeTruthy(); // legend span
+    expect(screen.getByText('NOR-Chip')).toBeTruthy(); // legend span
+    // No 5V danger block inside the guide anymore — FlashPanel owns the
+    // persistent dangerShort strip above it.
+    expect(screen.queryByText(/3,3-V-NOR kann zerstört werden/)).toBeNull();
+
+    // ZIF socket pinout heading + all 16 socket positions with their signals.
+    expect(screen.getByText('ZIF-Steckplätze — Pinout (NOR-Modus)')).toBeTruthy();
+    expect(screen.getByText('25 SPI (NOR)')).toBeTruthy();
+    expect(screen.getAllByText('MISO').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('SDA').length).toBeGreaterThan(0);
 
     // 8-pin pinout heading + language-neutral pin tokens (SVG + table).
     expect(screen.getByText('8-Pin SPI-NOR Pinout (25-Series)')).toBeTruthy();
@@ -42,13 +48,13 @@ describe('HardwareGuide', () => {
     // Pin 2 description (table only) — "Data Out (MISO)".
     expect(screen.getByText('Data Out (MISO)')).toBeTruthy();
 
-    // 16-pin pinout heading.
-    expect(screen.getByText('16-Pin SPI-NOR Pinout (25-Series, SOP-16)')).toBeTruthy();
-
-    // ZIF → chip wiring table heading + the real ZIF position column
-    // (chip pins 1-8 land on ZIF 5-12 on the actual black board).
-    expect(screen.getByText('ZIF-Verkabelung — Programmer ↔ 8-pol. Chip')).toBeTruthy();
+    // ZIF → chip wiring table: the real ZIF position column (chip pins 1-8
+    // land on ZIF 5-12 on the actual black board).
     expect(screen.getByText('ZIF-Pos.')).toBeTruthy();
+
+    // Mode jumper explanation for NOR mode.
+    expect(screen.getByText('Jumper (NOR-Modus)')).toBeTruthy();
+    expect(screen.getAllByText(/gesteckt = Programmer-Modus/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('uart variant: expands and shows the crossed TX/RX wiring + pads', async () => {

@@ -16,30 +16,6 @@
   ];
 
   /**
-   * 16-pin 25-series SPI NOR (MX25L256 / W25Q256 SOP-16 …). Functional pins
-   * 1-7 mirror the 8-pin part; pin 8 = #RESET (or NC); 9-15 NC (some quad-SPI
-   * variants repurpose 8/15 for IO2/IO3); 16 = VCC.
-   */
-  export const SOIC16: { n: number; name: string; desc: string }[] = [
-    { n: 1, name: '#CS', desc: 'Chip Select' },
-    { n: 2, name: 'DO', desc: 'MISO / IO1' },
-    { n: 3, name: '#WP', desc: 'Write Protect / IO2' },
-    { n: 4, name: 'GND', desc: 'Ground' },
-    { n: 5, name: 'DI', desc: 'MOSI / IO0' },
-    { n: 6, name: 'CLK', desc: 'Serial Clock' },
-    { n: 7, name: '#HOLD', desc: 'Hold / IO3' },
-    { n: 8, name: '#RESET', desc: 'Reset (active low) / NC' },
-    { n: 9, name: 'NC', desc: 'No Connect' },
-    { n: 10, name: 'NC', desc: 'No Connect' },
-    { n: 11, name: 'NC', desc: 'No Connect' },
-    { n: 12, name: 'NC', desc: 'No Connect' },
-    { n: 13, name: 'NC', desc: 'No Connect' },
-    { n: 14, name: 'NC', desc: 'No Connect' },
-    { n: 15, name: 'NC', desc: 'No Connect' },
-    { n: 16, name: 'VCC', desc: '+3.3 V supply' },
-  ];
-
-  /**
    * How the CH341A ZIF socket wires an 8-pin 25-series chip: the chip's pins
    * 1-8 land on ZIF positions 5-12 (the half of the 16-pin socket away from
    * the USB plug, silkscreen "25 SPI"), pin 1 at the marked corner. The socket
@@ -72,21 +48,47 @@
   // Upcycle-Electronics/CH341A-Pro netlist + board photos): landscape stick,
   // USB-A plug left, rounded far end right, 16-pin (2×8) ZIF lengthwise at the
   // far end, two 1×7 headers along the long edges, one jumper only (mode/
-  // ACT# on UART header pins 1-2). Positions chosen so each circle sits
-  // on/clearly beside its target without overlapping silkscreen text.
+  // ACT# on UART header pins 1-2). The guide intentionally keeps only the
+  // three callouts that matter for NOR work: jumper, ZIF socket, seated chip.
   export const BOARD_CALLOUTS: { n: number; x: number; y: number }[] = [
-    { n: 1, x: 15, y: 88 },   // USB (centered on the metal shell)
-    { n: 2, x: 362, y: 128 }, // ZIF lever (right end of the lever bar)
-    { n: 3, x: 240, y: 44 },  // ZIF socket (top-left corner)
-    { n: 4, x: 107, y: 40 },  // CH341A IC (above its body)
-    { n: 5, x: 69, y: 62 },   // AMS1117 regulator (above the SOT-223 body)
-    { n: 6, x: 138, y: 54 },  // 12 MHz crystal (above body)
-    { n: 7, x: 46, y: 26 },   // POWER/RUN LEDs (beside the top LED, clear of the rivet)
-    { n: 8, x: 146, y: 20 },  // mode jumper (UART header pins 1-2, above the pin labels)
-    { n: 9, x: 186, y: 158 }, // SPI header (below the bottom edge)
-    { n: 10, x: 240, y: 24 }, // UART header (above the top edge, right of jumper)
-    { n: 11, x: 330, y: 26 }, // seated NOR chip (above the "25 SPI" label)
+    { n: 1, x: 146, y: 20 },  // mode jumper (UART header pins 1-2, above the pin labels)
+    { n: 2, x: 240, y: 44 },  // ZIF socket (top-left corner)
+    { n: 3, x: 330, y: 26 },  // seated NOR chip (above the "25 SPI" label)
   ];
+
+  /**
+   * All 16 ZIF socket positions with their signals (reverse-engineered board
+   * netlist, Upcycle-Electronics/CH341A-Pro). The "25 SPI" half (positions
+   * 5-12, away from the USB plug) is what a 25-series NOR uses; 13/14 carry
+   * the 24-series I²C EEPROM lines; 7/11/12/16 are the hard-wired 3.3 V rails
+   * (WP#/HOLD# tied high, socket VCC via the AMS1117).
+   */
+  export const ZIF_SOCKET: { n: number; sig: string; kind: 'gnd' | 'v33' | 'spi' | 'i2c' }[] = [
+    { n: 1, sig: 'GND', kind: 'gnd' },
+    { n: 2, sig: 'GND', kind: 'gnd' },
+    { n: 3, sig: 'GND', kind: 'gnd' },
+    { n: 4, sig: 'GND', kind: 'gnd' },
+    { n: 5, sig: 'CS', kind: 'spi' },
+    { n: 6, sig: 'MISO', kind: 'spi' },
+    { n: 7, sig: '3V3', kind: 'v33' },
+    { n: 8, sig: 'GND', kind: 'gnd' },
+    { n: 9, sig: 'MOSI', kind: 'spi' },
+    { n: 10, sig: 'CLK', kind: 'spi' },
+    { n: 11, sig: '3V3', kind: 'v33' },
+    { n: 12, sig: '3V3', kind: 'v33' },
+    { n: 13, sig: 'SDA', kind: 'i2c' },
+    { n: 14, sig: 'SCL', kind: 'i2c' },
+    { n: 15, sig: 'GND', kind: 'gnd' },
+    { n: 16, sig: '3V3', kind: 'v33' },
+  ];
+
+  /** Signal label colors for the ZIF socket pinout SVG. */
+  export const ZIF_KIND_COLOR: Record<typeof ZIF_SOCKET[number]['kind'], string> = {
+    gnd: '#6b7280',
+    v33: '#4ade80',
+    spi: '#5eead4',
+    i2c: '#c4b5fd',
+  };
 </script>
 
 <script lang="ts">
@@ -101,8 +103,12 @@
   // SOIC pin layout helpers: pins 1..n down the left, n+1..2n up the right.
   const L8 = SOIC8.slice(0, 4); // 1..4 top-to-bottom left
   const R8 = [...SOIC8.slice(4)].reverse(); // 8,7,6,5 top-to-bottom right
-  const L16 = SOIC16.slice(0, 8); // 1..8 left
-  const R16 = [...SOIC16.slice(8)].reverse(); // 16..9 right
+
+  // ZIF socket rows for the pinout SVG: top row = positions 1..8 left→right,
+  // bottom row = positions 16..9 left→right (matches the real socket, pin 1
+  // at the top-left corner square pad).
+  const ZIF_TOP = ZIF_SOCKET.filter((p) => p.n <= 8);
+  const ZIF_BOTTOM = [...ZIF_SOCKET.filter((p) => p.n > 8)].reverse();
 </script>
 
 <div class="rounded-lg border border-gray-700/60 bg-gray-800/40 overflow-hidden">
@@ -125,13 +131,8 @@
     <div class="px-3 pb-3 pt-1 space-y-4 text-xs text-gray-300" transition:slide={{ duration: 150 }}>
 
       {#if variant === 'ch341a'}
-        <!-- 5V danger callout -->
-        <div class="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 space-y-1">
-          <p class="font-semibold text-amber-300 flex items-center gap-1.5">
-            <AlertTriangle class="h-3.5 w-3.5" />{$LL.hwGuide.ch341a.danger()}
-          </p>
-          <p class="leading-relaxed">{$LL.hwGuide.ch341a.dangerText()}</p>
-        </div>
+        <!-- No 5V danger block here: FlashPanel shows the persistent dangerShort
+             strip directly above this guide (visible even when collapsed). -->
 
         <!-- ===== Board top-view ===== -->
         <div>
@@ -309,18 +310,10 @@
               </g>
             {/each}
           </svg>
-            <!-- Legend -->
+            <!-- Legend (reduced to the three NOR-relevant callouts) -->
             <ol class="text-[11px] leading-relaxed text-gray-400 space-y-0.5 list-decimal pl-4 marker:text-gray-500">
-              <li><span class="font-mono text-gray-200">USB</span> — {$LL.hwGuide.ch341a.legUsb()}</li>
-              <li><span class="font-mono text-gray-200">ZIF-Hebel</span> — {$LL.hwGuide.ch341a.legLever()}</li>
-              <li><span class="font-mono text-gray-200">ZIF-Sockel</span> — {$LL.hwGuide.ch341a.legZif()}</li>
-              <li><span class="font-mono text-gray-200">CH341A-IC</span> — {$LL.hwGuide.ch341a.legIc()}</li>
-              <li><span class="font-mono text-gray-200">AMS1117</span> — {$LL.hwGuide.ch341a.legReg()}</li>
-              <li><span class="font-mono text-gray-200">12-MHz-Quarz</span> — {$LL.hwGuide.ch341a.legXtal()}</li>
-              <li><span class="font-mono text-gray-200">POWER/RUN-LED</span> — {$LL.hwGuide.ch341a.legLed()}</li>
               <li><span class="font-mono text-gray-200">Mode-Jumper</span> — {$LL.hwGuide.ch341a.legAct()}</li>
-              <li><span class="font-mono text-gray-200">SPI-Header</span> — {$LL.hwGuide.ch341a.legSpi()}</li>
-              <li><span class="font-mono text-gray-200">UART-Header</span> — {$LL.hwGuide.ch341a.legUart()}</li>
+              <li><span class="font-mono text-gray-200">ZIF-Sockel</span> — {$LL.hwGuide.ch341a.legZif()}</li>
               <li><span class="font-mono text-gray-200">NOR-Chip</span> — {$LL.hwGuide.ch341a.legNor()}</li>
             </ol>
           </div>
@@ -378,90 +371,76 @@
           </div>
         </div>
 
-        <!-- ===== 16-pin chip pinout ===== -->
+        <!-- ===== ZIF socket pinout ===== -->
         <div>
-          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.ch341a.pinout16()}</p>
+          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.ch341a.zifTitle()}</p>
           <div class="flex flex-wrap items-start gap-4">
-            <svg viewBox="0 0 160 210" class="w-44 shrink-to-fit shrink-0" role="img" aria-label="SOIC-16 SPI NOR pinout">
-              <!-- Use existing defs from SOIC-8 for pinGrad and chipShadow -->
-              <rect x="40" y="14" width="80" height="180" rx="2" fill="#1f2937" stroke="#374151" stroke-width="1" filter="url(#chipShadow)" />
-              <!-- Pin 1 Marker -->
-              <circle cx="46" cy="20" r="2" fill="#111827" />
-              <text x="80" y="108" text-anchor="middle" class="chip-lbl" fill="#9ca3af" font-weight="bold">SOIC-16</text>
-              {#each L16 as p (p.n)}
-                <g>
-                  <rect x="28" y={20 + (p.n - 1) * 20} width="14" height="5" rx="0.5" fill="url(#pinGrad)" stroke="#4b5563" stroke-width="0.5" />
-                  <text x="24" y={25 + (p.n - 1) * 20} text-anchor="end" class="pin" fill="#6b7280">{p.n}</text>
-                  <text x="48" y={25 + (p.n - 1) * 20} class="pin" fill="#f3f4f6" font-weight="bold">{p.name}</text>
-                </g>
+            <!-- All 16 socket positions, color-coded: top row = ZIF 1..8
+                 (left→right), bottom row = ZIF 16..9; the amber dashed box is
+                 the "25 SPI" half a 25-series NOR goes into (positions 5-12). -->
+            <svg viewBox="0 0 250 152" class="w-full max-w-sm shrink-0" role="img" aria-label="ZIF socket pinout">
+              <rect x="25" y="32" width="210" height="90" rx="4" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.5" />
+              <!-- "25 SPI" half (ZIF 5-12): columns 5-8 in both rows -->
+              <rect x="130" y="36" width="88" height="82" rx="2" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3 2" />
+              <text x="235" y="24" text-anchor="end" fill="#fbbf24" font-size="7" font-weight="600" font-family="ui-monospace, monospace">25 SPI (NOR)</text>
+              <text x="25" y="24" fill="#6b7280" font-size="7" font-weight="600" font-family="ui-monospace, monospace">24 I²C</text>
+              {#each ZIF_TOP as p (p.n)}
+                {#if p.n === 1}
+                  <!-- ZIF pin 1: square pad (matches the real board mark) -->
+                  <rect x={42 + (p.n - 1) * 24 - 3.5} y={58 - 3.5} width="7" height="7" fill="#111827" stroke="#d1d5db" stroke-width="0.5" />
+                {:else}
+                  <circle cx={42 + (p.n - 1) * 24} cy="58" r="3" fill="#111827" stroke="#d1d5db" stroke-width="0.5" />
+                {/if}
+                <text x={42 + (p.n - 1) * 24} y="47" text-anchor="middle" fill="#9ca3af" font-size="5.5" font-family="ui-monospace, monospace">{p.n}</text>
+                <text x={42 + (p.n - 1) * 24} y="54" text-anchor="middle" fill={ZIF_KIND_COLOR[p.kind]} font-size="7" font-weight="600" font-family="ui-monospace, monospace">{p.sig}</text>
               {/each}
-              {#each R16 as p, i (p.n)}
-                <g>
-                  <rect x="118" y={20 + i * 20} width="14" height="5" rx="0.5" fill="url(#pinGrad)" stroke="#4b5563" stroke-width="0.5" />
-                  <text x="136" y={25 + i * 20} class="pin" fill="#6b7280">{p.n}</text>
-                  <text x="114" y={25 + i * 20} text-anchor="end" class="pin" fill="#f3f4f6" font-weight="bold">{p.name}</text>
-                </g>
+              {#each ZIF_BOTTOM as p (p.n)}
+                <circle cx={42 + (16 - p.n) * 24} cy="96" r="3" fill="#111827" stroke="#d1d5db" stroke-width="0.5" />
+                <text x={42 + (16 - p.n) * 24} y="110" text-anchor="middle" fill={ZIF_KIND_COLOR[p.kind]} font-size="7" font-weight="600" font-family="ui-monospace, monospace">{p.sig}</text>
+                <text x={42 + (16 - p.n) * 24} y="117" text-anchor="middle" fill="#9ca3af" font-size="5.5" font-family="ui-monospace, monospace">{p.n}</text>
               {/each}
             </svg>
-            <table class="text-[11px] border-collapse">
-              <tbody class="divide-y divide-gray-700/30">
-                {#each SOIC16 as p (p.n)}
-                  <tr class="hover:bg-gray-700/20 transition-colors">
-                    <td class="pr-2 py-1 text-gray-500 font-mono">{p.n}</td>
-                    <td class="pr-2 py-1 font-mono text-teal-300">{p.name}</td>
-                    <td class="py-1 text-gray-400">{p.desc}</td>
+            <div>
+              <div class="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-gray-500 mb-2">
+                <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full inline-block" style="background:#5eead4"></span>SPI</span>
+                <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full inline-block" style="background:#4ade80"></span>3,3 V</span>
+                <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full inline-block" style="background:#c4b5fd"></span>I²C</span>
+                <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full inline-block" style="background:#6b7280"></span>GND</span>
+              </div>
+              <table class="text-[11px] border-collapse w-full max-w-md">
+                <thead class="bg-gray-700/30">
+                  <tr class="text-gray-500">
+                    <th class="text-left font-medium py-1 px-2 rounded-tl-sm border-b border-gray-700/50">Chip-Pin</th>
+                    <th class="text-left font-medium py-1 px-2 border-b border-gray-700/50">Signal</th>
+                    <th class="text-left font-medium py-1 px-2 border-b border-gray-700/50">ZIF-Pos.</th>
+                    <th class="text-left font-medium py-1 px-2 rounded-tr-sm border-b border-gray-700/50">CH341A</th>
                   </tr>
-                {/each}
-              </tbody>
-            </table>
+                </thead>
+                <tbody class="divide-y divide-gray-700/30">
+                  {#each ZIF_WIRING as row (row.n)}
+                    <tr class="hover:bg-gray-700/20 transition-colors">
+                      <td class="py-1 px-2 font-mono text-teal-300">{row.n} {row.name}</td>
+                      <td class="py-1 px-2 font-mono text-gray-200">{row.sig}</td>
+                      <td class="py-1 px-2 font-mono text-gray-300">{row.zif}</td>
+                      <td class="py-1 px-2 text-gray-400">
+                        {#if row.note}<span class="text-amber-300 font-medium">{row.note}</span>{/if}
+                      </td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <p class="mt-1.5 text-gray-500 leading-relaxed">{$LL.hwGuide.ch341a.pinout16Note()}</p>
-        </div>
-
-        <!-- ===== ZIF → chip wiring ===== -->
-        <div>
-          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.ch341a.wiringTitle()}</p>
-          <table class="text-[11px] border-collapse w-full max-w-md">
-            <thead class="bg-gray-700/30">
-              <tr class="text-gray-500">
-                <th class="text-left font-medium py-1 px-2 rounded-tl-sm border-b border-gray-700/50">Chip-Pin</th>
-                <th class="text-left font-medium py-1 px-2 border-b border-gray-700/50">Signal</th>
-                <th class="text-left font-medium py-1 px-2 border-b border-gray-700/50">ZIF-Pos.</th>
-                <th class="text-left font-medium py-1 px-2 rounded-tr-sm border-b border-gray-700/50">CH341A</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-700/30">
-              {#each ZIF_WIRING as row (row.n)}
-                <tr class="hover:bg-gray-700/20 transition-colors">
-                  <td class="py-1 px-2 font-mono text-teal-300">{row.n} {row.name}</td>
-                  <td class="py-1 px-2 font-mono text-gray-200">{row.sig}</td>
-                  <td class="py-1 px-2 font-mono text-gray-300">{row.zif}</td>
-                  <td class="py-1 px-2 text-gray-400">
-                    {#if row.note}<span class="text-amber-300 font-medium">{row.note}</span>{/if}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
           <p class="mt-1.5 text-gray-500 leading-relaxed">{$LL.hwGuide.ch341a.wiringNote()}</p>
         </div>
 
-        <!-- ===== Jumpers ===== -->
+        <!-- ===== Mode jumper (the one that matters for NOR) ===== -->
         <div>
           <p class="font-semibold text-gray-200 mb-1">{$LL.hwGuide.ch341a.jumpers()}</p>
           <ul class="list-disc pl-4 space-y-0.5 text-gray-400">
-            <li>{$LL.hwGuide.ch341a.jumperAct()} <span class="text-gray-500">(⑧)</span></li>
-            <li>{$LL.hwGuide.ch341a.jumperVolt()}</li>
+            <li>{$LL.hwGuide.ch341a.jumperAct()} <span class="text-gray-500">(①)</span></li>
           </ul>
         </div>
-
-        <!-- ===== 3.3V fix ===== -->
-        <div>
-          <p class="font-semibold text-gray-200 mb-1">{$LL.hwGuide.ch341a.fix()}</p>
-          <p class="leading-relaxed text-gray-400">{$LL.hwGuide.ch341a.fixText()}</p>
-        </div>
-
-        <p class="leading-relaxed text-gray-400">{$LL.hwGuide.ch341a.incircuit()}</p>
 
         <a
           href="https://github.com/fabioudev/fixplay-diagnoseTool/blob/main/docs/CH341A_GUIDE.md"
