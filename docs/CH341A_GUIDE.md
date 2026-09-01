@@ -52,8 +52,9 @@ schwarze / RT809H / FT2232) ausweichen.
 Nie blind vertrauen, auch nicht bei „neuen" Boards:
 
 1. Programmer **ohne Chip** per USB anstecken.
-2. Multimeter: GND (Sockel Pin 4) gegen **CS, CLK, MOSI, MISO** (Pins 1,
-   6, 5, 2) messen (DC, Board im Leerlauf / eine Lesung anstoßen).
+2. Multimeter: GND (Chip-Pin 4 = ZIF 8) gegen **CS, CLK, MOSI, MISO**
+   (ZIF 5, 10, 9, 6) messen (DC, Board im Leerlauf / eine Lesung
+   anstoßen).
 3. Steht dort **3,3 V** → Board i.O. für 3,3-V-Flash.
 4. Steht dort **~5 V** → Fix (§4) nötig.
 
@@ -97,22 +98,24 @@ Wie B, aber Pin 28 an einen **SPDT-Schalter**, der zwischen 5 V (C2) und
 Standard-Belegung eines 8-poligen SPI-NOR (W25Q, MX25L, EN25Q, …). Pin 1
 ist am Chip meist mit Punkt/Kerbe markiert.
 
-| Pin | Name | Funktion | CH341A-Sockel |
-|----:|------|----------|---------------|
-| 1 | #CS | Chip Select | Pin 1 |
-| 2 | DO | MISO (Data Out) | Pin 2 |
-| 3 | #WP | Write Protect | Pin 3 |
-| 4 | GND | Masse | Pin 4 |
-| 5 | DI | MOSI (Data In) | Pin 5 |
-| 6 | CLK | Serial Clock | Pin 6 |
-| 7 | #HOLD | Hold / (Reset bei manchen) | Pin 7 |
-| 8 | VCC | +3,3 V | Pin 8 |
+| Pin | Name | Funktion | ZIF-Position |
+|----:|------|----------|--------------|
+| 1 | #CS | Chip Select | 5 |
+| 2 | DO | MISO (Data Out) | 6 |
+| 3 | #WP | Write Protect (Sockel: 3,3 V) | 7 |
+| 4 | GND | Masse | 8 |
+| 5 | DI | MOSI (Data In) | 9 |
+| 6 | CLK | Serial Clock | 10 |
+| 7 | #HOLD | Hold (Sockel: 3,3 V) | 11 |
+| 8 | VCC | +3,3 V | 12 |
 
-Im **16-Pin-ZIF-Sockel** des black board sitzt der 8-polige Chip im
-**unteren Drittel** auf den Pins 1–8, Pin 1 an der markierten Ecke. Die
-obere Reihe (Pins 9–16) führt beim 8-Pin-Chip keine Signale (bzw. ist für
-16-polige Gehäuse / I²C-EEPROMs 24xx). **Vor dem Schließen des
-ZIF-Hebels Lage prüfen** — falschrum ist ein Klassiker.
+Im **16-Pin-ZIF-Sockel** des black board sitzt der 8-polige Chip in der
+**hinteren Hälfte auf den ZIF-Positionen 5–12** (Aufdruck „25 SPI", fern
+vom USB-Stecker), Pin 1 an der markierten Ecke (eckes Pad). Die vordere
+Hälfte (ZIF 1–4/13–16, Aufdruck „24 I²C") führt beim 8-Pin-Chip keine
+Signale (bzw. ist für I²C-EEPROMs 24xx — SDA/SCL liegen auf ZIF 13/14).
+Im Sockel liegen #WP/#HOLD fest auf 3,3 V (ZIF 7/11). **Vor dem Schließen
+des ZIF-Hebels Lage prüfen** — falschrum ist ein Klassiker.
 
 ### 16-polige SPI-NOR
 Pinbelegung entspricht der 8-Pin-Variante auf der unteren Reihe; obere
@@ -124,21 +127,25 @@ SOIC-Test-Clip statt Sockel).
 
 ## 6. Seiten-Header & Jumper
 
-Das black board hat neben dem Sockel zwei 7-Pin-Header:
+Das black board hat neben dem Sockel zwei 7-Pin-Header (je Pin 1 Richtung
+USB-Stecker):
 
-- **SPI-Header**: führt CS/MISO/MOSI/CLK + 3,3 V + GND heraus → für
-  externe Sockel/SOIC-Clip oder Boards ohne ZIF.
-- **UART-Header**: Pins 1 und 2 müssen gejumpert werden, um den **ACT#-Pin
-  auf GND zu ziehen** — nur dann meldet sich der CH341A als Programmer.
-  **Ohne diesen Jumper** taucht er als normaler USB-Seriell-Wandler auf
-  und `flashrom -p ch341a_spi` findet nichts.
+- **SPI-Header** (Seiten-Header beim „25XXX"-Aufdruck): Belegung
+  **CLK · CS · MOSI · MISO · GND · 3V3 · 5V** (Pin 1 = CLK) → für
+  externe Sockel/SOIC-Clip oder Boards ohne ZIF. Nur CH341A-CS0 ist
+  herausgeführt — CS1/CS2 sind nicht verbunden.
+- **UART/Mode-Header** (Aufdruck „1 2 3 TX RX GND 5V"): **Pins 1 und 2
+  müssen gejumpert werden**, um den **ACT#-Pin auf GND zu ziehen** — nur
+  dann meldet sich der CH341A als Programmer. **Ohne diesen Jumper**
+  taucht er als normaler USB-Seriell-Wandler auf und
+  `flashrom -p ch341a_spi` findet nichts. Jumper auf **2↔3** = USB-TTL-
+  Seriell-Modus (TXD/RXD/GND/5V ab Pin 4).
 
 ### Jumper-Übersicht
 
 | Jumper | Funktion | Einstellung |
 |---|---|---|
-| SPI/I2C-Mode (gelb) | Betriebsart | Position laut Board-Aufdruck (SPI für NOR) |
-| ACT#-Jumper (UART-Header P1/P2) | Programmer-Modus | **gesetzt** (sonst nur USB-Seriell) |
+| Mode-Jumper (UART-Header 1↔2) | Programmer-Modus (ACT#) | **gesetzt** — 2↔3 = nur USB-Seriell |
 | Voltage-Jumper (nur blue board, 2× blau) | Sockel-VCC | **3,3 V** (grün) — 5 V nur für alte 5-V-EEPROMs |
 | K1-Schalter (Color Light v1.5+) | VCC-Level | **3,3 V** für PS5-NOR |
 

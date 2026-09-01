@@ -25,9 +25,12 @@ describe('HardwareGuide', () => {
     await fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
-    // Board overview + legend.
+    // Board overview + legend (16-pin ZIF + real header labels after the
+    // realistic board redraw).
     expect(screen.getByText('CH341A-Board (schwarz, klassisch) — Draufsicht')).toBeTruthy();
     expect(screen.getByText('ZIF-Hebel')).toBeTruthy(); // legend span
+    expect(screen.getByText('SPI-Header')).toBeTruthy(); // legend span
+    expect(screen.getByText('UART-Header')).toBeTruthy(); // legend span
     // 5V danger callout prose.
     expect(screen.getByText('5V-Warnung')).toBeTruthy();
 
@@ -42,8 +45,10 @@ describe('HardwareGuide', () => {
     // 16-pin pinout heading.
     expect(screen.getByText('16-Pin SPI-NOR Pinout (25-Series, SOP-16)')).toBeTruthy();
 
-    // ZIF → chip wiring table heading.
+    // ZIF → chip wiring table heading + the real ZIF position column
+    // (chip pins 1-8 land on ZIF 5-12 on the actual black board).
     expect(screen.getByText('ZIF-Verkabelung — Programmer ↔ 8-pol. Chip')).toBeTruthy();
+    expect(screen.getByText('ZIF-Pos.')).toBeTruthy();
   });
 
   it('uart variant: expands and shows the crossed TX/RX wiring + pads', async () => {

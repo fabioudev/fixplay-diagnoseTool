@@ -40,19 +40,23 @@
   ];
 
   /**
-   * How the CH341A ZIF socket wires an 8-pin 25-series chip (flashrom
-   * reference): the socket ties #WP (pin 3) and #HOLD (pin 7) hard to VCC,
-   * so write-protect and hold are inactive when reading via the socket.
+   * How the CH341A ZIF socket wires an 8-pin 25-series chip: the chip's pins
+   * 1-8 land on ZIF positions 5-12 (the half of the 16-pin socket away from
+   * the USB plug, silkscreen "25 SPI"), pin 1 at the marked corner. The socket
+   * ties #WP (pin 3 → ZIF 7) and #HOLD (pin 7 → ZIF 11) hard to VCC (3.3 V via
+   * the AMS1117), so write-protect and hold are inactive when reading via the
+   * socket. ZIF positions verified against the reverse-engineered board
+   * netlist (Upcycle-Electronics/CH341A-Pro) + flashrom's 25-series table.
    */
-  export const ZIF_WIRING: { n: number; name: string; sig: string; note: string }[] = [
-    { n: 1, name: '#CS', sig: 'CS0', note: '' },
-    { n: 2, name: 'DO', sig: 'MISO', note: '' },
-    { n: 3, name: '#WP', sig: 'VCC', note: 'tied high → WP inactive' },
-    { n: 4, name: 'GND', sig: 'GND', note: '' },
-    { n: 5, name: 'DI', sig: 'MOSI', note: '' },
-    { n: 6, name: 'CLK', sig: 'SCK', note: '' },
-    { n: 7, name: '#HOLD', sig: 'VCC', note: 'tied high → HOLD inactive' },
-    { n: 8, name: 'VCC', sig: 'VCC', note: '3.3 V (AMS1117)' },
+  export const ZIF_WIRING: { n: number; name: string; sig: string; zif: number; note: string }[] = [
+    { n: 1, name: '#CS', sig: 'CS0', zif: 5, note: '' },
+    { n: 2, name: 'DO', sig: 'MISO', zif: 6, note: '' },
+    { n: 3, name: '#WP', sig: 'VCC', zif: 7, note: 'tied high → WP inactive' },
+    { n: 4, name: 'GND', sig: 'GND', zif: 8, note: '' },
+    { n: 5, name: 'DI', sig: 'MOSI', zif: 9, note: '' },
+    { n: 6, name: 'CLK', sig: 'SCK', zif: 10, note: '' },
+    { n: 7, name: '#HOLD', sig: 'VCC', zif: 11, note: 'tied high → HOLD inactive' },
+    { n: 8, name: 'VCC', sig: 'VCC', zif: 12, note: '3.3 V (AMS1117)' },
   ];
 
   /** PS5 EMC UART pads on the EDM-010 24-pin service header. */
@@ -64,20 +68,24 @@
   ];
 
   // Numbered callouts on the CH341A board top-view (match the legend below).
-  // Positions chosen so each circle sits on/clearly beside its target without
-  // overlapping silkscreen text (verified via render check).
+  // Geometry mirrors the real black CH341A dongle (research: reverse-engineered
+  // Upcycle-Electronics/CH341A-Pro netlist + board photos): landscape stick,
+  // USB-A plug left, rounded far end right, 16-pin (2×8) ZIF lengthwise at the
+  // far end, two 1×7 headers along the long edges, one jumper only (mode/
+  // ACT# on UART header pins 1-2). Positions chosen so each circle sits
+  // on/clearly beside its target without overlapping silkscreen text.
   export const BOARD_CALLOUTS: { n: number; x: number; y: number }[] = [
-    { n: 1, x: 14, y: 99 },   // USB (centered on the metal shell)
-    { n: 2, x: 170, y: 22 },  // ZIF lever (above the handle so it stays visible)
-    { n: 3, x: 92, y: 52 },   // ZIF socket (top-left corner)
-    { n: 4, x: 46, y: 122 },  // CH341A IC (above its silkscreen label)
-    { n: 5, x: 46, y: 98 },   // AMS1117 regulator (covers the tiny body)
-    { n: 6, x: 73, y: 144 },  // 12 MHz crystal (above body so the 12M label stays visible)
-    { n: 7, x: 30, y: 166 },  // power LED
-    { n: 8, x: 202, y: 176 }, // ACT# jumper
-    { n: 9, x: 160, y: 176 }, // SPI/I2C mode jumper
-    { n: 10, x: 276, y: 60 }, // side header
-    { n: 11, x: 135, y: 130 },// 8-pin NOR chip (upper-left of body, clear of label)
+    { n: 1, x: 15, y: 88 },   // USB (centered on the metal shell)
+    { n: 2, x: 362, y: 128 }, // ZIF lever (right end of the lever bar)
+    { n: 3, x: 240, y: 44 },  // ZIF socket (top-left corner)
+    { n: 4, x: 107, y: 40 },  // CH341A IC (above its body)
+    { n: 5, x: 69, y: 62 },   // AMS1117 regulator (above the SOT-223 body)
+    { n: 6, x: 138, y: 54 },  // 12 MHz crystal (above body)
+    { n: 7, x: 46, y: 26 },   // POWER/RUN LEDs (beside the top LED, clear of the rivet)
+    { n: 8, x: 146, y: 20 },  // mode jumper (UART header pins 1-2, above the pin labels)
+    { n: 9, x: 186, y: 158 }, // SPI header (below the bottom edge)
+    { n: 10, x: 240, y: 24 }, // UART header (above the top edge, right of jumper)
+    { n: 11, x: 330, y: 26 }, // seated NOR chip (above the "25 SPI" label)
   ];
 </script>
 
@@ -129,20 +137,8 @@
         <div>
           <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.ch341a.boardTitle()}</p>
           <div class="flex flex-wrap items-start gap-4">
-            <svg viewBox="0 0 340 210" class="w-full max-w-md shrink-0" role="img" aria-label="CH341A board top view">
+            <svg viewBox="0 0 400 168" class="w-full max-w-lg shrink-0" role="img" aria-label="CH341A board top view">
             <defs>
-              <!-- Lever Gradient: top-light, bottom-dark -->
-              <linearGradient id="leverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#f3f4f6" />
-                <stop offset="100%" stop-color="#9ca3af" />
-              </linearGradient>
-
-              <!-- IC Body Gradient: matte charcoal 3D effect -->
-              <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#374151" />
-                <stop offset="100%" stop-color="#111827" />
-              </linearGradient>
-
               <!-- Callout Radial Gradient: white to transparent -->
               <radialGradient id="calloutGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
                 <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
@@ -164,88 +160,146 @@
               </filter>
             </defs>
 
-            <!-- PCB outline: Deep matte black with realistic radius -->
-            <rect x="18" y="26" width="304" height="158" rx="8" fill="#0a0a0c" stroke="#1f1f23" stroke-width="1" />
+            <!--
+              Geometry mirrors the real black CH341A "Mini Programmer" dongle
+              (researched from the reverse-engineered Upcycle-Electronics/
+              CH341A-Pro netlist + board photos): ~69 × 27.5 mm landscape stick,
+              USB-A male plug overhanging the left end, fully rounded far end,
+              16-pin (2×8) ZIF socket mounted lengthwise at the far end, two
+              1×7 headers along the long edges, ONE jumper only (mode/ACT# on
+              UART header pins 1-2), POWER + RUN LEDs at opposite edges behind
+              the plug, AMS1117-3.3 + CH341A SOIC-28W + 12 MHz crystal between.
+            -->
 
-            <!-- PCB Silkscreen: Subtle grey technical labels -->
-            <g fill="#4b4b52" font-family="ui-monospace, monospace" font-size="6" font-weight="600">
-              <text x="40" y="110" text-anchor="middle">CH341A</text>
-              <text x="73" y="145" text-anchor="middle">12.000MHz</text>
-              <text x="100" y="40" text-anchor="start">ZIF-SOCKET</text>
-              <text x="250" y="170" text-anchor="middle">MODE</text>
+            <!-- PCB outline: deep matte black, straight USB end, rounded far end -->
+            <path d="M28 28 H364 C382 28 394 51 394 84 C394 117 382 140 364 140 H28 Z"
+              fill="#0a0a0c" stroke="#1f1f23" stroke-width="1" />
+
+            <!-- USB shell rivet holes -->
+            <circle cx="40" cy="38" r="1.6" fill="none" stroke="#3f3f46" stroke-width="0.8" />
+            <circle cx="40" cy="130" r="1.6" fill="none" stroke="#3f3f46" stroke-width="0.8" />
+
+            <!-- USB-A male connector: metallic shell overhanging the left end -->
+            <g>
+              <rect x="2" y="68" width="28" height="40" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+              <rect x="5" y="72" width="22" height="32" rx="1" fill="#f1f5f9" />
+              <rect x="6" y="80" width="20" height="2" fill="#94a3b8" />
+              <rect x="6" y="94" width="20" height="2" fill="#94a3b8" />
+              <rect x="2" y="76" width="28" height="1.2" fill="#e2e8f0" />
+              <rect x="2" y="99" width="28" height="1.2" fill="#e2e8f0" />
             </g>
 
-            <!-- USB-A Male connector: High-fidelity metallic finish -->
-            <g transform="translate(6, 86)">
-              <rect x="0" y="0" width="16" height="26" rx="1" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
-              <rect x="3" y="3" width="10" height="20" rx="1" fill="#f8fafc" />
-              <rect x="4" y="5" width="8" height="1" fill="#94a3b8" />
-              <rect x="4" y="19" width="8" height="1" fill="#94a3b8" />
+            <!-- LEDs: D1 POWER (top edge) + D2 RUN (bottom edge) -->
+            <g fill="#4b4b52" font-family="ui-monospace, monospace" font-size="5" font-weight="600">
+              <text x="63" y="34">POWER</text>
+              <text x="63" y="139">RUN</text>
+            </g>
+            <circle cx="56" cy="40" r="2.6" fill="#4ade80" stroke="#16a34a" stroke-width="0.6" filter="url(#glowFilter)" />
+            <circle cx="56" cy="134" r="2.6" fill="#fb923c" stroke="#ea580c" stroke-width="0.6" filter="url(#glowFilter)" />
+
+            <!-- AMS1117-3.3 regulator (SOT-223, center of the supply cluster) -->
+            <g>
+              <rect x="62" y="76" width="14" height="22" rx="1" fill="#111827" stroke="#374151" stroke-width="1" />
+              <rect x="62" y="76" width="14" height="4" fill="#4b5563" />
+              {#each [86, 92, 98] as py (py)}
+                <rect x="64" y={py} width="10" height="2.5" rx="0.5" fill="#6b7280" />
+              {/each}
+            </g>
+            <!-- Decoupling caps -->
+            <rect x="56" y="110" width="6" height="9" rx="0.5" fill="#52525b" stroke="#71717a" stroke-width="0.4" />
+            <rect x="76" y="110" width="6" height="9" rx="0.5" fill="#52525b" stroke="#71717a" stroke-width="0.4" />
+
+            <!-- CH341A IC: SOIC-28W mounted across the board width -->
+            <g>
+              {#each [54, 63, 72, 81, 90, 99, 108, 117] as py (py)}
+                <rect x="89" y={py} width="6" height="3" rx="0.5" fill="#6b7280" />
+                <rect x="119" y={py} width="6" height="3" rx="0.5" fill="#6b7280" />
+              {/each}
+              <rect x="94" y="48" width="26" height="76" rx="1" fill="#111827" stroke="#374151" stroke-width="1" />
+              <circle cx="98" cy="53" r="1.4" fill="#6b7280" />
+              <text x="107" y="88" text-anchor="middle" class="chip-lbl" fill="#9ca3af" transform="rotate(-90 107 88)">CH341A</text>
             </g>
 
-            <!-- 24-pin ZIF socket: Stark white industrial plastic -->
-            <rect x="96" y="44" width="150" height="120" rx="3" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.5" />
+            <!-- 12 MHz HC-49 crystal standing vertically beside the CH341A -->
+            <g>
+              <rect x="132" y="64" width="12" height="44" rx="6" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+              <rect x="135" y="68" width="3" height="36" rx="1.5" fill="#e2e8f0" />
+              <text x="138" y="116" text-anchor="middle" class="chip-lbl" fill="#4b4b52">12M</text>
+            </g>
 
-            <!-- ZIF lever: Accurate white lever with grip texture -->
+            <!-- Silkscreen brand (real board: "CH341A MinProgrammer") -->
+            <text x="196" y="60" text-anchor="middle" fill="#4b4b52" font-family="ui-monospace, monospace" font-size="5.5" font-weight="600">CH341A MinProgrammer</text>
+
+            <!-- UART/mode header (top edge, 7-pin, pin 1 toward USB) -->
+            {#each ['1', '2', '3', 'TX', 'RX', 'GND', '5V'] as lbl, i (lbl)}
+              <rect x={150 + i * 12 - 2} y="38" width="5" height="5" rx="0.5" fill="#4b5563" />
+              <text x={150 + i * 12} y="33" text-anchor="middle" fill="#4b4b52" font-family="ui-monospace, monospace" font-size="5" font-weight="600">{lbl}</text>
+            {/each}
+
+            <!-- Mode jumper (yellow shunt) across UART pins 1-2 -->
+            <g>
+              <rect x="145" y="34" width="24" height="9" rx="1.5" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
+              <rect x="147" y="35.5" width="6" height="6" fill="#fde68a" />
+            </g>
+
+            <!-- SPI header (bottom edge, 7-pin: CLK CS MOSI MISO GND 3V3 5V) -->
+            {#each ['CLK', 'CS', 'MOSI', 'MISO', 'GND', '3V3', '5V'] as lbl, i (lbl)}
+              <rect x={150 + i * 12 - 2} y="133" width="5" height="5" rx="0.5" fill="#4b5563" />
+              <text x={150 + i * 12} y="148" text-anchor="middle" fill="#4b4b52" font-family="ui-monospace, monospace" font-size="4.6" font-weight="600">{lbl}</text>
+            {/each}
+
+            <!-- 16-pin (2×8) ZIF socket, lengthwise at the far end -->
             <g filter="url(#shadowFilter)">
-              <rect x="110" y="36" width="120" height="7" rx="2" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
-              <rect x="158" y="32" width="24" height="13" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
-              {#each [162, 166, 170, 174] as lx (lx)}
-                <line x1={lx} y1="34" x2={lx} y2="43" stroke="#9ca3af" stroke-width="0.5" />
+              <rect x="246" y="50" width="110" height="68" rx="3" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.5" />
+            </g>
+            <!-- ZIF pin holes: top row = ZIF 1..8 (left→right), bottom row = ZIF 16..9 -->
+            {#each Array(8) as _, i (i)}
+              {#if i === 0}
+                <!-- ZIF pin 1: square pad (real board marks it with a square + arrow) -->
+                <rect x={252 - 2} y={66 - 2} width="4" height="4" fill="#111827" stroke="#d1d5db" stroke-width="0.4" />
+              {:else}
+                <circle cx={252 + i * 13.7} cy="66" r="1.8" fill="#111827" stroke="#d1d5db" stroke-width="0.4" />
+              {/if}
+              <circle cx={252 + i * 13.7} cy="102" r="1.8" fill="#111827" stroke="#d1d5db" stroke-width="0.4" />
+            {/each}
+            <text x="243" y="68" text-anchor="end" fill="#6b7280" font-family="ui-monospace, monospace" font-size="4.5">1</text>
+            <text x="243" y="104" text-anchor="end" fill="#6b7280" font-family="ui-monospace, monospace" font-size="4.5">16</text>
+            <!-- Socket group labels (real silk: "24 I2C EEPROM BIOS" / "25 SPI") -->
+            <line x1="300" y1="54" x2="300" y2="114" stroke="#d1d5db" stroke-width="0.6" />
+            <g fill="#6b7280" font-family="ui-monospace, monospace" font-size="4.6" font-weight="600">
+              <text x="276" y="60" text-anchor="middle">24 I²C</text>
+              <text x="329" y="47" text-anchor="middle">25 SPI</text>
+            </g>
+
+            <!-- ZIF lever along the socket's long edge -->
+            <g filter="url(#shadowFilter)">
+              <rect x="252" y="120" width="88" height="5" rx="2" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
+              <rect x="340" y="116" width="20" height="12" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="0.5" />
+              {#each [344, 348, 352, 356] as lx (lx)}
+                <line x1={lx} y1="118" x2={lx} y2="126" stroke="#9ca3af" stroke-width="0.5" />
               {/each}
             </g>
 
-            <!-- ZIF pin holes: Precise dark contrast -->
-            {#each Array(12) as _, row (row)}
-              {#each [110, 232] as cx (cx)}
-                <circle cx={cx} cy={58 + row * 8.2} r="1.8" fill="#111827" stroke="#d1d5db" stroke-width="0.4" />
+            <!-- 8-pin NOR chip seated in ZIF 5-12 (the "25 SPI" half away from USB) -->
+            <g>
+              {#each [308, 322, 336, 350] as px (px)}
+                <rect x={px - 3} y="50" width="6" height="7" rx="0.5" fill="#6b7280" />
+                <rect x={px - 3} y="111" width="6" height="7" rx="0.5" fill="#6b7280" />
               {/each}
-            {/each}
-
-            <!-- 8-pin NOR chip: Realistic SOIC body -->
-            <rect x="120" y="118" width="102" height="34" rx="2" fill="#111827" stroke="#374151" stroke-width="1" />
-            <circle cx="128" cy="125" r="1.8" fill="#6b7280" />
-            <text x="171" y="148" text-anchor="middle" class="chip-lbl" fill="#9ca3af">25-series NOR</text>
-            {#each [0, 1, 2, 3] as i (i)}
-              <rect x="113" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#6b7280" />
-              <rect x="222" y={122 + i * 8} width="7" height="4" rx="0.5" fill="#6b7280" />
-            {/each}
-
-            <!-- CH341A IC: SSOP-28 realistic footprint -->
-            <rect x="34" y="116" width="22" height="48" rx="1" fill="#111827" stroke="#374151" stroke-width="1" />
-            <rect x="34" y="116" width="22" height="1" fill="#4b5563" />
-            <rect x="34" y="116" width="1" height="48" fill="#4b5563" />
-            <circle cx="38" cy="122" r="1.4" fill="#6b7280" />
-            <text x="45" y="144" text-anchor="middle" class="chip-lbl" fill="#9ca3af">CH341A</text>
-
-            <!-- AMS1117 Regulator: SOT-223 realistic footprint -->
-            <rect x="34" y="92" width="22" height="12" rx="1" fill="#111827" stroke="#374151" stroke-width="1" />
-            <rect x="34" y="92" width="22" height="1" fill="#4b5563" />
-            <rect x="34" y="92" width="1" height="12" fill="#4b5563" />
-            <rect x="34" y="92" width="22" height="2" fill="#4b5563" opacity="0.5" />
-
-            <!-- 12 MHz crystal: Realistic metallic cylinder -->
-            <rect x="60" y="150" width="26" height="11" rx="5" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
-            <text x="73" y="158" text-anchor="middle" class="chip-lbl" fill="#374151">12M</text>
-
-            <!-- Power LED: Bright green with glow -->
-            <circle cx="40" cy="164" r="2.6" fill="#4ade80" stroke="#16a34a" stroke-width="0.6" filter="url(#glowFilter)" />
-
-            <!-- Jumpers: Yellow caps on 3-pin headers -->
-            <g transform="translate(187, 169)">
-              <rect x="0" y="0" width="15" height="7" rx="1" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
-              <rect x="2" y="1" width="4" height="5" fill="#fde68a" />
-            </g>
-            <g transform="translate(145, 169)">
-              <rect x="0" y="0" width="15" height="7" rx="1" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.8" />
-              <rect x="2" y="1" width="4" height="5" fill="#fde68a" />
+              <rect x="302" y="56" width="56" height="56" rx="2" fill="#1f2937" stroke="#374151" stroke-width="1" />
+              <circle cx="308" cy="62" r="1.8" fill="#9ca3af" />
+              <text x="330" y="87" text-anchor="middle" class="chip-lbl" fill="#9ca3af">W25Q…</text>
             </g>
 
-            <!-- Side headers -->
-            {#each Array(7) as _, i (i)}
-              <rect x="80" y={60 + i * 12} width="6" height="4" rx="0.5" fill="#4b5563" />
-              <rect x="258" y={60 + i * 12} width="6" height="4" rx="0.5" fill="#4b5563" />
-            {/each}
+            <!-- Unpopulated SOIC pads at the rounded far end (real board) -->
+            <g stroke="#4b4b52" stroke-width="0.7" fill="none">
+              <rect x="366" y="58" width="12" height="46" rx="1" stroke-dasharray="2 1.5" />
+              <rect x="380" y="66" width="12" height="30" rx="1" stroke-dasharray="2 1.5" />
+            </g>
+            <g fill="#4b4b52" font-family="ui-monospace, monospace" font-size="4" font-weight="600">
+              <text x="372" y="110" text-anchor="middle">25XXX</text>
+              <text x="386" y="102" text-anchor="middle">24XXX</text>
+            </g>
 
             <!-- Numbered callouts: Orange circles with radial gradient and glow -->
             {#each BOARD_CALLOUTS as c (c.n)}
@@ -263,10 +317,10 @@
               <li><span class="font-mono text-gray-200">CH341A-IC</span> — {$LL.hwGuide.ch341a.legIc()}</li>
               <li><span class="font-mono text-gray-200">AMS1117</span> — {$LL.hwGuide.ch341a.legReg()}</li>
               <li><span class="font-mono text-gray-200">12-MHz-Quarz</span> — {$LL.hwGuide.ch341a.legXtal()}</li>
-              <li><span class="font-mono text-gray-200">Power-LED</span> — {$LL.hwGuide.ch341a.legLed()}</li>
-              <li><span class="font-mono text-gray-200">ACT#-Jumper</span> — {$LL.hwGuide.ch341a.legAct()}</li>
-              <li><span class="font-mono text-gray-200">SPI/I2C-Jumper</span> — {$LL.hwGuide.ch341a.legMode()}</li>
-              <li><span class="font-mono text-gray-200">Seiten-Header</span> — {$LL.hwGuide.ch341a.legHeader()}</li>
+              <li><span class="font-mono text-gray-200">POWER/RUN-LED</span> — {$LL.hwGuide.ch341a.legLed()}</li>
+              <li><span class="font-mono text-gray-200">Mode-Jumper</span> — {$LL.hwGuide.ch341a.legAct()}</li>
+              <li><span class="font-mono text-gray-200">SPI-Header</span> — {$LL.hwGuide.ch341a.legSpi()}</li>
+              <li><span class="font-mono text-gray-200">UART-Header</span> — {$LL.hwGuide.ch341a.legUart()}</li>
               <li><span class="font-mono text-gray-200">NOR-Chip</span> — {$LL.hwGuide.ch341a.legNor()}</li>
             </ol>
           </div>
@@ -372,7 +426,8 @@
               <tr class="text-gray-500">
                 <th class="text-left font-medium py-1 px-2 rounded-tl-sm border-b border-gray-700/50">Chip-Pin</th>
                 <th class="text-left font-medium py-1 px-2 border-b border-gray-700/50">Signal</th>
-                <th class="text-left font-medium py-1 px-2 rounded-tr-sm border-b border-gray-700/50">ZIF / CH341A</th>
+                <th class="text-left font-medium py-1 px-2 border-b border-gray-700/50">ZIF-Pos.</th>
+                <th class="text-left font-medium py-1 px-2 rounded-tr-sm border-b border-gray-700/50">CH341A</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-700/30">
@@ -380,6 +435,7 @@
                 <tr class="hover:bg-gray-700/20 transition-colors">
                   <td class="py-1 px-2 font-mono text-teal-300">{row.n} {row.name}</td>
                   <td class="py-1 px-2 font-mono text-gray-200">{row.sig}</td>
+                  <td class="py-1 px-2 font-mono text-gray-300">{row.zif}</td>
                   <td class="py-1 px-2 text-gray-400">
                     {#if row.note}<span class="text-amber-300 font-medium">{row.note}</span>{/if}
                   </td>
@@ -395,7 +451,6 @@
           <p class="font-semibold text-gray-200 mb-1">{$LL.hwGuide.ch341a.jumpers()}</p>
           <ul class="list-disc pl-4 space-y-0.5 text-gray-400">
             <li>{$LL.hwGuide.ch341a.jumperAct()} <span class="text-gray-500">(⑧)</span></li>
-            <li>{$LL.hwGuide.ch341a.jumperMode()} <span class="text-gray-500">(⑨)</span></li>
             <li>{$LL.hwGuide.ch341a.jumperVolt()}</li>
           </ul>
         </div>
