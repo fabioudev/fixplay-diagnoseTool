@@ -32,6 +32,27 @@ pub fn flashrom_path(resource_dir: &std::path::Path) -> PathBuf {
     resource_dir.join("binaries").join("flashrom")
 }
 
+/// True when the file at `path` is the committed dev placeholder rather than a
+/// real flashrom binary (the repo ships a 12-byte `placeholder\n` stub so
+/// `tauri build`'s resource declaration resolves in dev). Release builds
+/// overwrite the stub, but if one ever ships it must never shadow a working
+/// system flashrom — every released artifact with the stub would otherwise
+/// report a healthy binary and fail all flash operations at spawn.
+pub fn is_placeholder_binary(path: &std::path::Path) -> bool {
+    use std::io::Read;
+    let mut file = match std::fs::File::open(path) {
+        Ok(f) => f,
+        Err(_) => return false,
+    };
+    let mut head = [0u8; 32];
+    let n = match file.read(&mut head) {
+        Ok(n) => n,
+        Err(_) => return false,
+    };
+    let head = String::from_utf8_lossy(&head[..n]);
+    head.trim().eq_ignore_ascii_case("placeholder")
+}
+
 fn parse_progress(line: &str) -> Option<u8> {
     let start = line.rfind('(')?;
     let end = line[start..].find('%').map(|i| start + i)?;
@@ -224,6 +245,33 @@ fn parse_jedec_id(text: &str) -> (u8, u16) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn placeholder_stub_is_detected() {
+        let dir = std::env::temp_dir().join("fp_ph_test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let bin = dir.join("flashrom");
+        std::fs::write(&bin, b"placeholder\n").unwrap();
+        assert!(is_placeholder_binary(&bin));
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn real_binary_is_not_a_placeholder() {
+        let dir = std::env::temp_dir().join("fp_real_test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let bin = dir.join("flashrom");
+        std::fs::write(&bin, b"#!/bin/sh\necho flashrom v1.4.0\n").unwrap();
+        assert!(!is_placeholder_binary(&bin));
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn missing_file_is_not_a_placeholder() {
+        assert!(!is_placeholder_binary(std::path::Path::new(
+            "/fp_nonexistent_dir/flashrom"
+        )));
+    }
 
     #[test]
     fn flashrom_path_has_correct_extension() {

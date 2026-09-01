@@ -59,7 +59,7 @@ Root `Cargo.toml` is the workspace: `crates/{fixplay-core,fixplay-flashrom,fixpl
 
 ### Flashrom
 
-`src-tauri/binaries/flashrom{,.exe}` are committed 12-byte placeholder stubs (real binaries are gitignored). Runtime resolution (`settings.rs` `resolve_flashrom_path`): user setting → bundled binary → `flashrom` on PATH. Windows releases build a real `flashrom.exe` from source in CI (pinned to flashrom v1.4.0; v1.5.0+ is meson-only). A startup self-check emits `flash://binary-status` so the UI can warn before the first flash.
+`src-tauri/binaries/flashrom{,.exe}` are committed 12-byte placeholder stubs (real binaries are gitignored). Runtime resolution (`settings.rs` `resolve_flashrom_path`): user setting → bundled binary → `flashrom` on PATH — a bundled stub is skipped (`is_placeholder_binary`) so it never shadows a working system flashrom. Release CI builds real flashrom v1.4.0 from source for Windows (MSYS2, statically linked — a dynamic build imports libusb-1.0.dll etc. that the installer doesn't ship) and Linux/macOS (same CONFIG_* flags; v1.5.0+ is meson-only); the Arch package ships the distro `flashrom`. A startup self-check emits `flash://binary-status` (incl. a `--version` spawn test) so the UI can warn before the first flash.
 
 ### Error-code DB lifecycle (PS5 + Xbox, identical)
 

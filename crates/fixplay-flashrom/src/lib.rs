@@ -7,4 +7,4 @@
 /// The flashrom subprocess wrapper and `FlashDevice` implementation.
 pub mod flashrom;
 /// Re-export of the device type and the resource-path resolver.
-pub use flashrom::{flashrom_path, FlashromDevice};
+pub use flashrom::{flashrom_path, is_placeholder_binary, FlashromDevice};

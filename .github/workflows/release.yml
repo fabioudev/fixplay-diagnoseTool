@@ -20,6 +20,9 @@ jobs:
     outputs:
       release_tag: ${{ steps.resolve_tag.outputs.release_tag }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Resolve release tag
         id: resolve_tag
         run: |
@@ -28,6 +31,22 @@ jobs:
           else
             echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Verify tag matches tauri.conf.json version
+        run: |
+          # Everything downstream keys on the tag version (updater manifest,
+          # AUR download URLs), but the bundle filenames embed the version
+          # from tauri.conf.json. A drift silently produces a platforms-empty
+          # latest.json and 404ing AUR packages with a green pipeline — fail
+          # here instead, before anything is built.
+          TAG_VERSION="${RELEASE_TAG#v}"
+          CONF_VERSION="$(node -p "require('./src-tauri/tauri.conf.json').version")"
+          if [ "$TAG_VERSION" != "$CONF_VERSION" ]; then
+            echo "::error::Tag v$TAG_VERSION does not match tauri.conf.json version $CONF_VERSION. Bump tauri.conf.json and re-tag."
+            exit 1
+          fi
+        env:
+          RELEASE_TAG: ${{ steps.resolve_tag.outputs.release_tag }}
 
   build:
     needs: prepare
@@ -163,7 +182,13 @@ jobs:
           # Re-enable by adding mingw-w64-ucrt-x86_64-libftdi + CONFIG_FT2232_SPI=yes.
           # Note: v1.4.0 has no CONFIG_RAID/CONFIG_USB vars — only
           # CONFIG_RAIDEN_DEBUG_SPI and the implicit libusb1 programmer group.
-          make CC=gcc \
+          # LDFLAGS=-static links libusb-1.0 and winpthread statically: a
+          # dynamically linked exe imports libusb-1.0.dll / libwinpthread-1.dll
+          # that the installer doesn't bundle, and every flash dies at spawn
+          # with a missing-DLL error (verified on the published v0.3.0
+          # installer). If -static ever breaks the link, this step fails loudly
+          # in CI instead of shipping a broken exe.
+          make CC=gcc LDFLAGS="-static" \
             CONFIG_INTERNAL=no \
             CONFIG_SERPROG=yes \
             CONFIG_BUSPIRATE_SPI=yes \
@@ -176,6 +201,43 @@ jobs:
           test -s flashrom.exe
           cp flashrom.exe "$WORK/src-tauri/binaries/flashrom.exe"
           echo "Staged flashrom.exe: $(ls -l "$WORK/src-tauri/binaries/flashrom.exe")"
+
+      # ── Build a real Linux flashrom from upstream source ───────────────────
+      # Same rationale as the Windows step: the committed src-tauri/binaries/
+      # flashrom is a placeholder stub, and shipping it makes every flash
+      # operation fail at spawn (and used to shadow a working system flashrom
+      # until the runtime placeholder guard was added). Overwrite it with a
+      # freshly built flashrom so Linux releases work out of the box.
+      - name: Install flashrom build dependencies (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          # With CONFIG_INTERNAL=no flashrom needs only libusb-1.0 (CH341A and
+          # the other USB programmers) and pkg-config; libpci is NOT needed.
+          sudo apt-get install -y libusb-1.0-0-dev pkg-config
+
+      - name: Build flashrom (Linux only)
+        if: runner.os == 'Linux'
+        env:
+          FLASHROM_REF: v1.4.0
+        run: |
+          set -euo pipefail
+          WORK="$PWD"
+          git clone --depth 1 --branch "$FLASHROM_REF" https://github.com/flashrom/flashrom.git /tmp/flashrom
+          cd /tmp/flashrom
+          # Same programmer set as the Windows build (see the MSYS2 step for
+          # the full rationale) and the same loud-failure philosophy.
+          make \
+            CONFIG_INTERNAL=no \
+            CONFIG_SERPROG=yes \
+            CONFIG_BUSPIRATE_SPI=yes \
+            CONFIG_FT2232_SPI=no \
+            CONFIG_CH341A_SPI=yes \
+            CONFIG_DEDIPROG=yes \
+            CONFIG_PONY_SPI=yes \
+            CONFIG_RAIDEN_DEBUG_SPI=no
+          test -s flashrom
+          cp flashrom "$WORK/src-tauri/binaries/flashrom"
+          echo "Staged flashrom: $(ls -l "$WORK/src-tauri/binaries/flashrom")"
 
       - name: Build Tauri bundles
         env:
@@ -243,8 +305,9 @@ jobs:
   # of these never blocks a release. When they succeed, their `*-bundles`
   # artifacts are still picked up by the release's download-artifact step
   # (pattern `*-bundles`) and shipped. macOS is unsigned (no signing/notarization
-  # configured yet); ARM64 flashrom binaries are not built, so flashrom features
-  # are runtime-unavailable on those targets until a native flashrom is added.
+  # configured yet). Linux ARM64 and macOS build a native flashrom from source
+  # (step-level continue-on-error: a flashrom failure degrades to the
+  # placeholder + runtime guard, it doesn't kill the target).
   build-extra:
     needs: prepare
     continue-on-error: true
@@ -298,7 +361,13 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev \
             libudev-dev \
-            patchelf
+            patchelf \
+            libusb-1.0-0-dev \
+            pkg-config
+
+      - name: Install macOS build dependencies
+        if: runner.os == 'macOS'
+        run: brew install libusb pkg-config
 
       - name: Install dependencies
         run: npm ci
@@ -307,6 +376,35 @@ jobs:
         run: |
           curl -fsSL "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" -o src-tauri/resources/error_codes.json
           node -e "const d=JSON.parse(require('fs').readFileSync('src-tauri/resources/error_codes.json','utf8'));const ok=d&&typeof d==='object'&&Object.values(d).some(v=>v&&Array.isArray(v.ErrorCodes)&&v.ErrorCodes.length>0);if(!ok){console.error('Error DB empty or invalid');process.exit(1)}"
+
+      # ── Native flashrom for the experimental targets ───────────────────────
+      # Same flags as the main `build` job (see the MSYS2/Linux steps there).
+      # These targets are experimental (job-level continue-on-error), so a
+      # flashrom build failure here must not kill the whole job: step-level
+      # continue-on-error keeps the bundles shipping (the placeholder stub +
+      # runtime guard then degrade to "flashrom on PATH" as before).
+      - name: Build flashrom (Linux/macOS only)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        continue-on-error: true
+        env:
+          FLASHROM_REF: v1.4.0
+        run: |
+          set -euo pipefail
+          WORK="$PWD"
+          git clone --depth 1 --branch "$FLASHROM_REF" https://github.com/flashrom/flashrom.git /tmp/flashrom
+          cd /tmp/flashrom
+          make \
+            CONFIG_INTERNAL=no \
+            CONFIG_SERPROG=yes \
+            CONFIG_BUSPIRATE_SPI=yes \
+            CONFIG_FT2232_SPI=no \
+            CONFIG_CH341A_SPI=yes \
+            CONFIG_DEDIPROG=yes \
+            CONFIG_PONY_SPI=yes \
+            CONFIG_RAIDEN_DEBUG_SPI=no
+          test -s flashrom
+          cp flashrom "$WORK/src-tauri/binaries/flashrom"
+          echo "Staged flashrom: $(ls -l "$WORK/src-tauri/binaries/flashrom")"
 
       - name: Build Tauri bundles
         env:
@@ -339,7 +437,7 @@ jobs:
             base-devel git rust nodejs npm curl \
             webkit2gtk-4.1 gtk3 libayatana-appindicator \
             librsvg patchelf zstd \
-            systemd-libs hidapi
+            systemd-libs hidapi flashrom
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -349,6 +447,9 @@ jobs:
           curl -fsSL \
             "https://raw.githubusercontent.com/amoamare/Console-Service-Tool/master/Resources/ErrorCodes.json" \
             -o src-tauri/resources/error_codes.json
+          # Same validity gate as the other build jobs — a truncated/HTML
+          # error page must fail the build, not ship as a silently empty DB.
+          node -e "const d=JSON.parse(require('fs').readFileSync('src-tauri/resources/error_codes.json','utf8'));const ok=d&&typeof d==='object'&&Object.values(d).some(v=>v&&Array.isArray(v.ErrorCodes)&&v.ErrorCodes.length>0);if(!ok){console.error('Error DB empty or invalid');process.exit(1)}"
 
       - name: Install npm dependencies
         run: npm ci
@@ -368,7 +469,13 @@ jobs:
           mkdir -p /tmp/pkgbuild/files
           cp "target/release/fixplay-tauri"           /tmp/pkgbuild/files/
           cp "src-tauri/resources/error_codes.json"   /tmp/pkgbuild/files/
-          cp "src-tauri/binaries/flashrom"            /tmp/pkgbuild/files/
+          cp "src-tauri/resources/xbox_error_codes.json" /tmp/pkgbuild/files/
+          # Ship the distro flashrom binary instead of the committed placeholder
+          # stub — the stub fails every flash operation at spawn. The pacman
+          # `flashrom` install above is the same binary the `depends` entry
+          # pulls in on user machines, so bundling it keeps the packaged app
+          # working even when PATH resolution changes.
+          cp "/usr/bin/flashrom"                      /tmp/pkgbuild/files/flashrom
           cp "src-tauri/icons/icon_256x256.png"       /tmp/pkgbuild/files/
 
           printf '[Desktop Entry]\nName=fixplay-diagnoseTool\nComment=Cross-platform diagnostic tool for gaming consoles\nExec=fixplay-diagnosetool\nIcon=fixplay-diagnosetool\nType=Application\nCategories=Utility;Development;\nTerminal=false\nStartupNotify=true\n' \
@@ -383,7 +490,7 @@ jobs:
             echo "arch=('x86_64')"
             echo 'url="https://github.com/fabioudev/fixplay-diagnoseTool"'
             echo "license=('custom:unknown')"
-            echo "depends=('webkit2gtk-4.1' 'gtk3' 'libayatana-appindicator')"
+            echo "depends=('webkit2gtk-4.1' 'gtk3' 'libayatana-appindicator' 'flashrom')"
             echo "provides=('fixplay-diagnosetool')"
             echo "conflicts=('fixplay-diagnosetool-bin')"
             echo "source=()"
@@ -392,6 +499,7 @@ jobs:
             echo "package() {"
             echo '  install -Dm755 "${startdir}/files/fixplay-tauri"                   "${pkgdir}/usr/bin/fixplay-diagnosetool"'
             echo '  install -Dm644 "${startdir}/files/error_codes.json"                "${pkgdir}/usr/lib/fixplay-diagnosetool/resources/error_codes.json"'
+            echo '  install -Dm644 "${startdir}/files/xbox_error_codes.json"           "${pkgdir}/usr/lib/fixplay-diagnosetool/resources/xbox_error_codes.json"'
             echo '  install -Dm755 "${startdir}/files/flashrom"                        "${pkgdir}/usr/lib/fixplay-diagnosetool/binaries/flashrom"'
             echo '  install -Dm644 "${startdir}/files/icon_256x256.png"               "${pkgdir}/usr/share/icons/hicolor/256x256/apps/fixplay-diagnosetool.png"'
             echo '  install -Dm644 "${startdir}/files/fixplay-diagnosetool.desktop"   "${pkgdir}/usr/share/applications/fixplay-diagnosetool.desktop"'
@@ -413,6 +521,7 @@ jobs:
     needs:
       - prepare
       - build
+      - build-extra
       - arch-build
     runs-on: ubuntu-latest
 
@@ -441,7 +550,12 @@ jobs:
       - name: Generate SHA256 checksums
         run: |
           cd release-assets
-          find . -type f | sort | xargs sha256sum > SHA256SUMS.txt
+          # Exclude the checksum file itself — including it makes SHA256SUMS.txt
+          # contain its own (impossible-to-verify) hash, and `sha256sum -c` fails
+          # on the last line (verified on the published v0.3.0 release).
+          find . -type f ! -name SHA256SUMS.txt | sort | xargs sha256sum > SHA256SUMS.txt
+          # Fail loudly if the manifest lists anything that isn't a real file.
+          sha256sum -c SHA256SUMS.txt
 
       - name: Create or update GitHub release
         uses: softprops/action-gh-release@v2

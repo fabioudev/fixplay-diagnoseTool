@@ -99,7 +99,10 @@ pub fn resolve_flashrom_path(settings: &AppSettings, resource_dir: &std::path::P
     // If the bundled binary is missing (e.g. dev build without the resource
     // step, or a stripped package), fall back to a system `flashrom` resolved
     // via PATH at spawn time. Returning the bare name lets the OS search PATH.
-    if !bundled.exists() {
+    // Same for the committed dev placeholder stub — shipping it as a "binary"
+    // would shadow a working system flashrom and fail every flash operation
+    // at spawn with an opaque error.
+    if !bundled.exists() || fixplay_flashrom::is_placeholder_binary(&bundled) {
         return std::path::PathBuf::from("flashrom");
     }
     bundled
@@ -178,6 +181,20 @@ mod tests {
         let s    = AppSettings::default();
         let path = resolve_flashrom_path(&s, &tmp);
         assert_eq!(path, bin);
+        std::fs::remove_dir_all(&tmp).ok();
+    }
+
+    #[test]
+    fn resolve_flashrom_path_skips_bundled_placeholder() {
+        // The committed dev stub (`placeholder\n`) must never shadow a working
+        // system flashrom — fall through to the PATH-resolved bare name.
+        let tmp = std::env::temp_dir().join("fp_res_placeholder");
+        std::fs::create_dir_all(tmp.join("binaries")).unwrap();
+        let bin = tmp.join("binaries").join("flashrom");
+        std::fs::write(&bin, b"placeholder\n").unwrap();
+        let s    = AppSettings::default();
+        let path = resolve_flashrom_path(&s, &tmp);
+        assert_eq!(path, std::path::PathBuf::from("flashrom"));
         std::fs::remove_dir_all(&tmp).ok();
     }
 

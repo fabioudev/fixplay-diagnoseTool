@@ -334,5 +334,78 @@ pub fn check_flashrom_binary(path: &std::path::Path) -> (bool, Option<String>) {
             return (false, Some("flashrom binary is not executable".into()));
         }
     }
+    // A shipped dev-placeholder stub looks healthy (non-empty, executable) but
+    // fails every flash operation at spawn with an opaque error.
+    if fixplay_flashrom::is_placeholder_binary(path) {
+        return (false, Some("flashrom binary is the dev placeholder stub".into()));
+    }
+    // Prove runnability by executing `--version`: a binary that exists but
+    // cannot launch (missing DLLs on Windows, glibc/libusb mismatch from
+    // cross-distro bundling) used to pass the file checks above and only
+    // surfaced as an opaque error on the first flash operation.
+    match std::process::Command::new(path).arg("--version").output() {
+        Ok(_) => {}
+        Err(e) => return (false, Some(format!("flashrom binary cannot be executed: {e}"))),
+    }
     (true, None)
+}
+
+#[cfg(test)]
+mod flashrom_check_tests {
+    use super::*;
+
+    #[cfg(unix)]
+    fn write_executable(dir: &std::path::Path, name: &str, content: &[u8]) -> std::path::PathBuf {
+        use std::os::unix::fs::PermissionsExt;
+        let bin = dir.join(name);
+        std::fs::write(&bin, content).unwrap();
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).unwrap();
+        bin
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn placeholder_stub_fails_the_check() {
+        let dir = std::env::temp_dir().join("fp_check_placeholder");
+        std::fs::create_dir_all(&dir).unwrap();
+        let bin = write_executable(&dir, "flashrom", b"placeholder\n");
+        let (ok, reason) = check_flashrom_binary(&bin);
+        assert!(!ok);
+        assert!(reason.unwrap_or_default().contains("placeholder"));
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn runnable_binary_passes() {
+        let dir = std::env::temp_dir().join("fp_check_ok");
+        std::fs::create_dir_all(&dir).unwrap();
+        // A script that ignores arguments and exits 0 stands in for flashrom
+        // accepting `--version`.
+        let bin = write_executable(&dir, "flashrom", b"#!/bin/sh\nexit 0\n");
+        let (ok, reason) = check_flashrom_binary(&bin);
+        assert!(ok, "expected ok, got {reason:?}");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn non_launchable_binary_fails_with_reason() {
+        let dir = std::env::temp_dir().join("fp_check_unlaunchable");
+        std::fs::create_dir_all(&dir).unwrap();
+        // Executable bit set but no valid executable format — models a bundled
+        // binary that cannot launch (missing DLL / wrong glibc).
+        let bin = write_executable(&dir, "flashrom", b"this is not an executable\n");
+        let (ok, reason) = check_flashrom_binary(&bin);
+        assert!(!ok);
+        assert!(reason.is_some());
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn missing_binary_fails() {
+        let (ok, reason) = check_flashrom_binary(std::path::Path::new("/fp_nonexistent/flashrom"));
+        assert!(!ok);
+        assert!(reason.is_some());
+    }
 }
