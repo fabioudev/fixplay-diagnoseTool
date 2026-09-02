@@ -655,7 +655,7 @@ const en: Translation = {
       headerUart:
         'From the 7-pin header use only TX (pin 4), RX (pin 5) and GND (pin 6) — never connect 5V (pin 7)',
       ttlText:
-        'Caution: the CH341A TTL pins swing at 5 V (the chip is a 5 V part — only VCC is regulated down). On the CH341A-TX → PS5-RX (pin 6) line, add a voltage divider: 1 kΩ in series + 2 kΩ to GND (5 V × 2/3 ≈ 3.3 V). The reverse direction PS5-TX → CH341A-RX is safe.',
+        'Caution: the CH341A TTL pins swing at 5 V (the chip runs entirely at 5 V — only the flash socket gets 3.3 V via the AMS1117, the signal pins stay at 5 V). On the CH341A-TX → PS5-RX (pin 6) line, add a voltage divider: 1 kΩ in series + 2 kΩ to GND (5 V × 2/3 ≈ 3.3 V). The reverse direction PS5-TX → CH341A-RX is safe.',
       wiring: 'Wiring (TX/RX crossed + voltage divider)',
       baud: 'Baud rate: 115200 (EMC UART)',
       pads: 'EDM-010 UART pads (24-pin service header)',
@@ -664,9 +664,9 @@ const en: Translation = {
         'The 24-pin service header sits right next to the Salina PMIC; an identical second header sits at the BT/WiFi module (①/② — both work). EDM-020 is the same, EDM-03x has different pads. Not to scale.',
       headerTitle: '24-pin EMC header — pinout',
       headerNote:
-        'Reading error codes only needs pin 4 (GND), pin 6 (RX) and pin 7 (TX) — marked amber. Pin 8 = 3.3 V (drops low on EMC reset). Pull pin 5 (GPIO A1) low at boot → EMC-ROM UART shell at 460800 baud. Pins 11–14: Titania UART (EFC 460800 / EAP 691200 / boot ROM+AP 230400).',
+        'Reading error codes only needs pin 4 (GND), pin 6 (RX) and pin 7 (TX) — marked amber. Pin 8 = 3.3 V (drops low on EMC reset). Pull pin 5 (GPIO A1) low at boot → EMC-ROM UART shell at 460800 baud. Pins 11–14: Titania UART (EFC 460800 / EAP 691200 / APU 230400).',
       procedure:
-        'PS5 plugged into wall (do not power on) → jumper on 2↔3, adapter via USB → read error codes. On “Operation Cancelled" swap TX/RX. Check fuse F7003; a dead southbridge or corrupt NOR → no UART (3 beeps).',
+        'PS5 plugged into wall (do not power on) → jumper on 2↔3, adapter via USB → read error codes. On “Operation Cancelled” swap TX/RX. Check fuse F7003; a dead southbridge or corrupt NOR → no UART (3 beeps).',
       titania:
         'Titania UART: header pins 11–14 (460800 EFC / 230400 APU / 691200 EAP) — different interface from EMC.',
     },

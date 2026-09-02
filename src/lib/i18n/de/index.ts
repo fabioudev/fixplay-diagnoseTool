@@ -647,7 +647,7 @@ const de: BaseTranslation = {
       pinout8: '8-Pin SPI-NOR Pinout (25-Series)',
       zifTitle: 'ZIF-Steckplätze — Pinout (NOR-Modus)',
       socketNote:
-        'Pin 1 = Punkt/Kerbe. 25er-Chip in die Sockelhälfte mit „25 SPI"-Aufdruck stecken (ZIF-Positionen 5–12, fern vom USB-Stecker), Pin 1 an der markierten Ecke (eckes Pad). #WP/#HOLD liegen im Sockel fest auf 3,3 V (ZIF 7/11). Hebel erst senken, nachdem die Lage stimmt — sonst Chip verdreht → Kurzschluss/Garantieverlust.',
+        'Pin 1 = Punkt/Kerbe. 25er-Chip in die Sockelhälfte mit „25 SPI"-Aufdruck stecken (ZIF-Positionen 5–12, fern vom USB-Stecker), Pin 1 an der markierten Ecke (eckiges Pad). #WP/#HOLD liegen im Sockel fest auf 3,3 V (ZIF 7/11). Hebel erst senken, nachdem die Lage stimmt — sonst Chip verdreht → Kurzschluss/Garantieverlust.',
       wiringNote:
         'Der CH341A-Sockel bindet #WP (Pin 3) und #HOLD (Pin 7) fest an VCC → Schreibschutz und Hold sind im Sockel inaktiv. ZIF 13/14 (SDA/SCL) werden nur von 24xx-I²C-EEPROMs genutzt.',
       jumpers: 'Jumper (NOR-Modus)',
@@ -669,7 +669,7 @@ const de: BaseTranslation = {
       headerUart:
         'Vom 7-Pol-Header nur TX (Pin 4), RX (Pin 5) und GND (Pin 6) verwenden — 5V (Pin 7) nie anschließen',
       ttlText:
-        'Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip ist ein 5V-Baustein, nur VCC wird auf 3,3V geregelt). Auf der Leitung CH341A-TX → PS5-RX (Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.',
+        'Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip läuft komplett mit 5V — nur der Flash-Sockel bekommt per AMS1117 3,3V, die Signalpins bleiben auf 5V). Auf der Leitung CH341A-TX → PS5-RX (Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.',
       wiring: 'Verkabelung (TX/RX gekreuzt + Spannungsteiler)',
       baud: 'Baudrate: 115200 (EMC-UART)',
       pads: 'EDM-010 UART-Pads (24-pol. Service-Header)',
@@ -678,7 +678,7 @@ const de: BaseTranslation = {
         'Der 24-Pin-Service-Header sitzt direkt neben dem Salina-PMIC; ein identischer zweiter Header liegt am BT/WiFi-Modul (①/② — beide funktionieren). EDM-020 gleich, EDM-03x hat andere Pads. Nicht maßstäblich.',
       headerTitle: '24-Pin EMC-Header — Pinout',
       headerNote:
-        'Für die Fehlercodes genügen Pin 4 (GND), Pin 6 (RX) und Pin 7 (TX) — amber markiert. Pin 8 = 3,3V (fällt bei EMC-Reset auf Low). Pin 5 (GPIO A1) beim Boot auf Low ziehen → UART-Shell des EMC-ROM mit 460800 Baud. Pins 11–14: Titania-UART (EFC 460800 / EAP 691200 / Bootrom+AP 230400).',
+        'Für die Fehlercodes genügen Pin 4 (GND), Pin 6 (RX) und Pin 7 (TX) — amber markiert. Pin 8 = 3,3V (fällt bei EMC-Reset auf Low). Pin 5 (GPIO A1) beim Boot auf Low ziehen → UART-Shell des EMC-ROM mit 460800 Baud. Pins 11–14: Titania-UART (EFC 460800 / EAP 691200 / APU 230400).',
       procedure:
         'PS5 an Strom (nicht einschalten) → Jumper auf 2↔3, Adapter per USB → Fehlercodes lesen. Bei „Operation Cancelled" TX/RX tauschen. Fuse F7003 prüfen; toter Southbridge oder kaputtes NOR → kein UART (3 Beeps).',
       titania:

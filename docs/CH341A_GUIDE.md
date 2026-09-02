@@ -113,7 +113,7 @@ ist am Chip meist mit Punkt/Kerbe markiert.
 
 Im **16-Pin-ZIF-Sockel** des black board sitzt der 8-polige Chip in der
 **hinteren Hälfte auf den ZIF-Positionen 5–12** (Aufdruck „25 SPI", fern
-vom USB-Stecker), Pin 1 an der markierten Ecke (eckes Pad). Die vordere
+vom USB-Stecker), Pin 1 an der markierten Ecke (eckiges Pad). Die vordere
 Hälfte (ZIF 1–4/13–16, Aufdruck „24 I²C") führt beim 8-Pin-Chip keine
 Signale (bzw. ist für I²C-EEPROMs 24xx — SDA/SCL liegen auf ZIF 13/14).
 Im Sockel liegen #WP/#HOLD fest auf 3,3 V (ZIF 7/11). **Vor dem Schließen

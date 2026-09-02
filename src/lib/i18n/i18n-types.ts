@@ -2343,7 +2343,7 @@ type RootTranslation = {
 			 */
 			zifTitle: string
 			/**
-			 * P​i​n​ ​1​ ​=​ ​P​u​n​k​t​/​K​e​r​b​e​.​ ​2​5​e​r​-​C​h​i​p​ ​i​n​ ​d​i​e​ ​S​o​c​k​e​l​h​ä​l​f​t​e​ ​m​i​t​ ​„​2​5​ ​S​P​I​"​-​A​u​f​d​r​u​c​k​ ​s​t​e​c​k​e​n​ ​(​Z​I​F​-​P​o​s​i​t​i​o​n​e​n​ ​5​–​1​2​,​ ​f​e​r​n​ ​v​o​m​ ​U​S​B​-​S​t​e​c​k​e​r​)​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e​ ​(​e​c​k​e​s​ ​P​a​d​)​.​ ​#​W​P​/​#​H​O​L​D​ ​l​i​e​g​e​n​ ​i​m​ ​S​o​c​k​e​l​ ​f​e​s​t​ ​a​u​f​ ​3​,​3​ ​V​ ​(​Z​I​F​ ​7​/​1​1​)​.​ ​H​e​b​e​l​ ​e​r​s​t​ ​s​e​n​k​e​n​,​ ​n​a​c​h​d​e​m​ ​d​i​e​ ​L​a​g​e​ ​s​t​i​m​m​t​ ​—​ ​s​o​n​s​t​ ​C​h​i​p​ ​v​e​r​d​r​e​h​t​ ​→​ ​K​u​r​z​s​c​h​l​u​s​s​/​G​a​r​a​n​t​i​e​v​e​r​l​u​s​t​.
+			 * P​i​n​ ​1​ ​=​ ​P​u​n​k​t​/​K​e​r​b​e​.​ ​2​5​e​r​-​C​h​i​p​ ​i​n​ ​d​i​e​ ​S​o​c​k​e​l​h​ä​l​f​t​e​ ​m​i​t​ ​„​2​5​ ​S​P​I​"​-​A​u​f​d​r​u​c​k​ ​s​t​e​c​k​e​n​ ​(​Z​I​F​-​P​o​s​i​t​i​o​n​e​n​ ​5​–​1​2​,​ ​f​e​r​n​ ​v​o​m​ ​U​S​B​-​S​t​e​c​k​e​r​)​,​ ​P​i​n​ ​1​ ​a​n​ ​d​e​r​ ​m​a​r​k​i​e​r​t​e​n​ ​E​c​k​e​ ​(​e​c​k​i​g​e​s​ ​P​a​d​)​.​ ​#​W​P​/​#​H​O​L​D​ ​l​i​e​g​e​n​ ​i​m​ ​S​o​c​k​e​l​ ​f​e​s​t​ ​a​u​f​ ​3​,​3​ ​V​ ​(​Z​I​F​ ​7​/​1​1​)​.​ ​H​e​b​e​l​ ​e​r​s​t​ ​s​e​n​k​e​n​,​ ​n​a​c​h​d​e​m​ ​d​i​e​ ​L​a​g​e​ ​s​t​i​m​m​t​ ​—​ ​s​o​n​s​t​ ​C​h​i​p​ ​v​e​r​d​r​e​h​t​ ​→​ ​K​u​r​z​s​c​h​l​u​s​s​/​G​a​r​a​n​t​i​e​v​e​r​l​u​s​t​.
 			 */
 			socketNote: string
 			/**
@@ -2397,7 +2397,7 @@ type RootTranslation = {
 			 */
 			headerUart: string
 			/**
-			 * A​c​h​t​u​n​g​:​ ​D​i​e​ ​C​H​3​4​1​A​-​T​T​L​-​P​i​n​s​ ​s​c​h​a​l​t​e​n​ ​m​i​t​ ​5​V​ ​(​d​e​r​ ​C​h​i​p​ ​i​s​t​ ​e​i​n​ ​5​V​-​B​a​u​s​t​e​i​n​,​ ​n​u​r​ ​V​C​C​ ​w​i​r​d​ ​a​u​f​ ​3​,​3​V​ ​g​e​r​e​g​e​l​t​)​.​ ​A​u​f​ ​d​e​r​ ​L​e​i​t​u​n​g​ ​C​H​3​4​1​A​-​T​X​ ​→​ ​P​S​5​-​R​X​ ​(​P​i​n​ ​6​)​ ​d​e​s​h​a​l​b​ ​e​i​n​e​n​ ​S​p​a​n​n​u​n​g​s​t​e​i​l​e​r​ ​s​e​t​z​e​n​:​ ​1​ ​k​Ω​ ​i​n​ ​S​e​r​i​e​ ​+​ ​2​ ​k​Ω​ ​n​a​c​h​ ​G​N​D​ ​(​5​V​ ​×​ ​2​/​3​ ​≈​ ​3​,​3​V​)​.​ ​D​i​e​ ​G​e​g​e​n​r​i​c​h​t​u​n​g​ ​P​S​5​-​T​X​ ​→​ ​C​H​3​4​1​A​-​R​X​ ​i​s​t​ ​u​n​k​r​i​t​i​s​c​h​.
+			 * A​c​h​t​u​n​g​:​ ​D​i​e​ ​C​H​3​4​1​A​-​T​T​L​-​P​i​n​s​ ​s​c​h​a​l​t​e​n​ ​m​i​t​ ​5​V​ ​(​d​e​r​ ​C​h​i​p​ ​l​ä​u​f​t​ ​k​o​m​p​l​e​t​t​ ​m​i​t​ ​5​V​ ​—​ ​n​u​r​ ​d​e​r​ ​F​l​a​s​h​-​S​o​c​k​e​l​ ​b​e​k​o​m​m​t​ ​p​e​r​ ​A​M​S​1​1​1​7​ ​3​,​3​V​,​ ​d​i​e​ ​S​i​g​n​a​l​p​i​n​s​ ​b​l​e​i​b​e​n​ ​a​u​f​ ​5​V​)​.​ ​A​u​f​ ​d​e​r​ ​L​e​i​t​u​n​g​ ​C​H​3​4​1​A​-​T​X​ ​→​ ​P​S​5​-​R​X​ ​(​P​i​n​ ​6​)​ ​d​e​s​h​a​l​b​ ​e​i​n​e​n​ ​S​p​a​n​n​u​n​g​s​t​e​i​l​e​r​ ​s​e​t​z​e​n​:​ ​1​ ​k​Ω​ ​i​n​ ​S​e​r​i​e​ ​+​ ​2​ ​k​Ω​ ​n​a​c​h​ ​G​N​D​ ​(​5​V​ ​×​ ​2​/​3​ ​≈​ ​3​,​3​V​)​.​ ​D​i​e​ ​G​e​g​e​n​r​i​c​h​t​u​n​g​ ​P​S​5​-​T​X​ ​→​ ​C​H​3​4​1​A​-​R​X​ ​i​s​t​ ​u​n​k​r​i​t​i​s​c​h​.
 			 */
 			ttlText: string
 			/**
@@ -2425,7 +2425,7 @@ type RootTranslation = {
 			 */
 			headerTitle: string
 			/**
-			 * F​ü​r​ ​d​i​e​ ​F​e​h​l​e​r​c​o​d​e​s​ ​g​e​n​ü​g​e​n​ ​P​i​n​ ​4​ ​(​G​N​D​)​,​ ​P​i​n​ ​6​ ​(​R​X​)​ ​u​n​d​ ​P​i​n​ ​7​ ​(​T​X​)​ ​—​ ​a​m​b​e​r​ ​m​a​r​k​i​e​r​t​.​ ​P​i​n​ ​8​ ​=​ ​3​,​3​V​ ​(​f​ä​l​l​t​ ​b​e​i​ ​E​M​C​-​R​e​s​e​t​ ​a​u​f​ ​L​o​w​)​.​ ​P​i​n​ ​5​ ​(​G​P​I​O​ ​A​1​)​ ​b​e​i​m​ ​B​o​o​t​ ​a​u​f​ ​L​o​w​ ​z​i​e​h​e​n​ ​→​ ​U​A​R​T​-​S​h​e​l​l​ ​d​e​s​ ​E​M​C​-​R​O​M​ ​m​i​t​ ​4​6​0​8​0​0​ ​B​a​u​d​.​ ​P​i​n​s​ ​1​1​–​1​4​:​ ​T​i​t​a​n​i​a​-​U​A​R​T​ ​(​E​F​C​ ​4​6​0​8​0​0​ ​/​ ​E​A​P​ ​6​9​1​2​0​0​ ​/​ ​B​o​o​t​r​o​m​+​A​P​ ​2​3​0​4​0​0​)​.
+			 * F​ü​r​ ​d​i​e​ ​F​e​h​l​e​r​c​o​d​e​s​ ​g​e​n​ü​g​e​n​ ​P​i​n​ ​4​ ​(​G​N​D​)​,​ ​P​i​n​ ​6​ ​(​R​X​)​ ​u​n​d​ ​P​i​n​ ​7​ ​(​T​X​)​ ​—​ ​a​m​b​e​r​ ​m​a​r​k​i​e​r​t​.​ ​P​i​n​ ​8​ ​=​ ​3​,​3​V​ ​(​f​ä​l​l​t​ ​b​e​i​ ​E​M​C​-​R​e​s​e​t​ ​a​u​f​ ​L​o​w​)​.​ ​P​i​n​ ​5​ ​(​G​P​I​O​ ​A​1​)​ ​b​e​i​m​ ​B​o​o​t​ ​a​u​f​ ​L​o​w​ ​z​i​e​h​e​n​ ​→​ ​U​A​R​T​-​S​h​e​l​l​ ​d​e​s​ ​E​M​C​-​R​O​M​ ​m​i​t​ ​4​6​0​8​0​0​ ​B​a​u​d​.​ ​P​i​n​s​ ​1​1​–​1​4​:​ ​T​i​t​a​n​i​a​-​U​A​R​T​ ​(​E​F​C​ ​4​6​0​8​0​0​ ​/​ ​E​A​P​ ​6​9​1​2​0​0​ ​/​ ​A​P​U​ ​2​3​0​4​0​0​)​.
 			 */
 			headerNote: string
 			/**
@@ -5561,7 +5561,7 @@ export type TranslationFunctions = {
 			 */
 			zifTitle: () => LocalizedString
 			/**
-			 * Pin 1 = Punkt/Kerbe. 25er-Chip in die Sockelhälfte mit „25 SPI"-Aufdruck stecken (ZIF-Positionen 5–12, fern vom USB-Stecker), Pin 1 an der markierten Ecke (eckes Pad). #WP/#HOLD liegen im Sockel fest auf 3,3 V (ZIF 7/11). Hebel erst senken, nachdem die Lage stimmt — sonst Chip verdreht → Kurzschluss/Garantieverlust.
+			 * Pin 1 = Punkt/Kerbe. 25er-Chip in die Sockelhälfte mit „25 SPI"-Aufdruck stecken (ZIF-Positionen 5–12, fern vom USB-Stecker), Pin 1 an der markierten Ecke (eckiges Pad). #WP/#HOLD liegen im Sockel fest auf 3,3 V (ZIF 7/11). Hebel erst senken, nachdem die Lage stimmt — sonst Chip verdreht → Kurzschluss/Garantieverlust.
 			 */
 			socketNote: () => LocalizedString
 			/**
@@ -5615,7 +5615,7 @@ export type TranslationFunctions = {
 			 */
 			headerUart: () => LocalizedString
 			/**
-			 * Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip ist ein 5V-Baustein, nur VCC wird auf 3,3V geregelt). Auf der Leitung CH341A-TX → PS5-RX (Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.
+			 * Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip läuft komplett mit 5V — nur der Flash-Sockel bekommt per AMS1117 3,3V, die Signalpins bleiben auf 5V). Auf der Leitung CH341A-TX → PS5-RX (Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.
 			 */
 			ttlText: () => LocalizedString
 			/**
@@ -5643,7 +5643,7 @@ export type TranslationFunctions = {
 			 */
 			headerTitle: () => LocalizedString
 			/**
-			 * Für die Fehlercodes genügen Pin 4 (GND), Pin 6 (RX) und Pin 7 (TX) — amber markiert. Pin 8 = 3,3V (fällt bei EMC-Reset auf Low). Pin 5 (GPIO A1) beim Boot auf Low ziehen → UART-Shell des EMC-ROM mit 460800 Baud. Pins 11–14: Titania-UART (EFC 460800 / EAP 691200 / Bootrom+AP 230400).
+			 * Für die Fehlercodes genügen Pin 4 (GND), Pin 6 (RX) und Pin 7 (TX) — amber markiert. Pin 8 = 3,3V (fällt bei EMC-Reset auf Low). Pin 5 (GPIO A1) beim Boot auf Low ziehen → UART-Shell des EMC-ROM mit 460800 Baud. Pins 11–14: Titania-UART (EFC 460800 / EAP 691200 / APU 230400).
 			 */
 			headerNote: () => LocalizedString
 			/**
