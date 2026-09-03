@@ -68,19 +68,28 @@ describe('HardwareGuide', () => {
     // Shared CH341A board top-view in USB-TTL mode + the 2-entry legend.
     expect(screen.getByText('CH341A als UART-Adapter (USB-TTL)')).toBeTruthy();
     expect(screen.getByText('UART-Header')).toBeTruthy();
-    expect(screen.getByText('Jumper auf 2↔3 stecken (USB-TTL-Modus, NICHT 1↔2 = Programmer)')).toBeTruthy();
+    expect(
+      screen.getByText('Jumper auf 2↔3 stecken (USB-TTL-Modus, NICHT 1↔2 = Programmer)')
+    ).toBeTruthy();
     // 5V divider warning (Spannungsteiler 1k/2k on the CH341A TX line).
     expect(screen.getAllByText(/Spannungsteiler setzen/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Verkabelung (TX/RX gekreuzt + Spannungsteiler)')).toBeTruthy();
     expect(screen.getByText('Baudrate: 115200 (EMC-UART)')).toBeTruthy();
-    // EDM-010 pad labels.
-    expect(screen.getByText('Pin 4')).toBeTruthy();
-    expect(screen.getByText('Pin 7')).toBeTruthy();
-    // Motherboard locations + 24-pin header pinout sections.
-    expect(screen.getByText('PS5-Mainboard — UART-Locations (EDM-010)')).toBeTruthy();
-    expect(screen.getByText('24-Pin EMC-Header — Pinout')).toBeTruthy();
-    expect(screen.getAllByText('T0-TX').length).toBeGreaterThan(0); // Titania pins in the header SVG
-    expect(screen.getByText('24-Pin Header')).toBeTruthy(); // location SVG label (in SVG)
+    // UART spot diagrams: one per board revision, with the photo-matching pad
+    // ring labels (pad perspective: "TX → RX CH341" = PS5 pad → CH341A RX).
+    expect(screen.getByText('UART-Spots — je nach Board-Revision')).toBeTruthy();
+    expect(
+      screen.getByText('EDM-010 / EDM-020 — Pads direkt unter dem WiFi/BT-Modul')
+    ).toBeTruthy();
+    expect(
+      screen.getByText('EDM-03x — Pads neben dem schwarzen Stecker (Silkscreen „F5402“)')
+    ).toBeTruthy();
+    expect(
+      screen.getByText('EDM-04x+ — Pads am Boardrand im Antennenbereich (Silkscreen „SW“)')
+    ).toBeTruthy();
+    expect(screen.getAllByText('TX → RX CH341').length).toBe(3); // one ring label per revision
+    expect(screen.getAllByText('RX → TX CH341').length).toBe(3);
+    expect(screen.getAllByText('GND').length).toBeGreaterThanOrEqual(3);
     // Procedure with the USB-TTL jumper step + fuse.
     expect(screen.getByText(/Jumper auf 2↔3, Adapter per USB/)).toBeTruthy();
     expect(screen.getByText(/Fuse F7003/)).toBeTruthy();

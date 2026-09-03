@@ -2397,7 +2397,7 @@ type RootTranslation = {
 			 */
 			headerUart: string
 			/**
-			 * A​c​h​t​u​n​g​:​ ​D​i​e​ ​C​H​3​4​1​A​-​T​T​L​-​P​i​n​s​ ​s​c​h​a​l​t​e​n​ ​m​i​t​ ​5​V​ ​(​d​e​r​ ​C​h​i​p​ ​l​ä​u​f​t​ ​k​o​m​p​l​e​t​t​ ​m​i​t​ ​5​V​ ​—​ ​n​u​r​ ​d​e​r​ ​F​l​a​s​h​-​S​o​c​k​e​l​ ​b​e​k​o​m​m​t​ ​p​e​r​ ​A​M​S​1​1​1​7​ ​3​,​3​V​,​ ​d​i​e​ ​S​i​g​n​a​l​p​i​n​s​ ​b​l​e​i​b​e​n​ ​a​u​f​ ​5​V​)​.​ ​A​u​f​ ​d​e​r​ ​L​e​i​t​u​n​g​ ​C​H​3​4​1​A​-​T​X​ ​→​ ​P​S​5​-​R​X​ ​(​P​i​n​ ​6​)​ ​d​e​s​h​a​l​b​ ​e​i​n​e​n​ ​S​p​a​n​n​u​n​g​s​t​e​i​l​e​r​ ​s​e​t​z​e​n​:​ ​1​ ​k​Ω​ ​i​n​ ​S​e​r​i​e​ ​+​ ​2​ ​k​Ω​ ​n​a​c​h​ ​G​N​D​ ​(​5​V​ ​×​ ​2​/​3​ ​≈​ ​3​,​3​V​)​.​ ​D​i​e​ ​G​e​g​e​n​r​i​c​h​t​u​n​g​ ​P​S​5​-​T​X​ ​→​ ​C​H​3​4​1​A​-​R​X​ ​i​s​t​ ​u​n​k​r​i​t​i​s​c​h​.
+			 * A​c​h​t​u​n​g​:​ ​D​i​e​ ​C​H​3​4​1​A​-​T​T​L​-​P​i​n​s​ ​s​c​h​a​l​t​e​n​ ​m​i​t​ ​5​V​ ​(​d​e​r​ ​C​h​i​p​ ​l​ä​u​f​t​ ​k​o​m​p​l​e​t​t​ ​m​i​t​ ​5​V​ ​—​ ​n​u​r​ ​d​e​r​ ​F​l​a​s​h​-​S​o​c​k​e​l​ ​b​e​k​o​m​m​t​ ​p​e​r​ ​A​M​S​1​1​1​7​ ​3​,​3​V​,​ ​d​i​e​ ​S​i​g​n​a​l​p​i​n​s​ ​b​l​e​i​b​e​n​ ​a​u​f​ ​5​V​)​.​ ​A​u​f​ ​d​e​r​ ​L​e​i​t​u​n​g​ ​C​H​3​4​1​A​-​T​X​ ​→​ ​P​S​5​-​R​X​ ​(​C​H​3​4​1​A​-​P​i​n​ ​6​)​ ​d​e​s​h​a​l​b​ ​e​i​n​e​n​ ​S​p​a​n​n​u​n​g​s​t​e​i​l​e​r​ ​s​e​t​z​e​n​:​ ​1​ ​k​Ω​ ​i​n​ ​S​e​r​i​e​ ​+​ ​2​ ​k​Ω​ ​n​a​c​h​ ​G​N​D​ ​(​5​V​ ​×​ ​2​/​3​ ​≈​ ​3​,​3​V​)​.​ ​D​i​e​ ​G​e​g​e​n​r​i​c​h​t​u​n​g​ ​P​S​5​-​T​X​ ​→​ ​C​H​3​4​1​A​-​R​X​ ​i​s​t​ ​u​n​k​r​i​t​i​s​c​h​.
 			 */
 			ttlText: string
 			/**
@@ -2409,33 +2409,33 @@ type RootTranslation = {
 			 */
 			baud: string
 			/**
-			 * E​D​M​-​0​1​0​ ​U​A​R​T​-​P​a​d​s​ ​(​2​4​-​p​o​l​.​ ​S​e​r​v​i​c​e​-​H​e​a​d​e​r​)
+			 * U​A​R​T​-​S​p​o​t​s​ ​—​ ​j​e​ ​n​a​c​h​ ​B​o​a​r​d​-​R​e​v​i​s​i​o​n
 			 */
-			pads: string
+			spotsTitle: string
 			/**
-			 * P​S​5​-​M​a​i​n​b​o​a​r​d​ ​—​ ​U​A​R​T​-​L​o​c​a​t​i​o​n​s​ ​(​E​D​M​-​0​1​0​)
+			 * E​D​M​-​0​1​0​ ​/​ ​E​D​M​-​0​2​0​ ​—​ ​P​a​d​s​ ​d​i​r​e​k​t​ ​u​n​t​e​r​ ​d​e​m​ ​W​i​F​i​/​B​T​-​M​o​d​u​l
 			 */
-			locTitle: string
+			spot010: string
 			/**
-			 * D​e​r​ ​2​4​-​P​i​n​-​S​e​r​v​i​c​e​-​H​e​a​d​e​r​ ​s​i​t​z​t​ ​d​i​r​e​k​t​ ​n​e​b​e​n​ ​d​e​m​ ​S​a​l​i​n​a​-​P​M​I​C​;​ ​e​i​n​ ​i​d​e​n​t​i​s​c​h​e​r​ ​z​w​e​i​t​e​r​ ​H​e​a​d​e​r​ ​l​i​e​g​t​ ​a​m​ ​B​T​/​W​i​F​i​-​M​o​d​u​l​ ​(​①​/​②​ ​—​ ​b​e​i​d​e​ ​f​u​n​k​t​i​o​n​i​e​r​e​n​)​.​ ​E​D​M​-​0​2​0​ ​g​l​e​i​c​h​,​ ​E​D​M​-​0​3​x​ ​h​a​t​ ​a​n​d​e​r​e​ ​P​a​d​s​.​ ​N​i​c​h​t​ ​m​a​ß​s​t​ä​b​l​i​c​h​.
+			 * E​D​M​-​0​3​x​ ​—​ ​P​a​d​s​ ​n​e​b​e​n​ ​d​e​m​ ​s​c​h​w​a​r​z​e​n​ ​S​t​e​c​k​e​r​ ​(​S​i​l​k​s​c​r​e​e​n​ ​„​F​5​4​0​2​“​)
 			 */
-			locNote: string
+			spot03x: string
 			/**
-			 * 2​4​-​P​i​n​ ​E​M​C​-​H​e​a​d​e​r​ ​—​ ​P​i​n​o​u​t
+			 * E​D​M​-​0​4​x​+​ ​—​ ​P​a​d​s​ ​a​m​ ​B​o​a​r​d​r​a​n​d​ ​i​m​ ​A​n​t​e​n​n​e​n​b​e​r​e​i​c​h​ ​(​S​i​l​k​s​c​r​e​e​n​ ​„​S​W​“​)
 			 */
-			headerTitle: string
+			spot04x: string
 			/**
-			 * F​ü​r​ ​d​i​e​ ​F​e​h​l​e​r​c​o​d​e​s​ ​g​e​n​ü​g​e​n​ ​P​i​n​ ​4​ ​(​G​N​D​)​,​ ​P​i​n​ ​6​ ​(​R​X​)​ ​u​n​d​ ​P​i​n​ ​7​ ​(​T​X​)​ ​—​ ​a​m​b​e​r​ ​m​a​r​k​i​e​r​t​.​ ​P​i​n​ ​8​ ​=​ ​3​,​3​V​ ​(​f​ä​l​l​t​ ​b​e​i​ ​E​M​C​-​R​e​s​e​t​ ​a​u​f​ ​L​o​w​)​.​ ​P​i​n​ ​5​ ​(​G​P​I​O​ ​A​1​)​ ​b​e​i​m​ ​B​o​o​t​ ​a​u​f​ ​L​o​w​ ​z​i​e​h​e​n​ ​→​ ​U​A​R​T​-​S​h​e​l​l​ ​d​e​s​ ​E​M​C​-​R​O​M​ ​m​i​t​ ​4​6​0​8​0​0​ ​B​a​u​d​.​ ​P​i​n​s​ ​1​1​–​1​4​:​ ​T​i​t​a​n​i​a​-​U​A​R​T​ ​(​E​F​C​ ​4​6​0​8​0​0​ ​/​ ​E​A​P​ ​6​9​1​2​0​0​ ​/​ ​A​P​U​ ​2​3​0​4​0​0​)​.
+			 * „​T​X​ ​→​ ​R​X​ ​C​H​3​4​1​“​ ​h​e​i​ß​t​:​ ​d​i​e​s​e​s​ ​P​a​d​ ​d​e​r​ ​P​S​5​ ​g​e​h​ö​r​t​ ​a​n​ ​d​e​n​ ​R​X​-​P​i​n​ ​d​e​s​ ​C​H​3​4​1​A​ ​(​u​n​d​ ​u​m​g​e​k​e​h​r​t​)​.​ ​J​e​d​e​ ​R​e​v​i​s​i​o​n​ ​h​a​t​ ​d​i​e​s​e​l​b​e​n​ ​d​r​e​i​ ​P​a​d​s​ ​—​ ​G​N​D​,​ ​T​X​,​ ​R​X​ ​—​ ​n​u​r​ ​a​n​ ​a​n​d​e​r​e​r​ ​S​t​e​l​l​e​.
 			 */
-			headerNote: string
+			padLegend: string
+			/**
+			 * N​i​c​h​t​ ​m​a​ß​s​t​ä​b​l​i​c​h​ ​—​ ​d​i​e​ ​L​a​n​d​m​a​r​k​s​ ​(​W​i​F​i​/​B​T​-​M​o​d​u​l​,​ ​S​t​e​c​k​e​r​,​ ​S​i​l​k​s​c​r​e​e​n​-​B​e​s​c​h​r​i​f​t​u​n​g​)​ ​z​e​i​g​e​n​,​ ​w​o​ ​d​i​e​ ​P​a​d​s​ ​l​i​e​g​e​n​.​ ​D​i​e​ ​B​o​a​r​d​-​R​e​v​i​s​i​o​n​ ​s​t​e​h​t​ ​a​u​f​ ​d​e​r​ ​P​l​a​t​i​n​e​.
+			 */
+			spotsNote: string
 			/**
 			 * P​S​5​ ​a​n​ ​S​t​r​o​m​ ​(​n​i​c​h​t​ ​e​i​n​s​c​h​a​l​t​e​n​)​ ​→​ ​J​u​m​p​e​r​ ​a​u​f​ ​2​↔​3​,​ ​A​d​a​p​t​e​r​ ​p​e​r​ ​U​S​B​ ​→​ ​F​e​h​l​e​r​c​o​d​e​s​ ​l​e​s​e​n​.​ ​B​e​i​ ​„​O​p​e​r​a​t​i​o​n​ ​C​a​n​c​e​l​l​e​d​"​ ​T​X​/​R​X​ ​t​a​u​s​c​h​e​n​.​ ​F​u​s​e​ ​F​7​0​0​3​ ​p​r​ü​f​e​n​;​ ​t​o​t​e​r​ ​S​o​u​t​h​b​r​i​d​g​e​ ​o​d​e​r​ ​k​a​p​u​t​t​e​s​ ​N​O​R​ ​→​ ​k​e​i​n​ ​U​A​R​T​ ​(​3​ ​B​e​e​p​s​)​.
 			 */
 			procedure: string
-			/**
-			 * T​i​t​a​n​i​a​-​U​A​R​T​:​ ​P​i​n​s​ ​1​1​–​1​4​ ​d​e​s​ ​H​e​a​d​e​r​s​ ​(​4​6​0​8​0​0​ ​E​F​C​ ​/​ ​2​3​0​4​0​0​ ​A​P​U​ ​/​ ​6​9​1​2​0​0​ ​E​A​P​)​ ​—​ ​a​n​d​e​r​e​ ​S​c​h​n​i​t​t​s​t​e​l​l​e​ ​a​l​s​ ​E​M​C​.
-			 */
-			titania: string
 		}
 	}
 	onboarding: {
@@ -5615,7 +5615,7 @@ export type TranslationFunctions = {
 			 */
 			headerUart: () => LocalizedString
 			/**
-			 * Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip läuft komplett mit 5V — nur der Flash-Sockel bekommt per AMS1117 3,3V, die Signalpins bleiben auf 5V). Auf der Leitung CH341A-TX → PS5-RX (Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.
+			 * Achtung: Die CH341A-TTL-Pins schalten mit 5V (der Chip läuft komplett mit 5V — nur der Flash-Sockel bekommt per AMS1117 3,3V, die Signalpins bleiben auf 5V). Auf der Leitung CH341A-TX → PS5-RX (CH341A-Pin 6) deshalb einen Spannungsteiler setzen: 1 kΩ in Serie + 2 kΩ nach GND (5V × 2/3 ≈ 3,3V). Die Gegenrichtung PS5-TX → CH341A-RX ist unkritisch.
 			 */
 			ttlText: () => LocalizedString
 			/**
@@ -5627,33 +5627,33 @@ export type TranslationFunctions = {
 			 */
 			baud: () => LocalizedString
 			/**
-			 * EDM-010 UART-Pads (24-pol. Service-Header)
+			 * UART-Spots — je nach Board-Revision
 			 */
-			pads: () => LocalizedString
+			spotsTitle: () => LocalizedString
 			/**
-			 * PS5-Mainboard — UART-Locations (EDM-010)
+			 * EDM-010 / EDM-020 — Pads direkt unter dem WiFi/BT-Modul
 			 */
-			locTitle: () => LocalizedString
+			spot010: () => LocalizedString
 			/**
-			 * Der 24-Pin-Service-Header sitzt direkt neben dem Salina-PMIC; ein identischer zweiter Header liegt am BT/WiFi-Modul (①/② — beide funktionieren). EDM-020 gleich, EDM-03x hat andere Pads. Nicht maßstäblich.
+			 * EDM-03x — Pads neben dem schwarzen Stecker (Silkscreen „F5402“)
 			 */
-			locNote: () => LocalizedString
+			spot03x: () => LocalizedString
 			/**
-			 * 24-Pin EMC-Header — Pinout
+			 * EDM-04x+ — Pads am Boardrand im Antennenbereich (Silkscreen „SW“)
 			 */
-			headerTitle: () => LocalizedString
+			spot04x: () => LocalizedString
 			/**
-			 * Für die Fehlercodes genügen Pin 4 (GND), Pin 6 (RX) und Pin 7 (TX) — amber markiert. Pin 8 = 3,3V (fällt bei EMC-Reset auf Low). Pin 5 (GPIO A1) beim Boot auf Low ziehen → UART-Shell des EMC-ROM mit 460800 Baud. Pins 11–14: Titania-UART (EFC 460800 / EAP 691200 / APU 230400).
+			 * „TX → RX CH341“ heißt: dieses Pad der PS5 gehört an den RX-Pin des CH341A (und umgekehrt). Jede Revision hat dieselben drei Pads — GND, TX, RX — nur an anderer Stelle.
 			 */
-			headerNote: () => LocalizedString
+			padLegend: () => LocalizedString
+			/**
+			 * Nicht maßstäblich — die Landmarks (WiFi/BT-Modul, Stecker, Silkscreen-Beschriftung) zeigen, wo die Pads liegen. Die Board-Revision steht auf der Platine.
+			 */
+			spotsNote: () => LocalizedString
 			/**
 			 * PS5 an Strom (nicht einschalten) → Jumper auf 2↔3, Adapter per USB → Fehlercodes lesen. Bei „Operation Cancelled" TX/RX tauschen. Fuse F7003 prüfen; toter Southbridge oder kaputtes NOR → kein UART (3 Beeps).
 			 */
 			procedure: () => LocalizedString
-			/**
-			 * Titania-UART: Pins 11–14 des Headers (460800 EFC / 230400 APU / 691200 EAP) — andere Schnittstelle als EMC.
-			 */
-			titania: () => LocalizedString
 		}
 	}
 	onboarding: {

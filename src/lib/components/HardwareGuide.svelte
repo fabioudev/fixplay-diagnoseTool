@@ -35,13 +35,17 @@
     { n: 8, name: 'VCC', sig: 'VCC', zif: 12, note: '3.3 V (AMS1117)' },
   ];
 
-  /** PS5 EMC UART pads on the EDM-010 24-pin service header. */
-  export const UART_PADS: { n: number; name: string; desc: string }[] = [
-    { n: 4, name: 'GND', desc: 'Ground' },
-    { n: 6, name: 'RX', desc: 'EMC RX' },
-    { n: 7, name: 'TX', desc: 'EMC TX' },
-    { n: 8, name: '3V3', desc: '+3.3 V' },
-  ];
+  /**
+   * Ring colors for the PS5 UART spot diagrams, matching the annotation
+   * colors of the consoleservicetool.com pinout photos: GND lime, the PS5's
+   * TX pad (goes to the CH341A RX pin) blue, the PS5's RX pad (goes to the
+   * CH341A TX pin) orange.
+   */
+  export const UART_SPOT_COLOR = {
+    gnd: '#a3e635',
+    tx: '#38bdf8',
+    rx: '#fb923c',
+  } as const;
 
   // Numbered callouts on the CH341A board top-view (match the legend below).
   // Geometry mirrors the real black CH341A dongle (research: reverse-engineered
@@ -99,60 +103,6 @@
     { n: 1, x: 198, y: 18 }, // UART header (above the TX/RX pin labels)
     { n: 2, x: 169, y: 20 }, // mode jumper shunted onto pins 2-3
   ];
-
-  /**
-   * PS5 EDM-010 24-pin EMC ("Salina") service header, verified against
-   * symbrkrs/ps5-uart. The error-log read only needs pins 4 (GND), 6 (EMC RX)
-   * and 7 (EMC TX); pin 8 is a 3.3 V rail that drops low when the EMC resets;
-   * pin 5 (GPIO A1) pulled low at boot opens the EMC ROM UART shell at
-   * 460800; pins 11-14 carry the Titania (CPU complex) UARTs. An identical
-   * header is duplicated near the BT/WiFi module for easier access.
-   */
-  export const EMC_HEADER: {
-    n: number;
-    sig: string;
-    kind: 'gnd' | 'v5' | 'v33' | 'emc' | 'titania' | 'strap' | 'i2c' | 'unk';
-  }[] = [
-    { n: 1, sig: '5V', kind: 'v5' },
-    { n: 2, sig: '5V', kind: 'v5' },
-    { n: 3, sig: 'GND', kind: 'gnd' },
-    { n: 4, sig: 'GND', kind: 'gnd' },
-    { n: 5, sig: 'A1', kind: 'strap' },
-    { n: 6, sig: 'RX', kind: 'emc' },
-    { n: 7, sig: 'TX', kind: 'emc' },
-    { n: 8, sig: '3V3', kind: 'v33' },
-    { n: 9, sig: '0V?', kind: 'unk' },
-    { n: 10, sig: 'GND', kind: 'gnd' },
-    { n: 11, sig: 'T0-TX', kind: 'titania' },
-    { n: 12, sig: 'T0-RX', kind: 'titania' },
-    { n: 13, sig: 'T1-RX', kind: 'titania' },
-    { n: 14, sig: 'T1-TX', kind: 'titania' },
-    { n: 15, sig: 'GND', kind: 'gnd' },
-    { n: 16, sig: 'C5', kind: 'unk' },
-    { n: 17, sig: '0V?', kind: 'unk' },
-    { n: 18, sig: '5V?', kind: 'v5' },
-    { n: 19, sig: 'A49', kind: 'unk' },
-    { n: 20, sig: 'A27', kind: 'unk' },
-    { n: 21, sig: 'SDA', kind: 'i2c' },
-    { n: 22, sig: 'SCL', kind: 'i2c' },
-    { n: 23, sig: 'GND', kind: 'gnd' },
-    { n: 24, sig: 'RST#', kind: 'emc' },
-  ];
-
-  /** Signal label colors for the 24-pin EMC header pinout SVG. */
-  export const EMC_KIND_COLOR: Record<(typeof EMC_HEADER)[number]['kind'], string> = {
-    gnd: '#6b7280',
-    v5: '#f87171',
-    v33: '#4ade80',
-    emc: '#5eead4',
-    titania: '#f472b6',
-    strap: '#fbbf24',
-    i2c: '#c4b5fd',
-    unk: '#4b5563',
-  };
-
-  /** Header pins used by the error-log readout (highlighted in the SVG). */
-  export const EMC_USED_PINS = [4, 6, 7];
 </script>
 
 <script lang="ts">
@@ -173,11 +123,6 @@
   // at the top-left corner square pad).
   const ZIF_TOP = ZIF_SOCKET.filter((p) => p.n <= 8);
   const ZIF_BOTTOM = [...ZIF_SOCKET.filter((p) => p.n > 8)].reverse();
-
-  // EMC header rows for the pinout SVG: top row = pins 1..12 left→right,
-  // bottom row = pins 24..13 left→right.
-  const EMC_TOP = EMC_HEADER.filter((p) => p.n <= 12);
-  const EMC_BOTTOM = [...EMC_HEADER.filter((p) => p.n > 12)].reverse();
 
   // USB-TTL mode of the shared board SVG: jumper shunted onto pins 2-3
   // instead of 1-2, TX/RX/GND header labels highlighted.
@@ -979,7 +924,7 @@
                 </linearGradient>
               </defs>
 
-              <!-- PS5 motherboard with the three used EMC-header pads -->
+              <!-- PS5 motherboard with the three UART spot pads -->
               <g transform="translate(10, 45)">
                 <rect
                   x="0"
@@ -992,7 +937,7 @@
                   stroke-width="1"
                 />
                 <text x="45" y="-10" text-anchor="middle" class="lbl" fill="#9ca3af"
-                  >PS5 MB (EDM-010)</text
+                  >PS5 Mainboard</text
                 >
                 <rect
                   x="20"
@@ -1015,7 +960,7 @@
                   stroke="#f59e0b"
                   stroke-width="0.5"
                 />
-                <text x="72" y="22" text-anchor="end" class="pin" fill="#e5e7eb">7 · TX</text>
+                <text x="72" y="22" text-anchor="end" class="pin" fill="#38bdf8">TX</text>
                 <rect
                   x="76"
                   y="52"
@@ -1026,7 +971,7 @@
                   stroke="#f59e0b"
                   stroke-width="0.5"
                 />
-                <text x="72" y="60" text-anchor="end" class="pin" fill="#e5e7eb">6 · RX</text>
+                <text x="72" y="60" text-anchor="end" class="pin" fill="#fb923c">RX</text>
                 <rect
                   x="76"
                   y="90"
@@ -1037,7 +982,7 @@
                   stroke="#f59e0b"
                   stroke-width="0.5"
                 />
-                <text x="72" y="98" text-anchor="end" class="pin" fill="#e5e7eb">4 · GND</text>
+                <text x="72" y="98" text-anchor="end" class="pin" fill="#a3e635">GND</text>
               </g>
 
               <!-- CH341A dongle in USB-TTL mode (jumper on 2-3) -->
@@ -1136,300 +1081,366 @@
           </div>
         </div>
 
-        <!-- EDM-010 pads -->
+        <!-- ===== PS5 UART spots (per consoleservicetool.com pinout photos):
+             three pads per board revision, next to revision-specific
+             landmarks. Ring colors match the photo annotations. ===== -->
         <div>
-          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.uart.pads()}</p>
-          <div class="flex flex-wrap gap-x-6 gap-y-1">
-            {#each UART_PADS as p (p.n)}
-              <div class="flex items-center gap-1.5">
-                <span class="font-mono text-gray-500">Pin {p.n}</span>
-                <span class="font-mono text-teal-300">{p.name}</span>
-                <span class="text-gray-400">{p.desc}</span>
-              </div>
-            {/each}
-          </div>
-        </div>
-
-        <!-- ===== PS5 motherboard UART locations (schematic, not to scale) ===== -->
-        <div>
-          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.uart.locTitle()}</p>
-          <svg
-            viewBox="0 0 400 210"
-            class="w-full max-w-lg shrink-0"
-            role="img"
-            aria-label="PS5 EDM-010 UART locations"
-          >
-            <!-- Simplified top view of the EDM-010 mainboard -->
-            <rect
-              x="16"
-              y="26"
-              width="368"
-              height="168"
-              rx="10"
-              fill="#0b2b1f"
-              stroke="#065f46"
-              stroke-width="1.2"
-            />
-            <text x="200" y="204" text-anchor="middle" class="chip-lbl" fill="#4b4b52"
-              >PS5 Mainboard (EDM-010)</text
-            >
-
-            <!-- APU (Titania) -->
-            <rect
-              x="55"
-              y="55"
-              width="115"
-              height="115"
-              rx="6"
-              fill="#1f2937"
-              stroke="#4b5563"
-              stroke-width="1.2"
-            />
-            <text x="112" y="108" text-anchor="middle" class="lbl" fill="#9ca3af">APU</text>
-            <text x="112" y="120" text-anchor="middle" class="chip-lbl" fill="#6b7280">Titania</text
-            >
-
-            <!-- EMC (southbridge) -->
-            <rect
-              x="200"
-              y="62"
-              width="46"
-              height="32"
-              rx="2"
-              fill="#111827"
-              stroke="#374151"
-              stroke-width="1"
-            />
-            <text x="223" y="82" text-anchor="middle" class="chip-lbl" fill="#9ca3af">EMC</text>
-
-            <!-- Salina PMIC -->
-            <rect
-              x="200"
-              y="124"
-              width="42"
-              height="26"
-              rx="2"
-              fill="#111827"
-              stroke="#4b5563"
-              stroke-width="1"
-            />
-            <text x="221" y="140" text-anchor="middle" class="chip-lbl" fill="#9ca3af">Salina</text>
-
-            <!-- 24-pin EMC service header right next to Salina -->
-            <rect
-              x="258"
-              y="122"
-              width="98"
-              height="18"
-              rx="2"
-              fill="#f3f4f6"
-              stroke="#fbbf24"
-              stroke-width="1.5"
-            />
-            {#each Array(12) as _, i (i)}
-              <circle cx={262 + i * 8} cy="131" r="1.5" fill="#111827" />
-            {/each}
-            <text x="307" y="152" text-anchor="middle" class="lbl" fill="#9ca3af"
-              >24-Pin Header</text
-            >
-
-            <!-- BT/WiFi module with the identical duplicate header -->
-            <rect
-              x="296"
-              y="48"
-              width="68"
-              height="30"
-              rx="2"
-              fill="#111827"
-              stroke="#4b5563"
-              stroke-width="1"
-            />
-            <text x="330" y="66" text-anchor="middle" class="chip-lbl" fill="#9ca3af">BT/WiFi</text>
-            <rect
-              x="302"
-              y="88"
-              width="68"
-              height="14"
-              rx="2"
-              fill="#f3f4f6"
-              stroke="#fbbf24"
-              stroke-width="1"
-            />
-            {#each Array(12) as _, i (i)}
-              <circle cx={306 + i * 5.5} cy="95" r="1.3" fill="#111827" />
-            {/each}
-
-            <!-- Callouts: ① header near Salina, ② duplicate near BT/WiFi -->
-            {#each [{ n: 1, x: 307, y: 110 }, { n: 2, x: 336, y: 76 }] as c (c.n)}
-              <g filter="url(#glowFilter)">
-                <circle
-                  cx={c.x}
-                  cy={c.y}
-                  r="7.5"
-                  fill="url(#calloutGrad)"
-                  stroke="#fbbf24"
+          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.uart.spotsTitle()}</p>
+          <div class="space-y-5">
+            <!-- EDM-010/020: 3x3 pad cluster below the WiFi/BT shield -->
+            <div>
+              <p class="text-xs font-medium text-gray-400 mb-1">{$LL.hwGuide.uart.spot010()}</p>
+              <svg
+                viewBox="0 0 360 205"
+                class="w-full max-w-md shrink-0"
+                role="img"
+                aria-label="PS5 EDM-010/020 UART pads"
+              >
+                <defs>
+                  <radialGradient id="solderGrad" cx="35%" cy="35%" r="75%">
+                    <stop offset="0%" stop-color="#f1f5f9" />
+                    <stop offset="55%" stop-color="#94a3b8" />
+                    <stop offset="100%" stop-color="#475569" />
+                  </radialGradient>
+                </defs>
+                <rect
+                  x="6"
+                  y="6"
+                  width="348"
+                  height="193"
+                  rx="8"
+                  fill="url(#uartPcbGrad)"
+                  stroke="#065f46"
                   stroke-width="1.2"
                 />
-                <text x={c.x} y={c.y + 2.6} text-anchor="middle" class="callout" fill="#fbbf24"
-                  >{c.n}</text
-                >
-              </g>
-            {/each}
-          </svg>
-          <p class="mt-1.5 text-gray-500 leading-relaxed">{$LL.hwGuide.uart.locNote()}</p>
-        </div>
-
-        <!-- ===== 24-pin EMC header pinout ===== -->
-        <div>
-          <p class="font-semibold text-gray-200 mb-1.5">{$LL.hwGuide.uart.headerTitle()}</p>
-          <div class="flex flex-wrap items-start gap-4">
-            <!-- 2×12 header: top row = pins 1..12 (left→right), bottom row =
-                 pins 24..13; amber rings mark the three used pins, the teal
-                 dashed box is the EMC-UART area (pins 5-8). -->
-            <svg
-              viewBox="0 0 360 150"
-              class="w-full max-w-xl shrink-0"
-              role="img"
-              aria-label="24-pin EMC header pinout"
-            >
-              <rect
-                x="22"
-                y="30"
-                width="330"
-                height="92"
-                rx="4"
-                fill="#1f2937"
-                stroke="#374151"
-                stroke-width="1"
-              />
-              <rect
-                x="130"
-                y="38"
-                width="96"
-                height="34"
-                rx="2"
-                fill="none"
-                stroke="#5eead4"
-                stroke-width="1"
-                stroke-dasharray="3 2"
-              />
-              {#each EMC_TOP as p (p.n)}
-                {#if p.n === 1}
-                  <rect
-                    x={40 + (p.n - 1) * 26 - 3.5}
-                    y={60 - 3.5}
-                    width="7"
-                    height="7"
-                    fill="#0b0f14"
-                    stroke="#4b5563"
-                    stroke-width="0.5"
-                  />
-                {:else}
-                  <circle
-                    cx={40 + (p.n - 1) * 26}
-                    cy="60"
-                    r="3"
-                    fill="#0b0f14"
-                    stroke="#4b5563"
-                    stroke-width="0.5"
-                  />
-                {/if}
-                <text
-                  x={40 + (p.n - 1) * 26}
-                  y="47"
-                  text-anchor="middle"
+                <!-- WiFi/BT module shield (silver, with QR code) -->
+                <rect
+                  x="115"
+                  y="22"
+                  width="160"
+                  height="64"
+                  rx="3"
                   fill="#6b7280"
-                  font-size="5.5"
-                  font-family="ui-monospace, monospace">{p.n}</text
+                  stroke="#9ca3af"
+                  stroke-width="1"
+                />
+                {#each [[232, 58], [242, 58], [252, 58], [232, 68], [252, 68], [232, 78], [242, 78], [252, 78]] as [qx, qy] (qx + '-' + qy)}
+                  <rect x={qx} y={qy} width="7" height="7" fill="#374151" />
+                {/each}
+                <text x="175" y="58" text-anchor="middle" class="lbl" fill="#e5e7eb"
+                  >WiFi/BT-Modul</text
                 >
-                <text
-                  x={40 + (p.n - 1) * 26}
-                  y="54"
-                  text-anchor="middle"
-                  fill={EMC_KIND_COLOR[p.kind]}
-                  font-size="6.5"
-                  font-weight="600"
-                  font-family="ui-monospace, monospace">{p.sig}</text
-                >
-                {#if EMC_USED_PINS.includes(p.n)}
+                <!-- blue board-edge connector (left) and white fan connector (right) -->
+                <rect
+                  x="6"
+                  y="120"
+                  width="26"
+                  height="40"
+                  rx="2"
+                  fill="#1e3a8a"
+                  stroke="#3b82f6"
+                  stroke-width="0.8"
+                />
+                <rect
+                  x="306"
+                  y="100"
+                  width="46"
+                  height="44"
+                  rx="2"
+                  fill="#e5e7eb"
+                  stroke="#9ca3af"
+                  stroke-width="1"
+                />
+                {#each [0, 1, 2] as s (s)}
+                  <rect x={313 + s * 13} y="108" width="7" height="12" fill="#111827" />
+                {/each}
+                <!-- decorative traces -->
+                <g fill="none" stroke="#0a5c44" stroke-width="1.5">
+                  <path d="M 228 128 C 265 128, 285 116, 306 112" />
+                  <path d="M 228 152 C 268 152, 288 160, 306 130" />
+                  <path d="M 228 176 C 270 176, 290 168, 306 138" />
+                  <path d="M 100 176 C 130 186, 140 176, 168 176" />
+                </g>
+                <!-- 3x3 solder-pad cluster; right column = GND / TX / RX -->
+                {#each [[168, 128], [198, 128], [168, 152], [198, 152], [168, 176], [198, 176]] as [px, py] (px + '-' + py)}
                   <circle
-                    cx={40 + (p.n - 1) * 26}
-                    cy="60"
+                    cx={px}
+                    cy={py}
                     r="6"
-                    fill="none"
-                    stroke="#fbbf24"
-                    stroke-width="1.2"
+                    fill="url(#solderGrad)"
+                    stroke="#475569"
+                    stroke-width="0.5"
                   />
-                {/if}
-              {/each}
-              {#each EMC_BOTTOM as p (p.n)}
+                {/each}
+                {#each [['gnd', 228, 128], ['tx', 228, 152], ['rx', 228, 176]] as const as [role, px, py] (role)}
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r="6"
+                    fill="url(#solderGrad)"
+                    stroke="#475569"
+                    stroke-width="0.5"
+                  />
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r="9.5"
+                    fill="none"
+                    stroke={UART_SPOT_COLOR[role]}
+                    stroke-width="1.8"
+                  />
+                {/each}
+                <text x="243" y="131" class="pin" fill={UART_SPOT_COLOR.gnd}>GND</text>
+                <text x="243" y="155" class="pin" fill={UART_SPOT_COLOR.tx}>TX → RX CH341</text>
+                <text x="243" y="179" class="pin" fill={UART_SPOT_COLOR.rx}>RX → TX CH341</text>
+              </svg>
+            </div>
+
+            <!-- EDM-03x: pads next to the black connector, F5402 silkscreen -->
+            <div>
+              <p class="text-xs font-medium text-gray-400 mb-1">{$LL.hwGuide.uart.spot03x()}</p>
+              <svg
+                viewBox="0 0 360 205"
+                class="w-full max-w-md shrink-0"
+                role="img"
+                aria-label="PS5 EDM-03x UART pads"
+              >
+                <rect
+                  x="6"
+                  y="6"
+                  width="348"
+                  height="193"
+                  rx="8"
+                  fill="url(#uartPcbGrad)"
+                  stroke="#065f46"
+                  stroke-width="1.2"
+                />
+                <!-- copper pour with mounting hole (right side) -->
+                <rect
+                  x="250"
+                  y="6"
+                  width="104"
+                  height="193"
+                  rx="18"
+                  fill="#92400e"
+                  opacity="0.45"
+                />
                 <circle
-                  cx={40 + (24 - p.n) * 26}
-                  cy="92"
-                  r="3"
-                  fill="#0b0f14"
-                  stroke="#4b5563"
+                  cx="305"
+                  cy="95"
+                  r="14"
+                  fill="#0a0a0c"
+                  stroke="#d1d5db"
+                  stroke-width="1.5"
+                />
+                <!-- black two-row connector (top left) -->
+                <rect
+                  x="26"
+                  y="16"
+                  width="64"
+                  height="58"
+                  rx="3"
+                  fill="#0a0a0c"
+                  stroke="#1f1f23"
+                  stroke-width="1"
+                />
+                {#each [42, 58, 74] as cx (cx)}
+                  <circle {cx} cy="34" r="2" fill="#fbbf24" />
+                  <circle {cx} cy="50" r="2" fill="#fbbf24" />
+                {/each}
+                <!-- F5402 silkscreen (vertical, as on the real board) -->
+                <text transform="translate(243 150) rotate(-90)" class="lbl" fill="#9ca3af"
+                  >F5402</text
+                >
+                <!-- decorative traces -->
+                <g fill="none" stroke="#0a5c44" stroke-width="1.5">
+                  <path d="M 212 124 C 232 124, 242 118, 250 114" />
+                  <path d="M 205 88 C 224 88, 238 76, 250 72" />
+                  <path d="M 150 100 C 120 108, 100 130, 95 150" />
+                </g>
+                <!-- pads: GND left, TX above, RX below-right (photo layout) -->
+                {#each [[95, 150], [175, 145]] as [px, py] (px + '-' + py)}
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r="6"
+                    fill="url(#solderGrad)"
+                    stroke="#475569"
+                    stroke-width="0.5"
+                  />
+                {/each}
+                <circle
+                  cx="150"
+                  cy="100"
+                  r="6"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
                   stroke-width="0.5"
                 />
-                <text
-                  x={40 + (24 - p.n) * 26}
-                  y="107"
-                  text-anchor="middle"
-                  fill={EMC_KIND_COLOR[p.kind]}
-                  font-size="6.5"
-                  font-weight="600"
-                  font-family="ui-monospace, monospace">{p.sig}</text
+                <circle
+                  cx="150"
+                  cy="100"
+                  r="9.5"
+                  fill="none"
+                  stroke={UART_SPOT_COLOR.gnd}
+                  stroke-width="1.8"
+                />
+                <circle
+                  cx="205"
+                  cy="88"
+                  r="6"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
+                  stroke-width="0.5"
+                />
+                <circle
+                  cx="205"
+                  cy="88"
+                  r="9.5"
+                  fill="none"
+                  stroke={UART_SPOT_COLOR.tx}
+                  stroke-width="1.8"
+                />
+                <circle
+                  cx="212"
+                  cy="124"
+                  r="6"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
+                  stroke-width="0.5"
+                />
+                <circle
+                  cx="212"
+                  cy="124"
+                  r="9.5"
+                  fill="none"
+                  stroke={UART_SPOT_COLOR.rx}
+                  stroke-width="1.8"
+                />
+                <text x="136" y="103" text-anchor="end" class="pin" fill={UART_SPOT_COLOR.gnd}
+                  >GND</text
                 >
-                <text
-                  x={40 + (24 - p.n) * 26}
-                  y="114"
-                  text-anchor="middle"
-                  fill="#6b7280"
-                  font-size="5.5"
-                  font-family="ui-monospace, monospace">{p.n}</text
+                <text x="205" y="72" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.tx}
+                  >TX → RX CH341</text
                 >
-              {/each}
-            </svg>
-            <div class="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-gray-500 max-w-[11rem]">
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#5eead4"
-                ></span>EMC UART</span
+                <text x="226" y="127" class="pin" fill={UART_SPOT_COLOR.rx}>RX → TX CH341</text>
+              </svg>
+            </div>
+
+            <!-- EDM-04x+: pads at the board edge near the antenna area -->
+            <div>
+              <p class="text-xs font-medium text-gray-400 mb-1">{$LL.hwGuide.uart.spot04x()}</p>
+              <svg
+                viewBox="0 0 360 205"
+                class="w-full max-w-md shrink-0"
+                role="img"
+                aria-label="PS5 EDM-04x UART pads"
               >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#f472b6"
-                ></span>Titania UART</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#fbbf24"
-                ></span>Strap</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#4ade80"
-                ></span>3,3 V</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#f87171"></span>5
-                V</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#c4b5fd"
-                ></span>I²C</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#6b7280"
-                ></span>GND</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full inline-block" style="background:#4b5563"
-                ></span>?</span
-              >
+                <!-- dark backdrop = outside the board (corner shot) -->
+                <rect x="0" y="0" width="360" height="205" fill="#0a0a0c" />
+                <path
+                  d="M 14 199 L 14 118 Q 14 46 86 30 L 148 22 L 354 22 L 354 199 Z"
+                  fill="url(#uartPcbGrad)"
+                  stroke="#065f46"
+                  stroke-width="1.2"
+                />
+                <!-- shield corner + screw hole (top right) -->
+                <rect
+                  x="286"
+                  y="22"
+                  width="68"
+                  height="56"
+                  fill="#4b5563"
+                  opacity="0.55"
+                  stroke="#6b7280"
+                  stroke-width="1"
+                />
+                <circle
+                  cx="252"
+                  cy="52"
+                  r="14"
+                  fill="#9ca3af"
+                  stroke="#e5e7eb"
+                  stroke-width="1.5"
+                />
+                <circle cx="252" cy="52" r="5" fill="#0a0a0c" />
+                <!-- antenna pigtails with U.FL connectors -->
+                <g fill="none" stroke-width="3">
+                  <path d="M 300 132 C 318 108, 334 84, 350 44" stroke="#60a5fa" />
+                  <path d="M 322 152 C 338 136, 348 118, 356 96" stroke="#d1d5db" />
+                </g>
+                <circle cx="300" cy="132" r="6" fill="#b45309" stroke="#fbbf24" stroke-width="1" />
+                <circle cx="322" cy="152" r="6" fill="#b45309" stroke="#fbbf24" stroke-width="1" />
+                <text x="224" y="128" class="lbl" fill="#9ca3af">SW</text>
+                <!-- decorative traces -->
+                <g fill="none" stroke="#0a5c44" stroke-width="1.5">
+                  <path d="M 185 88 C 215 88, 230 110, 250 120" />
+                  <path d="M 150 120 C 130 140, 120 150, 115 160" />
+                </g>
+                <!-- pads: TX + RX in a row, GND below -->
+                <circle
+                  cx="150"
+                  cy="88"
+                  r="6"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
+                  stroke-width="0.5"
+                />
+                <circle
+                  cx="150"
+                  cy="88"
+                  r="9.5"
+                  fill="none"
+                  stroke={UART_SPOT_COLOR.tx}
+                  stroke-width="1.8"
+                />
+                <circle
+                  cx="185"
+                  cy="88"
+                  r="6"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
+                  stroke-width="0.5"
+                />
+                <circle
+                  cx="185"
+                  cy="88"
+                  r="9.5"
+                  fill="none"
+                  stroke={UART_SPOT_COLOR.rx}
+                  stroke-width="1.8"
+                />
+                <circle
+                  cx="168"
+                  cy="120"
+                  r="6"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
+                  stroke-width="0.5"
+                />
+                <circle
+                  cx="168"
+                  cy="120"
+                  r="9.5"
+                  fill="none"
+                  stroke={UART_SPOT_COLOR.gnd}
+                  stroke-width="1.8"
+                />
+                <text x="142" y="91" text-anchor="end" class="pin" fill={UART_SPOT_COLOR.tx}
+                  >TX → RX CH341</text
+                >
+                <text x="199" y="91" class="pin" fill={UART_SPOT_COLOR.rx}>RX → TX CH341</text>
+                <text x="168" y="142" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.gnd}
+                  >GND</text
+                >
+              </svg>
             </div>
           </div>
-          <p class="mt-1.5 text-gray-500 leading-relaxed">{$LL.hwGuide.uart.headerNote()}</p>
+          <p class="mt-1.5 text-gray-500 leading-relaxed">{$LL.hwGuide.uart.padLegend()}</p>
+          <p class="mt-1 text-gray-500 leading-relaxed">{$LL.hwGuide.uart.spotsNote()}</p>
         </div>
 
         <p class="leading-relaxed text-gray-400">{$LL.hwGuide.uart.procedure()}</p>
-        <p class="leading-relaxed text-gray-500">{$LL.hwGuide.uart.titania()}</p>
       {/if}
     </div>
   {/if}
