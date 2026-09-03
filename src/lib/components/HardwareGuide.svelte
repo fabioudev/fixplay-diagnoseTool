@@ -1159,10 +1159,22 @@
                   <path d="M 228 128 C 265 128, 285 116, 306 112" />
                   <path d="M 228 152 C 268 152, 288 160, 306 130" />
                   <path d="M 228 176 C 270 176, 290 168, 306 138" />
-                  <path d="M 100 176 C 130 186, 140 176, 168 176" />
+                  <path d="M 100 188 C 125 192, 142 182, 156 176" />
                 </g>
-                <!-- 3x3 solder-pad cluster; right column = GND / TX / RX -->
-                {#each [[168, 128], [198, 128], [168, 152], [198, 152], [168, 176], [198, 176]] as [px, py] (px + '-' + py)}
+                <!-- solder-pad cluster, photo layout (10 pads incl. the
+                     functionless orientation pads): row 1 = 2 plain + GND,
+                     row 2 = 3 plain + TX, row 3 = 2 plain + RX. Each pad has
+                     its teardrop trace stub pointing south. -->
+                {#each [[156, 128], [192, 128], [120, 152], [156, 152], [192, 152], [156, 176], [192, 176]] as const as [px, py] (px + '-' + py)}
+                  <line
+                    x1={px}
+                    y1={py + 5}
+                    x2={px}
+                    y2={py + 10}
+                    stroke="#7b8794"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
                   <circle
                     cx={px}
                     cy={py}
@@ -1173,6 +1185,15 @@
                   />
                 {/each}
                 {#each [['gnd', 228, 128], ['tx', 228, 152], ['rx', 228, 176]] as const as [role, px, py] (role)}
+                  <line
+                    x1={px}
+                    y1={py + 5}
+                    x2={px}
+                    y2={py + 10}
+                    stroke="#7b8794"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
                   <circle
                     cx={px}
                     cy={py}
@@ -1249,17 +1270,22 @@
                   <circle {cx} cy="50" r="2" fill="#fbbf24" />
                 {/each}
                 <!-- F5402 silkscreen (vertical, as on the real board) -->
-                <text transform="translate(243 150) rotate(-90)" class="lbl" fill="#9ca3af"
+                <text transform="translate(248 190) rotate(-90)" class="lbl" fill="#9ca3af"
                   >F5402</text
                 >
                 <!-- decorative traces -->
                 <g fill="none" stroke="#0a5c44" stroke-width="1.5">
-                  <path d="M 212 124 C 232 124, 242 118, 250 114" />
-                  <path d="M 205 88 C 224 88, 238 76, 250 72" />
-                  <path d="M 150 100 C 120 108, 100 130, 95 150" />
+                  <path d="M 205 124 C 226 124, 238 118, 250 112" />
+                  <path d="M 205 88 C 226 88, 238 80, 250 74" />
+                  <path d="M 120 88 C 98 106, 94 140, 110 160" />
                 </g>
-                <!-- pads: GND left, TX above, RX below-right (photo layout) -->
-                {#each [[95, 150], [175, 145]] as [px, py] (px + '-' + py)}
+                <!-- tiny vias left of the cluster (orientation) -->
+                <circle cx="98" cy="60" r="2.5" fill="none" stroke="#f59e0b" stroke-width="1" />
+                <circle cx="98" cy="74" r="2.5" fill="none" stroke="#f59e0b" stroke-width="1" />
+                <!-- pads, photo layout: 4x2 grid (row 1 = GND, plain, TX,
+                     plain; row 2 = plain, plain, RX, plain) plus 2 more plain
+                     pads below — the functionless ones are orientation aids. -->
+                {#each [[160, 88], [245, 88], [120, 124], [160, 124], [245, 124], [140, 176], [190, 176]] as const as [px, py] (px + '-' + py)}
                   <circle
                     cx={px}
                     cy={py}
@@ -1270,16 +1296,16 @@
                   />
                 {/each}
                 <circle
-                  cx="150"
-                  cy="100"
+                  cx="120"
+                  cy="88"
                   r="6"
                   fill="url(#solderGrad)"
                   stroke="#475569"
                   stroke-width="0.5"
                 />
                 <circle
-                  cx="150"
-                  cy="100"
+                  cx="120"
+                  cy="88"
                   r="9.5"
                   fill="none"
                   stroke={UART_SPOT_COLOR.gnd}
@@ -1302,7 +1328,7 @@
                   stroke-width="1.8"
                 />
                 <circle
-                  cx="212"
+                  cx="205"
                   cy="124"
                   r="6"
                   fill="url(#solderGrad)"
@@ -1310,20 +1336,22 @@
                   stroke-width="0.5"
                 />
                 <circle
-                  cx="212"
+                  cx="205"
                   cy="124"
                   r="9.5"
                   fill="none"
                   stroke={UART_SPOT_COLOR.rx}
                   stroke-width="1.8"
                 />
-                <text x="136" y="103" text-anchor="end" class="pin" fill={UART_SPOT_COLOR.gnd}
+                <text x="106" y="91" text-anchor="end" class="pin" fill={UART_SPOT_COLOR.gnd}
                   >GND</text
                 >
-                <text x="205" y="72" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.tx}
+                <text x="205" y="70" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.tx}
                   >TX → RX CH341</text
                 >
-                <text x="226" y="127" class="pin" fill={UART_SPOT_COLOR.rx}>RX → TX CH341</text>
+                <text x="205" y="148" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.rx}
+                  >RX → TX CH341</text
+                >
               </svg>
             </div>
 
@@ -1371,15 +1399,36 @@
                 </g>
                 <circle cx="300" cy="132" r="6" fill="#b45309" stroke="#fbbf24" stroke-width="1" />
                 <circle cx="322" cy="152" r="6" fill="#b45309" stroke="#fbbf24" stroke-width="1" />
-                <text x="224" y="128" class="lbl" fill="#9ca3af">SW</text>
+                <text x="232" y="164" class="lbl" fill="#9ca3af">SW</text>
                 <!-- decorative traces -->
                 <g fill="none" stroke="#0a5c44" stroke-width="1.5">
-                  <path d="M 185 88 C 215 88, 230 110, 250 120" />
-                  <path d="M 150 120 C 130 140, 120 150, 115 160" />
+                  <path d="M 240 88 C 262 88, 276 106, 292 122" />
+                  <path d="M 120 124 C 112 142, 110 152, 108 162" />
                 </g>
-                <!-- pads: TX + RX in a row, GND below -->
+                <!-- pads, photo layout: clean 4x2 grid (row 1 = TX, RX, plain,
+                     plain; row 2 = plain, plain, GND, plain) plus 1 small
+                     plain pad above — the functionless ones are orientation
+                     aids, keep them. -->
                 <circle
-                  cx="150"
+                  cx="200"
+                  cy="46"
+                  r="5"
+                  fill="url(#solderGrad)"
+                  stroke="#475569"
+                  stroke-width="0.5"
+                />
+                {#each [[200, 88], [240, 88], [120, 124], [160, 124], [240, 124]] as const as [px, py] (px + '-' + py)}
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r="6"
+                    fill="url(#solderGrad)"
+                    stroke="#475569"
+                    stroke-width="0.5"
+                  />
+                {/each}
+                <circle
+                  cx="120"
                   cy="88"
                   r="6"
                   fill="url(#solderGrad)"
@@ -1387,7 +1436,7 @@
                   stroke-width="0.5"
                 />
                 <circle
-                  cx="150"
+                  cx="120"
                   cy="88"
                   r="9.5"
                   fill="none"
@@ -1395,7 +1444,7 @@
                   stroke-width="1.8"
                 />
                 <circle
-                  cx="185"
+                  cx="160"
                   cy="88"
                   r="6"
                   fill="url(#solderGrad)"
@@ -1403,7 +1452,7 @@
                   stroke-width="0.5"
                 />
                 <circle
-                  cx="185"
+                  cx="160"
                   cy="88"
                   r="9.5"
                   fill="none"
@@ -1411,26 +1460,26 @@
                   stroke-width="1.8"
                 />
                 <circle
-                  cx="168"
-                  cy="120"
+                  cx="200"
+                  cy="124"
                   r="6"
                   fill="url(#solderGrad)"
                   stroke="#475569"
                   stroke-width="0.5"
                 />
                 <circle
-                  cx="168"
-                  cy="120"
+                  cx="200"
+                  cy="124"
                   r="9.5"
                   fill="none"
                   stroke={UART_SPOT_COLOR.gnd}
                   stroke-width="1.8"
                 />
-                <text x="142" y="91" text-anchor="end" class="pin" fill={UART_SPOT_COLOR.tx}
+                <text x="104" y="72" text-anchor="end" class="pin" fill={UART_SPOT_COLOR.tx}
                   >TX → RX CH341</text
                 >
-                <text x="199" y="91" class="pin" fill={UART_SPOT_COLOR.rx}>RX → TX CH341</text>
-                <text x="168" y="142" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.gnd}
+                <text x="174" y="72" class="pin" fill={UART_SPOT_COLOR.rx}>RX → TX CH341</text>
+                <text x="200" y="148" text-anchor="middle" class="pin" fill={UART_SPOT_COLOR.gnd}
                   >GND</text
                 >
               </svg>
