@@ -4,23 +4,11 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+  # Cargo updates must point at the workspace root (single Cargo.toml +
+  # Cargo.lock). Member-directory entries fail with
+  # dependency_file_not_resolvable ("...not the workspace root") — one '/' entry
+  # covers all workspace members.
   - package-ecosystem: 'cargo'
-    directory: '/src-tauri/'
-    schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'cargo'
-    directory: '/crates/fixplay-core/'
-    schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'cargo'
-    directory: '/crates/fixplay-flashrom/'
-    schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'cargo'
-    directory: '/crates/fixplay-uart/'
-    schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'cargo'
-    directory: '/crates/fixplay-i2c/'
+    directory: '/'
     schedule:
       interval: 'weekly'
